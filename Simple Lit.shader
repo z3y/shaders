@@ -23,7 +23,7 @@
 
         [Toggle(SPECULAR_HIGHLIGHTS)] _SpecularHighlights("Specular Highlights", Float) = 1
         [Toggle(REFLECTIONS)] _GlossyReflections("Reflections", Float) = 1
-            _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
+            _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
 
         [ToggleUI] _GSAA ("Geometric Specular AA", Int) = 0
             [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
@@ -198,5 +198,5 @@
             ENDCG
         }
     }
-    // CustomEditor "z3y.ShaderEditor.LitUI"
+    CustomEditor "z3y.Shaders.SimpleLit.ShaderEditor"
 }

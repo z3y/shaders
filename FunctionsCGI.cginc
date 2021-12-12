@@ -1,5 +1,5 @@
 
-float RemapMinMax(float value, float remapMin, float remapMax)
+half RemapMinMax(half value, half remapMin, half remapMax)
 {
     return value * (remapMax - remapMin) + remapMin;
 }
@@ -24,10 +24,10 @@ float F_Schlick(float f0, float f90, float VoH)
     return f0 + (f90 - f0) * pow5(1.0 - VoH);
 }
 
-float Fd_Burley(float roughness, float NoV, float NoL, float LoH)
+half Fd_Burley(half roughness, half NoV, half NoL, half LoH)
 {
     // Burley 2012, "Physically-Based Shading at Disney"
-    float f90 = 0.5 + 2.0 * roughness * LoH * LoH;
+    half f90 = 0.5 + 2.0 * roughness * LoH * LoH;
     float lightScatter = F_Schlick(1.0, f90, NoL);
     float viewScatter  = F_Schlick(1.0, f90, NoV);
     return lightScatter * viewScatter;
@@ -49,7 +49,7 @@ float3 getBoxProjection (float3 direction, float3 position, float4 cubemapPositi
     return direction;
 }
 
-float computeSpecularAO(float NoV, float ao, float roughness)
+half computeSpecularAO(half NoV, half ao, half roughness)
 {
     return clamp(pow(NoV + ao, exp2(-16.0 * roughness - 1.0)) - 1.0 + ao, 0.0, 1.0);
 }
@@ -61,7 +61,7 @@ half D_GGX(half NoH, half roughness)
     return k * k * (1.0 / UNITY_PI);
 }
 
-float V_SmithGGXCorrelated(float NoV, float NoL, float roughness)
+float V_SmithGGXCorrelated(half NoV, half NoL, half roughness)
 {
     float a2 = roughness * roughness;
     float GGXV = NoL * sqrt(NoV * NoV * (1.0 - a2) + a2);
