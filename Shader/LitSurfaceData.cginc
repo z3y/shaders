@@ -77,8 +77,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         #endif
 
         #if defined(_DETAILNORMAL_MAP)
-            detailNormalMap.g = 1-detailNormalMap.g;
-            float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale);
+            float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale * maskMap.b);
             surf.tangentNormal = BlendNormals(surf.tangentNormal, detailNormal);
         #endif
         

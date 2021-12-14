@@ -60,7 +60,7 @@ namespace z3y.Shaders.SimpleLit
 
                         string path = AssetDatabase.GetAssetPath(reference);
 
-                        path = Path.GetDirectoryName(path);
+                        path = Path.GetDirectoryName(path)+"/" + Path.GetFileNameWithoutExtension(path);
 
                         ChannelTexture[] channelTextures = {redChannel, greenChannel, blueChannel, alphaChannel};
                         string newTexturePath = ChannelTexture.PackTexture(channelTextures, path, reference.width, reference.height, ChannelTexture.TexEncoding.SaveAsPNG);

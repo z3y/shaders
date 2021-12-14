@@ -111,7 +111,7 @@ namespace z3y.Shaders.SimpleLit
 
                 GetEncoding(newTexture, encodingType, out byte[] data, out string ext);
 
-                string newTexturePath = destination+"/"+System.IO.Path.GetFileNameWithoutExtension(destination)+"_Packed"+ext;
+                string newTexturePath = destination+"_Packed"+ext;
                 if (!overwrite)
                     newTexturePath = AssetDatabase.GenerateUniqueAssetPath(newTexturePath);
                 SaveTexture(data, newTexturePath);
