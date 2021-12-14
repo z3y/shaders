@@ -9,6 +9,7 @@
         _Cutoff ("Alpha Cuttoff", Range(0, 1)) = 0.5
 
         _MainTex ("Base Map", 2D) = "white" {}
+            _AlbedoSaturation ("Saturation", Range(0,2)) = 1
             _Color ("Base Color", Color) = (1,1,1,1)
 
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
@@ -50,7 +51,7 @@
 
         _DetailAlbedoMap ("Detail Albedo:Albedo (RGB) | Smoothness (A)", 2D) = "linearGrey" {}
         [Normal] _DetailNormalMap ("Detail Normal", 2D) = "bump" {}
-            [Enum(UV0, 0, UV1, 1)]  _DetailMap_UV ("Detail UV", Int) = 0
+            [Enum(UV0, 0, UV1, 1)]  _DetailMapUV ("Detail UV", Int) = 0
             _DetailAlbedoScale ("Albedo Scale", Range(0.0, 2.0)) = 1
             _DetailNormalScale ("Normal Scale", Float) = 1
             _DetailSmoothnessScale ("Smoothness Scale", Range(0.0, 2.0)) = 0

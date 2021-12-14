@@ -36,7 +36,6 @@ namespace z3y.Shaders.SimpleLit
                 //texture packing
                 PropertyGroup(()=>
                 {
-
                     Prop("_MetallicMap", "_MetallicMapChannel");
                     Prop("_OcclusionMap", "_OcclusionMapChannel");
                     Prop("_DetailMaskMap", "_DetailMaskMapChannel");
@@ -153,6 +152,7 @@ namespace z3y.Shaders.SimpleLit
             {
                 Prop("_DetailAlbedoMap");
             }
+            
             if(IfProp("_DetailNormalMap"))
             {
                 Prop("_DetailNormalMap","_DetailNormalScale");
@@ -164,7 +164,7 @@ namespace z3y.Shaders.SimpleLit
             }
             if(IfProp("_DetailNormalMap") || IfProp("_DetailAlbedoMap"))
             {
-                Prop("_DetailMap_UV");
+                Prop("_DetailMapUV");
                 PropTileOffset("_DetailAlbedoMap");
             }
 
@@ -188,6 +188,7 @@ namespace z3y.Shaders.SimpleLit
 
             Prop("_NonLinearLightProbeSH");
             Prop("_BakedSpecular");
+            Prop("_AlbedoSaturation");
             Prop("_SpecularOcclusion");
 
 

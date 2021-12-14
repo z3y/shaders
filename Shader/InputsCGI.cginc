@@ -16,11 +16,12 @@ half _GlossinessMin;
 half _Metallic;
 half _MetallicMin;
 half _Occlusion;
+half _AlbedoSaturation;
 
 DECLARE_TEX2D_CUSTOM_SAMPLER(_DetailAlbedoMap);
 DECLARE_TEX2D_CUSTOM_SAMPLER(_DetailNormalMap);
 half4 _DetailAlbedoMap_ST;
-half _DetailMap_UV;
+half _DetailMapUV;
 half _DetailAlbedoScale;
 half _DetailNormalScale;
 half _DetailSmoothnessScale;

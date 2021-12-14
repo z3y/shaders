@@ -43,13 +43,13 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         float detailSmoothness = 0;
         
         #if defined(_DETAILALBEDO_MAP)
-            float4 detailAlbedoTex = _DetailAlbedoMap.Sample(sampler_DetailAlbedoMap, detailUV[_DetailMap_UV]) * 2.0 - 1.0;
+            float4 detailAlbedoTex = _DetailAlbedoMap.Sample(sampler_DetailAlbedoMap, detailUV[_DetailMapUV]) * 2.0 - 1.0;
             detailAlbedo = detailAlbedoTex.rgb;
             detailSmoothness = detailAlbedoTex.a;
         #endif
 
         #if defined(_DETAILNORMAL_MAP)
-            detailNormalMap = _DetailNormalMap.Sample(sampler_DetailNormalMap, detailUV[_DetailMap_UV]);
+            detailNormalMap = _DetailNormalMap.Sample(sampler_DetailNormalMap, detailUV[_DetailMapUV]);
         #endif
         
         #if defined(_DETAILALBEDO_MAP)
@@ -82,6 +82,10 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
             surf.tangentNormal = BlendNormals(surf.tangentNormal, detailNormal);
         #endif
         
+    #endif
+
+    #ifndef SHADER_API_MOBILE
+    surf.albedo.rgb = lerp(dot(surf.albedo.rgb, grayscaleVec), surf.albedo.rgb, _AlbedoSaturation);
     #endif
     
     #if defined(EMISSION)
