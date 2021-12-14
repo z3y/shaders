@@ -81,13 +81,6 @@
             _RNM0("RNM0", 2D) = "black" {}
             _RNM1("RNM1", 2D) = "black" {}
             _RNM2("RNM2", 2D) = "black" {}
-
-
-//        [Toggle(_MASK_MAP)] _MASK_MAPtoggle ("_MASK_MAP", Int) = 0
-//        [Toggle(_NORMAL_MAP)] _NORMAL_MAPtoggle ("_NORMAL_MAP", Int) = 0
-//        [Toggle(_DETAILALBEDO_MAP)] _DETAILALBEDO_MAPtoggle ("_DETAILALBEDO_MAP", Int) = 0
-//        [Toggle(_DETAILNORMAL_MAP)] _DETAILNORMAL_MAPtoggle ("_DETAILNORMAL_MAP", Int) = 0
-
         
 
     }

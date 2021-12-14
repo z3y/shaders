@@ -1,4 +1,4 @@
-float4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
+half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 {
     UNITY_SETUP_INSTANCE_ID(i)
 

@@ -81,7 +81,6 @@ namespace z3y.Shaders.SimpleLit
         {
             // if(property is null) return;
 
-            MaterialProperty animatedProp = null;
 
             if( property.type == MaterialProperty.PropType.Range ||
                 property.type == MaterialProperty.PropType.Float ||
@@ -89,14 +88,12 @@ namespace z3y.Shaders.SimpleLit
                 property.type == MaterialProperty.PropType.Color)
             {
                 me.ShaderProperty(property, property.displayName);
-                animatedProp = property;
 
             }
 
             if(property.type == MaterialProperty.PropType.Texture) 
             {
                 string[] p = property.displayName.Split(hoverSplitSeparator);
-                animatedProp = extraProperty != null ? extraProperty : null;
                 p[0] = p[0];
 
 
