@@ -17,6 +17,24 @@ namespace z3y.Shaders.SimpleLit
 			}
 			GUILayout.Space(1);
 		}
+       
+       public static bool TextureFoldout(bool display)
+       {
+	       //var rect = GUILayoutUtility.GetRect(16f, -4);
+	       var lastRect = GUILayoutUtility.GetLastRect();
+	       var e = Event.current;
+	       var toggleRect = new Rect(lastRect.x - 15f, lastRect.y + 2f, 12f, 12f);
+	       if (e.type == EventType.Repaint)
+	       {
+		       EditorStyles.foldout.Draw(toggleRect, false, false, display, false);
+	       }
+	       if (e.type == EventType.MouseDown && toggleRect.Contains(e.mousePosition))
+	       {
+		       display = !display;
+		       e.Use();
+	       }
+	       return display;
+       }
 
         // Mimics the normal map import warning - written by Orels1
 		static bool TextureImportWarningBox(string message)

@@ -1,6 +1,8 @@
-﻿using UnityEditor;
+﻿using System.IO;
+using UnityEditor;
 using UnityEngine;
 using static z3y.Shaders.SimpleLit.Helpers;
+using static z3y.Shaders.SimpleLit.TexturePacking;
 
 namespace z3y.Shaders.SimpleLit
 {
@@ -25,6 +27,67 @@ namespace z3y.Shaders.SimpleLit
 
             Prop("_MetallicGlossMap");
             sRGBWarning(GetProperty("_MetallicGlossMap"));
+            // TextureFoldout()
+
+            MaterialProperty isPacking = GetProperty("_IsPackingMetallicGlossMap");
+            isPacking.floatValue = TextureFoldout(isPacking.floatValue == 1) ? 1 : 0;
+            if(isPacking.floatValue == 1)
+            {
+                //texture packing
+                PropertyGroup(()=>
+                {
+
+                    Prop("_MetallicMap", "_MetallicMapChannel");
+                    Prop("_OcclusionMap", "_OcclusionMapChannel");
+                    Prop("_DetailMaskMap", "_DetailMaskMapChannel");
+                    Prop("_SmoothnessMap", "_SmoothnessMapChannel");
+                    Prop("_SmoothnessMapInvert");
+                    EditorGUILayout.BeginHorizontal();
+                    if (GUILayout.Button("Pack"))
+                    {
+                        ChannelTexture redChannel = new ChannelTexture("Red", (int)GetProperty("_MetallicMapChannel").floatValue);
+                        ChannelTexture greenChannel = new ChannelTexture("Green", (int)GetProperty("_OcclusionMapChannel").floatValue);
+                        ChannelTexture blueChannel = new ChannelTexture("Blue", (int)GetProperty("_DetailMaskMapChannel").floatValue);
+                        ChannelTexture alphaChannel = new ChannelTexture("Alpha", (int)GetProperty("_SmoothnessMapChannel").floatValue);
+
+                        redChannel.texture = (Texture2D) GetProperty("_MetallicMap").textureValue;
+                        greenChannel.texture = (Texture2D) GetProperty("_OcclusionMap").textureValue;
+                        blueChannel.texture = (Texture2D) GetProperty("_DetailMaskMap").textureValue;
+                        alphaChannel.texture = (Texture2D) GetProperty("_SmoothnessMap").textureValue;
+                        alphaChannel.invert = IfProp("_SmoothnessMapInvert");
+
+                        Texture2D reference = redChannel.texture ?? greenChannel.texture ?? blueChannel.texture ?? alphaChannel.texture;
+                        if(reference == null) return;
+
+                        string path = AssetDatabase.GetAssetPath(reference);
+
+                        path = Path.GetDirectoryName(path);
+
+                        ChannelTexture[] channelTextures = {redChannel, greenChannel, blueChannel, alphaChannel};
+                        string newTexturePath = ChannelTexture.PackTexture(channelTextures, path, reference.width, reference.height, ChannelTexture.TexEncoding.SaveAsPNG);
+                        
+                        TextureImporter tex = (TextureImporter)AssetImporter.GetAtPath(newTexturePath);
+                        tex.textureCompression = TextureImporterCompression.Compressed;
+                        tex.sRGBTexture = false;
+                        tex.SaveAndReimport();
+
+                        GetProperty("_MetallicGlossMap").textureValue = AssetDatabase.LoadAssetAtPath<Texture2D>(newTexturePath);
+                    }
+
+                    if (GUILayout.Button("Close"))
+                    {
+                        GetProperty("_MetallicMap").textureValue = null;
+                        GetProperty("_OcclusionMap").textureValue = null;
+                        GetProperty("_DetailMaskMap").textureValue = null;
+                        GetProperty("_SmoothnessMap").textureValue = null;
+                        isPacking.floatValue = 0;
+                    }
+                    EditorGUILayout.EndHorizontal();
+                });
+            }
+
+
+
             EditorGUI.indentLevel+=2;
             if (GetProperty("_MetallicGlossMap").textureValue is null)
             {
@@ -38,6 +101,8 @@ namespace z3y.Shaders.SimpleLit
                 Prop("_Occlusion");
             }
             EditorGUI.indentLevel-=2;
+
+            
 
             
 
@@ -295,6 +360,7 @@ namespace z3y.Shaders.SimpleLit
             EditorGUI.indentLevel += 6;
             EditorGUILayout.EndHorizontal();
         }
+
 
         private MaterialProperty GetProperty(string name)
         {

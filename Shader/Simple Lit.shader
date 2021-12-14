@@ -19,6 +19,18 @@
 
         _MetallicGlossMap ("Packed Mask:Metallic (R) | Occlusion (G) | Detail Mask (B) | Smoothness (A)", 2D) = "white" {}
 
+        _IsPackingMetallicGlossMap ("", Float) = 0
+        _MetallicMap ("Metallic Map", 2D) = "black" {}
+        [Enum(R, 0, G, 1, B, 2, A, 3)]  _MetallicMapChannel ("", Int) = 0
+        _OcclusionMap ("Occlusion Map", 2D) = "white" {}
+        [Enum(R, 0, G, 1, B, 2, A, 3)]  _OcclusionMapChannel ("", Int) = 0
+        _DetailMaskMap ("Detail Mask", 2D) = "white" {}
+        [Enum(R, 0, G, 1, B, 2, A, 3)]  _DetailMaskMapChannel ("", Int) = 0
+        _SmoothnessMap ("Smoothness Map", 2D) = "white" {}
+        [Enum(R, 0, G, 1, B, 2, A, 3)]  _SmoothnessMapChannel ("", Int) = 0
+        [ToggleUI] _SmoothnessMapInvert ("Use Roughness", Float) = 0
+
+
         [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
             _BumpScale ("Bump Scale", Float) = 1
 
@@ -85,6 +97,9 @@
         #pragma vertex vert
         #pragma fragment frag
         #pragma fragmentoption ARB_precision_hint_fastest
+
+        #pragma skip_variants VERTEXLIGHT_ON
+        #pragma skip_variants LOD_FADE_CROSSFADE
         ENDCG
 
         Tags { "RenderType"="Opaque" "Queue"="Geometry" }
@@ -104,10 +119,9 @@
             #pragma multi_compile_fwdbase
             #pragma multi_compile_instancing
             #pragma multi_compile_fog
-
-            // #pragma multi_compile _ LOD_FADE_CROSSFADE
-            // #pragma multi_compile _ VERTEXLIGHT_ON
-
+            #pragma multi_compile _ VERTEXLIGHT_ON
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+            
 
             #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
             #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM
@@ -146,7 +160,7 @@
             #pragma multi_compile_instancing
             #pragma multi_compile_fog
 
-            // #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
 
             #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
@@ -176,7 +190,7 @@
             CGPROGRAM
             #pragma multi_compile_shadowcaster
             #pragma multi_compile_instancing
-            // #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
             
             #pragma skip_variants FOG_LINEAR FOG_EXP FOG_EXP2
 

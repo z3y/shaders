@@ -38,11 +38,12 @@ float2 ParallaxOffsetMultiStep(float surfaceHeight, float strength, float2 uv, f
     return uvOffset;
 }
 
-float2 ParallaxOffset (float3 viewDirForParallax)
+float2 ParallaxOffset (v2f i)
 {
+    float3 viewDirForParallax = i.parallaxViewDir;
     viewDirForParallax = CalculateTangentViewDir(viewDirForParallax);
 
-    float2 parallaxUV = input.coord0.xy * _MainTex_ST.xy + _MainTex_ST.zw;
+    float2 parallaxUV = i.coord0.xy * _MainTex_ST.xy + _MainTex_ST.zw;
     float h = _ParallaxMap.Sample(sampler_MainTex, parallaxUV);
     h = clamp(h, 0, 0.999);
     float2 offset = ParallaxOffsetMultiStep(h, _Parallax, parallaxUV, viewDirForParallax);

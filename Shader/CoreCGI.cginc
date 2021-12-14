@@ -1,14 +1,13 @@
 float4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 {
     UNITY_SETUP_INSTANCE_ID(i)
-    input = i;
 
     #if defined(LOD_FADE_CROSSFADE)
 		UnityApplyDitherCrossFade(i.pos);
 	#endif
 
     #if defined(PARALLAX)
-        parallaxOffset = ParallaxOffset(i.parallaxViewDir);
+        parallaxOffset = ParallaxOffset(i);
     #endif
 
 

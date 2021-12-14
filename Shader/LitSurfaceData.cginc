@@ -1,6 +1,6 @@
 void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 {
-    half2 mainUV = input.coord0.xy * _MainTex_ST.xy + _MainTex_ST.zw + parallaxOffset;
+    half2 mainUV = i.coord0.xy * _MainTex_ST.xy + _MainTex_ST.zw + parallaxOffset;
     half4 mainTexture = _MainTex.Sample(sampler_MainTex, mainUV);
 
     mainTexture *= _Color;
@@ -34,8 +34,8 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
 
         float2 detailUV[2];
-        detailUV[0] = input.coord0.xy * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw + parallaxOffset;
-        detailUV[1] = input.coord0.zw * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw + parallaxOffset;
+        detailUV[0] = i.coord0.xy * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw + parallaxOffset;
+        detailUV[1] = i.coord0.zw * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw + parallaxOffset;
 
         float detailMask = maskMap.b;
         float4 detailMap = 0.5;

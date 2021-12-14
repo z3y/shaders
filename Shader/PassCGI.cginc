@@ -138,14 +138,8 @@ v2f vert (appdata v)
 
     return o;
 }
-static v2f input;
 
 #include "FunctionsCGI.cginc"
 #include "VertexLights.cginc"
-#ifdef ENABLE_AUDIOLINK
-    #include "AudioLink.cginc"
-#endif
-
 #include "LitSurfaceData.cginc"
-
 #include "CoreCGI.cginc"
