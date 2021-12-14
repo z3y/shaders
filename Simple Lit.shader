@@ -4,6 +4,7 @@
     {
 
         [KeywordEnum(Opaque, Cutout, Fade, Transparent)] _Mode ("Rendering Mode", Int) = 0
+        [HideInInspector] [ToggleOff(_MODE_OPAQUE)] _KeywordOffOpaque ("", Float) = 1
 
         _Cutoff ("Alpha Cuttoff", Range(0, 1)) = 0.5
 
@@ -21,8 +22,8 @@
         [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
             _BumpScale ("Bump Scale", Float) = 1
 
-        [Toggle(SPECULAR_HIGHLIGHTS)] _SpecularHighlights("Specular Highlights", Float) = 1
-        [Toggle(REFLECTIONS)] _GlossyReflections("Reflections", Float) = 1
+        [ToggleOff(SPECULAR_HIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
+        [ToggleOff(REFLECTIONS_OFF)] _GlossyReflections("Reflections", Float) = 1
             _SpecularOcclusion ("Fresnel Occlusion", Range(0,1)) = 0
 
         [Toggle(GEOMETRIC_SPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
@@ -36,10 +37,10 @@
 
 
         _DetailAlbedoMap ("Detail Albedo:Albedo (RGB) | Smoothness (A)", 2D) = "linearGrey" {}
-            [Normal] _DetailNormalMap ("Detail Normal", 2D) = "bump" {}
+        [Normal] _DetailNormalMap ("Detail Normal", 2D) = "bump" {}
             [Enum(UV0, 0, UV1, 1)]  _DetailMap_UV ("Detail UV", Int) = 0
-            _DetailAlbedoScale ("Albedo Scale", Range(0.0, 2.0)) = 0
-            _DetailNormalScale ("Normal Scale", Range(0.0, 2.0)) = 0
+            _DetailAlbedoScale ("Albedo Scale", Range(0.0, 2.0)) = 1
+            _DetailNormalScale ("Normal Scale", Float) = 1
             _DetailSmoothnessScale ("Smoothness Scale", Range(0.0, 2.0)) = 0
 
         [Toggle(PARALLAX)] _EnableParallax ("Parallax", Int) = 0
@@ -63,15 +64,16 @@
 
 
         [KeywordEnum(None, SH, RNM)] Bakery ("Bakery Mode", Int) = 0
+        [HideInInspector] [ToggleOff(BAKERY_NONE)] _KeywordOffBakery ("", Float) = 1
             _RNM0("RNM0", 2D) = "black" {}
             _RNM1("RNM1", 2D) = "black" {}
             _RNM2("RNM2", 2D) = "black" {}
 
 
-        [Toggle(_MASK_MAP)] _MASK_MAPtoggle ("_MASK_MAP", Int) = 0
-        [Toggle(_NORMAL_MAP)] _NORMAL_MAPtoggle ("_NORMAL_MAP", Int) = 0
-        [Toggle(_DETAILALBEDO_MAP)] _DETAILALBEDO_MAPtoggle ("_DETAILALBEDO_MAP", Int) = 0
-        [Toggle(_DETAILNORMAL_MAP)] _DETAILNORMAL_MAPtoggle ("_DETAILNORMAL_MAP", Int) = 0
+//        [Toggle(_MASK_MAP)] _MASK_MAPtoggle ("_MASK_MAP", Int) = 0
+//        [Toggle(_NORMAL_MAP)] _NORMAL_MAPtoggle ("_NORMAL_MAP", Int) = 0
+//        [Toggle(_DETAILALBEDO_MAP)] _DETAILALBEDO_MAPtoggle ("_DETAILALBEDO_MAP", Int) = 0
+//        [Toggle(_DETAILNORMAL_MAP)] _DETAILNORMAL_MAPtoggle ("_DETAILNORMAL_MAP", Int) = 0
 
         
 
@@ -110,8 +112,8 @@
             #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
             #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM BAKERY_VOLUME
             #define BICUBIC_LIGHTMAP
-            #pragma shader_feature_local SPECULAR_HIGHLIGHTS
-            #pragma shader_feature_local REFLECTIONS
+            #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
+            #pragma shader_feature_local REFLECTIONS_OFF
             #pragma shader_feature_local EMISSION
             #pragma shader_feature_local PARALLAX
             #pragma shader_feature_local NONLINEAR_LIGHTPROBESH
@@ -147,7 +149,7 @@
             // #pragma multi_compile _ LOD_FADE_CROSSFADE
 
             #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
-            #pragma shader_feature_local SPECULAR_HIGHLIGHTS
+            #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local PARALLAX
             #pragma shader_feature_local NONLINEAR_LIGHTPROBESH
             #pragma shader_feature_local GEOMETRIC_SPECULAR_AA

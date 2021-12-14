@@ -1,77 +1,11 @@
-﻿using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
-using System.IO;
 using System;
-using System.Linq;
-using z3y.Shaders;
 
 namespace z3y.Shaders.SimpleLit
 {
-    public class InspectorData
-    {
-        public Dictionary<string, bool?> FoldoutValues = new Dictionary<string, bool?>();
-    }
-
-    [InitializeOnLoad]
     public class Helpers
     {
-        public static Texture2D groupTex = (Texture2D)Resources.Load( EditorGUIUtility.isProSkin ? "lit_group" : "lit_group_light", typeof(Texture2D));
-
-        public static bool TextureFoldout(bool display)
-        {
-            //var rect = GUILayoutUtility.GetRect(16f, -4);
-            var lastRect = GUILayoutUtility.GetLastRect();
-            var e = Event.current;
-            var toggleRect = new Rect(lastRect.x, lastRect.y + 2f, 12f, 12f);
-            if (e.type == EventType.Repaint)
-            {
-                EditorStyles.foldout.Draw(toggleRect, false, false, display, false);
-            }
-            if (e.type == EventType.MouseDown && toggleRect.Contains(e.mousePosition))
-            {
-                display = !display;
-                e.Use();
-            }
-            return display;
-        }
-
-        public static bool Foldout(string title, bool display)
-        {
-            var rect = DrawFoldout(title, new Vector2(18f, 0f),18);
-            var e = Event.current;
-            var toggleRect = new Rect(rect.x + 12f, rect.y + 3f, 13f, 13f);
-            if (e.type == EventType.Repaint)
-            {
-                EditorStyles.foldout.Draw(toggleRect, false, false, display, false);
-            }
-            if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
-            {
-                display = !display;
-                e.Use();
-            }
-            return display;
-        }
-
-        public static Rect DrawFoldout(string title, Vector2 contentOffset, int HeaderHeight)
-        {
-            var style = new GUIStyle("BoldLabel");
-            style.font = new GUIStyle(EditorStyles.boldLabel).font;
-            //style.font = EditorStyles.boldFont;
-            //style.fontSize = GUI.skin.font.fontSize;
-            style.fontSize = 12;
-            //style.border = new RectOffset(15, 7, 4, 4);
-            style.fixedHeight = HeaderHeight;
-            style.contentOffset = contentOffset;
-            var rect = GUILayoutUtility.GetRect(16f, HeaderHeight, style);
-            var rect2 = new Rect(rect.x + -20f, rect.y, rect.width + 30f, rect.height+2);
-            var rectText = new Rect(rect.x -8f, rect.y+1, rect.width, rect.height);
-
-            GUI.DrawTexture(rect2, groupTex);
-            GUI.Label(rectText, title, style);
-            return rect2;
-        }
-
        public static void PropertyGroup(Action action)
        {
             GUILayout.Space(1);
@@ -157,31 +91,6 @@ namespace z3y.Shaders.SimpleLit
             me.TextureScaleOffsetProperty(property);
             EditorGUI.EndDisabledGroup();
         }
-
-        public static bool Foldout(string foldoutText, bool foldoutName, Action action)
-        {
-            foldoutName = Foldout(foldoutText, foldoutName);
-            if(foldoutName)
-            {
-                EditorGUILayout.Space();
-			    action();
-                EditorGUILayout.Space();
-            }
-            return foldoutName;
-        }
-
-        public static bool TriangleFoldout(bool foldoutName, Action action)
-        {
-            foldoutName = TextureFoldout(foldoutName);
-            if(foldoutName)
-            {
-                PropertyGroup(() => {
-                    action();
-                });
-            }
-            return foldoutName;
-        }
-
         public static void SetupGIFlags(float emissionEnabled, Material material)
         {
             MaterialGlobalIlluminationFlags flags = material.globalIlluminationFlags;
@@ -194,7 +103,6 @@ namespace z3y.Shaders.SimpleLit
                 material.globalIlluminationFlags = flags;
             }
         }
-
 
     }
 }

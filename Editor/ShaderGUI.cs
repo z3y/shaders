@@ -1,11 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
-using System.Collections.Generic;
-using System;
-using z3y.ShaderEditorFunctions;
-using z3y.Shaders;
 using static z3y.Shaders.SimpleLit.Helpers;
-
 
 namespace z3y.Shaders.SimpleLit
 {
@@ -82,7 +77,7 @@ namespace z3y.Shaders.SimpleLit
 
 
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Details", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Detail Inputs", EditorStyles.boldLabel);
             if(IfProp("_DetailAlbedoMap"))
             {
                 Prop("_DetailAlbedoMap", "_DetailAlbedoScale");
@@ -164,10 +159,26 @@ namespace z3y.Shaders.SimpleLit
 
 
         // On inspector change
-        private void ApplyChanges(MaterialProperty[] props, MaterialEditor materialEditor)
+        private void ApplyChanges(MaterialProperty[] props, MaterialEditor materialEditor, Material mat)
         {
             SetupGIFlags(GetProperty("_EnableEmission").floatValue, _material);
             SetupBlendMode(materialEditor);
+            
+            mat.DisableKeyword("BAKERY_NONE");
+            mat.DisableKeyword("_MODE_OPAQUE");
+            
+            ToggleKeyword("_MASK_MAP", IfProp("_MetallicGlossMap"), mat);
+            ToggleKeyword("_NORMAL_MAP", IfProp("_BumpMap"), mat);
+            ToggleKeyword("_DETAILALBEDO_MAP", IfProp("_DetailAlbedoMap"), mat);
+            ToggleKeyword("_DETAILNORMAL_MAP", IfProp("_DetailNormalMap"), mat);
+        }
+
+        private void ToggleKeyword(string keyword, bool toggle, Material mat)
+        {
+            if(toggle)
+                mat.EnableKeyword(keyword);
+            else
+                mat.DisableKeyword(keyword);
         }
 
         MaterialEditor _materialEditor;
@@ -188,6 +199,7 @@ namespace z3y.Shaders.SimpleLit
             {
                 m_FirstTimeApply = false;
                 SetupBlendMode(materialEditor);
+                ApplyChanges(props, materialEditor, _material);
             }
 
             EditorGUI.BeginChangeCheck();
@@ -195,8 +207,21 @@ namespace z3y.Shaders.SimpleLit
             ShaderPropertiesGUI(_material, props, materialEditor);
 
             if (EditorGUI.EndChangeCheck()) {
-                ApplyChanges(props, materialEditor);
+                ApplyChanges(props, materialEditor, _material);
             };
+        }
+
+        public override void AssignNewShaderToMaterial(Material material, Shader oldShader, Shader newShader)
+        {
+            base.AssignNewShaderToMaterial(material, oldShader, newShader);
+            if (newShader.name == "Simple Lit")
+            {
+                foreach (var keyword in material.shaderKeywords)
+                {
+                    material.DisableKeyword(keyword);
+                    MaterialEditor.ApplyMaterialPropertyDrawers(material);
+                }
+            }
         }
 
         private static void SetupMaterialWithBlendMode(Material material, int type)

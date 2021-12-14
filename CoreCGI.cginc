@@ -154,11 +154,11 @@ float4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     half clampedRoughness = max(surf.perceptualRoughness * surf.perceptualRoughness, 0.002);
 
-    #if defined(SPECULAR_HIGHLIGHTS)
+    #if !defined(SPECULAR_HIGHLIGHTS_OFF) && defined(USING_LIGHT_MULTI_COMPILE)
         float NoH = saturate(dot(worldNormal, lightHalfVector));
 
         float3 F = F_Schlick(lightLoH, f0);
-        float D = D_GGX(NoH, clampedRoughness);
+        float D = GGXTerm(NoH, clampedRoughness);
         float V = V_SmithGGXCorrelated(NoV, lightNoL, clampedRoughness);
 
         directSpecular = max(0, (D * V) * F) * pixelLight * UNITY_PI;
@@ -166,7 +166,7 @@ float4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     #if defined(BAKEDSPECULAR) && defined(UNITY_PASS_FORWARDBASE) && !defined(BAKERY_VOLUME) && !defined(BAKERY_RNM) && !defined(_BAKERY_SH)
     {
-        float3 bakedDominantDirection = 0;
+        float3 bakedDominantDirection = 1;
         float3 bakedSpecularColor = 0;
 
         #if defined(DIRLIGHTMAP_COMBINED) && defined(LIGHTMAP_ON)
@@ -207,10 +207,10 @@ float4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     }
     #endif
 
-    fresnel *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
+    fresnel = lerp(f0, fresnel, saturate(pow(length(indirectDiffuse), _SpecularOcclusion)));
     #if defined(UNITY_PASS_FORWARDBASE)
 
-        #if defined(REFLECTIONS)
+        #if !defined(REFLECTIONS_OFF)
             float3 reflDir = reflect(-viewDir, worldNormal);
 
             Unity_GlossyEnvironmentData envData;
