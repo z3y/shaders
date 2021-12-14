@@ -1,3 +1,6 @@
+// taken from bakery with permission from Mr F
+// https://assetstore.unity.com/packages/tools/level-design/bakery-gpu-lightmapper-122218
+
 #ifndef BAKERY_INCLUDED
 #define BAKERY_INCLUDED
 

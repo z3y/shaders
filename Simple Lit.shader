@@ -16,16 +16,16 @@
         _MetallicMin ("Metallic Min", Range(0,1)) = 0
         _Occlusion ("Occlusion", Range(0,1)) = 0
 
-        _MetallicGlossMap ("Packed Mask", 2D) = "white" {}
+        _MetallicGlossMap ("Packed Mask:Metallic (R) | Occlusion (G) | Detail Mask (B) | Smoothness (A)", 2D) = "white" {}
 
         [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
-            _BumpScale ("Bump Scale", Range(0,8)) = 1
+            _BumpScale ("Bump Scale", Float) = 1
 
         [Toggle(SPECULAR_HIGHLIGHTS)] _SpecularHighlights("Specular Highlights", Float) = 1
         [Toggle(REFLECTIONS)] _GlossyReflections("Reflections", Float) = 1
-            _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
+            _SpecularOcclusion ("Fresnel Occlusion", Range(0,1)) = 0
 
-        [ToggleUI] _GSAA ("Geometric Specular AA", Int) = 0
+        [Toggle(GEOMETRIC_SPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
             [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
             [PowerSlider(2)] _specularAntiAliasingThreshold ("Threshold", Range(0.0, 1.0)) = 0.1
 
@@ -35,8 +35,8 @@
             [HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
 
 
-        _DetailAlbedoMap ("Albedo Map", 2D) = "linearGrey" {}
-            [Normal] _DetailNormalMap ("Normal Map", 2D) = "bump" {}
+        _DetailAlbedoMap ("Detail Albedo:Albedo (RGB) | Smoothness (A)", 2D) = "linearGrey" {}
+            [Normal] _DetailNormalMap ("Detail Normal", 2D) = "bump" {}
             [Enum(UV0, 0, UV1, 1)]  _DetailMap_UV ("Detail UV", Int) = 0
             _DetailAlbedoScale ("Albedo Scale", Range(0.0, 2.0)) = 0
             _DetailNormalScale ("Normal Scale", Range(0.0, 2.0)) = 0
@@ -50,7 +50,7 @@
 
 
         [Toggle(NONLINEAR_LIGHTPROBESH)] _NonLinearLightProbeSH ("Non-linear Light Probe SH", Int) = 0
-        [Toggle(BAKEDSPECULAR)] _BakedSpecular ("Lightmapped Specular ", Int) = 1
+        [Toggle(BAKEDSPECULAR)] _BakedSpecular ("Baked Specular ", Int) = 0
 
         [Enum(UnityEngine.Rendering.BlendOp)] _BlendOp ("Blend Op", Int) = 0
         [Enum(UnityEngine.Rendering.BlendOp)] _BlendOpAlpha ("Blend Op Alpha", Int) = 0
@@ -116,6 +116,7 @@
             #pragma shader_feature_local PARALLAX
             #pragma shader_feature_local NONLINEAR_LIGHTPROBESH
             #pragma shader_feature_local BAKEDSPECULAR
+            #pragma shader_feature_local GEOMETRIC_SPECULAR_AA
 
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP
@@ -149,6 +150,7 @@
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS
             #pragma shader_feature_local PARALLAX
             #pragma shader_feature_local NONLINEAR_LIGHTPROBESH
+            #pragma shader_feature_local GEOMETRIC_SPECULAR_AA
 
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP

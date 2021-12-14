@@ -55,9 +55,9 @@ float4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         tangent *= -1;
     }
 
-    #if !defined(SHADER_API_MOBILE)
-    UNITY_BRANCH
-    if(_GSAA) surf.perceptualRoughness = GSAA_Filament(worldNormal, surf.perceptualRoughness);
+
+    #ifdef GEOMETRIC_SPECULAR_AA
+    surf.perceptualRoughness = GSAA_Filament(worldNormal, surf.perceptualRoughness);
     #endif
 
     surf.tangentNormal.g *= -1; // still need to figure out why its inverted by default
@@ -149,7 +149,7 @@ float4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     
     half3 f0 = 0.16 * surf.reflectance * surf.reflectance * (1 - surf.metallic) + surf.albedo.rgb * surf.metallic;
     half3 fresnel = F_Schlick(NoV, f0);
-    // surf.occlusion *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
+    
     
 
     half clampedRoughness = max(surf.perceptualRoughness * surf.perceptualRoughness, 0.002);
@@ -207,8 +207,7 @@ float4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     }
     #endif
 
-    float specularOcclusion = surf.occlusion * saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
-
+    fresnel *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
     #if defined(UNITY_PASS_FORWARDBASE)
 
         #if defined(REFLECTIONS)
@@ -235,7 +234,7 @@ float4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             indirectSpecular = indirectSpecular * lerp(fresnel, f0, surf.perceptualRoughness) * horizon * horizon;
         #endif
 
-        indirectSpecular *= computeSpecularAO(NoV, specularOcclusion, surf.perceptualRoughness * surf.perceptualRoughness);
+        indirectSpecular *= computeSpecularAO(NoV, surf.occlusion, surf.perceptualRoughness * surf.perceptualRoughness);
     #endif
     
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System;
 using z3y.ShaderEditorFunctions;
 using z3y.Shaders;
-using static z3y.ShaderEditorFunctions.Functions;
+using static z3y.Shaders.SimpleLit.Helpers;
 
 
 namespace z3y.Shaders.SimpleLit
@@ -27,8 +27,11 @@ namespace z3y.Shaders.SimpleLit
             EditorGUILayout.Space();
 
             Prop("_MainTex", "_Color");
-            EditorGUILayout.Space();
-
+            // EditorGUILayout.Space();
+            
+            Prop("_MetallicGlossMap");
+            sRGBWarning(GetProperty("_MetallicGlossMap"));
+            EditorGUI.indentLevel+=2;
             if (GetProperty("_MetallicGlossMap").textureValue is null)
             {
                 Prop("_Metallic");
@@ -40,13 +43,12 @@ namespace z3y.Shaders.SimpleLit
                 RangedProp(GetProperty("_GlossinessMin"), GetProperty("_Glossiness"));
                 Prop("_Occlusion");
             }
+            EditorGUI.indentLevel-=2;
 
-            Prop("_MetallicGlossMap");
-            sRGBWarning(GetProperty("_MetallicGlossMap"));
+            
 
 
             Prop("_BumpMap", "_BumpScale");
-
 
 
 
@@ -55,61 +57,80 @@ namespace z3y.Shaders.SimpleLit
             if (IfProp("_EnableEmission"))
             {
                 Prop("_EmissionMap", "_EmissionColor");
-                materialEditor.LightmapEmissionProperty();
+                EditorGUI.indentLevel+=2;
                 Prop("_EmissionMultBase");
+                materialEditor.LightmapEmissionProperty();
+                EditorGUI.indentLevel-=2;
+                EditorGUILayout.Space();
             }
 
             Prop("_EnableParallax");
             if (IfProp("_EnableParallax"))
             {
-                PropertyGroup(() =>
-                {
-                    Prop("_ParallaxMap", "_Parallax");
-                    Prop("_ParallaxOffset");
-                    Prop("_ParallaxSteps");
-                });
+                Prop("_ParallaxMap", "_Parallax");
+                EditorGUI.indentLevel+=2;
+                Prop("_ParallaxOffset");
+                Prop("_ParallaxSteps");
+                EditorGUI.indentLevel-=2;;
             }
 
             sRGBWarning(GetProperty("_ParallaxMap"));
+            
+            EditorGUILayout.Space();
+            PropTileOffset("_MainTex");
 
 
-
-
-            Prop("_DetailAlbedoMap");
-            Prop("_DetailNormalMap");
 
             EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Details", EditorStyles.boldLabel);
+            if(IfProp("_DetailAlbedoMap"))
+            {
+                Prop("_DetailAlbedoMap", "_DetailAlbedoScale");
+                EditorGUI.indentLevel+=2;
+                Prop("_DetailSmoothnessScale");
+                EditorGUI.indentLevel-=2;
+            }
+            else
+            {
+                Prop("_DetailAlbedoMap");
+            }
+            if(IfProp("_DetailNormalMap"))
+            {
+                Prop("_DetailNormalMap","_DetailNormalScale");
+            }
+            else
+            {
+                Prop("_DetailNormalMap");
 
-            Prop("_DetailAlbedoScale");
-            Prop("_DetailNormalScale");
-            Prop("_DetailSmoothnessScale");
+            }
+            if(IfProp("_DetailNormalMap") || IfProp("_DetailAlbedoMap"))
+            {
+                Prop("_DetailMap_UV");
+                PropTileOffset("_DetailAlbedoMap");
+            }
+
+
 
             EditorGUILayout.Space();
-            Prop("_DetailMap_UV");
-            PropTileOffset("_DetailAlbedoMap");
-
-
-
-
+            EditorGUILayout.LabelField("Rendering Options", EditorStyles.boldLabel);
             Prop("_GlossyReflections");
             Prop("_SpecularHighlights");
-
-            Prop("_SpecularOcclusion");
             EditorGUILayout.Space();
 
 
             Prop("_GSAA");
             if (IfProp("_GSAA"))
             {
+                EditorGUI.indentLevel += 1;
                 Prop("_specularAntiAliasingVariance");
                 Prop("_specularAntiAliasingThreshold");
+                EditorGUI.indentLevel -= 1;
             }
-
-            ;
-
 
             Prop("_NonLinearLightProbeSH");
             Prop("_BakedSpecular");
+            Prop("_SpecularOcclusion");
+
 
 #if BAKERY_INCLUDED
             EditorGUILayout.Space();
@@ -125,8 +146,8 @@ namespace z3y.Shaders.SimpleLit
             }
 #endif
 
-
-            EditorGUILayout.LabelField("Rendering Options", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Advanced Options", EditorStyles.boldLabel);
             materialEditor.DoubleSidedGIField();
             materialEditor.EnableInstancingField();
             materialEditor.RenderQueueField();
@@ -166,6 +187,7 @@ namespace z3y.Shaders.SimpleLit
             if (m_FirstTimeApply)
             {
                 m_FirstTimeApply = false;
+                SetupBlendMode(materialEditor);
             }
 
             EditorGUI.BeginChangeCheck();
@@ -216,10 +238,15 @@ namespace z3y.Shaders.SimpleLit
             }
         }
 
-        private void Prop(string property, string extraProperty = null) => MaterialProp(GetProperty(property), extraProperty is null ? null : GetProperty(extraProperty), _materialEditor, false, _material);
-        private void PropTileOffset(string property) => DrawPropTileOffset(GetProperty(property), false, _materialEditor, _material);
+        private void Prop(string property, string extraProperty = null) => MaterialProp(GetProperty(property), extraProperty is null ? null : GetProperty(extraProperty), _materialEditor);
+        private void PropTileOffset(string property) => DrawPropTileOffset(GetProperty(property), _materialEditor);
         private float GetFloatValue(string name) => (float)GetProperty(name)?.floatValue;
-        private bool IfProp(string name) => GetProperty(name)?.floatValue == 1;
+        private bool IfProp(string name)
+        {
+            MaterialProperty property = GetProperty(name);
+            if (property.textureValue != null) return true;
+            return property.floatValue == 1;
+        }
 
         private void RangedProp(MaterialProperty min, MaterialProperty max, float minLimit = 0, float maxLimit = 1, MaterialProperty tex = null)
         {
@@ -233,7 +260,7 @@ namespace z3y.Shaders.SimpleLit
                 _materialEditor.TexturePropertySingleLine(new GUIContent(tex.displayName), tex);
 
 
-            EditorGUI.indentLevel -= 4;
+            EditorGUI.indentLevel -= 6;
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.MinMaxSlider(ref currentMin,ref currentMax, minLimit, maxLimit);
             if(EditorGUI.EndChangeCheck())
@@ -241,9 +268,8 @@ namespace z3y.Shaders.SimpleLit
                 min.floatValue = currentMin;
                 max.floatValue = currentMax;
             }
-            EditorGUI.indentLevel += 4;
+            EditorGUI.indentLevel += 6;
             EditorGUILayout.EndHorizontal();
-            HandleMouseEvents(max, _material, min.name);
         }
 
         private MaterialProperty GetProperty(string name)
