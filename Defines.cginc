@@ -4,6 +4,19 @@
 
 // #define NEED_CENTROID_NORMAL
 
+// #define SHADER_API_MOBILE
+#if defined(SHADER_API_MOBILE)
+    #undef BAKERY_SH
+    #undef BAKERY_RNM
+    #undef BICUBIC_LIGHTMAP
+    #define SPECULAR_HIGHLIGHTS_OFF
+    #undef PARALLAX
+    #undef NONLINEAR_LIGHTPROBESH
+    #undef BAKEDSPECULAR
+    #undef _DETAILALBEDO_MAP
+    #undef _DETAILNORMAL_MAP
+#endif
+
 #if defined(TEXTUREARRAY)
     #undef PARALLAX
 #endif

@@ -110,7 +110,7 @@
 
 
             #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
-            #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM BAKERY_VOLUME
+            #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM
             #define BICUBIC_LIGHTMAP
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local REFLECTIONS_OFF

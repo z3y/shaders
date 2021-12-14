@@ -22,8 +22,7 @@ namespace z3y.Shaders.SimpleLit
             EditorGUILayout.Space();
 
             Prop("_MainTex", "_Color");
-            // EditorGUILayout.Space();
-            
+
             Prop("_MetallicGlossMap");
             sRGBWarning(GetProperty("_MetallicGlossMap"));
             EditorGUI.indentLevel+=2;

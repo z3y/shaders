@@ -46,7 +46,7 @@ float h1(float a)
 }
 
 //https://ndotl.wordpress.com/2018/08/29/baking-artifact-free-lightmaps
-float3 tex2DFastBicubicLightmap(float2 uv, inout float4 bakedColorTex)
+half3 tex2DFastBicubicLightmap(float2 uv, inout half4 bakedColorTex)
 {
     #if defined(SHADER_API_D3D11) && defined(BICUBIC_LIGHTMAP)
     float width;

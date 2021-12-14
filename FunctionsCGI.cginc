@@ -148,10 +148,8 @@ float3 getRealtimeLightmap(float2 uv, float3 worldNormal, float2 parallaxOffset)
 }
 #endif
 
-float3 GetSpecularHighlights(float3 worldNormal, float3 lightColor, float3 lightDirection, float3 f0, float3 viewDir, SurfaceData surf, float NoV)
+float3 GetSpecularHighlights(float3 worldNormal, float3 lightColor, float3 lightDirection, float3 f0, float3 viewDir, float clampedRoughness, float NoV)
 {
-    float clampedRoughness = max(surf.perceptualRoughness * surf.perceptualRoughness, 0.002);
-
     float3 halfVector = Unity_SafeNormalize(lightDirection + viewDir);
 
     float NoH = saturate(dot(worldNormal, halfVector));

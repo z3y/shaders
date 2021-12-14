@@ -48,12 +48,14 @@ float4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     half3 indirectSpecular = 0;
     half3 directSpecular = 0;
 
+    #if !defined(SHADER_API_MOBILE)
     if(!facing)
     {
         worldNormal *= -1;
         bitangent *= -1;
         tangent *= -1;
     }
+    #endif
 
 
     #ifdef GEOMETRIC_SPECULAR_AA
@@ -180,7 +182,7 @@ float4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
 
         bakedDominantDirection = normalize(bakedDominantDirection);
-        directSpecular += GetSpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, surf, NoV);
+        directSpecular += GetSpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, clampedRoughness, NoV);
     }
     #endif
 
