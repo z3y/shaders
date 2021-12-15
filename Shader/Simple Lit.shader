@@ -113,25 +113,25 @@
             #pragma multi_compile_fwdbase
             #pragma multi_compile_instancing
             #pragma multi_compile_fog
-            #pragma multi_compile _ VERTEXLIGHT_ON
+            #pragma multi_compile_fragment _ VERTEXLIGHT_ON // already defined in vertex by multi_compile_fwdbase
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             
 
             #define BICUBIC_LIGHTMAP
-            #pragma shader_feature_local_fragment _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
+            #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
             #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM
-            #pragma shader_feature_local_fragment SPECULAR_HIGHLIGHTS_OFF
-            #pragma shader_feature_local_fragment REFLECTIONS_OFF
-            #pragma shader_feature_local_fragment EMISSION
-            #pragma shader_feature_local_fragment NONLINEAR_LIGHTPROBESH
-            #pragma shader_feature_local_fragment BAKEDSPECULAR
-            #pragma shader_feature_local_fragment GEOMETRIC_SPECULAR_AA
+            #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
+            #pragma shader_feature_local REFLECTIONS_OFF
+            #pragma shader_feature_local EMISSION
+            #pragma shader_feature_local NONLINEAR_LIGHTPROBESH
+            #pragma shader_feature_local BAKEDSPECULAR
+            #pragma shader_feature_local GEOMETRIC_SPECULAR_AA
             #pragma shader_feature_local PARALLAX
 
-            #pragma shader_feature_local_fragment _MASK_MAP
-            #pragma shader_feature_local_fragment _NORMAL_MAP
-            #pragma shader_feature_local_fragment _DETAILALBEDO_MAP
-            #pragma shader_feature_local_fragment _DETAILNORMAL_MAP
+            #pragma shader_feature_local _MASK_MAP
+            #pragma shader_feature_local _NORMAL_MAP
+            #pragma shader_feature_local _DETAILALBEDO_MAP
+            #pragma shader_feature_local _DETAILNORMAL_MAP
 
             #include "PassCGI.cginc"
             ENDCG
@@ -156,16 +156,16 @@
 
             #pragma multi_compile _ LOD_FADE_CROSSFADE
 
-            #pragma shader_feature_local_fragment _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
-            #pragma shader_feature_local_fragment SPECULAR_HIGHLIGHTS_OFF
-            #pragma shader_feature_local_fragment NONLINEAR_LIGHTPROBESH
-            #pragma shader_feature_local_fragment GEOMETRIC_SPECULAR_AA
+            #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
+            #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
+            #pragma shader_feature_local NONLINEAR_LIGHTPROBESH
+            #pragma shader_feature_local GEOMETRIC_SPECULAR_AA
             #pragma shader_feature_local PARALLAX
 
-            #pragma shader_feature_local_fragment _MASK_MAP
-            #pragma shader_feature_local_fragment _NORMAL_MAP
-            #pragma shader_feature_local_fragment _DETAILALBEDO_MAP
-            #pragma shader_feature_local_fragment _DETAILNORMAL_MAP
+            #pragma shader_feature_local _MASK_MAP
+            #pragma shader_feature_local _NORMAL_MAP
+            #pragma shader_feature_local _DETAILALBEDO_MAP
+            #pragma shader_feature_local _DETAILNORMAL_MAP
             
             #include "PassCGI.cginc"
 
@@ -188,7 +188,7 @@
             
             #pragma skip_variants FOG_LINEAR FOG_EXP FOG_EXP2
 
-            #pragma shader_feature_local_fragment _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
+            #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
 
             #include "PassCGI.cginc"
             ENDCG
@@ -203,8 +203,8 @@
             CGPROGRAM
             #pragma shader_feature EDITOR_VISUALIZATION
 
-            #pragma shader_feature_local_fragment _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
-            #pragma shader_feature_local_fragment EMISSION            
+            #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
+            #pragma shader_feature_local EMISSION            
 
             #include "PassCGI.cginc"
             ENDCG

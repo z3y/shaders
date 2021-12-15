@@ -43,6 +43,22 @@
     #define NEED_SCREEN_POS
 #endif
 
+#define TRANSFORMTEX_VERTEX
+
+#if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP) || defined(PARALLAX)
+    #undef TRANSFORMTEX_VERTEX
+#endif
+
+#if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
+    #undef TRANSFORMTEX_VERTEX
+#endif
+
+#ifdef VERTEXLIGHT_ON
+    #define NEED_WORLD_NORMAL
+    #define NEED_WORLD_POS
+#endif
+
+
 #if !defined(LIGHTMAP_ON) || !defined(UNITY_PASS_FORWARDBASE)
     #undef BAKERY_SH
     #undef BAKERY_RNM

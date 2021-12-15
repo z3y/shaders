@@ -84,10 +84,10 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
     #endif
 
-    float3 vertexLight = 0;
-    float3 vertexLightColor = 0;
-    #if defined(VERTEXLIGHT_ON) && defined(UNITY_PASS_FORWARDBASE) && !defined(SHADER_API_MOBILE)
-        initVertexLights(i.worldPos, worldNormal, vertexLight, vertexLightColor);
+    #ifdef VERTEXLIGHT_ON
+    half3 vertexLight = i.vertexLight;
+    #else
+    half3 vertexLight = 0;
     #endif
 
     
@@ -95,7 +95,11 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     half3 indirectDiffuse = 1;
     #if defined(LIGHTMAP_ON)
 
-        float2 lightmapUV = i.coord0.zw * unity_LightmapST.xy + unity_LightmapST.zw;
+        #ifdef TRANSFORMTEX_VERTEX
+            float2 lightmapUV = i.coord0.zw;
+        #else
+            float2 lightmapUV = i.coord0.zw * unity_LightmapST.xy + unity_LightmapST.zw;
+        #endif
         half4 bakedColorTex = 0;
 
         half3 lightMap = tex2DFastBicubicLightmap(lightmapUV, bakedColorTex);
@@ -208,7 +212,9 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     }
     #endif
 
+    #if !defined(SHADER_API_MOBILE)
     fresnel = lerp(f0, fresnel, saturate(pow(length(indirectDiffuse), _SpecularOcclusion)));
+    #endif
     #if defined(UNITY_PASS_FORWARDBASE)
 
         #if !defined(REFLECTIONS_OFF)

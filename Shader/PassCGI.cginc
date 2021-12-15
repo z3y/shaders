@@ -19,7 +19,7 @@ struct appdata
     #endif
 
     #ifdef NEED_VERTEX_COLOR
-        float4 color : COLOR;
+        half4 color : COLOR;
     #endif
 
     uint vertexId : SV_VertexID;
@@ -50,7 +50,7 @@ struct v2f
     #endif
 
     #ifdef NEED_VERTEX_COLOR
-        centroid float4 color : COLOR;
+        centroid half4 color : COLOR;
     #endif
 
     #if defined(NEED_CENTROID_NORMAL) && defined(NEED_WORLD_NORMAL)
@@ -67,6 +67,10 @@ struct v2f
 
     #if !defined(UNITY_PASS_SHADOWCASTER)
         UNITY_SHADOW_COORDS(11)
+    #endif
+
+    #ifdef VERTEXLIGHT_ON
+        half3 vertexLight : TEXCOORD12;
     #endif
 
     UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -89,9 +93,17 @@ v2f vert (appdata v)
         #endif
     #endif
 
+    #ifdef TRANSFORMTEX_VERTEX
+    o.coord0.xy = v.uv0 * _MainTex_ST.xy + _MainTex_ST.zw;
+    o.coord0.zw = v.uv1 * unity_LightmapST.xy + unity_LightmapST.zw;
+    o.coord1.xy = v.uv2 * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+    #else
     o.coord0.xy = v.uv0;
     o.coord0.zw = v.uv1;
     o.coord1.xy = v.uv2;
+    #endif 
+
+    
 
     #ifdef NEED_WORLD_NORMAL
         o.worldNormal = UnityObjectToWorldNormal(v.normal);
@@ -105,6 +117,16 @@ v2f vert (appdata v)
     #ifdef NEED_WORLD_POS
         o.worldPos = mul(unity_ObjectToWorld, v.vertex);
     #endif
+
+    #if defined(VERTEXLIGHT_ON)
+		o.vertexLight = Shade4PointLights
+        (
+			unity_4LightPosX0, unity_4LightPosY0, unity_4LightPosZ0,
+			unity_LightColor[0].rgb, unity_LightColor[1].rgb,
+			unity_LightColor[2].rgb, unity_LightColor[3].rgb,
+			unity_4LightAtten0, o.worldPos,  o.worldNormal
+		);
+	#endif
 
     #ifdef NEED_VERTEX_COLOR
         o.color = v.color;
@@ -140,6 +162,5 @@ v2f vert (appdata v)
 }
 
 #include "FunctionsCGI.cginc"
-#include "VertexLights.cginc"
 #include "LitSurfaceData.cginc"
 #include "CoreCGI.cginc"

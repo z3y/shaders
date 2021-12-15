@@ -134,8 +134,13 @@ float shEvaluateDiffuseL1Geomerics_local(float L0, float3 L1, float3 n)
 
 #ifdef DYNAMICLIGHTMAP_ON
 float3 getRealtimeLightmap(float2 uv, float3 worldNormal, float2 parallaxOffset)
-{
-    float2 realtimeUV = uv * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+{   
+    #ifdef TRANSFORMTEX_VERTEX
+        float2 realtimeUV = uv;
+    #else
+        float2 realtimeUV = uv * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+    #endif
+    
     half4 bakedCol = UNITY_SAMPLE_TEX2D(unity_DynamicLightmap, realtimeUV);
     float3 realtimeLightmap = DecodeRealtimeLightmap(bakedCol);
 
