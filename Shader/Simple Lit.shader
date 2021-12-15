@@ -2,7 +2,6 @@
 {
     Properties
     {
-
         [KeywordEnum(Opaque, Cutout, Fade, Transparent)] _Mode ("Rendering Mode", Int) = 0
         [HideInInspector] [ToggleOff(_MODE_OPAQUE)] _KeywordOffOpaque ("", Float) = 1
 
@@ -37,7 +36,7 @@
 
         [ToggleOff(SPECULAR_HIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
         [ToggleOff(REFLECTIONS_OFF)] _GlossyReflections("Reflections", Float) = 1
-            _SpecularOcclusion ("Fresnel Occlusion", Range(0,1)) = 0
+            _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
 
         [Toggle(GEOMETRIC_SPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
             [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15

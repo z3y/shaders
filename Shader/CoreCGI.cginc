@@ -213,7 +213,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
 
     #if !defined(SHADER_API_MOBILE)
-    fresnel = lerp(f0, fresnel, saturate(pow(length(indirectDiffuse), _SpecularOcclusion)));
+    fresnel *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
     #endif
     #if defined(UNITY_PASS_FORWARDBASE)
 
