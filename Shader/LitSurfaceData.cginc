@@ -1,11 +1,8 @@
 void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 {
 
-    #ifdef TRANSFORMTEX_VERTEX
-        half2 mainUV = i.coord0.xy;
-    #else
-        half2 mainUV = i.coord0.xy * _MainTex_ST.xy + _MainTex_ST.zw + parallaxOffset;
-    #endif
+    half2 mainUV = i.coord0.xy * _MainTex_ST.xy + _MainTex_ST.zw + parallaxOffset;
+    
 
     half4 mainTexture = _MainTex.Sample(sampler_MainTex, mainUV);
 

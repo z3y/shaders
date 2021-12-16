@@ -93,16 +93,9 @@ v2f vert (appdata v)
         #endif
     #endif
 
-    #ifdef TRANSFORMTEX_VERTEX
-    o.coord0.xy = v.uv0 * _MainTex_ST.xy + _MainTex_ST.zw;
-    o.coord0.zw = v.uv1 * unity_LightmapST.xy + unity_LightmapST.zw;
-    o.coord1.xy = v.uv2 * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
-    #else
     o.coord0.xy = v.uv0;
     o.coord0.zw = v.uv1;
     o.coord1.xy = v.uv2;
-    #endif 
-
     
 
     #ifdef NEED_WORLD_NORMAL

@@ -95,11 +95,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     half3 indirectDiffuse = 1;
     #if defined(LIGHTMAP_ON)
 
-        #ifdef TRANSFORMTEX_VERTEX
-            float2 lightmapUV = i.coord0.zw;
-        #else
-            float2 lightmapUV = i.coord0.zw * unity_LightmapST.xy + unity_LightmapST.zw;
-        #endif
+        float2 lightmapUV = i.coord0.zw * unity_LightmapST.xy + unity_LightmapST.zw;
         half4 bakedColorTex = 0;
 
         half3 lightMap = tex2DFastBicubicLightmap(lightmapUV, bakedColorTex);
@@ -124,13 +120,13 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #else
 
         #if UNITY_LIGHT_PROBE_PROXY_VOLUME
-                UNITY_BRANCH
-				if (unity_ProbeVolumeParams.x == 1)
-                {
-                    indirectDiffuse = SHEvalLinearL0L1_SampleProbeVolume(float4(worldNormal, 1), i.worldPos);
-				}
-				else
-                {
+            UNITY_BRANCH
+            if (unity_ProbeVolumeParams.x == 1)
+            {
+                indirectDiffuse = SHEvalLinearL0L1_SampleProbeVolume(float4(worldNormal, 1), i.worldPos);
+            }
+            else
+            {
         #endif
                 #ifdef NONLINEAR_LIGHTPROBESH
                     float3 L0 = float3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
@@ -142,7 +138,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                     indirectDiffuse = max(0, ShadeSH9(float4(worldNormal, 1)));
                 #endif
         #if UNITY_LIGHT_PROBE_PROXY_VOLUME
-				}
+            }
         #endif
 
     #endif
