@@ -12,7 +12,10 @@ struct appdata
     float3 normal : NORMAL;
     float2 uv0 : TEXCOORD0;
     float2 uv1 : TEXCOORD1;
-    float2 uv2 : TEXCOORD2;
+
+    #ifdef NEED_UV2
+        float2 uv2 : TEXCOORD2;
+    #endif
 
     #ifdef NEED_TANGENT_BITANGENT
         float4 tangent : TANGENT;
@@ -30,7 +33,10 @@ struct v2f
 {
     float4 pos : SV_POSITION;
     float4 coord0 : TEXCOORD0;
-    float4 coord1 : TEXCOORD1;
+
+    #ifdef NEED_UV2
+        float2 coord1 : TEXCOORD1;
+    #endif
 
     #ifdef NEED_TANGENT_BITANGENT
         float3 bitangent : TEXCOORD2;
@@ -95,7 +101,10 @@ v2f vert (appdata v)
 
     o.coord0.xy = v.uv0;
     o.coord0.zw = v.uv1;
-    o.coord1.xy = v.uv2;
+
+    #ifdef NEED_UV2
+        o.coord1.xy = v.uv2;
+    #endif
     
 
     #ifdef NEED_WORLD_NORMAL

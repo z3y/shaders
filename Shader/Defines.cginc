@@ -5,17 +5,24 @@
 // #define NEED_CENTROID_NORMAL
 
 // #define SHADER_API_MOBILE
+
+
 #if defined(SHADER_API_MOBILE)
     #undef BAKERY_SH
     #undef BAKERY_RNM
     #undef BICUBIC_LIGHTMAP
     #define SPECULAR_HIGHLIGHTS_OFF
+    // #define REFLECTIONS_OFF
     #undef PARALLAX
     #undef NONLINEAR_LIGHTPROBESH
     #undef BAKEDSPECULAR
     #undef _DETAILALBEDO_MAP
     #undef _DETAILNORMAL_MAP
+    // #undef _MASK_MAP
+    // #undef _NORMAL_MAP
+    // #undef GEOMETRIC_SPECULAR_AA
 #endif
+
 
 #if defined(TEXTUREARRAY)
     #undef PARALLAX
@@ -37,6 +44,11 @@
 
 #if defined(PARALLAX)
     #define NEED_PARALLAX_DIR
+#endif
+
+
+#if defined(DYNAMICLIGHTMAP_ON) || defined(UNITY_PASS_META)
+    #define NEED_UV2
 #endif
 
 #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)

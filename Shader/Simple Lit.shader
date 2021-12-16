@@ -90,7 +90,14 @@
         #pragma vertex vert
         #pragma fragment frag
         #pragma fragmentoption ARB_precision_hint_fastest
+        
+        #ifndef UNITY_PBS_USE_BRDF1
+            #ifndef SHADER_API_MOBILE
+            #define SHADER_API_MOBILE
+            #endif
+        #endif
 
+        // comment out to enable
         #pragma skip_variants VERTEXLIGHT_ON
         #pragma skip_variants LOD_FADE_CROSSFADE
         ENDCG

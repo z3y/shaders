@@ -36,9 +36,8 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     float4 detailNormalMap = float4(0.5, 0.5, 1, 1);
     #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
 
-        float2 detailUV[2];
-        detailUV[0] = i.coord0.xy * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw + parallaxOffset;
-        detailUV[1] = i.coord0.zw * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw + parallaxOffset;
+        float2 detailUV = _DetailMapUV ?    i.coord0.zw * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw + parallaxOffset :
+                                            i.coord0.xy * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw + parallaxOffset;
 
         float detailMask = maskMap.b;
         float4 detailMap = 0.5;
@@ -46,13 +45,13 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         float detailSmoothness = 0;
         
         #if defined(_DETAILALBEDO_MAP)
-            float4 detailAlbedoTex = _DetailAlbedoMap.Sample(sampler_DetailAlbedoMap, detailUV[_DetailMapUV]) * 2.0 - 1.0;
+            float4 detailAlbedoTex = _DetailAlbedoMap.Sample(sampler_DetailAlbedoMap, detailUV) * 2.0 - 1.0;
             detailAlbedo = detailAlbedoTex.rgb;
             detailSmoothness = detailAlbedoTex.a;
         #endif
 
         #if defined(_DETAILNORMAL_MAP)
-            detailNormalMap = _DetailNormalMap.Sample(sampler_DetailNormalMap, detailUV[_DetailMapUV]);
+            detailNormalMap = _DetailNormalMap.Sample(sampler_DetailNormalMap, detailUV);
         #endif
         
         #if defined(_DETAILALBEDO_MAP)
