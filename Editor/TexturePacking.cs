@@ -174,6 +174,9 @@ namespace z3y.Shaders.SimpleLit
                     TextureImporter tex = (TextureImporter)UnityEditor.AssetImporter.GetAtPath(texturePath);
                     TextureImporterSettings originalSettings = new TextureImporterSettings();
                     tex.ReadTextureSettings(originalSettings);
+
+                    var oldCompression = tex.textureCompression;
+                    var oldsRGBSetting = tex.sRGBTexture;
                     
                     tex.textureCompression = TextureImporterCompression.Uncompressed;
                     tex.sRGBTexture = true;
@@ -202,6 +205,8 @@ namespace z3y.Shaders.SimpleLit
                     TextureImporter restoreSettings = (TextureImporter)AssetImporter.GetAtPath(texturePath);
                     restoreSettings.SetTextureSettings(originalSettings);
                     restoreSettings.SaveAndReimport();
+                    tex.textureCompression = oldCompression;
+                    tex.sRGBTexture = oldsRGBSetting;
                     return newTexture;
                 }
             }
