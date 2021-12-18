@@ -8,19 +8,23 @@
 
 
 #if defined(SHADER_API_MOBILE)
-    #undef BAKERY_SH
-    #undef BAKERY_RNM
-    #undef BICUBIC_LIGHTMAP
+    // #undef _MASK_MAP
+    #undef _NORMAL_MAP
     #define SPECULAR_HIGHLIGHTS_OFF
     // #define REFLECTIONS_OFF
-    #undef PARALLAX
-    #undef NONLINEAR_LIGHTPROBESH
-    #undef BAKEDSPECULAR
+
     #undef _DETAILALBEDO_MAP
     #undef _DETAILNORMAL_MAP
-    // #undef _MASK_MAP
-    // #undef _NORMAL_MAP
     #undef GEOMETRIC_SPECULAR_AA
+    #undef BICUBIC_LIGHTMAP
+    #undef NONLINEAR_LIGHTPROBESH
+    #undef PARALLAX
+    #undef BAKEDSPECULAR
+    #undef BAKERY_RNM
+    #undef BAKERY_SH
+    #undef DIRLIGHTMAP_COMBINED
+    #undef DYNAMICLIGHTMAP_ON
+    #undef NEED_CENTROID_NORMAL
 #endif
 
 

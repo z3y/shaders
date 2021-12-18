@@ -14,7 +14,8 @@ float sq(float x)
 {
     return x * x;
 }
-float3 F_Schlick(float u, float3 f0)
+
+half3 F_Schlick(half u, half3 f0)
 {
     return f0 + (1.0 - f0) * pow(1.0 - u, 5.0);
 }
@@ -61,15 +62,15 @@ half D_GGX(half NoH, half roughness)
     return k * k * (1.0 / UNITY_PI);
 }
 
-float V_SmithGGXCorrelated(half NoV, half NoL, half roughness)
+half V_SmithGGXCorrelated(half NoV, half NoL, half roughness)
 {
-    float a2 = roughness * roughness;
-    float GGXV = NoL * sqrt(NoV * NoV * (1.0 - a2) + a2);
-    float GGXL = NoV * sqrt(NoL * NoL * (1.0 - a2) + a2);
+    half a2 = roughness * roughness;
+    half GGXV = NoL * sqrt(NoV * NoV * (1.0 - a2) + a2);
+    half GGXL = NoV * sqrt(NoL * NoL * (1.0 - a2) + a2);
     return 0.5 / (GGXV + GGXL);
 }
 
-float V_Kelemen(float LoH)
+half V_Kelemen(half LoH)
 {
     // Kelemen 2001, "A Microfacet Based Coupled Specular-Matte BRDF Model with Importance Sampling"
     return saturate(0.25 / (LoH * LoH));
@@ -165,13 +166,13 @@ float3 GetSpecularHighlights(float3 worldNormal, float3 lightColor, float3 light
 }
 
 
-float3 EnvironmentBRDF(float g, float NoV, float3 rf0)
+half3 EnvironmentBRDF(half g, half NoV, half3 rf0)
 {
     //https://blog.selfshadow.com/publications/s2013-shading-course/lazarov/s2013_pbs_black_ops_2_notes.pdf
-    float4 t = float4(1 / 0.96, 0.475, (0.0275 - 0.25 * 0.04) / 0.96, 0.25);
-    t *= float4(g, g, g, g);
-    t += float4(0, 0, (0.015 - 0.75 * 0.04) / 0.96, 0.75);
-    float a0 = t.x * min(t.y, exp2(-9.28 * NoV)) + t.z;
-    float a1 = t.w;
+    half4 t = half4(1 / 0.96, 0.475, (0.0275 - 0.25 * 0.04) / 0.96, 0.25);
+    t *= half4(g, g, g, g);
+    t += half4(0, 0, (0.015 - 0.75 * 0.04) / 0.96, 0.75);
+    half a0 = t.x * min(t.y, exp2(-9.28 * NoV)) + t.z;
+    half a1 = t.w;
     return saturate(lerp(a0, a1, rf0));
 }

@@ -60,11 +60,15 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #ifdef GEOMETRIC_SPECULAR_AA
     surf.perceptualRoughness = GSAA_Filament(worldNormal, surf.perceptualRoughness);
     #endif
-
+    
+    #ifdef _NORMAL_MAP
     surf.tangentNormal.g *= -1; // still need to figure out why its inverted by default
     worldNormal = normalize(surf.tangentNormal.x * tangent + surf.tangentNormal.y * bitangent + surf.tangentNormal.z * worldNormal);
     tangent = normalize(cross(worldNormal, bitangent));
     bitangent = normalize(cross(worldNormal, tangent));
+    #else
+    worldNormal = normalize(worldNormal);
+    #endif
 
 
     float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPos.xyz);
@@ -150,16 +154,21 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     half3 f0 = 0.16 * surf.reflectance * surf.reflectance * (1 - surf.metallic) + surf.albedo.rgb * surf.metallic;
     float2 dfg = _DFG.Sample(sampler_DFG, float3(NoV, surf.perceptualRoughness, 0)).rg;
     half3 fresnel = (f0 * dfg.x + 1 * dfg.y);
-    
+    float3 energyCompensation = 1.0 + f0 * (1.0 / dfg.x - 1.0);
+
 
     half clampedRoughness = max(surf.perceptualRoughness * surf.perceptualRoughness, 0.002);
 
     #if !defined(SPECULAR_HIGHLIGHTS_OFF) && defined(USING_LIGHT_MULTI_COMPILE)
-        float NoH = saturate(dot(worldNormal, lightHalfVector));
+        half NoH = saturate(dot(worldNormal, lightHalfVector));
 
-        float3 F = F_Schlick(lightLoH, f0);
-        float D = GGXTerm(NoH, clampedRoughness);
-        float V = V_SmithGGXCorrelated(NoV, lightNoL, clampedRoughness);
+        half3 F = F_Schlick(lightLoH, f0);
+        half D = D_GGX(NoH, clampedRoughness);
+        half V = V_SmithGGXCorrelated(NoV, lightNoL, clampedRoughness);
+        
+        #if !defined(SHADER_API_MOBILE)
+            F *= energyCompensation;
+        #endif
         directSpecular = max(0, (D * V) * F) * pixelLight * UNITY_PI;
     #endif
 
@@ -235,12 +244,14 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                 indirectSpecular = indirectSpecular * fresnel * horizon * horizon;
                 // indirectSpecular = indirectSpecular * EnvironmentBRDF(1-surf.perceptualRoughness , NoV, f0) * horizon * horizon;
             #else
-                indirectSpecular = probe0 * f0;
+                indirectSpecular = probe0 * EnvironmentBRDF(1 - surf.perceptualRoughness, NoV, f0);
             #endif
 
         #endif
 
+        #if !defined(SHADER_API_MOBILE) && defined(_MASK_MAP)
         indirectSpecular *= computeSpecularAO(NoV, surf.occlusion, surf.perceptualRoughness * surf.perceptualRoughness);
+        #endif
     #endif
     
 
