@@ -16,7 +16,6 @@ half _GlossinessMin;
 half _Metallic;
 half _MetallicMin;
 half _Occlusion;
-half _Reflectance;
 half _AlbedoSaturation;
 
 DECLARE_TEX2D_CUSTOM_SAMPLER(_DetailAlbedoMap);

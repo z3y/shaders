@@ -16,7 +16,6 @@
         [Gamma] _Metallic ("Metallic", Range(0,1)) = 0
         _MetallicMin ("Metallic Min", Range(0,1)) = 0
         _Occlusion ("Occlusion", Range(0,1)) = 0
-        _Reflectance ("Reflectance", Range(0.0, 1.0)) = 0.5
 
         _MetallicGlossMap ("Packed Mask:Metallic (R) | Occlusion (G) | Detail Mask (B) | Smoothness (A)", 2D) = "white" {}
 

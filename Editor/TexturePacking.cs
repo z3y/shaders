@@ -10,6 +10,23 @@ namespace z3y.Shaders.SimpleLit
     public class TexturePacking : Editor
     {
 
+        // private static void PackTextures(Material material)
+        // {
+        //     ChannelTexture redChannel = new ChannelTexture("Red", 0);
+        //     ChannelTexture greenChannel = new ChannelTexture("Green", 1);
+        //     ChannelTexture blueChannel = new ChannelTexture("Blue", 1);
+        //     ChannelTexture alphaChannel = new ChannelTexture("Alpha", 0);
+        //
+        //     ChannelTexture[] channelTextures = new ChannelTexture[] {redChannel,greenChannel,blueChannel,alphaChannel};
+        //     string newTexturePath = ChannelTexture.PackTexture(channelTextures, currentFolder[0], width, height, ChannelTexture.TexEncoding.SaveAsPNG);
+        //
+        //     TextureImporter tex = (TextureImporter)UnityEditor.AssetImporter.GetAtPath(newTexturePath);
+        //     tex.textureCompression = TextureImporterCompression.Compressed;
+        //     tex.sRGBTexture = false;
+        //     tex.SaveAndReimport();
+        //
+        // }
+
         private static Texture2D LoadTexture(string path)
         {
             Texture2D t;
@@ -187,9 +204,9 @@ namespace z3y.Shaders.SimpleLit
 
                     TextureImporter restoreSettings = (TextureImporter)AssetImporter.GetAtPath(texturePath);
                     restoreSettings.SetTextureSettings(originalSettings);
+                    restoreSettings.SaveAndReimport();
                     tex.textureCompression = oldCompression;
                     tex.sRGBTexture = oldsRGBSetting;
-                    restoreSettings.SaveAndReimport();
                     return newTexture;
                 }
             }

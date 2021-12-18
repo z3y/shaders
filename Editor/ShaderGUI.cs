@@ -174,8 +174,6 @@ namespace z3y.Shaders.SimpleLit
             EditorGUILayout.LabelField("Rendering Options", EditorStyles.boldLabel);
             Prop("_GlossyReflections");
             Prop("_SpecularHighlights");
-            Prop("_Reflectance");
-
             EditorGUILayout.Space();
 
 
@@ -276,6 +274,19 @@ namespace z3y.Shaders.SimpleLit
             if (EditorGUI.EndChangeCheck()) {
                 ApplyChanges(props, materialEditor, _material);
             };
+        }
+
+        public override void AssignNewShaderToMaterial(Material material, Shader oldShader, Shader newShader)
+        {
+            base.AssignNewShaderToMaterial(material, oldShader, newShader);
+            if (newShader.name == "Simple Lit")
+            {
+                foreach (var keyword in material.shaderKeywords)
+                {
+                    material.DisableKeyword(keyword);
+                    MaterialEditor.ApplyMaterialPropertyDrawers(material);
+                }
+            }
         }
 
         private static void SetupMaterialWithBlendMode(Material material, int type)

@@ -98,8 +98,4 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
         surf.emission = emissionMap * pow(_EmissionColor, 2.2);
     #endif
-
-    #ifndef SHADER_API_MOBILE
-    surf.reflectance = _Reflectance;
-    #endif
 }

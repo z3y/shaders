@@ -20,7 +20,7 @@
     #undef _DETAILNORMAL_MAP
     // #undef _MASK_MAP
     // #undef _NORMAL_MAP
-    #undef GEOMETRIC_SPECULAR_AA
+    // #undef GEOMETRIC_SPECULAR_AA
 #endif
 
 
