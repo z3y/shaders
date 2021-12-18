@@ -163,3 +163,14 @@ float3 GetSpecularHighlights(float3 worldNormal, float3 lightColor, float3 light
 
     return max(0, (D * V) * F) * lightColor * NoL * UNITY_PI;
 }
+
+half2 ApproxDFG(half Roughness, half NoV)
+{
+    // https://blog.selfshadow.com/publications/s2013-shading-course/lazarov/s2013_pbs_black_ops_2_notes.pdf
+    // https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile
+	const half4 c0 = half4(-1, -0.0275, -0.572, 0.022);
+	const half4 c1 = half4(1, 0.0425, 1.04, -0.04);
+	half4 r = Roughness * c0 + c1;
+	half a004 = min( r.x * r.x, exp2( -9.28 * NoV ) ) * r.x + r.y;
+	return half2( -1.04, 1.04 ) * a004 + r.zw;
+}

@@ -147,10 +147,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         pixelLight *= UnityComputeForwardShadows(i.coord0.zw, i.worldPos, i.screenPos);
     #endif
 
-    
     half3 f0 = 0.16 * surf.reflectance * surf.reflectance * (1 - surf.metallic) + surf.albedo.rgb * surf.metallic;
     half3 fresnel = F_Schlick(NoV, f0);
-    
     
 
     half clampedRoughness = max(surf.perceptualRoughness * surf.perceptualRoughness, 0.002);
@@ -208,9 +206,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     }
     #endif
 
-    #if !defined(SHADER_API_MOBILE)
-    fresnel *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
-    #endif
+    
     #if defined(UNITY_PASS_FORWARDBASE)
 
         #if !defined(REFLECTIONS_OFF)
@@ -220,7 +216,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             envData.roughness = surf.perceptualRoughness;
             envData.reflUVW = getBoxProjection(reflDir, i.worldPos.xyz, unity_SpecCube0_ProbePosition, unity_SpecCube0_BoxMin.xyz, unity_SpecCube0_BoxMax.xyz);
 
-            float3 probe0 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE(unity_SpecCube0), unity_SpecCube0_HDR, envData);
+            half3 probe0 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE(unity_SpecCube0), unity_SpecCube0_HDR, envData);
             indirectSpecular = probe0;
 
             #if defined(UNITY_SPECCUBE_BLENDING) && !defined(SHADER_API_MOBILE)
@@ -233,8 +229,15 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                 }
             #endif
 
-            float horizon = min(1 + dot(reflDir, worldNormal), 1);
-            indirectSpecular = indirectSpecular * lerp(fresnel, f0, surf.perceptualRoughness) * horizon * horizon;
+            #ifndef SHADER_API_MOBILE
+                float horizon = min(1 + dot(reflDir, worldNormal), 1);
+                float2 DFG = ApproxDFG(surf.perceptualRoughness, NoV);
+                DFG.y *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
+                indirectSpecular = indirectSpecular * (f0 * DFG.x + 1 * DFG.y) * horizon * horizon;
+            #else
+                indirectSpecular = probe0 * f0;
+            #endif
+
         #endif
 
         indirectSpecular *= computeSpecularAO(NoV, surf.occlusion, surf.perceptualRoughness * surf.perceptualRoughness);
