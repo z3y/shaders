@@ -148,7 +148,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
 
     half3 f0 = 0.16 * surf.reflectance * surf.reflectance * (1 - surf.metallic) + surf.albedo.rgb * surf.metallic;
-    half3 fresnel = F_Schlick(NoV, f0);
+    float2 dfg = _DFG.Sample(sampler_DFG, float3(NoV, surf.perceptualRoughness, 0)).rg;
+    half3 fresnel = (f0 * dfg.x + 1 * dfg.y);
     
 
     half clampedRoughness = max(surf.perceptualRoughness * surf.perceptualRoughness, 0.002);
@@ -159,7 +160,6 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         float3 F = F_Schlick(lightLoH, f0);
         float D = GGXTerm(NoH, clampedRoughness);
         float V = V_SmithGGXCorrelated(NoV, lightNoL, clampedRoughness);
-
         directSpecular = max(0, (D * V) * F) * pixelLight * UNITY_PI;
     #endif
 
@@ -231,9 +231,9 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
             #ifndef SHADER_API_MOBILE
                 float horizon = min(1 + dot(reflDir, worldNormal), 1);
-                float2 DFG = ApproxDFG(surf.perceptualRoughness, NoV);
-                DFG.y *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
-                indirectSpecular = indirectSpecular * (f0 * DFG.x + 1 * DFG.y) * horizon * horizon;
+                fresnel *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
+                indirectSpecular = indirectSpecular * fresnel * horizon * horizon;
+                // indirectSpecular = indirectSpecular * EnvironmentBRDF(1-surf.perceptualRoughness , NoV, f0) * horizon * horizon;
             #else
                 indirectSpecular = probe0 * f0;
             #endif

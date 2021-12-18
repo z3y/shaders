@@ -7,6 +7,7 @@
 
         _Cutoff ("Alpha Cuttoff", Range(0, 1)) = 0.5
 
+        [NonModifiableTextureData]_DFG ("DFG Lut", 2D) = "gray" {}
         _MainTex ("Base Map", 2D) = "white" {}
             _AlbedoSaturation ("Saturation", Range(0,2)) = 1
             _Color ("Base Color", Color) = (1,1,1,1)

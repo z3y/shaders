@@ -9,7 +9,8 @@ half4 _Color;
 
 DECLARE_TEX2D_CUSTOM_SAMPLER(_BumpMap);
 half _BumpScale;
-
+Texture2D _DFG;
+SamplerState sampler_DFG;
 DECLARE_TEX2D_CUSTOM(_MetallicGlossMap);
 half _Glossiness;
 half _GlossinessMin;
