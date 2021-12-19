@@ -61,7 +61,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     surf.perceptualRoughness = GSAA_Filament(worldNormal, surf.perceptualRoughness);
     #endif
     
-    #ifdef _NORMAL_MAP
+    #if defined(_NORMAL_MAP) || defined(_DETAILNORMAL_MAP)
     surf.tangentNormal.g *= -1; // still need to figure out why its inverted by default
     worldNormal = normalize(surf.tangentNormal.x * tangent + surf.tangentNormal.y * bitangent + surf.tangentNormal.z * worldNormal);
     tangent = normalize(cross(worldNormal, bitangent));
