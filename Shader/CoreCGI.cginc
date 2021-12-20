@@ -219,10 +219,14 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     }
     #endif
 
-    
+  
     #if defined(UNITY_PASS_FORWARDBASE)
         #if !defined(REFLECTIONS_OFF)
             float3 reflDir = reflect(-viewDir, worldNormal);
+
+            #ifndef SHADER_API_MOBILE
+                reflDir = lerp(reflDir, worldNormal, roughness * roughness);
+            #endif
 
             Unity_GlossyEnvironmentData envData;
             envData.roughness = surf.perceptualRoughness;
