@@ -155,10 +155,10 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     float2 dfg = _DFG.Sample(sampler_DFG, float3(NoV, surf.perceptualRoughness, 0)).rg;
     float3 energyCompensation = 1.0 + f0 * (1.0 / dfg.y - 1.0);
-    half3 fresnel = F_Schlick(NoV, f0);
 
 
-    half clampedRoughness = max(surf.perceptualRoughness * surf.perceptualRoughness, 0.002);
+    half roughness = surf.perceptualRoughness * surf.perceptualRoughness;
+    half clampedRoughness = max(roughness, 0.002);
 
     #if !defined(SPECULAR_HIGHLIGHTS_OFF) && defined(USING_LIGHT_MULTI_COMPILE)
         half NoH = saturate(dot(worldNormal, lightHalfVector));
@@ -174,7 +174,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         directSpecular = max(0, (D * V) * F) * pixelLight * UNITY_PI;
     #endif
 
-    #if defined(BAKEDSPECULAR) && defined(UNITY_PASS_FORWARDBASE) && !defined(BAKERY_VOLUME) && !defined(BAKERY_RNM) && !defined(_BAKERY_SH)
+    #if defined(BAKEDSPECULAR) && defined(UNITY_PASS_FORWARDBASE) && !defined(BAKERY_VOLUME) && !defined(BAKERY_RNM) && !defined(BAKERY_SH)
     {
         float3 bakedDominantDirection = 1;
         float3 bakedSpecularColor = 0;
@@ -203,7 +203,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
         float3 prevSpec = directSpecular;
         BakeryRNM(indirectDiffuse, directSpecular, lightmapUV, surf.tangentNormal, surf.perceptualRoughness, eyeVecT);
-        directSpecular *= fresnel;
+        dfg.x *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
+        directSpecular *= lerp(dfg.xxx, dfg.yyy, f0);
         directSpecular += prevSpec;
     }
     #endif
@@ -212,14 +213,14 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     {
         float3 prevSpec = directSpecular;
         BakerySH(indirectDiffuse, directSpecular, lightmapUV, worldNormal, -viewDir, surf.perceptualRoughness);
-        directSpecular *= fresnel;
+        dfg.x *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
+        directSpecular *= lerp(dfg.xxx, dfg.yyy, f0);
         directSpecular += prevSpec;
     }
     #endif
 
     
     #if defined(UNITY_PASS_FORWARDBASE)
-
         #if !defined(REFLECTIONS_OFF)
             float3 reflDir = reflect(-viewDir, worldNormal);
 
@@ -243,9 +244,9 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             #ifndef SHADER_API_MOBILE
                 float horizon = min(1 + dot(reflDir, worldNormal), 1);
 
-
+                #if !defined(BAKERY_RNM) && !defined(BAKERY_SH)
                 dfg.x *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
-
+                #endif
 
                 indirectSpecular = indirectSpecular * lerp(dfg.xxx, dfg.yyy, f0) * horizon * horizon * energyCompensation;
             #else
