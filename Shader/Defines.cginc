@@ -74,6 +74,18 @@
     #undef BAKERY_VOLUME
 #endif
 
+#ifdef LIGHTMAP_ON
+    #if defined(BAKERY_RNM) || defined(BAKERY_SH) || defined(BAKERY_VERTEXLM)
+        #define BAKERYLM_ENABLED
+        #undef DIRLIGHTMAP_COMBINED
+    #endif
+#endif
+
+#ifdef SHADER_API_MOBILE
+    #undef BAKERY_BICUBIC
+    #undef BAKERY_BICUBIC
+#endif
+
 #if defined(BAKERY_SH) || defined(BAKERY_RNM) || defined(BAKERY_VOLUME)
 
     #ifdef BAKERY_SH

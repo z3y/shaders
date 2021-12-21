@@ -62,12 +62,23 @@ half D_GGX(half NoH, half roughness)
     return k * k * (1.0 / UNITY_PI);
 }
 
+half V_SmithGGXCorrelatedFast(half NoV, half NoL, half roughness) {
+    half a = roughness;
+    float GGXV = NoL * (NoV * (1.0 - a) + a);
+    float GGXL = NoV * (NoL * (1.0 - a) + a);
+    return 0.5 / (GGXV + GGXL);
+}
+
 half V_SmithGGXCorrelated(half NoV, half NoL, half roughness)
 {
+    #ifdef SHADER_API_MOBILE
+    return V_SmithGGXCorrelatedFast(NoV, NoL, roughness);
+    #else
     half a2 = roughness * roughness;
-    half GGXV = NoL * sqrt(NoV * NoV * (1.0 - a2) + a2);
-    half GGXL = NoV * sqrt(NoL * NoL * (1.0 - a2) + a2);
+    float GGXV = NoL * sqrt(NoV * NoV * (1.0 - a2) + a2);
+    float GGXL = NoV * sqrt(NoL * NoL * (1.0 - a2) + a2);
     return 0.5 / (GGXV + GGXL);
+    #endif
 }
 
 half V_Kelemen(half LoH)
@@ -149,18 +160,21 @@ float3 getRealtimeLightmap(float2 uv, float3 worldNormal, float2 parallaxOffset)
 }
 #endif
 
-float3 GetSpecularHighlights(float3 worldNormal, float3 lightColor, float3 lightDirection, float3 f0, float3 viewDir, float clampedRoughness, float NoV)
+half3 GetSpecularHighlights(float3 worldNormal, half3 lightColor, float3 lightDirection, half3 f0, float3 viewDir, half clampedRoughness, half NoV, half3 energyCompensation)
 {
     float3 halfVector = Unity_SafeNormalize(lightDirection + viewDir);
 
-    float NoH = saturate(dot(worldNormal, halfVector));
-    float NoL = saturate(dot(worldNormal, lightDirection));
-    float LoH = saturate(dot(lightDirection, halfVector));
+    half NoH = saturate(dot(worldNormal, halfVector));
+    half NoL = saturate(dot(worldNormal, lightDirection));
+    half LoH = saturate(dot(lightDirection, halfVector));
 
-    float3 F = F_Schlick(LoH, f0);
-    float D = D_GGX(NoH, clampedRoughness);
-    float V = V_SmithGGXCorrelated ( NoV, NoL, clampedRoughness);
+    half3 F = F_Schlick(LoH, f0);
+    half D = D_GGX(NoH, clampedRoughness);
+    half V = V_SmithGGXCorrelated(NoV, NoL, clampedRoughness);
 
+    #ifndef SHADER_API_MOBILE
+    F *= energyCompensation;
+    #endif
 
     return max(0, (D * V) * F) * lightColor * NoL * UNITY_PI;
 }

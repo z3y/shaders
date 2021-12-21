@@ -62,6 +62,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
     
     #if defined(_NORMAL_MAP) || defined(_DETAILNORMAL_MAP)
+    float3 tangentNormalInv = surf.tangentNormal;
     surf.tangentNormal.g *= -1; // still need to figure out why its inverted by default
     worldNormal = normalize(surf.tangentNormal.x * tangent + surf.tangentNormal.y * bitangent + surf.tangentNormal.z * worldNormal);
     tangent = normalize(cross(worldNormal, bitangent));
@@ -82,7 +83,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         half lightNoL = saturate(dot(worldNormal, lightDirection));
         half lightLoH = saturate(dot(lightDirection, lightHalfVector));
         UNITY_LIGHT_ATTENUATION(lightAttenuation, i, i.worldPos.xyz);
-        pixelLight = (lightNoL * lightAttenuation * _LightColor0.rgb);
+        half3 lightCol = lightAttenuation * _LightColor0.rgb;
+        pixelLight = (lightNoL * lightCol);
         #if !defined(SHADER_API_MOBILE)
         pixelLight *= Fd_Burley(surf.perceptualRoughness, NoV, lightNoL, lightLoH);
         #endif
@@ -99,10 +101,49 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     half3 indirectDiffuse = 1;
     #if defined(LIGHTMAP_ON)
 
+        half3 lightMap = 0;
         float2 lightmapUV = i.coord0.zw * unity_LightmapST.xy + unity_LightmapST.zw;
-        half4 bakedColorTex = 0;
 
-        half3 lightMap = tex2DFastBicubicLightmap(lightmapUV, bakedColorTex);
+        #ifndef BAKERYLM_ENABLED
+            half4 bakedColorTex = 0;
+            lightMap = tex2DFastBicubicLightmap(lightmapUV, bakedColorTex);
+        #endif
+
+        #ifdef BAKERY_RNM
+            float3 rnm0 = DecodeLightmap(BakeryTex2D(_RNM0, lightmapUV, _RNM0_TexelSize));
+            float3 rnm1 = DecodeLightmap(BakeryTex2D(_RNM1, lightmapUV, _RNM0_TexelSize));
+            float3 rnm2 = DecodeLightmap(BakeryTex2D(_RNM2, lightmapUV, _RNM0_TexelSize));
+
+            lightMap =    saturate(dot(rnmBasis0, tangentNormalInv)) * rnm0
+                        + saturate(dot(rnmBasis1, tangentNormalInv)) * rnm1
+                        + saturate(dot(rnmBasis2, tangentNormalInv)) * rnm2;
+        #endif
+
+        #ifdef BAKERY_SH
+            float3 L0 = DecodeLightmap(BakeryTex2D(unity_Lightmap, samplerunity_Lightmap, lightmapUV, _RNM0_TexelSize));
+
+            float3 nL1x = BakeryTex2D(_RNM0, lightmapUV, _RNM0_TexelSize) * 2 - 1;
+            float3 nL1y = BakeryTex2D(_RNM1, lightmapUV, _RNM0_TexelSize) * 2 - 1;
+            float3 nL1z = BakeryTex2D(_RNM2, lightmapUV, _RNM0_TexelSize) * 2 - 1;
+            float3 L1x = nL1x * L0 * 2;
+            float3 L1y = nL1y * L0 * 2;
+            float3 L1z = nL1z * L0 * 2;
+
+            #ifdef BAKERY_SHNONLINEAR
+                float lumaL0 = dot(L0, float(1));
+                float lumaL1x = dot(L1x, float(1));
+                float lumaL1y = dot(L1y, float(1));
+                float lumaL1z = dot(L1z, float(1));
+                float lumaSH = shEvaluateDiffuseL1Geomerics(lumaL0, float3(lumaL1x, lumaL1y, lumaL1z), worldNormal);
+
+                lightMap = L0 + worldNormal.x * L1x + worldNormal.y * L1y + worldNormal.z * L1z;
+                float regularLumaSH = dot(lightMap, 1);
+                lightMap *= lerp(1, lumaSH / regularLumaSH, saturate(regularLumaSH*16));
+            #else
+                lightMap = L0 + worldNormal.x * L1x + worldNormal.y * L1y + worldNormal.z * L1z;
+            #endif
+            
+        #endif
 
         #if defined(DIRLIGHTMAP_COMBINED) && !defined(SHADER_API_MOBILE)
             float4 lightMapDirection = UNITY_SAMPLE_TEX2D_SAMPLER (unity_LightmapInd, unity_Lightmap, lightmapUV);
@@ -147,6 +188,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     #endif
 
+
     #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
         pixelLight *= UnityComputeForwardShadows(i.coord0.zw, i.worldPos, i.screenPos);
     #endif
@@ -174,7 +216,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         directSpecular = max(0, (D * V) * F) * pixelLight * UNITY_PI;
     #endif
 
-    #if defined(BAKEDSPECULAR) && defined(UNITY_PASS_FORWARDBASE) && !defined(BAKERY_VOLUME) && !defined(BAKERY_RNM) && !defined(BAKERY_SH)
+    #if defined(BAKEDSPECULAR) && defined(UNITY_PASS_FORWARDBASE) && !defined(BAKERYLM_ENABLED)
     {
         float3 bakedDominantDirection = 1;
         float3 bakedSpecularColor = 0;
@@ -190,33 +232,43 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
 
         bakedDominantDirection = normalize(bakedDominantDirection);
-        directSpecular += GetSpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, clampedRoughness, NoV);
+        directSpecular += GetSpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, clampedRoughness, NoV, energyCompensation);
     }
     #endif
 
-    #if defined(BAKERY_RNM)
-    {
-        float3 eyeVecT = 0;
-        #ifdef BAKERY_LMSPEC
-            eyeVecT = -normalize(i.parallaxViewDir);
+    #if defined(BAKERY_LMSPEC) && defined(UNITY_PASS_FORWARDBASE)
+
+        #ifdef BAKERY_RNM
+        {
+            float3 viewDirT = -normalize(i.parallaxViewDir);
+            float3 dominantDirT = rnmBasis0 * dot(rnm0, lumaConv) +
+                                  rnmBasis1 * dot(rnm1, lumaConv) +
+                                  rnmBasis2 * dot(rnm2, lumaConv);
+
+            float3 dominantDirTN = normalize(dominantDirT);
+            float3 specColor = saturate(dot(rnmBasis0, dominantDirTN)) * rnm0 +
+                               saturate(dot(rnmBasis1, dominantDirTN)) * rnm1 +
+                               saturate(dot(rnmBasis2, dominantDirTN)) * rnm2;
+
+            half3 halfDir = Unity_SafeNormalize(dominantDirTN - viewDirT);
+            half NoH = saturate(dot(tangentNormalInv, halfDir));
+            half spec = D_GGX(NoH, clampedRoughness);
+            directSpecular += spec * specColor * lerp(dfg.xxx, dfg.yyy, f0);
+        }
         #endif
 
-        float3 prevSpec = directSpecular;
-        BakeryRNM(indirectDiffuse, directSpecular, lightmapUV, surf.tangentNormal, surf.perceptualRoughness, eyeVecT);
-        dfg.x *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
-        directSpecular *= lerp(dfg.xxx, dfg.yyy, f0);
-        directSpecular += prevSpec;
-    }
-    #endif
+        #ifdef BAKERY_SH
+        {
+            float3 dominantDir = float3(dot(nL1x, lumaConv), dot(nL1y, lumaConv), dot(nL1z, lumaConv));
+            half3 halfDir = Unity_SafeNormalize(normalize(dominantDir) + viewDir);
+            half NoH = saturate(dot(worldNormal, halfDir));
+            half spec = D_GGX(NoH, clampedRoughness);
+            float3 sh = L0 + dominantDir.x * L1x + dominantDir.y * L1y + dominantDir.z * L1z;
+            dominantDir = normalize(dominantDir);
+            directSpecular += max(spec * sh, 0.0) * lerp(dfg.xxx, dfg.yyy, f0);
+        }
+        #endif
 
-    #ifdef BAKERY_SH
-    {
-        float3 prevSpec = directSpecular;
-        BakerySH(indirectDiffuse, directSpecular, lightmapUV, worldNormal, -viewDir, surf.perceptualRoughness);
-        dfg.x *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
-        directSpecular *= lerp(dfg.xxx, dfg.yyy, f0);
-        directSpecular += prevSpec;
-    }
     #endif
 
   
@@ -247,11 +299,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
             #ifndef SHADER_API_MOBILE
                 float horizon = min(1 + dot(reflDir, worldNormal), 1);
-
-                #if !defined(BAKERY_RNM) && !defined(BAKERY_SH)
                 dfg.x *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
-                #endif
-
                 indirectSpecular = indirectSpecular * lerp(dfg.xxx, dfg.yyy, f0) * horizon * horizon * energyCompensation;
             #else
                 indirectSpecular = probe0 * EnvironmentBRDF(1 - surf.perceptualRoughness, NoV, f0);
@@ -259,7 +307,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
         #endif
 
-        #if !defined(SHADER_API_MOBILE) && defined(_MASK_MAP)
+        #if defined(_MASK_MAP)
         indirectSpecular *= computeSpecularAO(NoV, surf.occlusion, surf.perceptualRoughness * surf.perceptualRoughness);
         #endif
     #endif

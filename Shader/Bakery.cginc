@@ -10,6 +10,10 @@
 #define BAKERYMODE_RNM 2.0f
 #define BAKERYMODE_SH 3.0f
 
+#define rnmBasis0 float3(0.816496580927726f, 0, 0.5773502691896258f)
+#define rnmBasis1 float3(-0.4082482904638631f, 0.7071067811865475f, 0.5773502691896258f)
+#define rnmBasis2 float3(-0.4082482904638631f, -0.7071067811865475f, 0.5773502691896258f)
+
 #ifdef BICUBIC_LIGHTMAP
 #define BAKERY_BICUBIC
 #endif
@@ -201,10 +205,7 @@ float BakeryBicubic_h1(float a)
 
 #if defined(BAKERY_RNM) || defined(BAKERY_SH)
 sampler2D _RNM0, _RNM1, _RNM2;
-#ifndef PROPERTIES_DEFINED
-
 float4 _RNM0_TexelSize;
-#endif
 #endif
 
 #ifdef BAKERY_VOLUME
@@ -217,6 +218,8 @@ float4 _RNM0_TexelSize;
     #endif
 
 #endif
+
+
 
 #ifdef BAKERY_BICUBIC
     // Bicubic
@@ -305,10 +308,6 @@ float BakeryDirectionalLightmapSpecular(float2 lmUV, float3 normalWorld, float3 
 void BakeryRNM(inout float3 diffuseColor, inout float3 specularColor, float2 lmUV, float3 normalMap, float perceptualRoughness, float3 viewDirT)
 {
     normalMap.g *= -1;
-    const float3 rnmBasis0 = float3(0.816496580927726f, 0, 0.5773502691896258f);
-    const float3 rnmBasis1 = float3(-0.4082482904638631f, 0.7071067811865475f, 0.5773502691896258f);
-    const float3 rnmBasis2 = float3(-0.4082482904638631f, -0.7071067811865475f, 0.5773502691896258f);
-
     float3 rnm0 = DecodeLightmap(BakeryTex2D(_RNM0, lmUV, _RNM0_TexelSize));
     float3 rnm1 = DecodeLightmap(BakeryTex2D(_RNM1, lmUV, _RNM0_TexelSize));
     float3 rnm2 = DecodeLightmap(BakeryTex2D(_RNM2, lmUV, _RNM0_TexelSize));
