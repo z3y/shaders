@@ -47,7 +47,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     half3 indirectSpecular = 0;
     half3 directSpecular = 0;
 
-    #if !defined(SHADER_API_MOBILE)
+    #if !defined(SHADER_API_MOBILE) && !defined(LIGHTMAP_ON)
     if(!facing)
     {
         worldNormal *= -1;
