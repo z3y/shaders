@@ -10,7 +10,12 @@ struct appdata
 {
     float4 vertex : POSITION;
     float3 normal : NORMAL;
-    float2 uv0 : TEXCOORD0;
+
+    #ifdef _TEXTURE_ARRAY
+        float3 uv0 : TEXCOORD0;
+    #else
+        float2 uv0 : TEXCOORD0;
+    #endif
     float2 uv1 : TEXCOORD1;
 
     #ifdef NEED_UV2
@@ -35,7 +40,7 @@ struct v2f
     float4 coord0 : TEXCOORD0;
 
     #ifdef NEED_UV2
-        float2 coord1 : TEXCOORD1;
+        float3 coord1 : TEXCOORD1;
     #endif
 
     #ifdef NEED_TANGENT_BITANGENT
@@ -99,13 +104,17 @@ v2f vert (appdata v)
         #endif
     #endif
 
-    o.coord0.xy = v.uv0;
+    o.coord0.xy = v.uv0.xy;
     o.coord0.zw = v.uv1;
 
     #ifdef NEED_UV2
         o.coord1.xy = v.uv2;
+
+        #ifdef _TEXTURE_ARRAY
+            o.coord1.z = v.uv0.z;
+        #endif
     #endif
-    
+
 
     #ifdef NEED_WORLD_NORMAL
         o.worldNormal = UnityObjectToWorldNormal(v.normal);

@@ -1,10 +1,36 @@
+static float arrayIndex;
+
+half4 SampleTexture(Texture2D t, SamplerState s, float2 uv)
+{
+    return t.Sample(s, uv);
+}
+
+half4 SampleTexture(Texture2DArray t, SamplerState s, float2 uv)
+{
+    return t.Sample(s, float3(uv, arrayIndex));
+}
+
+#if defined(_TEXTURE_ARRAY) || defined(_TEXTURE_ARRAY_INSTANCED)
+    #define TEXARGS(tex) tex##Array
+#else
+    #define TEXARGS(tex) tex
+#endif
+
 void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 {
+    #ifdef _TEXTURE_ARRAY
+        arrayIndex = i.coord1.z;
+    #endif
+
+    #ifdef _TEXTURE_ARRAY_INSTANCED
+        arrayIndex = _TextureIndex;
+    #endif
 
     half2 mainUV = i.coord0.xy * _MainTex_ST.xy + _MainTex_ST.zw + parallaxOffset;
     
 
-    half4 mainTexture = _MainTex.Sample(sampler_MainTex, mainUV);
+    // half4 mainTexture = _MainTex.Sample(sampler_MainTex, mainUV);
+    half4 mainTexture = SampleTexture(TEXARGS(_MainTex), TEXARGS(sampler_MainTex), mainUV);
 
     mainTexture *= _Color;
     
@@ -14,7 +40,8 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
     half4 maskMap = 1;
     #ifdef _MASK_MAP
-        maskMap = _MetallicGlossMap.Sample(sampler_MainTex, mainUV);
+        // maskMap = _MetallicGlossMap.Sample(sampler_MainTex, mainUV);
+        maskMap = SampleTexture(TEXARGS(_MetallicGlossMap), TEXARGS(sampler_MainTex), mainUV);
         surf.perceptualRoughness = 1 - (RemapMinMax(maskMap.a, _GlossinessMin, _Glossiness));
         surf.metallic = RemapMinMax(maskMap.r, _MetallicMin, _Metallic);
         surf.occlusion = lerp(1, maskMap.g, _Occlusion);
@@ -28,12 +55,11 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
     half4 normalMap = float4(0.5, 0.5, 1, 1);
     #ifdef _NORMAL_MAP
-        normalMap = _BumpMap.Sample(sampler_BumpMap, mainUV);
+        normalMap = SampleTexture(TEXARGS(_BumpMap), TEXARGS(sampler_BumpMap), mainUV);
         surf.tangentNormal = UnpackScaleNormal(normalMap, _BumpScale);
     #endif
 
 
-    float4 detailNormalMap = float4(0.5, 0.5, 1, 1);
     #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
 
         float2 detailUV = _DetailMapUV ?    i.coord0.zw * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw + parallaxOffset :
@@ -45,13 +71,16 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         float detailSmoothness = 0;
         
         #if defined(_DETAILALBEDO_MAP)
-            float4 detailAlbedoTex = _DetailAlbedoMap.Sample(sampler_DetailAlbedoMap, detailUV) * 2.0 - 1.0;
+            // float4 detailAlbedoTex = _DetailAlbedoMap.Sample(sampler_DetailAlbedoMap, detailUV) * 2.0 - 1.0;
+            float4 detailAlbedoTex = SampleTexture(_DetailAlbedoMap, TEXARGS(sampler_MainTex), mainUV) * 2.0 - 1.0;
             detailAlbedo = detailAlbedoTex.rgb;
             detailSmoothness = detailAlbedoTex.a;
         #endif
 
         #if defined(_DETAILNORMAL_MAP)
-            detailNormalMap = _DetailNormalMap.Sample(sampler_DetailNormalMap, detailUV);
+            float4 detailNormalMap = _DetailNormalMap.Sample(sampler_DetailNormalMap, detailUV);
+            float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale * maskMap.b);
+            surf.tangentNormal = BlendNormals(surf.tangentNormal, detailNormal);
         #endif
         
         #if defined(_DETAILALBEDO_MAP)
@@ -77,11 +106,6 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
             surf.perceptualRoughness = (1 - perceptualSmoothness);
         #endif
-
-        #if defined(_DETAILNORMAL_MAP)
-            float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale * maskMap.b);
-            surf.tangentNormal = BlendNormals(surf.tangentNormal, detailNormal);
-        #endif
         
     #endif
 
@@ -91,7 +115,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     
     #if defined(EMISSION)
         float3 emissionMap = 1;
-        emissionMap = _EmissionMap.Sample(sampler_MainTex, mainUV).rgb;
+        emissionMap = _EmissionMap.Sample(TEXARGS(sampler_MainTex), mainUV).rgb;
         
         UNITY_BRANCH
         if(_EmissionMultBase) emissionMap *= surf.albedo.rgb;

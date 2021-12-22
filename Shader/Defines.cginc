@@ -25,10 +25,14 @@
     #undef DIRLIGHTMAP_COMBINED
     #undef DYNAMICLIGHTMAP_ON
     #undef NEED_CENTROID_NORMAL
+    #undef _TEXTURE_STOCHASTIC
 #endif
 
+#if !defined(_TEXTURE_ARRAY) && !defined(_TEXTURE_ARRAY_INSTANCED)
+    #define _TEXTURE_DEFAULT
+#endif
 
-#if defined(TEXTUREARRAY)
+#if defined(_TEXTURE_ARRAY) || defined(_TEXTURE_ARRAY_INSTANCED)
     #undef PARALLAX
 #endif
 
@@ -51,7 +55,7 @@
 #endif
 
 
-#if defined(DYNAMICLIGHTMAP_ON) || defined(UNITY_PASS_META)
+#if defined(DYNAMICLIGHTMAP_ON) || defined(UNITY_PASS_META) || defined(_TEXTURE_ARRAY)
     #define NEED_UV2
 #endif
 
