@@ -46,7 +46,9 @@
 
         [ToggleOff(SPECULAR_HIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
         [ToggleOff(REFLECTIONS_OFF)] _GlossyReflections("Reflections", Float) = 1
-            _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
+
+        // removes fresnel from reflections on dark parts of the lightmap
+        _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
 
         [Toggle(GEOMETRIC_SPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
             [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
@@ -81,7 +83,8 @@
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Int) = 2
         [Enum(Off, 0, On, 1)] _AlphaToMask ("Alpha To Coverage", Int) = 0
 
-
+        // property blocks needed to work properly if used in VRChat
+        // https://github.com/z3y/UdonBakeryAdapter/
         [KeywordEnum(None, SH, RNM)] Bakery ("Bakery Mode", Int) = 0
             _RNM0("RNM0", 2D) = "black" {}
             _RNM1("RNM1", 2D) = "black" {}

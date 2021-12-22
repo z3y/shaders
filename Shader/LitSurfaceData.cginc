@@ -23,7 +23,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     #endif
 
     #ifdef _TEXTURE_ARRAY_INSTANCED
-        arrayIndex = _TextureIndex;
+        arrayIndex = UNITY_ACCESS_INSTANCED_PROP(Props, _TextureIndex);
     #endif
 
     half2 mainUV = i.coord0.xy * _MainTex_ST.xy + _MainTex_ST.zw + parallaxOffset;
