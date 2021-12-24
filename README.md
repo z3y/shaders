@@ -2,6 +2,7 @@ A Unity standard-like shader made from scratch with some improvements. Built-in 
 
 ### Shader Features:
 
+- Accurate Fresnel
 - Geometric Specular AA
 - Antialiased Cutout (Alpha to Coverage)
 - Bakery SH and RNM
