@@ -23,6 +23,16 @@
         _Occlusion ("Occlusion", Range(0,1)) = 0
         _Reflectance ("Reflectance", Range(0.0, 1.0)) = 0.5
 
+
+        // Packed texture same as the HDRP/Lit Mask Map
+        // Red Channel - Metallic
+        // Green Channel - Occlusion
+        // Blue Channel - Detail Mask
+        // Alpha Channel - Smoothness (Inverted Roughness)
+        //
+        // useful tools for packing outside of unity https://matheusdalla.gumroad.com/l/EasyChannelPacking
+        // more advanced packing in unity https://github.com/s-ilent/SmartTexture or
+        // https://github.com/Dreadrith/DreadScripts/tree/main/Texture%20Utility
         _MetallicGlossMap ("Packed Mask:Metallic (R) | Occlusion (G) | Detail Mask (B) | Smoothness (A)", 2D) = "white" {}
         _MetallicGlossMapArray ("Packed Mask Array:Metallic (R) | Occlusion (G) | Detail Mask (B) | Smoothness (A)", 2DArray) = "" {}
 
@@ -59,7 +69,9 @@
             [ToggleUI] _EmissionMultBase ("Multiply Base", Int) = 0
             [HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
 
-
+        // Detail texture difference from standard:
+        // Uses blend mode overlay,
+        // Optional smoothness texture can be packed as albedo alpha
         _DetailAlbedoMap ("Detail Albedo:Albedo (RGB) | Smoothness (A)", 2D) = "linearGrey" {}
         [Normal] _DetailNormalMap ("Detail Normal", 2D) = "bump" {}
             [Enum(UV0, 0, UV1, 1)]  _DetailMapUV ("Detail UV", Int) = 0
@@ -75,6 +87,8 @@
 
 
         [Toggle(NONLINEAR_LIGHTPROBESH)] _NonLinearLightProbeSH ("Non-linear Light Probe SH", Int) = 0
+
+        // specular highlights from lightmaps (Directional, SH and RNM) and for dynamic objects from light probes
         [Toggle(BAKEDSPECULAR)] _BakedSpecular ("Baked Specular ", Int) = 0
 
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Source Blend", Int) = 1
@@ -91,14 +105,17 @@
             _RNM2("RNM2", 2D) = "black" {}
 
         
-        [KeywordEnum(Default, Array, Array Instanced)] _Texture ("Sampling Mode", Int) = 0
-        // triplanar and stochastic in the future but only if done properly
-        
         // array using uv0 Z for the array index, meshes do not need to be generated with new uv data,
         // only changing the data in memory is enough, unless they are built in unity meshes (cube, sphere, etc)
         // if meshes are static unity will combine them before build and it keeps the modified uv data
-
         // array instanced using instanced float named _TextureIndex, make sure to also enable instancing
+        //
+        // scripts for using texture arrays https://github.com/z3y/shaders/tree/main/Scripts/TextureArrays
+        // and in vrchat https://github.com/z3y/shaders/tree/main/Scripts/UdonPropertyBlocks
+        // for instanced arrays drop the prefab in the scene and on build it will take all values from the C# scripts and handle them on start with one udon behaviour
+        // If building for multiple platforms be sure to compress 2D arrays again for the target platform. Unity does not handle this automatically and it can lead to huge performance issues
+        // Recommended tool that handles this properly and automatically https://github.com/pschraut/UnityTexture2DArrayImportPipeline
+        [KeywordEnum(Default, Array, Array Instanced)] _Texture ("Sampling Mode", Int) = 0
         
         [HideInInspector] [ToggleOff(_TEXTURE_DEFAULT)] _KeywordOffTexture ("", Float) = 1
         [HideInInspector] [ToggleOff(_MODE_OPAQUE)] _KeywordOffOpaque ("", Float) = 1
