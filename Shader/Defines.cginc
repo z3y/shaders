@@ -1,6 +1,7 @@
 #define grayscaleVec half3(0.2125, 0.7154, 0.0721)
 #define TAU 6.28318530718
 #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y))))
+#define VERTEXLIGHT_PS
 
 // #define NEED_CENTROID_NORMAL
 
@@ -26,6 +27,7 @@
     #undef DYNAMICLIGHTMAP_ON
     #undef NEED_CENTROID_NORMAL
     #undef _TEXTURE_STOCHASTIC
+    #undef VERTEXLIGHT_PS
 #endif
 
 #if !defined(_TEXTURE_ARRAY) && !defined(_TEXTURE_ARRAY_INSTANCED)
@@ -67,6 +69,7 @@
     #define NEED_WORLD_NORMAL
     #define NEED_WORLD_POS
 #endif
+
 
 
 #if !defined(LIGHTMAP_ON) || !defined(UNITY_PASS_FORWARDBASE)

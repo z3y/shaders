@@ -85,15 +85,20 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         UNITY_LIGHT_ATTENUATION(lightAttenuation, i, i.worldPos.xyz);
         half3 lightCol = lightAttenuation * _LightColor0.rgb;
         pixelLight = (lightNoL * lightCol);
+
         #if !defined(SHADER_API_MOBILE)
-        pixelLight *= Fd_Burley(surf.perceptualRoughness, NoV, lightNoL, lightLoH);
+            pixelLight *= Fd_Burley(surf.perceptualRoughness, NoV, lightNoL, lightLoH);
         #endif
     #endif
 
-    #ifdef VERTEXLIGHT_ON
-    half3 vertexLight = i.vertexLight;
-    #else
     half3 vertexLight = 0;
+    #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
+        vertexLight = i.vertexLight;
+    #endif
+
+    #if defined(VERTEXLIGHT_PS) && defined(VERTEXLIGHT_ON)
+        VertexLightInformation vLights = (VertexLightInformation)0;
+        InitVertexLightData(i.worldPos, worldNormal, vLights);
     #endif
 
     
@@ -214,6 +219,27 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
 
         directSpecular = max(0, (D * V) * F) * pixelLight * UNITY_PI;
+    #endif
+
+    #if defined(VERTEXLIGHT_PS) && defined(VERTEXLIGHT_ON)
+        [unroll(4)]
+        for(int j = 0; j < 4; j++)
+        {
+            float vLightNoL = saturate(dot(worldNormal, vLights.Direction[j]));
+            float3 vLightCol = vLightNoL * vLights.ColorFalloff[j];
+            vertexLight += vLightCol;
+
+            #ifndef SPECULAR_HIGHLIGHTS_OFF
+                float3 vLightHalfVector = Unity_SafeNormalize(vLights.Direction[j] + viewDir);
+                half vNoH = saturate(dot(worldNormal, vLightHalfVector));
+                half vLoH = saturate(dot(vLights.Direction[j], vLightHalfVector));
+
+                half3 Fv = F_Schlick(vLoH, f0);
+                half Dv = D_GGX(vNoH, clampedRoughness);
+                half Vv = V_SmithGGXCorrelatedFast(NoV, vLightNoL, clampedRoughness);
+                directSpecular += max(0, (Dv * Vv) * Fv) * vLightCol * UNITY_PI;
+            #endif
+        }
     #endif
 
     #if defined(BAKEDSPECULAR) && defined(UNITY_PASS_FORWARDBASE) && !defined(BAKERYLM_ENABLED)

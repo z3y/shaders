@@ -80,7 +80,7 @@ struct v2f
         UNITY_SHADOW_COORDS(11)
     #endif
 
-    #ifdef VERTEXLIGHT_ON
+    #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
         half3 vertexLight : TEXCOORD12;
     #endif
 
@@ -129,7 +129,7 @@ v2f vert (appdata v)
         o.worldPos = mul(unity_ObjectToWorld, v.vertex);
     #endif
 
-    #if defined(VERTEXLIGHT_ON)
+    #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
 		o.vertexLight = Shade4PointLights
         (
 			unity_4LightPosX0, unity_4LightPosY0, unity_4LightPosZ0,

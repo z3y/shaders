@@ -6,7 +6,7 @@
 
         _Cutoff ("Alpha Cuttoff", Range(0, 1)) = 0.5
 
-        // pregenerated lookup textures give much better results than any approximations i've found for fresnel
+        // pre-generated lookup textures give much better results than any approximations i've found for fresnel
         // generated with cmgen from google filament, with energy compensation
         // possible to swap out with another one, similar to one used in unreal, but energy compensation needs to be removed in code
         [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}

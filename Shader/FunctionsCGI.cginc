@@ -190,3 +190,7 @@ half3 EnvironmentBRDF(half g, half NoV, half3 rf0)
     half a1 = t.w;
     return saturate(lerp(a0, a1, rf0));
 }
+
+#if defined(VERTEXLIGHT_PS) && defined(VERTEXLIGHT_ON)
+    #include "NonImportantLights.cginc"
+#endif
