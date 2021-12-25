@@ -110,8 +110,7 @@
         // if meshes are static unity will combine them before build and it keeps the modified uv data
         // array instanced using instanced float named _TextureIndex, make sure to also enable instancing
         //
-        // scripts for using texture arrays https://github.com/z3y/shaders/tree/main/Scripts/TextureArrays
-        // and in vrchat https://github.com/z3y/shaders/tree/main/Scripts/UdonPropertyBlocks
+        // scripts for setting the array index included in scripts folder
         // for instanced arrays drop the prefab in the scene and on build it will take all values from the C# scripts and handle them on start with one udon behaviour
         // If building for multiple platforms be sure to compress 2D arrays again for the target platform. Unity does not handle this automatically and it can lead to huge performance issues
         // Recommended tool that handles this properly and automatically https://github.com/pschraut/UnityTexture2DArrayImportPipeline
