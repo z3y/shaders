@@ -261,5 +261,5 @@
             ENDCG
         }
     }
-    CustomEditor "z3y.Shaders.SimpleLit.ShaderEditor"
+    CustomEditor "z3y.Shaders.SimpleLitGUI"
 }

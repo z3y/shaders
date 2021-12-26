@@ -4,10 +4,10 @@ using UnityEngine;
 using static z3y.Shaders.SimpleLit.Helpers;
 using static z3y.Shaders.SimpleLit.TexturePacking;
 
-namespace z3y.Shaders.SimpleLit
+namespace z3y.Shaders
 {
 
-    public class ShaderEditor : ShaderGUI
+    public class SimpleLitGUI : ShaderGUI
     {
         private void ShaderPropertiesGUI(Material material, MaterialProperty[] props, MaterialEditor materialEditor)
         {

@@ -61,4 +61,5 @@ UNITY_INSTANCING_BUFFER_END(Props)
 #endif
 
 #include "SurfaceData.cginc"
+#include "Config.cginc"
 #include "Defines.cginc"
