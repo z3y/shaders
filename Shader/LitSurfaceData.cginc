@@ -16,6 +16,12 @@ half4 SampleTexture(Texture2DArray t, SamplerState s, float2 uv)
     #define TEXARGS(tex) tex
 #endif
 
+#ifdef HEMIOCTAHEDRON_DECODING
+    #define UNPACK_NORMAL(tex, scale) UnpackScaleNormalHemiOctahedron(tex, scale);
+#else
+    #define UNPACK_NORMAL(tex, scale) UnpackScaleNormal(tex, scale);
+#endif
+
 void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 {
     #ifdef _TEXTURE_ARRAY
@@ -56,7 +62,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     half4 normalMap = float4(0.5, 0.5, 1, 1);
     #ifdef _NORMAL_MAP
         normalMap = SampleTexture(TEXARGS(_BumpMap), TEXARGS(sampler_BumpMap), mainUV);
-        surf.tangentNormal = UnpackScaleNormal(normalMap, _BumpScale);
+        surf.tangentNormal = UNPACK_NORMAL(normalMap, _BumpScale);
     #endif
 
 
@@ -79,7 +85,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
         #if defined(_DETAILNORMAL_MAP)
             float4 detailNormalMap = _DetailNormalMap.Sample(sampler_DetailNormalMap, detailUV);
-            float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale * maskMap.b);
+            float3 detailNormal = UNPACK_NORMAL(detailNormalMap, _DetailNormalScale * maskMap.b);
             surf.tangentNormal = BlendNormals(surf.tangentNormal, detailNormal);
         #endif
         
@@ -117,8 +123,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         float3 emissionMap = 1;
         emissionMap = _EmissionMap.Sample(TEXARGS(sampler_MainTex), mainUV).rgb;
         
-        UNITY_BRANCH
-        if(_EmissionMultBase) emissionMap *= surf.albedo.rgb;
+        emissionMap *= _EmissionMultBase ? surf.albedo.rgb : 1;
 
         surf.emission = emissionMap * pow(_EmissionColor, 2.2);
     #endif

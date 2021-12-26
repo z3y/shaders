@@ -1,5 +1,5 @@
 A Unity standard-like shader made from scratch with some improvements. Built-in pipeline and forward rendering only (VRChat). 
-### [Download](https://github.com/z3y/simple-lit/archive/refs/heads/main.zip)
+
 ### Shader Features:
 
 - Accurate PBR Shading

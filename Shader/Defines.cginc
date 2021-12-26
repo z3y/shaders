@@ -1,22 +1,10 @@
 #define grayscaleVec half3(0.2125, 0.7154, 0.0721)
 #define TAU 6.28318530718
 #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y))))
-#define VERTEXLIGHT_PS
-
-// #define NEED_CENTROID_NORMAL
-
-// #define SHADER_API_MOBILE
 
 
 #if defined(SHADER_API_MOBILE)
-    // #undef _MASK_MAP
-    #undef _NORMAL_MAP
-    #define SPECULAR_HIGHLIGHTS_OFF
-    // #define REFLECTIONS_OFF
-
-    #undef _DETAILALBEDO_MAP
     #undef _DETAILNORMAL_MAP
-    #undef GEOMETRIC_SPECULAR_AA
     #undef BICUBIC_LIGHTMAP
     #undef NONLINEAR_LIGHTPROBESH
     #undef PARALLAX
@@ -26,9 +14,11 @@
     #undef DIRLIGHTMAP_COMBINED
     #undef DYNAMICLIGHTMAP_ON
     #undef NEED_CENTROID_NORMAL
-    #undef _TEXTURE_STOCHASTIC
     #undef VERTEXLIGHT_PS
+    #undef LOD_FADE_CROSSFADE
+    #undef HEMIOCTAHEDRON_DECODING
 #endif
+
 
 #if !defined(_TEXTURE_ARRAY) && !defined(_TEXTURE_ARRAY_INSTANCED)
     #define _TEXTURE_DEFAULT

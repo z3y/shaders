@@ -34,6 +34,21 @@ half Fd_Burley(half roughness, half NoV, half NoL, half LoH)
     return lightScatter * viewScatter;
 }
 
+float3 UnpackScaleNormalHemiOctahedron(float4 normalMap, float bumpScale)
+{
+    #if defined(SHADER_API_MOBILE)
+        return UnpackScaleNormal(normalMap, bumpScale).xyz;
+    #endif
+    // https://twitter.com/Stubbesaurus/status/937994790553227264
+    half2 f = normalMap.ag * 2 - 1;
+    normalMap.xyz = float3(f.x, f.y, 1 - abs(f.x) - abs(f.y));
+    float t = saturate(-normalMap.z);
+    normalMap.xy += normalMap.xy >= 0.0 ? -t : t;
+    normalMap.xy *= bumpScale;
+    return normalize(normalMap);
+}
+
+
 #include "Bicubic.cginc"
 
 float3 getBoxProjection (float3 direction, float3 position, float4 cubemapPosition, float3 boxMin, float3 boxMax)
