@@ -20,6 +20,5 @@ A Unity standard-like shader made from scratch with some improvements. Built-in 
 ![Texture Packing](https://i.postimg.cc/1RFDXYhP/image.png)
 
 
-Experimental lower quality version used for Mobile (Oculus Quest) with most features disabled
 
 If you want to ask something add me z3y#3214 or join https://discord.gg/bw46tKgRFT
