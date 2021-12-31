@@ -29,16 +29,17 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     #endif
 
     #ifdef _TEXTURE_ARRAY_INSTANCED
-        arrayIndex = UNITY_ACCESS_INSTANCED_PROP(Props, _TextureIndex);
+        arrayIndex = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _TextureIndex);
     #endif
 
-    half2 mainUV = i.coord0.xy * _MainTex_ST.xy + _MainTex_ST.zw + parallaxOffset;
+    float4 mainST = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _MainTex_ST);
+    half2 mainUV = i.coord0.xy * mainST.xy + mainST.zw + parallaxOffset;
     
 
     // half4 mainTexture = _MainTex.Sample(sampler_MainTex, mainUV);
     half4 mainTexture = SampleTexture(TEXARGS(_MainTex), TEXARGS(sampler_MainTex), mainUV);
 
-    mainTexture *= _Color;
+    mainTexture *= UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _Color);
     
     surf.albedo = mainTexture.rgb;
     surf.alpha = mainTexture.a;
@@ -47,7 +48,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     half4 maskMap = 1;
     #ifdef _MASK_MAP
         // maskMap = _MetallicGlossMap.Sample(sampler_MainTex, mainUV);
-        maskMap = SampleTexture(TEXARGS(_MetallicGlossMap), TEXARGS(sampler_MainTex), mainUV);
+        maskMap = SampleTexture(TEXARGS(_MetallicGlossMap), TEXARGS(sampler_MetallicGlossMap), mainUV);
         surf.perceptualRoughness = 1 - (RemapMinMax(maskMap.a, _GlossinessMin, _Glossiness));
         surf.metallic = RemapMinMax(maskMap.r, _MetallicMin, _Metallic);
         surf.occlusion = lerp(1, maskMap.g, _Occlusion);
@@ -78,13 +79,13 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         
         #if defined(_DETAILALBEDO_MAP)
             // float4 detailAlbedoTex = _DetailAlbedoMap.Sample(sampler_DetailAlbedoMap, detailUV) * 2.0 - 1.0;
-            float4 detailAlbedoTex = SampleTexture(_DetailAlbedoMap, TEXARGS(sampler_MainTex), mainUV) * 2.0 - 1.0;
+            float4 detailAlbedoTex = SampleTexture(_DetailAlbedoMap, sampler_DetailAlbedoMap, detailUV) * 2.0 - 1.0;
             detailAlbedo = detailAlbedoTex.rgb;
             detailSmoothness = detailAlbedoTex.a;
         #endif
 
         #if defined(_DETAILNORMAL_MAP)
-            float4 detailNormalMap = _DetailNormalMap.Sample(sampler_DetailNormalMap, detailUV);
+            float4 detailNormalMap = SampleTexture(_DetailNormalMap, sampler_DetailNormalMap, detailUV);
             float3 detailNormal = UNPACK_NORMAL(detailNormalMap, _DetailNormalScale * maskMap.b);
             surf.tangentNormal = BlendNormals(surf.tangentNormal, detailNormal);
         #endif
@@ -121,11 +122,13 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     
     #if defined(EMISSION)
         float3 emissionMap = 1;
-        emissionMap = _EmissionMap.Sample(TEXARGS(sampler_MainTex), mainUV).rgb;
+        emissionMap =  SampleTexture(_EmissionMap, sampler_EmissionMap, mainUV).rgb;
         
         emissionMap *= _EmissionMultBase ? surf.albedo.rgb : 1;
-
-        surf.emission = emissionMap * pow(_EmissionColor, 2.2);
+        
+        // does standard really use pow? that feels like such a waste
+        // TODO: pow 2.2 approximation
+        surf.emission = emissionMap * pow(UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _EmissionColor), 2.2);
     #endif
 
     #ifndef SHADER_API_MOBILE

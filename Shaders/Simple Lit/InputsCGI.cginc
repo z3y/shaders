@@ -1,64 +1,58 @@
-#define DECLARE_TEX2D_CUSTOM_SAMPLER(tex) SamplerState sampler##tex; Texture2D tex
-#define DECLARE_TEX2D_CUSTOM(tex)                                    Texture2D tex
 
 static float2 parallaxOffset;
 
-DECLARE_TEX2D_CUSTOM_SAMPLER(_MainTex);
-Texture2DArray _MainTexArray;
-SamplerState sampler_MainTexArray;
-half4 _MainTex_ST;
-half4 _Color;
+Texture2D _DFG; SamplerState sampler_DFG;
 
-DECLARE_TEX2D_CUSTOM_SAMPLER(_BumpMap);
-Texture2DArray _BumpMapArray;
-SamplerState sampler_BumpMapArray;
-half _BumpScale;
+Texture2D _MainTex; SamplerState sampler_MainTex;
+Texture2D _MetallicGlossMap; SamplerState sampler_MetallicGlossMap;
+Texture2D _BumpMap; SamplerState sampler_BumpMap;
 
-Texture2D _DFG;
-SamplerState sampler_DFG;
+Texture2D _DetailNormalMap; SamplerState sampler_DetailNormalMap;
+Texture2D _DetailAlbedoMap; SamplerState sampler_DetailAlbedoMap;
 
-DECLARE_TEX2D_CUSTOM(_MetallicGlossMap);
-Texture2DArray _MetallicGlossMapArray;
+Texture2D _EmissionMap; SamplerState sampler_EmissionMap;
+Texture2D _ParallaxMap; SamplerState sampler_ParallaxMap;
+
+Texture2DArray _MainTexArray; SamplerState sampler_MainTexArray;
+Texture2DArray _BumpMapArray; SamplerState sampler_BumpMapArray;
+Texture2DArray _MetallicGlossMapArray; SamplerState sampler_MetallicGlossMapArray;
+
+
 half _Glossiness;
 half _GlossinessMin;
 half _Metallic;
 half _MetallicMin;
 half _Occlusion;
-half _Reflectance;
-half _AlbedoSaturation;
 
-DECLARE_TEX2D_CUSTOM_SAMPLER(_DetailAlbedoMap);
-DECLARE_TEX2D_CUSTOM_SAMPLER(_DetailNormalMap);
+half _BumpScale;
+half _Reflectance;
+
 half4 _DetailAlbedoMap_ST;
 half _DetailMapUV;
 half _DetailAlbedoScale;
 half _DetailNormalScale;
 half _DetailSmoothnessScale;
 
+half _AlbedoSaturation;
+half _SpecularOcclusion;
 half _Cutoff;
+
 half _GSAA;
 half _specularAntiAliasingVariance;
 half _specularAntiAliasingThreshold;
-half _SpecularOcclusion;
 
-DECLARE_TEX2D_CUSTOM(_EmissionMap);
 half _EmissionMultBase;
-half3 _EmissionColor;
 
-
-DECLARE_TEX2D_CUSTOM(_ParallaxMap);
 half _ParallaxSteps;
 half _ParallaxOffset;
 half _Parallax;
 
-#if defined (_TEXTURE_ARRAY_INSTANCED)
-UNITY_INSTANCING_BUFFER_START(Props)
-    #if defined (_TEXTURE_ARRAY_INSTANCED)
-        UNITY_DEFINE_INSTANCED_PROP(float, _TextureIndex)
-    #endif
-
-UNITY_INSTANCING_BUFFER_END(Props)
-#endif
+UNITY_INSTANCING_BUFFER_START(InstancedProps)
+    UNITY_DEFINE_INSTANCED_PROP(float, _TextureIndex)
+    UNITY_DEFINE_INSTANCED_PROP(float4, _MainTex_ST)
+    UNITY_DEFINE_INSTANCED_PROP(half4, _Color)
+    UNITY_DEFINE_INSTANCED_PROP(half3, _EmissionColor)
+UNITY_INSTANCING_BUFFER_END(InstancedProps)
 
 #include "SurfaceData.cginc"
 #include "Config.cginc"

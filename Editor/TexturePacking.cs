@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
-namespace z3y.Shaders.SimpleLit
+namespace z3y.Shaders
 {
     public class TexturePacking : Editor
     {

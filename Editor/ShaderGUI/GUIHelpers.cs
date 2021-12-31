@@ -2,9 +2,9 @@
 using UnityEngine;
 using System;
 
-namespace z3y.Shaders.SimpleLit
+namespace z3y.Shaders
 {
-    public class Helpers
+    public static class Helpers
     {
        public static void PropertyGroup(Action action)
        {
@@ -17,6 +17,14 @@ namespace z3y.Shaders.SimpleLit
 			}
 			GUILayout.Space(1);
 		}
+
+		public static bool boolValue (this MaterialProperty p)
+        {
+			if (p.type == MaterialProperty.PropType.Texture)
+				return p.textureValue;
+
+			return p.floatValue == 1;
+        }
        
        public static bool TextureFoldout(bool display)
        {
@@ -57,7 +65,8 @@ namespace z3y.Shaders.SimpleLit
 			return buttonPress;
 		}
 
-		public static void sRGBWarning(MaterialProperty tex) {
+		public static void sRGBWarning(MaterialProperty tex)
+		{
             if(tex is null) return;
 			if (tex.textureValue){
 				string sRGBWarning = "This texture is marked as sRGB, but should be linear.";
@@ -75,37 +84,22 @@ namespace z3y.Shaders.SimpleLit
 				}
 			}
 		}
-        private const char hoverSplitSeparator = ':';
 
         public static void MaterialProp(MaterialProperty property, MaterialProperty extraProperty, MaterialEditor me)
         {
-            // if(property is null) return;
-
-
-            if( property.type == MaterialProperty.PropType.Range ||
-                property.type == MaterialProperty.PropType.Float ||
-                property.type == MaterialProperty.PropType.Vector ||
-                property.type == MaterialProperty.PropType.Color)
-            {
-                me.ShaderProperty(property, property.displayName);
-
-            }
-
             if(property.type == MaterialProperty.PropType.Texture) 
             {
-                string[] p = property.displayName.Split(hoverSplitSeparator);
+                string[] p = property.displayName.Split(':');
                 p[0] = p[0];
 
-
                 me.TexturePropertySingleLine(new GUIContent(p[0], p.Length == 2 ? p[1] : null), property, extraProperty);
+				return;
             }
-        }
 
-        public static void DrawPropTileOffset(MaterialProperty property, MaterialEditor me)
-        {
-            me.TextureScaleOffsetProperty(property);
-            EditorGUI.EndDisabledGroup();
-        }
+			me.ShaderProperty(property, property.displayName);
+		}
+
+
         public static void SetupGIFlags(float emissionEnabled, Material material)
         {
             MaterialGlobalIlluminationFlags flags = material.globalIlluminationFlags;
