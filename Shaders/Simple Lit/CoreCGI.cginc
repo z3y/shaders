@@ -221,26 +221,34 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         directSpecular = max(0, (D * V) * F) * pixelLight * UNITY_PI;
     #endif
 
+
     #if defined(VERTEXLIGHT_PS) && defined(VERTEXLIGHT_ON)
         [unroll(4)]
         for(int j = 0; j < 4; j++)
         {
-            float vLightNoL = saturate(dot(worldNormal, vLights.Direction[j]));
-            float3 vLightCol = vLightNoL * vLights.ColorFalloff[j];
-            vertexLight += vLightCol;
+            UNITY_BRANCH
+            if(vLights.Attenuation[j] > 0)
+            {
+                vLights.Direction[j] = normalize(vLights.Direction[j]);
+                float vLightNoL = saturate(dot(worldNormal, vLights.Direction[j]));
+                float3 vLightCol = vLightNoL * vLights.ColorFalloff[j];
+                vertexLight += vLightCol;
 
-            #ifndef SPECULAR_HIGHLIGHTS_OFF
-                float3 vLightHalfVector = Unity_SafeNormalize(vLights.Direction[j] + viewDir);
-                half vNoH = saturate(dot(worldNormal, vLightHalfVector));
-                half vLoH = saturate(dot(vLights.Direction[j], vLightHalfVector));
+                #ifndef SPECULAR_HIGHLIGHTS_OFF
+                    float3 vLightHalfVector = Unity_SafeNormalize(vLights.Direction[j] + viewDir);
+                    half vNoH = saturate(dot(worldNormal, vLightHalfVector));
+                    half vLoH = saturate(dot(vLights.Direction[j], vLightHalfVector));
 
-                half3 Fv = F_Schlick(vLoH, f0);
-                half Dv = D_GGX(vNoH, clampedRoughness);
-                half Vv = V_SmithGGXCorrelatedFast(NoV, vLightNoL, clampedRoughness);
-                directSpecular += max(0, (Dv * Vv) * Fv) * vLightCol * UNITY_PI;
-            #endif
+                    half3 Fv = F_Schlick(vLoH, f0);
+                    half Dv = D_GGX(vNoH, clampedRoughness);
+                    half Vv = V_SmithGGXCorrelatedFast(NoV, vLightNoL, clampedRoughness);
+                    directSpecular += max(0, (Dv * Vv) * Fv) * vLightCol * UNITY_PI;
+                #endif
+            }
         }
     #endif
+
+
 
     #if defined(BAKEDSPECULAR) && defined(UNITY_PASS_FORWARDBASE) && !defined(BAKERYLM_ENABLED)
     {
@@ -325,7 +333,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
             #ifndef SHADER_API_MOBILE
                 float horizon = min(1 + dot(reflDir, worldNormal), 1);
-                dfg.x *= saturate(pow(length(indirectDiffuse), _SpecularOcclusion));
+                dfg.x *= saturate(pow(dot(indirectDiffuse, 1), _SpecularOcclusion));
                 indirectSpecular = indirectSpecular * lerp(dfg.xxx, dfg.yyy, f0) * horizon * horizon * energyCompensation;
             #else
                 indirectSpecular = probe0 * EnvironmentBRDF(1 - surf.perceptualRoughness, NoV, f0);

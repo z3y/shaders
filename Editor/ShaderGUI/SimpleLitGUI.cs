@@ -67,6 +67,7 @@ namespace z3y.Shaders
         protected MaterialProperty _DetailMapUV = null;
         protected MaterialProperty _DetailAlbedoScale = null;
         protected MaterialProperty _DetailSmoothnessScale = null;
+        protected MaterialProperty _SpecularOcclusion = null;
 
 
 
@@ -222,6 +223,7 @@ namespace z3y.Shaders
             Prop(_GlossyReflections);
             Prop(_SpecularHighlights);
             Prop(_Reflectance);
+            Prop(_SpecularOcclusion);
 
             EditorGUILayout.Space();
 

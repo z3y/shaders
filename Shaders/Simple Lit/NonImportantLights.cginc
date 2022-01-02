@@ -46,10 +46,10 @@ void getVertexLightsDir(inout VertexLightInformation vLights, float3 worldPos)
     float3 dirZ = toLightZ - worldPos;
     float3 dirW = toLightW - worldPos;
 
-    vLights.Direction[0] = normalize(dirX);
-    vLights.Direction[1] = normalize(dirY);
-    vLights.Direction[2] = normalize(dirZ);
-    vLights.Direction[3] = normalize(dirW);
+    vLights.Direction[0] = dirX;
+    vLights.Direction[1] = dirY;
+    vLights.Direction[2] = dirZ;
+    vLights.Direction[3] = dirW;
 }
 
 void InitVertexLightData(float3 worldPos, float3 worldNormal, inout VertexLightInformation vLights)
@@ -61,7 +61,7 @@ void InitVertexLightData(float3 worldPos, float3 worldNormal, inout VertexLightI
 
 
 // Original code by Xiexe
-// only returns the vertex light information struct and normalized direction, the rest is handled in the fragment shader
+// only returns the vertex light information struct, the rest is handled in the fragment shader
 // https://github.com/Xiexe/Xiexes-Unity-Shaders
 
 // MIT License
