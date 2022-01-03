@@ -67,7 +67,7 @@
         [Toggle(EMISSION)] _EnableEmission ("Emission", Int) = 0
             _EmissionMap ("Emission Map", 2D) = "white" {}
             [ToggleUI] _EmissionMultBase ("Multiply Base", Int) = 0
-            [HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
+            [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
 
         // Detail texture difference from standard:
         // Uses blend mode overlay,

@@ -125,10 +125,8 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         emissionMap =  SampleTexture(_EmissionMap, sampler_EmissionMap, mainUV).rgb;
         
         emissionMap *= _EmissionMultBase ? surf.albedo.rgb : 1;
-        
-        // does standard really use pow? that feels like such a waste
-        // TODO: pow 2.2 approximation
-        surf.emission = emissionMap * pow(UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _EmissionColor), 2.2);
+    
+        surf.emission = emissionMap * UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _EmissionColor);
     #endif
 
     #ifndef SHADER_API_MOBILE
