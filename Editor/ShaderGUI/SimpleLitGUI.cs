@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using static z3y.Shaders.Helpers;
@@ -12,73 +11,73 @@ namespace z3y.Shaders
     public class SimpleLitGUI : ShaderGUI
     {
 
-        protected MaterialProperty _MainTex = null;
-        protected MaterialProperty _Mode = null;
-        protected MaterialProperty _Cutoff = null;
-        protected MaterialProperty _Texture = null;
-        protected MaterialProperty _MainTexArray = null;
-        protected MaterialProperty _Color = null;
-        protected MaterialProperty _MetallicGlossMapArray = null;
-        protected MaterialProperty _Metallic = null;
-        protected MaterialProperty _Glossiness = null;
-        protected MaterialProperty _MetallicMin = null;
-        protected MaterialProperty _GlossinessMin = null;
-        protected MaterialProperty _Occlusion = null;
-        protected MaterialProperty _BumpMapArray = null;
-        protected MaterialProperty _BumpScale = null;
-        protected MaterialProperty _MetallicGlossMap = null;
-        protected MaterialProperty _IsPackingMetallicGlossMap = null;
-        protected MaterialProperty _MetallicMap = null;
-        protected MaterialProperty _MetallicMapChannel = null;
-        protected MaterialProperty _OcclusionMap = null;
-        protected MaterialProperty _OcclusionMapChannel = null;
-        protected MaterialProperty _DetailMaskMap = null;
-        protected MaterialProperty _DetailMaskMapChannel = null;
-        protected MaterialProperty _SmoothnessMap = null;
-        protected MaterialProperty _SmoothnessMapChannel = null;
-        protected MaterialProperty _SmoothnessMapInvert = null;
-        protected MaterialProperty _BumpMap = null;
-        protected MaterialProperty _EnableEmission = null;
-        protected MaterialProperty _EmissionMap = null;
-        protected MaterialProperty _EmissionColor = null;
-        protected MaterialProperty _EmissionMultBase = null;
-        protected MaterialProperty _EnableParallax = null;
-        protected MaterialProperty _Parallax = null;
-        protected MaterialProperty _ParallaxMap = null;
-        protected MaterialProperty Bakery = null;
-        protected MaterialProperty _GlossyReflections = null;
-        protected MaterialProperty _SpecularHighlights = null;
-        protected MaterialProperty _Reflectance = null;
-        protected MaterialProperty _GSAA = null;
-        protected MaterialProperty _specularAntiAliasingVariance = null;
-        protected MaterialProperty _specularAntiAliasingThreshold = null;
-        protected MaterialProperty _NonLinearLightProbeSH = null;
-        protected MaterialProperty _BakedSpecular = null;
-        protected MaterialProperty _AlbedoSaturation = null;
-        protected MaterialProperty _RNM0 = null;
-        protected MaterialProperty _RNM1 = null;
-        protected MaterialProperty _RNM2 = null;
-        protected MaterialProperty _Cull = null;
-        protected MaterialProperty _ParallaxOffset = null;
-        protected MaterialProperty _ParallaxSteps = null;
-        protected MaterialProperty _DetailAlbedoMap = null;
-        protected MaterialProperty _DetailNormalMap = null;
-        protected MaterialProperty _DetailNormalScale = null;
-        protected MaterialProperty _DetailMapUV = null;
-        protected MaterialProperty _DetailAlbedoScale = null;
-        protected MaterialProperty _DetailSmoothnessScale = null;
-        protected MaterialProperty _SpecularOcclusion = null;
+        private MaterialProperty _MainTex = null;
+        private MaterialProperty _Mode = null;
+        private MaterialProperty _Cutoff = null;
+        private MaterialProperty _Texture = null;
+        private MaterialProperty _MainTexArray = null;
+        private MaterialProperty _Color = null;
+        private MaterialProperty _MetallicGlossMapArray = null;
+        private MaterialProperty _Metallic = null;
+        private MaterialProperty _Glossiness = null;
+        private MaterialProperty _MetallicMin = null;
+        private MaterialProperty _GlossinessMin = null;
+        private MaterialProperty _Occlusion = null;
+        private MaterialProperty _BumpMapArray = null;
+        private MaterialProperty _BumpScale = null;
+        private MaterialProperty _MetallicGlossMap = null;
+        private MaterialProperty _IsPackingMetallicGlossMap = null;
+        private MaterialProperty _MetallicMap = null;
+        private MaterialProperty _MetallicMapChannel = null;
+        private MaterialProperty _OcclusionMap = null;
+        private MaterialProperty _OcclusionMapChannel = null;
+        private MaterialProperty _DetailMaskMap = null;
+        private MaterialProperty _DetailMaskMapChannel = null;
+        private MaterialProperty _SmoothnessMap = null;
+        private MaterialProperty _SmoothnessMapChannel = null;
+        private MaterialProperty _SmoothnessMapInvert = null;
+        private MaterialProperty _BumpMap = null;
+        private MaterialProperty _EnableEmission = null;
+        private MaterialProperty _EmissionMap = null;
+        private MaterialProperty _EmissionColor = null;
+        private MaterialProperty _EmissionMultBase = null;
+        private MaterialProperty _EnableParallax = null;
+        private MaterialProperty _Parallax = null;
+        private MaterialProperty _ParallaxMap = null;
+        private MaterialProperty Bakery = null;
+        private MaterialProperty _GlossyReflections = null;
+        private MaterialProperty _SpecularHighlights = null;
+        private MaterialProperty _Reflectance = null;
+        private MaterialProperty _GSAA = null;
+        private MaterialProperty _specularAntiAliasingVariance = null;
+        private MaterialProperty _specularAntiAliasingThreshold = null;
+        private MaterialProperty _NonLinearLightProbeSH = null;
+        private MaterialProperty _BakedSpecular = null;
+        private MaterialProperty _AlbedoSaturation = null;
+        private MaterialProperty _RNM0 = null;
+        private MaterialProperty _RNM1 = null;
+        private MaterialProperty _RNM2 = null;
+        private MaterialProperty _Cull = null;
+        private MaterialProperty _ParallaxOffset = null;
+        private MaterialProperty _ParallaxSteps = null;
+        private MaterialProperty _DetailAlbedoMap = null;
+        private MaterialProperty _DetailNormalMap = null;
+        private MaterialProperty _DetailNormalScale = null;
+        private MaterialProperty _DetailMapUV = null;
+        private MaterialProperty _DetailAlbedoScale = null;
+        private MaterialProperty _DetailSmoothnessScale = null;
+        private MaterialProperty _SpecularOcclusion = null;
 
 
 
-        private void ShaderPropertiesGUI(Material material, MaterialProperty[] props, MaterialEditor materialEditor)
+        private void DrawProperties(Material material, MaterialProperty[] props, MaterialEditor me)
         {
 
             EditorGUI.BeginChangeCheck();
             Prop(_Mode);
             if (EditorGUI.EndChangeCheck())
             {
-                SetupBlendMode(materialEditor);
+                SetupBlendMode(me);
             }
 
             if (_Mode.floatValue == 1) Prop(_Cutoff);
@@ -98,8 +97,8 @@ namespace z3y.Shaders
                 }
                 else
                 {
-                    RangedProp(_MetallicMin, _Metallic);
-                    RangedProp(_GlossinessMin, _Glossiness);
+                    me.DrawRangedProperty(_MetallicMin, _Metallic);
+                    me.DrawRangedProperty(_GlossinessMin, _Glossiness);
                     Prop(_Occlusion);
                 }
                 EditorGUI.indentLevel-=2;
@@ -148,8 +147,8 @@ namespace z3y.Shaders
                 }
                 else
                 {
-                    RangedProp(_MetallicMin, _Metallic);
-                    RangedProp(_GlossinessMin, _Glossiness);
+                    me.DrawRangedProperty(_MetallicMin, _Metallic);
+                    me.DrawRangedProperty(_GlossinessMin, _Glossiness);
                     Prop(_Occlusion);
                 }
                 EditorGUI.indentLevel-=2;
@@ -160,18 +159,18 @@ namespace z3y.Shaders
 
 
             Prop(_EnableEmission);
-            if (_EnableEmission.floatValue == 1)
+            if (_EnableEmission.boolValue())
             {
                 Prop(_EmissionMap, _EmissionColor);
                 EditorGUI.indentLevel+=2;
                 Prop(_EmissionMultBase);
-                materialEditor.LightmapEmissionProperty();
+                me.LightmapEmissionProperty();
                 EditorGUI.indentLevel-=2;
                 EditorGUILayout.Space();
             }
 
             Prop(_EnableParallax);
-            if (_EnableParallax.floatValue == 1)
+            if (_EnableParallax.boolValue())
             {
                 Prop(_ParallaxMap, _Parallax);
                 EditorGUI.indentLevel+=2;
@@ -183,7 +182,7 @@ namespace z3y.Shaders
             sRGBWarning(_ParallaxMap);
             
             EditorGUILayout.Space();
-            materialEditor.TextureScaleOffsetProperty(_MainTex);
+            me.TextureScaleOffsetProperty(_MainTex);
 
 
 
@@ -213,7 +212,7 @@ namespace z3y.Shaders
             if(_DetailNormalMap.textureValue || _DetailAlbedoMap.textureValue)
             {
                 Prop(_DetailMapUV);
-                materialEditor.TextureScaleOffsetProperty(_DetailAlbedoMap);
+                me.TextureScaleOffsetProperty(_DetailAlbedoMap);
             }
 
 
@@ -259,9 +258,9 @@ namespace z3y.Shaders
             EditorGUILayout.LabelField("Advanced Options", EditorStyles.boldLabel);
             Prop(_Texture);
             Prop(_Cull);
-            materialEditor.DoubleSidedGIField();
-            materialEditor.EnableInstancingField();
-            materialEditor.RenderQueueField();
+            me.DoubleSidedGIField();
+            me.EnableInstancingField();
+            me.RenderQueueField();
         }
 
         private bool PackMaskMap()
@@ -316,53 +315,41 @@ namespace z3y.Shaders
             mat.DisableKeyword("_MODE_OPAQUE");
             mat.DisableKeyword("_TEXTURE_DEFAULT");
             
+            
             if(_Texture.floatValue == 1 || _Texture.floatValue == 2)
             {
-                ToggleKeyword("_MASK_MAP", _MetallicGlossMapArray.textureValue, mat);
-                ToggleKeyword("_NORMAL_MAP", _BumpMapArray.textureValue, mat);
+                mat.ToggleKeyword("_MASK_MAP", _MetallicGlossMapArray.textureValue);
+                mat.ToggleKeyword("_NORMAL_MAP", _BumpMapArray.textureValue);
             }
             else
             {
-                ToggleKeyword("_MASK_MAP", _MetallicGlossMap.textureValue, mat);
-                ToggleKeyword("_NORMAL_MAP", _BumpMap.textureValue, mat);
+                mat.ToggleKeyword("_MASK_MAP", _MetallicGlossMap.textureValue);
+                mat.ToggleKeyword("_NORMAL_MAP", _BumpMap.textureValue);
             }
-            ToggleKeyword("_DETAILALBEDO_MAP", _DetailAlbedoMap.textureValue, mat);
-            ToggleKeyword("_DETAILNORMAL_MAP", _DetailNormalMap.textureValue, mat);
+            mat.ToggleKeyword("_DETAILALBEDO_MAP", _DetailAlbedoMap.textureValue);
+            mat.ToggleKeyword("_DETAILNORMAL_MAP", _DetailNormalMap.textureValue);
         }
-
-        private void ToggleKeyword(string keyword, bool toggle, Material mat)
-        {
-            if(toggle)
-                mat.EnableKeyword(keyword);
-            else
-                mat.DisableKeyword(keyword);
-        }
-
-        MaterialEditor _materialEditor;
-        private bool m_FirstTimeApply = true;
-
-        Material _material = null;
-
-        protected BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-
+        
+        private MaterialEditor _materialEditor;
+        private bool _firstTimeApply = true;
+        private Material _material = null;
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
         {
             _materialEditor = materialEditor;
             _material = materialEditor.target as Material;
-            FindAllProperties(props);
+            InitializeAllProperties(props, this, FindProperty);
 
-            if (m_FirstTimeApply)
+            if (_firstTimeApply)
             {
-                m_FirstTimeApply = false;
+                _firstTimeApply = false;
                 SetupBlendMode(materialEditor);
                 ApplyChanges(props, materialEditor, _material);
             }
 
-           
 
             EditorGUI.BeginChangeCheck();
 
-            ShaderPropertiesGUI(_material, props, materialEditor);
+            DrawProperties(_material, props, materialEditor);
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -370,83 +357,6 @@ namespace z3y.Shaders
             };
         }
 
-        private void FindAllProperties(MaterialProperty[] props)
-        {
-            foreach (var property in GetType().GetFields(bindingFlags))
-            {
-                if (property.FieldType == typeof(MaterialProperty))
-                {
-                    try { property.SetValue(this, FindProperty(property.Name, props)); } catch { /*Is it really a problem if it doesn't exist?*/ }
-                }
-            }
-        }
-
-        private static void SetupMaterialWithBlendMode(Material material, int type)
-        {
-            switch (type)
-            {
-                case 0:
-                    material.SetOverrideTag("RenderType", "");
-                    material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-                    material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
-                    material.SetInt("_ZWrite", 1);
-                    material.SetInt("_AlphaToMask", 0);
-                    material.renderQueue = -1;
-                    break;
-                case 1:
-                    material.SetOverrideTag("RenderType", "TransparentCutout");
-                    material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-                    material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
-                    material.SetInt("_ZWrite", 1);
-                    material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
-                    material.SetInt("_AlphaToMask", 1);
-                    break;
-                case 2:
-                    material.SetOverrideTag("RenderType", "Transparent");
-                    material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                    material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                    material.SetInt("_ZWrite", 0);
-                    material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-                    material.SetInt("_AlphaToMask", 0);
-                    break;
-                case 3:
-                    material.SetOverrideTag("RenderType", "Transparent");
-                    material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-                    material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                    material.SetInt("_ZWrite", 0);
-                    material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-                    material.SetInt("_AlphaToMask", 0);
-                    break;
-            }
-        }
-
-
-        private void Prop(MaterialProperty property, MaterialProperty extraProperty = null) => MaterialProp(property, extraProperty, _materialEditor);
-
-        private void RangedProp(MaterialProperty min, MaterialProperty max, float minLimit = 0, float maxLimit = 1, MaterialProperty tex = null)
-        {
-            float currentMin = min.floatValue;
-            float currentMax = max.floatValue;
-            EditorGUILayout.BeginHorizontal();
-
-            if(tex is null)
-                EditorGUILayout.LabelField(max.displayName);
-            else
-                _materialEditor.TexturePropertySingleLine(new GUIContent(tex.displayName), tex);
-
-
-            EditorGUI.indentLevel -= 6;
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.MinMaxSlider(ref currentMin,ref currentMax, minLimit, maxLimit);
-            if(EditorGUI.EndChangeCheck())
-            {
-                min.floatValue = currentMin;
-                max.floatValue = currentMax;
-            }
-            EditorGUI.indentLevel += 6;
-            EditorGUILayout.EndHorizontal();
-        }
-
-
+        private void Prop(MaterialProperty property, MaterialProperty extraProperty = null) => _materialEditor.DrawMaterialProperty(property, extraProperty);
     }
 }

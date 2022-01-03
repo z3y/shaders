@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,14 +6,6 @@ namespace z3y.Shaders
 {
     public class TexturePacking : Editor
     {
-
-        private static Texture2D LoadTexture(string path)
-        {
-            Texture2D t;
-            t = (Texture2D)AssetDatabase.LoadAssetAtPath(path, typeof(Texture2D));
-            return t;
-        }
-        
         [System.Serializable]
         public class ChannelTexture
         {
