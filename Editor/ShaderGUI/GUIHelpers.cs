@@ -1,7 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
 using System;
-using System.Linq;
 using System.Reflection;
 
 namespace z3y.Shaders
@@ -90,6 +89,7 @@ namespace z3y.Shaders
 
         public static void DrawMaterialProperty(this MaterialEditor me, MaterialProperty property, MaterialProperty extraProperty = null)
         {
+            if (property is null) return;
             if (property.type == MaterialProperty.PropType.Texture) 
             {
                 string[] p = property.displayName.Split(':');
@@ -188,5 +188,6 @@ namespace z3y.Shaders
         }
 
     }
+
 }
 
