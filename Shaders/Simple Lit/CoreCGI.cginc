@@ -6,9 +6,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 		UnityApplyDitherCrossFade(i.pos);
 	#endif
 
-    #if defined(PARALLAX)
-        parallaxOffset = ParallaxOffset(i);
-    #endif
+    
 
 
     SurfaceData surf;
@@ -156,7 +154,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
 
         #if defined(DYNAMICLIGHTMAP_ON) && !defined(SHADER_API_MOBILE)
-            float3 realtimeLightMap = getRealtimeLightmap(i.coord1.xy, worldNormal, parallaxOffset);
+            float3 realtimeLightMap = getRealtimeLightmap(i.coord1.xy, worldNormal);
             lightMap += realtimeLightMap; 
         #endif
 
@@ -200,8 +198,9 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     half3 f0 = 0.16 * surf.reflectance * surf.reflectance * (1 - surf.metallic) + surf.albedo.rgb * surf.metallic;
 
-    float2 dfg = _DFG.Sample(sampler_DFG, float3(NoV, surf.perceptualRoughness, 0)).rg;
-    float3 energyCompensation = 1.0 + f0 * (1.0 / dfg.y - 1.0);
+    half2 dfg = SampleDFG(NoV, surf.perceptualRoughness).rg;
+    half3 energyCompensation = EnvBRDFEnergyCompensation(dfg, f0);
+
 
 
     half roughness = surf.perceptualRoughness * surf.perceptualRoughness;
@@ -269,7 +268,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         directSpecular += GetSpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, clampedRoughness, NoV, energyCompensation);
     }
     #endif
-
+    
+    half3 fresnel = F_Schlick(NoV, f0);
     #if defined(BAKERY_LMSPEC) && defined(UNITY_PASS_FORWARDBASE)
 
         #ifdef BAKERY_RNM
@@ -287,7 +287,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             half3 halfDir = Unity_SafeNormalize(dominantDirTN - viewDirT);
             half NoH = saturate(dot(tangentNormalInv, halfDir));
             half spec = D_GGX(NoH, clampedRoughness);
-            directSpecular += spec * specColor * lerp(dfg.xxx, dfg.yyy, f0);
+            directSpecular += spec * specColor * fresnel;
         }
         #endif
 
@@ -299,7 +299,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             half spec = D_GGX(NoH, clampedRoughness);
             float3 sh = L0 + dominantDir.x * L1x + dominantDir.y * L1y + dominantDir.z * L1z;
             dominantDir = normalize(dominantDir);
-            directSpecular += max(spec * sh, 0.0) * lerp(dfg.xxx, dfg.yyy, f0);
+            directSpecular += max(spec * sh, 0.0) * fresnel;
         }
         #endif
 
@@ -334,9 +334,9 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             #ifndef SHADER_API_MOBILE
                 float horizon = min(1 + dot(reflDir, worldNormal), 1);
                 dfg.x *= saturate(pow(dot(indirectDiffuse, 1), _SpecularOcclusion));
-                indirectSpecular = indirectSpecular * lerp(dfg.xxx, dfg.yyy, f0) * horizon * horizon * energyCompensation;
+                indirectSpecular = indirectSpecular * horizon * horizon * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
             #else
-                indirectSpecular = probe0 * EnvironmentBRDF(1 - surf.perceptualRoughness, NoV, f0);
+                indirectSpecular = probe0 * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0);
             #endif
 
         #endif
