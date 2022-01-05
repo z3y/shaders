@@ -33,16 +33,10 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     #endif
 
     float4 mainST = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _MainTex_ST);
-
-    float2 parallaxOffset = 0;
-    #if defined(PARALLAX)
-        float2 parallaxUV = i.coord0.xy * mainST.xy + mainST.zw;
-        parallaxOffset = ParallaxOffset(i.parallaxViewDir, parallaxUV);
-    #endif
-
     half2 mainUV = i.coord0.xy * mainST.xy + mainST.zw + parallaxOffset;
     
-    
+
+    // half4 mainTexture = _MainTex.Sample(sampler_MainTex, mainUV);
     half4 mainTexture = SampleTexture(TEXARGS(_MainTex), TEXARGS(sampler_MainTex), mainUV);
 
     mainTexture *= UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _Color);

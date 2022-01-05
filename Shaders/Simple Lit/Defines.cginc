@@ -96,5 +96,5 @@
         #define BAKERY_LMSPEC
     #endif
 
-    #include "../CGIncludes/Bakery.cginc"
+    #include "Bakery.cginc"
 #endif

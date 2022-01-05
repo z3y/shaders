@@ -1,3 +1,8 @@
+
+static float2 parallaxOffset;
+
+Texture2D _DFG; SamplerState sampler_DFG;
+
 Texture2D _MainTex; SamplerState sampler_MainTex;
 Texture2D _MetallicGlossMap; SamplerState sampler_MetallicGlossMap;
 Texture2D _BumpMap; SamplerState sampler_BumpMap;
@@ -6,6 +11,7 @@ Texture2D _DetailNormalMap; SamplerState sampler_DetailNormalMap;
 Texture2D _DetailAlbedoMap; SamplerState sampler_DetailAlbedoMap;
 
 Texture2D _EmissionMap; SamplerState sampler_EmissionMap;
+Texture2D _ParallaxMap; SamplerState sampler_ParallaxMap;
 
 Texture2DArray _MainTexArray; SamplerState sampler_MainTexArray;
 Texture2DArray _BumpMapArray; SamplerState sampler_BumpMapArray;
@@ -31,7 +37,15 @@ half _AlbedoSaturation;
 half _SpecularOcclusion;
 half _Cutoff;
 
+half _GSAA;
+half _specularAntiAliasingVariance;
+half _specularAntiAliasingThreshold;
+
 half _EmissionMultBase;
+
+half _ParallaxSteps;
+half _ParallaxOffset;
+half _Parallax;
 
 UNITY_INSTANCING_BUFFER_START(InstancedProps)
     UNITY_DEFINE_INSTANCED_PROP(float, _TextureIndex)
@@ -39,3 +53,7 @@ UNITY_INSTANCING_BUFFER_START(InstancedProps)
     UNITY_DEFINE_INSTANCED_PROP(half4, _Color)
     UNITY_DEFINE_INSTANCED_PROP(half3, _EmissionColor)
 UNITY_INSTANCING_BUFFER_END(InstancedProps)
+
+#include "SurfaceData.cginc"
+#include "Config.cginc"
+#include "Defines.cginc"

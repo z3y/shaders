@@ -1,8 +1,3 @@
-float _ParallaxSteps;
-float _ParallaxOffset;
-float _Parallax;
-Texture2D _ParallaxMap;
-
 float3 CalculateTangentViewDir(float3 tangentViewDir)
 {
     tangentViewDir = Unity_SafeNormalize(tangentViewDir);
@@ -43,9 +38,13 @@ float2 ParallaxOffsetMultiStep(float surfaceHeight, float strength, float2 uv, f
     return uvOffset;
 }
 
-float2 ParallaxOffset (float3 viewDirForParallax, float2 parallaxUV)
+float2 ParallaxOffset (v2f i)
 {
+    float3 viewDirForParallax = i.parallaxViewDir;
     viewDirForParallax = CalculateTangentViewDir(viewDirForParallax);
+
+    float4 mainST = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _MainTex_ST);
+    float2 parallaxUV = i.coord0.xy * mainST.xy + mainST.zw;
     float h = _ParallaxMap.Sample(sampler_MainTex, parallaxUV);
     h = clamp(h, 0, 0.999);
     float2 offset = ParallaxOffsetMultiStep(h, _Parallax, parallaxUV, viewDirForParallax);
