@@ -5,6 +5,9 @@
 #include "Lighting.cginc"
 
 #include "InputsCGI.cginc"
+#include "SurfaceData.cginc"
+#include "Config.cginc"
+#include "Defines.cginc"
 
 struct appdata
 {
@@ -172,6 +175,10 @@ v2f vert (appdata v)
     return o;
 }
 
-#include "FunctionsCGI.cginc"
+#include "../CGIncludes/FunctionsCGI.cginc"
+#include "../CGIncludes/Bicubic.cginc"
+#include "../CGIncludes/MultistepParallax.cginc"
+#include "../CGIncludes/NonImportantLights.cginc"
+#include "../CGIncludes/EnvironmentBRDF.cginc"
 #include "LitSurfaceData.cginc"
 #include "CoreCGI.cginc"

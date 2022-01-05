@@ -49,8 +49,6 @@ float3 UnpackScaleNormalHemiOctahedron(float4 normalMap, float bumpScale)
 }
 
 
-#include "Bicubic.cginc"
-
 float3 getBoxProjection (float3 direction, float3 position, float4 cubemapPosition, float3 boxMin, float3 boxMax)
 {
     #if defined(UNITY_SPECCUBE_BOX_PROJECTION) && !defined(SHADER_API_MOBILE)
@@ -102,6 +100,8 @@ half V_Kelemen(half LoH)
     return saturate(0.25 / (LoH * LoH));
 }
 
+half _specularAntiAliasingVariance;
+half _specularAntiAliasingThreshold;
 float GSAA_Filament(float3 worldNormal, float perceptualRoughness)
 {
     // Kaplanyan 2016, "Stable specular highlights"
@@ -126,10 +126,6 @@ float GSAA_Filament(float3 worldNormal, float perceptualRoughness)
 
     return sqrt(sqrt(squareRoughness));
 }
-
-#ifdef PARALLAX
-    #include "Parallax.cginc"
-#endif
 
 float shEvaluateDiffuseL1Geomerics_local(float L0, float3 L1, float3 n)
 {
@@ -160,7 +156,7 @@ float shEvaluateDiffuseL1Geomerics_local(float L0, float3 L1, float3 n)
 }
 
 #ifdef DYNAMICLIGHTMAP_ON
-float3 getRealtimeLightmap(float2 uv, float3 worldNormal, float2 parallaxOffset)
+float3 getRealtimeLightmap(float2 uv, float3 worldNormal)
 {   
     float2 realtimeUV = uv * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
     half4 bakedCol = UNITY_SAMPLE_TEX2D(unity_DynamicLightmap, realtimeUV);
@@ -193,19 +189,3 @@ half3 GetSpecularHighlights(float3 worldNormal, half3 lightColor, float3 lightDi
 
     return max(0, (D * V) * F) * lightColor * NoL * UNITY_PI;
 }
-
-
-half3 EnvironmentBRDF(half g, half NoV, half3 rf0)
-{
-    //https://blog.selfshadow.com/publications/s2013-shading-course/lazarov/s2013_pbs_black_ops_2_notes.pdf
-    half4 t = half4(1 / 0.96, 0.475, (0.0275 - 0.25 * 0.04) / 0.96, 0.25);
-    t *= half4(g, g, g, g);
-    t += half4(0, 0, (0.015 - 0.75 * 0.04) / 0.96, 0.75);
-    half a0 = t.x * min(t.y, exp2(-9.28 * NoV)) + t.z;
-    half a1 = t.w;
-    return saturate(lerp(a0, a1, rf0));
-}
-
-#if defined(VERTEXLIGHT_PS) && defined(VERTEXLIGHT_ON)
-    #include "NonImportantLights.cginc"
-#endif
