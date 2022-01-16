@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace z3y.Shaders
 {
-    public static class Helpers
+    public static class GUIHelpers
     {
        public static void PropertyGroup(Action action)
        {

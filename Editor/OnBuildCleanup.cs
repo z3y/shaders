@@ -27,7 +27,7 @@ namespace z3y.Shaders.SimpleLit
     }
 #endif
 
-    public static class OnBuildCleanup
+    public class OnBuildCleanup
     {
         private static readonly int MetallicMap = Shader.PropertyToID("_MetallicMap");
         private static readonly int OcclusionMap = Shader.PropertyToID("_OcclusionMap");
@@ -37,7 +37,7 @@ namespace z3y.Shaders.SimpleLit
         // [MenuItem("OnBuildCleanup/CleanUpTexturePacking")]
         public static void CleanUpTexturePacking()
         {
-            foreach (var m in FindMaterialsUsingShader("Simple Lit"))
+            foreach (var m in Helpers.FindMaterialsUsingShader("Simple Lit"))
             {
                 m.SetTexture(MetallicMap, null);
                 m.SetTexture(OcclusionMap, null);
@@ -46,24 +46,6 @@ namespace z3y.Shaders.SimpleLit
             }
         }
 
-        private static Material[] FindMaterialsUsingShader(string shaderName)
-        {
-            List<Material> foundMaterials = new List<Material>();
-
-            var renderers = Object.FindObjectsOfType<Renderer>();
-
-            for (int i = 0; i < renderers?.Length; i++)
-            {
-                for (int j = 0; j < renderers[i].sharedMaterials?.Length; j++)
-                {
-                    var a = renderers[i].sharedMaterials[j]?.shader;
-                    if (a != null &&
-                        a.name == shaderName)
-                        foundMaterials.Add(renderers[i].sharedMaterials[j]);
-                }
-            }
-
-            return foundMaterials.Distinct().ToArray();
-        }
+        
     }
 }

@@ -1,13 +1,18 @@
 {
     "name": "z3y.Shaders",
-    "references": [],
+    "references": [
+        "BakeryEditorAssembly",
+        "BakeryRuntimeAssembly"
+    ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
-    "precompiledReferences": [],
+    "precompiledReferences": [
+        ""
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],

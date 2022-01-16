@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using UnityEditor;
 using UnityEngine;
-using static z3y.Shaders.Helpers;
+using static z3y.Shaders.GUIHelpers;
 using static z3y.Shaders.TexturePacking;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
