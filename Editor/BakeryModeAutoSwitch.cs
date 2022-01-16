@@ -9,18 +9,12 @@ namespace z3y.Shaders
     [InitializeOnLoad]
     public static class BakeryModeAutoSwitch
     {
-        public const bool IsEnabled = true;
-        
-        static BakeryModeAutoSwitch()
-        {
-            ftRenderLightmap.OnFinishedFullRender += OnBakeComplete;
-        }
+        static BakeryModeAutoSwitch() => ftRenderLightmap.OnFinishedFullRender += OnBakeComplete;
 
         private static readonly int BakeryLightmapMode = Shader.PropertyToID("bakeryLightmapMode");
         private static readonly int Bakery = Shader.PropertyToID("Bakery");
         private static void OnBakeComplete(object sender, EventArgs e)
-        {   
-            if (!IsEnabled) return;
+        {
             var storage = ftRenderLightmap.FindRenderSettingsStorage();
             var renderers = Object.FindObjectsOfType<Renderer>();
 
