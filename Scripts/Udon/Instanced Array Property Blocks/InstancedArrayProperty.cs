@@ -28,6 +28,11 @@ namespace z3y.InstancedPropertyBlocks
             for (int i = 0; i < renderers.Length; i++)
             {
                 MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
+                
+                if (renderers[i].HasPropertyBlock())
+                {
+                    renderers[i].GetPropertyBlock(propertyBlock);
+                }
                 propertyBlock.SetFloat("_TextureIndex", arrayIndex[i]);
                 renderers[i].SetPropertyBlock(propertyBlock);
             }
