@@ -17,6 +17,8 @@
     #undef VERTEXLIGHT_PS
     #undef LOD_FADE_CROSSFADE
     #undef HEMIOCTAHEDRON_DECODING
+    #undef BAKERY_BICUBIC
+
 #endif
 
 
@@ -78,10 +80,6 @@
     #endif
 #endif
 
-#ifdef SHADER_API_MOBILE
-    #undef BAKERY_BICUBIC
-    #undef BAKERY_BICUBIC
-#endif
 
 #if defined(BAKERY_SH) || defined(BAKERY_RNM) || defined(BAKERY_VOLUME)
 

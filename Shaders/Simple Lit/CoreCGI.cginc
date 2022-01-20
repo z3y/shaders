@@ -107,8 +107,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         half3 lightMap = 0;
         float2 lightmapUV = i.coord0.zw * unity_LightmapST.xy + unity_LightmapST.zw;
 
+        half4 bakedColorTex = 0;
         #ifndef BAKERYLM_ENABLED
-            half4 bakedColorTex = 0;
             lightMap = tex2DFastBicubicLightmap(lightmapUV, bakedColorTex);
         #endif
 
@@ -123,7 +123,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
 
         #ifdef BAKERY_SH
-            float3 L0 = DecodeLightmap(BakeryTex2D(unity_Lightmap, samplerunity_Lightmap, lightmapUV, _RNM0_TexelSize));
+            float3 L0 = tex2DFastBicubicLightmap(lightmapUV, bakedColorTex);
 
             float3 nL1x = BakeryTex2D(_RNM0, lightmapUV, _RNM0_TexelSize) * 2 - 1;
             float3 nL1y = BakeryTex2D(_RNM1, lightmapUV, _RNM0_TexelSize) * 2 - 1;
