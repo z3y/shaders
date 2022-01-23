@@ -1,5 +1,6 @@
 Repository for my Unity shaders for VRChat.
 ### [Unity Package](https://github.com/z3y/shaders/releases)
+
 #
 ### Simple Lit:
 - Accurate PBR Shading
@@ -21,3 +22,5 @@ Repository for my Unity shaders for VRChat.
 
 #
 If you want to ask something add me z3y#3214 or join https://discord.gg/bw46tKgRFT
+
+Please report bugs if you find them https://github.com/z3y/shaders/issues
