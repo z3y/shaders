@@ -1,3 +1,4 @@
+sampler3D _DitherMaskLOD;
 half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 {
     UNITY_SETUP_INSTANCE_ID(i)
@@ -21,7 +22,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
 
     #if defined (_MODE_FADE) || defined (_MODE_TRANSPARENT)
-        if(surf.alpha < 0.5) discard;
+        half dither = tex3D(_DitherMaskLOD, float3(i.pos.xy * 0.25, surf.alpha * 0.9375)).a;
+        if(dither < 0.1) discard;
     #endif
 
     SHADOW_CASTER_FRAGMENT(i);
