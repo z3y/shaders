@@ -16,6 +16,9 @@ Repository for my Unity shaders for VRChat.
 - Lightmap Specular Occlusion
 - Tex2DArray Workflow
 
+### [Documentation](https://github.com/z3y/shaders/wiki/Simple-Lit)
+
+
 ![Inspector](https://i.postimg.cc/xYBk8R1p/image.png)
 
 ![Texture Packing](https://i.postimg.cc/1RFDXYhP/image.png)
