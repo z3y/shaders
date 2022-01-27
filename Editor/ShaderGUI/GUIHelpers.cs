@@ -104,7 +104,7 @@ namespace z3y.Shaders
 				
                 EditorGUILayout.LabelField("");
                 var lastRect = GUILayoutUtility.GetLastRect();
-                var rect = new Rect(new Vector2(lastRect.x - 20, lastRect.y), new Vector2(lastRect.size.x-20f, lastRect.size.y));
+                var rect = new Rect(new Vector2(lastRect.x - 10, lastRect.y), new Vector2(lastRect.size.x-20f, lastRect.size.y));
                 me.ShaderProperty(rect, extraProperty2, extraProperty2.displayName, 5);
                 EditorGUILayout.EndHorizontal();
                 return;
