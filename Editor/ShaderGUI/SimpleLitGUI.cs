@@ -309,7 +309,7 @@ namespace z3y.Shaders
 
 
         // On inspector change
-        private void ApplyChanges(MaterialProperty[] props, MaterialEditor materialEditor, Material mat)
+        private void ApplyChanges(MaterialEditor materialEditor, Material mat)
         {
             SetupGIFlags(_EnableEmission.floatValue, _material);
             SetupBlendMode(materialEditor);
@@ -319,8 +319,9 @@ namespace z3y.Shaders
             mat.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);
             mat.ToggleKeyword("_MODE_CUTOUT", _Mode.floatValue == 1);
             mat.ToggleKeyword("_MODE_FADE", _Mode.floatValue == 2);
-            mat.ToggleKeyword("_MODE_TRANSPARENT", _Mode.floatValue == 3);
-            mat.ToggleKeyword("_ALPHAPREMULTIPLY_ON", _Mode.floatValue == 4);
+            // mat.ToggleKeyword("_MODE_TRANSPARENT", _Mode.floatValue == 3);
+            mat.ToggleKeyword("_ALPHAPREMULTIPLY_ON", _Mode.floatValue == 3);
+            mat.ToggleKeyword("_ALPHAMODULATE_ON", _Mode.floatValue == 5);
             
             
             
@@ -351,7 +352,7 @@ namespace z3y.Shaders
             {
                 _firstTimeApply = false;
                 SetupBlendMode(materialEditor);
-                ApplyChanges(props, materialEditor, _material);
+                ApplyChanges(materialEditor, _material);
             }
 
 
@@ -361,7 +362,7 @@ namespace z3y.Shaders
 
             if (EditorGUI.EndChangeCheck())
             {
-                ApplyChanges(props, materialEditor, _material);
+                ApplyChanges(materialEditor, _material);
             };
         }
 

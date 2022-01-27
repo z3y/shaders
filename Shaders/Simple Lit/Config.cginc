@@ -19,6 +19,8 @@
 // #define BAKERY_RNM
 // #define BAKERY_SH
 
+#define BICUBIC_LIGHTMAP
+
 #define UNITY_LIGHT_PROBE_PROXY_VOLUME 0
 
 // disabled features for mobile/quest

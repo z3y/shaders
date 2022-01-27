@@ -2,7 +2,7 @@
 {
     Properties
     {
-        [Enum(Opaque, 0, Cutout, 1, Fade, 2, Transparent, 3)] _Mode ("Rendering Mode", Int) = 0
+        [Enum(Opaque, 0, Cutout, 1, Alpha, 2, Premultiply, 3, Additive, 4, Multiply, 5)] _Mode ("Rendering Mode", Int) = 0
 
         _Cutoff ("Alpha Cuttoff", Range(0, 1)) = 0.5
 
@@ -82,7 +82,7 @@
             _RNM2("RNM2", 2D) = "black" {}
 
         [Enum(Default, 0, Array, 1, Array Instanced, 2)] _Texture ("Sampling Mode", Int) = 0
-        
+
         [HideInInspector] [ToggleOff(BAKERY_NONE)] _KeywordOffBakery ("", Float) = 1
 
         [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
@@ -126,8 +126,7 @@
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             
 
-            #define BICUBIC_LIGHTMAP
-            #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
+            #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
             #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local REFLECTIONS_OFF
@@ -163,7 +162,8 @@
 
             #pragma multi_compile _ LOD_FADE_CROSSFADE
 
-            #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
+            #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
+            #pragma shader_feature_local _ALPHAPREMULTIPLY_ON
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local PARALLAX
 
@@ -196,7 +196,7 @@
 
             #pragma shader_feature_local _TEXTURE_ARRAY
 
-            #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
+            #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
 
             #include "PassCGI.cginc"
             ENDCG
@@ -211,7 +211,7 @@
             CGPROGRAM
             #pragma shader_feature EDITOR_VISUALIZATION
 
-            #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
+            #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
             #pragma shader_feature_local EMISSION
 
             #pragma shader_feature_local _TEXTURE_ARRAY        

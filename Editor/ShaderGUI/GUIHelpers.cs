@@ -173,7 +173,7 @@ namespace z3y.Shaders
                     material.SetInt("_AlphaToMask", 0);
                     material.renderQueue = -1;
                     break;
-                case 1:
+                case 1: // cutout
                     material.SetOverrideTag("RenderType", "TransparentCutout");
                     material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
                     material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
@@ -181,7 +181,7 @@ namespace z3y.Shaders
                     material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
                     material.SetInt("_AlphaToMask", 1);
                     break;
-                case 2:
+                case 2: // alpha fade
                     material.SetOverrideTag("RenderType", "Transparent");
                     material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
                     material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
@@ -189,7 +189,7 @@ namespace z3y.Shaders
                     material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
                     material.SetInt("_AlphaToMask", 0);
                     break;
-                case 3:
+                case 3: // premultiply
                     material.SetOverrideTag("RenderType", "Transparent");
                     material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
                     material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
@@ -197,6 +197,22 @@ namespace z3y.Shaders
                     material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
                     material.SetInt("_AlphaToMask", 0);
                     break;
+                case 4: // additive
+	                material.SetOverrideTag("RenderType", "Transparent");
+	                material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+	                material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.One);
+	                material.SetInt("_ZWrite", 0);
+	                material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+	                material.SetInt("_AlphaToMask", 0);
+	                break;
+                case 5: // multiply
+	                material.SetOverrideTag("RenderType", "Transparent");
+	                material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.DstColor);
+	                material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+	                material.SetInt("_ZWrite", 0);
+	                material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+	                material.SetInt("_AlphaToMask", 0);
+	                break;
             }
         }
 
