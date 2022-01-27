@@ -201,7 +201,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         pixelLight *= UnityComputeForwardShadows(i.coord0.zw, i.worldPos, i.screenPos);
     #endif
 
-    half3 f0 = 0.16 * surf.reflectance * surf.reflectance * (1 - surf.metallic) + surf.albedo.rgb * surf.metallic;
+    half3 f0 = 0.16 * surf.reflectance * surf.reflectance * (1.0 - surf.metallic) + surf.albedo.rgb * surf.metallic;
 
     half2 dfg = SampleDFG(NoV, surf.perceptualRoughness).rg;
     half3 energyCompensation = EnvBRDFEnergyCompensation(dfg, f0);
@@ -260,7 +260,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         float3 bakedSpecularColor = 0;
 
         #if defined(DIRLIGHTMAP_COMBINED) && defined(LIGHTMAP_ON)
-            bakedDominantDirection = (lightMapDirection.xyz) * 2 - 1;
+            bakedDominantDirection = (lightMapDirection.xyz) * 2.0 - 1.0;
             bakedSpecularColor = indirectDiffuse;
         #endif
 
@@ -335,13 +335,14 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                     indirectSpecular = lerp(probe1, probe0, unity_SpecCube0_BoxMin.w);
                 }
             #endif
-
+            
+            half specularOcclusion = lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
             #ifndef SHADER_API_MOBILE
-                float horizon = min(1 + dot(reflDir, worldNormal), 1);
-                dfg.x *= saturate(pow(dot(indirectDiffuse, 1), _SpecularOcclusion));
+                float horizon = min(1 + dot(reflDir, worldNormal), 1.0);
+                dfg.x *= specularOcclusion;
                 indirectSpecular = indirectSpecular * horizon * horizon * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
             #else
-                indirectSpecular = probe0 * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0);
+                indirectSpecular = probe0 * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0) * specularOcclusion;
             #endif
 
         #endif
@@ -354,14 +355,14 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     #if defined(_ALPHAPREMULTIPLY_ON)
         surf.albedo.rgb *= surf.alpha;
-        surf.alpha = lerp(surf.alpha, 1, surf.metallic);
+        surf.alpha = lerp(surf.alpha, 1.0, surf.metallic);
     #endif
 
     #if defined(_ALPHAMODULATE_ON)
-        surf.albedo.rgb = lerp(1, surf.albedo.rgb, surf.alpha);
+        surf.albedo.rgb = lerp(1.0, surf.albedo.rgb, surf.alpha);
     #endif
     
-    half4 finalColor = half4(surf.albedo.rgb * (1 - surf.metallic) * (indirectDiffuse * surf.occlusion + (pixelLight + vertexLight)) + indirectSpecular + directSpecular + surf.emission, surf.alpha);
+    half4 finalColor = half4(surf.albedo.rgb * (1.0 - surf.metallic) * (indirectDiffuse * surf.occlusion + (pixelLight + vertexLight)) + indirectSpecular + directSpecular + surf.emission, surf.alpha);
 
     #ifdef UNITY_PASS_META
         UnityMetaInput metaInput;
