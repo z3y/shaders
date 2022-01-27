@@ -113,14 +113,12 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         float2 lightmapUV = i.coord0.zw * unity_LightmapST.xy + unity_LightmapST.zw;
 
         half4 bakedColorTex = 0;
-        #ifndef BAKERYLM_ENABLED
-            lightMap = tex2DFastBicubicLightmap(lightmapUV, bakedColorTex);
-        #endif
+        lightMap = tex2DFastBicubicLightmap(lightmapUV, bakedColorTex);
 
         #ifdef BAKERY_RNM
-            float3 rnm0 = DecodeLightmap(BakeryTex2D(_RNM0, lightmapUV, _RNM0_TexelSize));
-            float3 rnm1 = DecodeLightmap(BakeryTex2D(_RNM1, lightmapUV, _RNM0_TexelSize));
-            float3 rnm2 = DecodeLightmap(BakeryTex2D(_RNM2, lightmapUV, _RNM0_TexelSize));
+            half3 rnm0 = DecodeLightmap(BakeryTex2D(_RNM0, lightmapUV, _RNM0_TexelSize));
+            half3 rnm1 = DecodeLightmap(BakeryTex2D(_RNM1, lightmapUV, _RNM0_TexelSize));
+            half3 rnm2 = DecodeLightmap(BakeryTex2D(_RNM2, lightmapUV, _RNM0_TexelSize));
 
             lightMap =    saturate(dot(rnmBasis0, tangentNormalInv)) * rnm0
                         + saturate(dot(rnmBasis1, tangentNormalInv)) * rnm1
@@ -128,14 +126,14 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
 
         #ifdef BAKERY_SH
-            float3 L0 = tex2DFastBicubicLightmap(lightmapUV, bakedColorTex);
+            half3 L0 = lightMap;
 
-            float3 nL1x = BakeryTex2D(_RNM0, lightmapUV, _RNM0_TexelSize) * 2 - 1;
-            float3 nL1y = BakeryTex2D(_RNM1, lightmapUV, _RNM0_TexelSize) * 2 - 1;
-            float3 nL1z = BakeryTex2D(_RNM2, lightmapUV, _RNM0_TexelSize) * 2 - 1;
-            float3 L1x = nL1x * L0 * 2;
-            float3 L1y = nL1y * L0 * 2;
-            float3 L1z = nL1z * L0 * 2;
+            half3 nL1x = BakeryTex2D(_RNM0, lightmapUV, _RNM0_TexelSize) * 2 - 1;
+            half3 nL1y = BakeryTex2D(_RNM1, lightmapUV, _RNM0_TexelSize) * 2 - 1;
+            half3 nL1z = BakeryTex2D(_RNM2, lightmapUV, _RNM0_TexelSize) * 2 - 1;
+            half3 L1x = nL1x * L0 * 2;
+            half3 L1y = nL1y * L0 * 2;
+            half3 L1z = nL1z * L0 * 2;
 
             #ifdef BAKERY_SHNONLINEAR
                 float lumaL0 = dot(L0, float(1));
@@ -234,8 +232,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             if(vLights.Attenuation[j] > 0)
             {
                 vLights.Direction[j] = normalize(vLights.Direction[j]);
-                float vLightNoL = saturate(dot(worldNormal, vLights.Direction[j]));
-                float3 vLightCol = vLightNoL * vLights.ColorFalloff[j];
+                half vLightNoL = saturate(dot(worldNormal, vLights.Direction[j]));
+                half3 vLightCol = vLightNoL * vLights.ColorFalloff[j];
                 vertexLight += vLightCol;
 
                 #ifndef SPECULAR_HIGHLIGHTS_OFF
@@ -257,7 +255,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #if defined(BAKEDSPECULAR) && defined(UNITY_PASS_FORWARDBASE) && !defined(BAKERYLM_ENABLED)
     {
         float3 bakedDominantDirection = 1;
-        float3 bakedSpecularColor = 0;
+        half3 bakedSpecularColor = 0;
 
         #if defined(DIRLIGHTMAP_COMBINED) && defined(LIGHTMAP_ON)
             bakedDominantDirection = (lightMapDirection.xyz) * 2.0 - 1.0;
@@ -265,7 +263,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
 
         #ifndef LIGHTMAP_ON
-            bakedSpecularColor = float3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
+            bakedSpecularColor = half3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
             bakedDominantDirection = unity_SHAr.xyz + unity_SHAg.xyz + unity_SHAb.xyz;
         #endif
 
@@ -285,7 +283,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                                   rnmBasis2 * dot(rnm2, lumaConv);
 
             float3 dominantDirTN = normalize(dominantDirT);
-            float3 specColor = saturate(dot(rnmBasis0, dominantDirTN)) * rnm0 +
+            half3 specColor = saturate(dot(rnmBasis0, dominantDirTN)) * rnm0 +
                                saturate(dot(rnmBasis1, dominantDirTN)) * rnm1 +
                                saturate(dot(rnmBasis2, dominantDirTN)) * rnm2;
 
@@ -335,7 +333,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                     indirectSpecular = lerp(probe1, probe0, unity_SpecCube0_BoxMin.w);
                 }
             #endif
-            
+
             half specularOcclusion = lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
             #ifndef SHADER_API_MOBILE
                 float horizon = min(1 + dot(reflDir, worldNormal), 1.0);
