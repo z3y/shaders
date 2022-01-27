@@ -10,7 +10,7 @@ half4 SampleTexture(Texture2DArray t, SamplerState s, float2 uv)
     return t.Sample(s, float3(uv, arrayIndex));
 }
 
-#if defined(_TEXTURE_ARRAY) || defined(_TEXTURE_ARRAY_INSTANCED)
+#if defined(_TEXTURE_ARRAY)
     #define TEXARGS(tex) tex##Array
 #else
     #define TEXARGS(tex) tex
@@ -26,11 +26,11 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 {
     #ifdef _TEXTURE_ARRAY
         arrayIndex = i.coord1.z;
+        UNITY_FLATTEN
+        if (_Texture == 2)
+            arrayIndex = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _TextureIndex);
     #endif
 
-    #ifdef _TEXTURE_ARRAY_INSTANCED
-        arrayIndex = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _TextureIndex);
-    #endif
 
     float4 mainST = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _MainTex_ST);
 
@@ -127,9 +127,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         
     #endif
 
-    #ifndef SHADER_API_MOBILE
     surf.albedo.rgb = lerp(dot(surf.albedo.rgb, grayscaleVec), surf.albedo.rgb, _AlbedoSaturation);
-    #endif
     
     #if defined(EMISSION)
         float3 emissionMap = 1;
@@ -140,7 +138,5 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         surf.emission = emissionMap * UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _EmissionColor);
     #endif
 
-    #ifndef SHADER_API_MOBILE
     surf.reflectance = _Reflectance;
-    #endif
 }

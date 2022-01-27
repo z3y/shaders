@@ -2,7 +2,7 @@
 {
     Properties
     {
-        [KeywordEnum(Opaque, Cutout, Fade, Transparent)] _Mode ("Rendering Mode", Int) = 0
+        [Enum(Opaque, 0, Cutout, 1, Fade, 2, Transparent, 3)] _Mode ("Rendering Mode", Int) = 0
 
         _Cutoff ("Alpha Cuttoff", Range(0, 1)) = 0.5
 
@@ -81,10 +81,8 @@
             _RNM1("RNM1", 2D) = "black" {}
             _RNM2("RNM2", 2D) = "black" {}
 
-        [KeywordEnum(Default, Array, Array Instanced)] _Texture ("Sampling Mode", Int) = 0
+        [Enum(Default, 0, Array, 1, Array Instanced, 2)] _Texture ("Sampling Mode", Int) = 0
         
-        [HideInInspector] [ToggleOff(_TEXTURE_DEFAULT)] _KeywordOffTexture ("", Float) = 1
-        [HideInInspector] [ToggleOff(_MODE_OPAQUE)] _KeywordOffOpaque ("", Float) = 1
         [HideInInspector] [ToggleOff(BAKERY_NONE)] _KeywordOffBakery ("", Float) = 1
 
         [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
@@ -137,7 +135,7 @@
             #pragma shader_feature_local BAKEDSPECULAR
             #pragma shader_feature_local PARALLAX
 
-            #pragma shader_feature_local _ _TEXTURE_ARRAY _TEXTURE_ARRAY_INSTANCED
+            #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP
             #pragma shader_feature_local _DETAILALBEDO_MAP
@@ -169,7 +167,7 @@
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local PARALLAX
 
-            #pragma shader_feature_local _ _TEXTURE_ARRAY _TEXTURE_ARRAY_INSTANCED
+            #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP
             #pragma shader_feature_local _DETAILALBEDO_MAP
@@ -196,7 +194,7 @@
             
             #pragma skip_variants FOG_LINEAR FOG_EXP FOG_EXP2
 
-            #pragma shader_feature_local _ _TEXTURE_ARRAY _TEXTURE_ARRAY_INSTANCED
+            #pragma shader_feature_local _TEXTURE_ARRAY
 
             #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
 
@@ -216,7 +214,7 @@
             #pragma shader_feature_local _ _MODE_CUTOUT _MODE_FADE _MODE_TRANSPARENT
             #pragma shader_feature_local EMISSION
 
-            #pragma shader_feature_local _ _TEXTURE_ARRAY _TEXTURE_ARRAY_INSTANCED        
+            #pragma shader_feature_local _TEXTURE_ARRAY        
 
             #include "PassCGI.cginc"
             ENDCG

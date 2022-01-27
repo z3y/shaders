@@ -19,7 +19,7 @@
 // #define BAKERY_RNM
 // #define BAKERY_SH
 
-
+#define UNITY_LIGHT_PROBE_PROXY_VOLUME 0
 
 // disabled features for mobile/quest
 // only ones that are probably safe to enable if needed, the rest is disabled

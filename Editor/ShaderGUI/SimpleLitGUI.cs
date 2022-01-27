@@ -313,10 +313,15 @@ namespace z3y.Shaders
         {
             SetupGIFlags(_EnableEmission.floatValue, _material);
             SetupBlendMode(materialEditor);
+
+            var samplingMode = _Texture.floatValue;
             
-            mat.DisableKeyword("BAKERY_NONE");
-            mat.DisableKeyword("_MODE_OPAQUE");
-            mat.DisableKeyword("_TEXTURE_DEFAULT");
+            mat.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);
+            mat.ToggleKeyword("_MODE_CUTOUT", _Mode.floatValue == 1);
+            mat.ToggleKeyword("_MODE_FADE", _Mode.floatValue == 2);
+            mat.ToggleKeyword("_MODE_TRANSPARENT", _Mode.floatValue == 3);
+            mat.ToggleKeyword("_ALPHAPREMULTIPLY_ON", _Mode.floatValue == 4);
+            
             
             
             if(_Texture.floatValue == 1 || _Texture.floatValue == 2)

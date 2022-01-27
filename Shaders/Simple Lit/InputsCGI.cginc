@@ -33,6 +33,7 @@ half _Cutoff;
 
 half _EmissionMultBase;
 half _GSAA;
+half _Texture;
 
 UNITY_INSTANCING_BUFFER_START(InstancedProps)
     UNITY_DEFINE_INSTANCED_PROP(float, _TextureIndex)
