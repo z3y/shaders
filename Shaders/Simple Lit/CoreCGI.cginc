@@ -59,8 +59,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
 
 
-    #ifndef SHADER_API_MOBILE
-    if (_GSAA)
+    #ifdef GEOMETRIC_SPECULAR_AA
         surf.perceptualRoughness = GSAA_Filament(worldNormal, surf.perceptualRoughness);
     #endif
     

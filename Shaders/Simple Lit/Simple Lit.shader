@@ -46,7 +46,7 @@
 
         _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
 
-        [ToggleUI] _GSAA ("Geometric Specular AA", Int) = 0
+        [Toggle(GEOMETRIC_SPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
             [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
             [PowerSlider(2)] _specularAntiAliasingThreshold ("Threshold", Range(0.0, 1.0)) = 0.1
 
@@ -134,6 +134,7 @@
             #pragma shader_feature_local EMISSION
             #pragma shader_feature_local BAKEDSPECULAR
             #pragma shader_feature_local PARALLAX
+            #pragma shader_feature_local GEOMETRIC_SPECULAR_AA
 
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
@@ -166,6 +167,7 @@
             #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local PARALLAX
+            #pragma shader_feature_local GEOMETRIC_SPECULAR_AA
 
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
