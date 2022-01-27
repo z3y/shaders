@@ -75,8 +75,13 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
     #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
 
-        float2 detailUV = _DetailMapUV ?    i.coord0.zw * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw + parallaxOffset :
-                                            i.coord0.xy * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw + parallaxOffset;
+        float2 detailUV = i.coord0.xy;
+        if (_DetailMapUV == 1)
+            detailUV = i.coord0.zw;
+        else if (_DetailMapUV == 2)
+            detailUV = i.coord1.xy;
+
+        detailUV = (detailUV * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset;
 
         float detailMask = maskMap.b;
         float4 detailMap = 0.5;

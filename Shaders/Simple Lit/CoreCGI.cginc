@@ -34,6 +34,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
 
     #ifdef NEED_CENTROID_NORMAL
+    UNITY_FLATTEN
     if ( dot(i.worldNormal, i.worldNormal) >= 1.01 )
     {
         i.worldNormal = i.centroidWorldNormal;
@@ -48,7 +49,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     half3 directSpecular = 0;
 
     #if !defined(SHADER_API_MOBILE) && !defined(LIGHTMAP_ON)
-    if(!facing)
+    UNITY_FLATTEN
+    if (!facing)
     {
         worldNormal *= -1;
         bitangent *= -1;
@@ -57,18 +59,19 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
 
 
-    #ifdef GEOMETRIC_SPECULAR_AA
-    surf.perceptualRoughness = GSAA_Filament(worldNormal, surf.perceptualRoughness);
+    #ifndef SHADER_API_MOBILE
+    if (_GSAA)
+        surf.perceptualRoughness = GSAA_Filament(worldNormal, surf.perceptualRoughness);
     #endif
     
     float3 tangentNormalInv = surf.tangentNormal;
     #if defined(_NORMAL_MAP) || defined(_DETAILNORMAL_MAP)
-    surf.tangentNormal.g *= -1; // still need to figure out why its inverted by default
-    worldNormal = normalize(surf.tangentNormal.x * tangent + surf.tangentNormal.y * bitangent + surf.tangentNormal.z * worldNormal);
-    tangent = normalize(cross(worldNormal, bitangent));
-    bitangent = normalize(cross(worldNormal, tangent));
+        surf.tangentNormal.g *= -1; // still need to figure out why its inverted by default
+        worldNormal = normalize(surf.tangentNormal.x * tangent + surf.tangentNormal.y * bitangent + surf.tangentNormal.z * worldNormal);
+        tangent = normalize(cross(worldNormal, bitangent));
+        bitangent = normalize(cross(worldNormal, tangent));
     #else
-    worldNormal = normalize(worldNormal);
+        worldNormal = normalize(worldNormal);
     #endif
 
 
@@ -369,9 +372,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         return float4(UnityMetaFragment(metaInput).rgb, surf.alpha);
     #endif
 
-    #ifdef NEED_FOG
-        UNITY_APPLY_FOG(i.fogCoord, finalColor);
-    #endif
+    UNITY_APPLY_FOG(i.fogCoord, finalColor);
 
     return finalColor;
 #endif

@@ -67,6 +67,9 @@ namespace z3y.Shaders
         private MaterialProperty _DetailAlbedoScale = null;
         private MaterialProperty _DetailSmoothnessScale = null;
         private MaterialProperty _SpecularOcclusion = null;
+        private MaterialProperty _DetailMaskMapInvert = null;
+        private MaterialProperty _OcclusionMapMapInvert = null;
+        private MaterialProperty _MetallicMapMapInvert = null;
 
 
 
@@ -106,7 +109,7 @@ namespace z3y.Shaders
             }
             else
             {
-                Prop(_MainTex, _Color);
+                Prop(_MainTex, _Color, _AlbedoSaturation);
                 Prop(_MetallicGlossMap);
                 sRGBWarning(_MetallicGlossMap);
 
@@ -116,11 +119,10 @@ namespace z3y.Shaders
                     //texture packing
                     PropertyGroup(()=>
                     {
-                        Prop(_MetallicMap, _MetallicMapChannel);
-                        Prop(_OcclusionMap, _OcclusionMapChannel);
-                        Prop(_DetailMaskMap, _DetailMaskMapChannel);
-                        Prop(_SmoothnessMap, _SmoothnessMapChannel);
-                        Prop(_SmoothnessMapInvert);
+                        Prop(_MetallicMap, _MetallicMapChannel, _MetallicMapMapInvert);
+                        Prop(_OcclusionMap, _OcclusionMapChannel, _OcclusionMapMapInvert);
+                        Prop(_DetailMaskMap, _DetailMaskMapChannel, _DetailMaskMapInvert);
+                        Prop(_SmoothnessMap, _SmoothnessMapChannel, _SmoothnessMapInvert);
                         EditorGUILayout.BeginHorizontal();
                         if (GUILayout.Button("Pack"))
                         {
@@ -161,9 +163,8 @@ namespace z3y.Shaders
             Prop(_EnableEmission);
             if (_EnableEmission.boolValue())
             {
-                Prop(_EmissionMap, _EmissionColor);
+                Prop(_EmissionMap, _EmissionColor, _EmissionMultBase);
                 EditorGUI.indentLevel+=2;
-                Prop(_EmissionMultBase);
                 me.LightmapEmissionProperty();
                 EditorGUI.indentLevel-=2;
                 EditorGUILayout.Space();
@@ -238,7 +239,6 @@ namespace z3y.Shaders
 
             Prop(_NonLinearLightProbeSH);
             Prop(_BakedSpecular);
-            Prop(_AlbedoSaturation);
 
 
 #if BAKERY_INCLUDED
@@ -275,6 +275,9 @@ namespace z3y.Shaders
             blueChannel.texture = (Texture2D) _DetailMaskMap.textureValue;
             alphaChannel.texture = (Texture2D) _SmoothnessMap.textureValue;
             alphaChannel.invert = _SmoothnessMapInvert.floatValue == 1;
+            blueChannel.invert = _DetailMaskMapInvert.floatValue == 1;
+            greenChannel.invert = _OcclusionMapMapInvert.floatValue == 1;
+            redChannel.invert = _MetallicMapMapInvert.floatValue == 1;
 
             Texture2D reference = alphaChannel.texture ?? blueChannel.texture ?? greenChannel.texture ?? redChannel.texture;
             if (reference == null) return true;
@@ -357,6 +360,6 @@ namespace z3y.Shaders
             };
         }
 
-        private void Prop(MaterialProperty property, MaterialProperty extraProperty = null) => _materialEditor.DrawMaterialProperty(property, extraProperty);
+        private void Prop(MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null) => _materialEditor.DrawMaterialProperty(property, extraProperty, extraProperty2);
     }
 }

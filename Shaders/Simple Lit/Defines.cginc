@@ -5,72 +5,23 @@
 
 #if defined(SHADER_API_MOBILE)
     #undef _DETAILNORMAL_MAP
-    #undef BICUBIC_LIGHTMAP
     #undef NONLINEAR_LIGHTPROBESH
     #undef PARALLAX
     #undef BAKEDSPECULAR
-    #undef BAKERY_RNM
-    #undef BAKERY_SH
     #undef DIRLIGHTMAP_COMBINED
-    #undef DYNAMICLIGHTMAP_ON
     #undef NEED_CENTROID_NORMAL
     #undef VERTEXLIGHT_PS
-    #undef LOD_FADE_CROSSFADE
     #undef HEMIOCTAHEDRON_DECODING
+    #undef BICUBIC_LIGHTMAP
     #undef BAKERY_BICUBIC
-
-#endif
-
-
-#if !defined(_TEXTURE_ARRAY) && !defined(_TEXTURE_ARRAY_INSTANCED)
-    #define _TEXTURE_DEFAULT
-#endif
-
-#if defined(_TEXTURE_ARRAY) || defined(_TEXTURE_ARRAY_INSTANCED)
-    #undef PARALLAX
-#endif
-
-#if defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_META) || defined(UNITY_PASS_FORWARDADD)
-    #define NEED_TANGENT_BITANGENT
-    #define NEED_WORLD_POS
-    #define NEED_WORLD_NORMAL
-#endif
-
-#if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2) 
-    #define NEED_FOG
 #endif
 
 #ifdef UNITY_PASS_META
     #include "UnityMetaPass.cginc"
 #endif
 
-#if defined(PARALLAX)
-    #define NEED_PARALLAX_DIR
-#endif
-
-
-#if defined(DYNAMICLIGHTMAP_ON) || defined(UNITY_PASS_META) || defined(_TEXTURE_ARRAY)
-    #define NEED_UV2
-#endif
-
 #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
     #define NEED_SCREEN_POS
-#endif
-
-#ifdef VERTEXLIGHT_ON
-    #define NEED_WORLD_NORMAL
-    #define NEED_WORLD_POS
-#endif
-
-
-
-#if !defined(LIGHTMAP_ON) || !defined(UNITY_PASS_FORWARDBASE)
-    #undef BAKERY_SH
-    #undef BAKERY_RNM
-#endif
-
-#ifdef LIGHTMAP_ON
-    #undef BAKERY_VOLUME
 #endif
 
 #ifdef LIGHTMAP_ON

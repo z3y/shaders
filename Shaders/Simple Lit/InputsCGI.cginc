@@ -32,6 +32,7 @@ half _SpecularOcclusion;
 half _Cutoff;
 
 half _EmissionMultBase;
+half _GSAA;
 
 UNITY_INSTANCING_BUFFER_START(InstancedProps)
     UNITY_DEFINE_INSTANCED_PROP(float, _TextureIndex)

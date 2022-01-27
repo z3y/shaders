@@ -13,21 +13,10 @@ struct appdata
 {
     float4 vertex : POSITION;
     float3 normal : NORMAL;
-
-    #ifdef _TEXTURE_ARRAY
-        float3 uv0 : TEXCOORD0;
-    #else
-        float2 uv0 : TEXCOORD0;
-    #endif
+    float3 uv0 : TEXCOORD0;
     float2 uv1 : TEXCOORD1;
-
-    #ifdef NEED_UV2
-        float2 uv2 : TEXCOORD2;
-    #endif
-
-    #ifdef NEED_TANGENT_BITANGENT
-        float4 tangent : TANGENT;
-    #endif
+    float2 uv2 : TEXCOORD2;
+    float4 tangent : TANGENT;
 
     #ifdef NEED_VERTEX_COLOR
         half4 color : COLOR;
@@ -41,25 +30,13 @@ struct v2f
 {
     float4 pos : SV_POSITION;
     float4 coord0 : TEXCOORD0;
+    float3 coord1 : TEXCOORD1;
+    float3 bitangent : TEXCOORD2;
+    float3 tangent : TEXCOORD3;
+    float3 worldNormal : TEXCOORD4;
+    float4 worldPos : TEXCOORD5;
 
-    #ifdef NEED_UV2
-        float3 coord1 : TEXCOORD1;
-    #endif
-
-    #ifdef NEED_TANGENT_BITANGENT
-        float3 bitangent : TEXCOORD2;
-        float3 tangent : TEXCOORD3;
-    #endif
-
-    #ifdef NEED_WORLD_NORMAL
-        float3 worldNormal : TEXCOORD4;
-    #endif
-
-    #ifdef NEED_WORLD_POS
-        float4 worldPos : TEXCOORD5;
-    #endif
-
-    #ifdef NEED_PARALLAX_DIR
+    #if defined(PARALLAX) || defined(BAKERYLM_ENABLED)
         float3 parallaxViewDir : TEXCOORD6;
     #endif
 
@@ -75,9 +52,7 @@ struct v2f
         float4 screenPos : TEXCOORD9;
     #endif
 
-    #ifdef NEED_FOG
-        UNITY_FOG_COORDS(10)
-    #endif
+    UNITY_FOG_COORDS(10)
 
     #if !defined(UNITY_PASS_SHADOWCASTER)
         UNITY_SHADOW_COORDS(11)
@@ -94,7 +69,7 @@ struct v2f
 v2f vert (appdata v)
 {
     v2f o;
-    // UNITY_INITIALIZE_OUTPUT(v2f, o);
+    UNITY_INITIALIZE_OUTPUT(v2f, o);
     UNITY_SETUP_INSTANCE_ID(v);
     UNITY_TRANSFER_INSTANCE_ID(v, o);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
@@ -109,28 +84,13 @@ v2f vert (appdata v)
 
     o.coord0.xy = v.uv0.xy;
     o.coord0.zw = v.uv1;
+    o.coord1.xy = v.uv2;
+    o.coord1.z = v.uv0.z;
 
-    #ifdef NEED_UV2
-        o.coord1.xy = v.uv2;
-
-        #ifdef _TEXTURE_ARRAY
-            o.coord1.z = v.uv0.z;
-        #endif
-    #endif
-
-
-    #ifdef NEED_WORLD_NORMAL
-        o.worldNormal = UnityObjectToWorldNormal(v.normal);
-    #endif
-
-    #ifdef NEED_TANGENT_BITANGENT
-        o.tangent = UnityObjectToWorldDir(v.tangent.xyz);
-        o.bitangent = cross(o.tangent, o.worldNormal) * v.tangent.w;
-    #endif
-
-    #ifdef NEED_WORLD_POS
-        o.worldPos = mul(unity_ObjectToWorld, v.vertex);
-    #endif
+    o.worldNormal = UnityObjectToWorldNormal(v.normal);
+    o.tangent = UnityObjectToWorldDir(v.tangent.xyz);
+    o.bitangent = cross(o.tangent, o.worldNormal) * v.tangent.w;
+    o.worldPos = mul(unity_ObjectToWorld, v.vertex);
 
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
 		o.vertexLight = Shade4PointLights
@@ -146,7 +106,7 @@ v2f vert (appdata v)
         o.color = v.color;
     #endif
 
-    #ifdef NEED_PARALLAX_DIR
+    #if defined(PARALLAX) || defined(BAKERYLM_ENABLED)
         TANGENT_SPACE_ROTATION;
         o.parallaxViewDir = mul (rotation, ObjSpaceViewDir(v.vertex));
     #endif
@@ -159,9 +119,7 @@ v2f vert (appdata v)
         UNITY_TRANSFER_SHADOW(o, o.coord0.zw);
     #endif
 
-    #ifdef NEED_FOG
-        UNITY_TRANSFER_FOG(o,o.pos);
-    #endif
+    UNITY_TRANSFER_FOG(o,o.pos);
 
     #ifdef NEED_SCREEN_POS
         o.screenPos = ComputeScreenPos(o.pos);

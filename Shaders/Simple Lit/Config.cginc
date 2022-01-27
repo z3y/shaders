@@ -8,17 +8,16 @@
 // http://media.steampowered.com/apps/valve/2015/Alex_Vlachos_Advanced_VR_Rendering_GDC2015.pdf
 
 // used for specular antialiasing 
-#define NEED_CENTROID_NORMAL
+// #define NEED_CENTROID_NORMAL
 
 // requires normal maps with hemi octahedron encoding
 // #define HEMIOCTAHEDRON_DECODING
 
 
-// features can globaly be defined here without using keywords
-// #define NONLINEAR_LIGHTPROBESH
+// features can globally be defined here without using keywords
+#define NONLINEAR_LIGHTPROBESH
 // #define BAKERY_RNM
 // #define BAKERY_SH
-
 
 
 
