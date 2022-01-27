@@ -54,6 +54,7 @@
             _EmissionMap ("Emission Map", 2D) = "white" {}
             [ToggleUI] _EmissionMultBase ("Multiply Base", Int) = 0
             [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
+            [Enum(Disabled, 0, Bass, 1, Mid, 2, Upper Mid, 3, High, 4)] _AudioLinkEmission ("Audio Link", Int) = 0
 
         _DetailAlbedoMap ("Detail Albedo:Albedo (RGB) | Smoothness (A)", 2D) = "linearGrey" {}
         [Normal] _DetailNormalMap ("Detail Normal", 2D) = "bump" {}
@@ -132,6 +133,7 @@
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local REFLECTIONS_OFF
             #pragma shader_feature_local EMISSION
+            #pragma shader_feature_local AUDIOLINK
             #pragma shader_feature_local BAKEDSPECULAR
             #pragma shader_feature_local PARALLAX
             #pragma shader_feature_local GEOMETRIC_SPECULAR_AA
@@ -199,8 +201,7 @@
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
 
-            #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON
-            #pragma shader_feature_local _ALPHADITHER
+            #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _MODE_FADE
 
             #include "PassCGI.cginc"
             ENDCG
@@ -217,6 +218,7 @@
 
             #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
             #pragma shader_feature_local EMISSION
+            #pragma shader_feature_local AUDIOLINK
 
             #pragma shader_feature_local _TEXTURE_ARRAY        
 
