@@ -70,6 +70,7 @@ namespace z3y.Shaders
         private MaterialProperty _DetailMaskMapInvert = null;
         private MaterialProperty _OcclusionMapMapInvert = null;
         private MaterialProperty _MetallicMapMapInvert = null;
+        private MaterialProperty _QueueOffset = null;
 
 
 
@@ -84,6 +85,8 @@ namespace z3y.Shaders
             }
 
             if (_Mode.floatValue == 1) Prop(_Cutoff);
+
+            
 
             EditorGUILayout.Space();
 
@@ -261,6 +264,10 @@ namespace z3y.Shaders
             me.DoubleSidedGIField();
             me.EnableInstancingField();
             me.RenderQueueField();
+            if (_Mode.floatValue > 1)
+            {
+                Prop(_QueueOffset);
+            }
         }
 
         private bool PackMaskMap()
@@ -312,16 +319,16 @@ namespace z3y.Shaders
         private void ApplyChanges(MaterialEditor materialEditor, Material mat)
         {
             SetupGIFlags(_EnableEmission.floatValue, _material);
-            SetupBlendMode(materialEditor);
-
-            var samplingMode = _Texture.floatValue;
             
-            mat.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);
+            SetupBlendMode(materialEditor);
             mat.ToggleKeyword("_MODE_CUTOUT", _Mode.floatValue == 1);
-            mat.ToggleKeyword("_MODE_FADE", _Mode.floatValue == 2);
-            // mat.ToggleKeyword("_MODE_TRANSPARENT", _Mode.floatValue == 3);
             mat.ToggleKeyword("_ALPHAPREMULTIPLY_ON", _Mode.floatValue == 3);
             mat.ToggleKeyword("_ALPHAMODULATE_ON", _Mode.floatValue == 5);
+
+            var samplingMode = _Texture.floatValue;
+            mat.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);
+            
+            
             
             
             

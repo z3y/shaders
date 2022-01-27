@@ -2,7 +2,7 @@
 {
     Properties
     {
-        [Enum(Opaque, 0, Cutout, 1, Alpha, 2, Premultiply, 3, Additive, 4, Multiply, 5)] _Mode ("Rendering Mode", Int) = 0
+        [Enum(Opaque, 0, Cutout, 1, Fade, 2, Premultiply, 3, Additive, 4, Multiply, 5)] _Mode ("Rendering Mode", Int) = 0
 
         _Cutoff ("Alpha Cuttoff", Range(0, 1)) = 0.5
 
@@ -75,6 +75,7 @@
         [Enum(Off, 0, On, 1)] _ZWrite ("ZWrite", Int) = 1
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Int) = 2
         [Enum(Off, 0, On, 1)] _AlphaToMask ("Alpha To Coverage", Int) = 0
+        [IntRange] _QueueOffset ("Queue Offset", Range(-50, 50)) = 0
 
         [KeywordEnum(None, SH, RNM)] Bakery ("Bakery Mode", Int) = 0
             _RNM0("RNM0", 2D) = "black" {}

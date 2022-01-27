@@ -21,7 +21,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         if(surf.alpha < _Cutoff) discard;
     #endif
 
-    #if defined (_ALPHAPREMULTIPLY_ON)
+    #if defined(_ALPHAPREMULTIPLY_ON) || defined(_ALPHAMODULATE_ON)
         half dither = tex3D(_DitherMaskLOD, float3(i.pos.xy * 0.25, surf.alpha * 0.9375)).a;
         if(dither < 0.1) discard;
     #endif
@@ -358,7 +358,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
 
     #if defined(_ALPHAMODULATE_ON)
-        surf.albedo.rgb = lerp(half3(1.0, 1.0, 1.0), surf.albedo.rgb, surf.alpha);
+        surf.albedo.rgb = lerp(1, surf.albedo.rgb, surf.alpha);
     #endif
     
     half4 finalColor = half4(surf.albedo.rgb * (1 - surf.metallic) * (indirectDiffuse * surf.occlusion + (pixelLight + vertexLight)) + indirectSpecular + directSpecular + surf.emission, surf.alpha);
