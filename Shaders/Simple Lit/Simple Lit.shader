@@ -197,8 +197,10 @@
             #pragma skip_variants FOG_LINEAR FOG_EXP FOG_EXP2
 
             #pragma shader_feature_local _TEXTURE_ARRAY
+            #pragma shader_feature_local _MASK_MAP
 
-            #pragma shader_feature_local _ _MODE_CUTOUT _ALPHADITHER
+            #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON
+            #pragma shader_feature_local _ALPHADITHER
 
             #include "PassCGI.cginc"
             ENDCG

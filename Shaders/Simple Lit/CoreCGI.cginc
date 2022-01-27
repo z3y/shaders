@@ -21,6 +21,10 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         if(surf.alpha < _Cutoff) discard;
     #endif
 
+    #ifdef _ALPHAPREMULTIPLY_ON
+        surf.alpha = lerp(surf.alpha, 1.0, surf.metallic);
+    #endif
+
     #if defined(_ALPHADITHER)
         half dither = tex3D(_DitherMaskLOD, float3(i.pos.xy * 0.25, surf.alpha * 0.9375)).a;
         if(dither < 0.1) discard;
