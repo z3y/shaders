@@ -136,7 +136,11 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         emissionMap *= _EmissionMultBase ? surf.albedo.rgb : 1;
     
         surf.emission = emissionMap * UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _EmissionColor);
+        #if defined(AUDIOLINK)
+            surf.emission *= AudioLinkLerp(uint2(1, _AudioLinkEmission)).r;
+        #endif
     #endif
+
 
     surf.reflectance = _Reflectance;
 }

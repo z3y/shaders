@@ -71,6 +71,7 @@ namespace z3y.Shaders
         private MaterialProperty _OcclusionMapMapInvert = null;
         private MaterialProperty _MetallicMapMapInvert = null;
         private MaterialProperty _QueueOffset = null;
+        private MaterialProperty _AudioLinkEmission = null;
 
 
 
@@ -168,6 +169,9 @@ namespace z3y.Shaders
             {
                 Prop(_EmissionMap, _EmissionColor, _EmissionMultBase);
                 EditorGUI.indentLevel+=2;
+                #if UDON
+                Prop(_AudioLinkEmission);
+                #endif
                 me.LightmapEmissionProperty();
                 EditorGUI.indentLevel-=2;
                 EditorGUILayout.Space();
@@ -330,6 +334,7 @@ namespace z3y.Shaders
             mat.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);
             
             
+            mat.ToggleKeyword("AUDIOLINK", _AudioLinkEmission.floatValue != 1000);
             
             
             

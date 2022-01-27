@@ -136,5 +136,8 @@ v2f vert (appdata v)
 #include "../CGIncludes/MultistepParallax.cginc"
 #include "../CGIncludes/NonImportantLights.cginc"
 #include "../CGIncludes/EnvironmentBRDF.cginc"
+#ifdef AUDIOLINK
+#include "../CGIncludes/AudioLink.cginc"
+#endif
 #include "LitSurfaceData.cginc"
 #include "CoreCGI.cginc"

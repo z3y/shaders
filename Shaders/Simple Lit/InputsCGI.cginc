@@ -33,6 +33,7 @@ half _Cutoff;
 
 half _EmissionMultBase;
 half _Texture;
+half _AudioLinkEmission;
 
 UNITY_INSTANCING_BUFFER_START(InstancedProps)
     UNITY_DEFINE_INSTANCED_PROP(float, _TextureIndex)
