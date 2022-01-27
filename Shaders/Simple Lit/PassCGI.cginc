@@ -52,9 +52,8 @@ struct v2f
         float4 screenPos : TEXCOORD9;
     #endif
 
-    UNITY_FOG_COORDS(10)
-
     #if !defined(UNITY_PASS_SHADOWCASTER)
+        UNITY_FOG_COORDS(10)
         UNITY_SHADOW_COORDS(11)
     #endif
 
@@ -117,9 +116,8 @@ v2f vert (appdata v)
         TRANSFER_SHADOW_CASTER_NOPOS(o, o.pos);
     #else
         UNITY_TRANSFER_SHADOW(o, o.coord0.zw);
+        UNITY_TRANSFER_FOG(o,o.pos);
     #endif
-
-    UNITY_TRANSFER_FOG(o,o.pos);
 
     #ifdef NEED_SCREEN_POS
         o.screenPos = ComputeScreenPos(o.pos);

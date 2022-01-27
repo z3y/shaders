@@ -23,13 +23,12 @@
 
 #define UNITY_LIGHT_PROBE_PROXY_VOLUME 0
 
-// disabled features for mobile/quest
-// only ones that are probably safe to enable if needed, the rest is disabled
+
+
 #if defined(SHADER_API_MOBILE)
     // #undef _MASK_MAP
-    #undef _NORMAL_MAP
+    // #undef _NORMAL_MAP
     #define SPECULAR_HIGHLIGHTS_OFF
     // #define REFLECTIONS_OFF
-    #undef GEOMETRIC_SPECULAR_AA
     #undef _DETAILALBEDO_MAP
 #endif

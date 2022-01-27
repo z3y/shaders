@@ -275,7 +275,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
     
     half3 fresnel = F_Schlick(NoV, f0);
-    #if defined(BAKERY_LMSPEC) && defined(UNITY_PASS_FORWARDBASE)
+    #if defined(BAKERY_LMSPEC) && defined(UNITY_PASS_FORWARDBASE) && defined(LIGHTMAP_ON)
 
         #ifdef BAKERY_RNM
         {
