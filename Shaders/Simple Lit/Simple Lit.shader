@@ -164,7 +164,6 @@
             #pragma multi_compile _ LOD_FADE_CROSSFADE
 
             #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
-            #pragma shader_feature_local _ALPHAPREMULTIPLY_ON
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local PARALLAX
 
@@ -197,7 +196,7 @@
 
             #pragma shader_feature_local _TEXTURE_ARRAY
 
-            #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
+            #pragma shader_feature_local _ _MODE_CUTOUT _ALPHADITHER
 
             #include "PassCGI.cginc"
             ENDCG

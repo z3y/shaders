@@ -324,6 +324,7 @@ namespace z3y.Shaders
             mat.ToggleKeyword("_MODE_CUTOUT", _Mode.floatValue == 1);
             mat.ToggleKeyword("_ALPHAPREMULTIPLY_ON", _Mode.floatValue == 3);
             mat.ToggleKeyword("_ALPHAMODULATE_ON", _Mode.floatValue == 5);
+            mat.ToggleKeyword("_ALPHADITHER", _Mode.floatValue >= 2);
 
             var samplingMode = _Texture.floatValue;
             mat.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);

@@ -34,7 +34,9 @@
 #if defined(BAKERY_SH) || defined(BAKERY_RNM) || defined(BAKERY_VOLUME)
 
     #ifdef BAKERY_SH
-        #define BAKERY_SHNONLINEAR
+        #ifndef SHADER_API_MOBILE
+            #define BAKERY_SHNONLINEAR
+        #endif
     #endif
 
     #define NEED_PARALLAX_DIR
