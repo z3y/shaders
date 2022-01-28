@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -90,6 +92,8 @@ namespace z3y.Shaders
                 DestroyImmediate(newTexture);
                 if (refresh)
                     AssetDatabase.Refresh();
+
+                ClearTempTextures();
                 
                 return newTexturePath;
             }
@@ -142,18 +146,7 @@ namespace z3y.Shaders
                 }
                 else
                 {
-                    string texturePath = AssetDatabase.GetAssetPath(texture);
-                    TextureImporter tex = (TextureImporter)UnityEditor.AssetImporter.GetAtPath(texturePath);
-                    TextureImporterSettings originalSettings = new TextureImporterSettings();
-                    tex.ReadTextureSettings(originalSettings);
-
-                    var oldCompression = tex.textureCompression;
-                    var oldsRGBSetting = tex.sRGBTexture;
-                    
-                    tex.textureCompression = TextureImporterCompression.Uncompressed;
-                    tex.sRGBTexture = true;
-                    tex.SaveAndReimport();
-
+                    texture = GetTempUncompressedTexture(texture);
                     Texture2D newTexture = GetColors(texture, width, height, out Color[] myColors, unloadTempTexture);
                     colors = myColors.Select(c =>
                     {
@@ -173,12 +166,6 @@ namespace z3y.Shaders
                             colors[i] = 1 - colors[i];
                         }
                     }
-
-                    TextureImporter restoreSettings = (TextureImporter)AssetImporter.GetAtPath(texturePath);
-                    restoreSettings.SetTextureSettings(originalSettings);
-                    tex.textureCompression = oldCompression;
-                    tex.sRGBTexture = oldsRGBSetting;
-                    restoreSettings.SaveAndReimport();
                     return newTexture;
                 }
             }
@@ -205,6 +192,49 @@ namespace z3y.Shaders
                     return null;
                 }
                 return newTexture;
+            }
+
+            private const string TempTextureFolder = "Assets/z3y/TexturePackingUncompressedTemp/";
+            public static Texture2D GetTempUncompressedTexture(Texture2D tex)
+            {
+                var path = AssetDatabase.GetAssetPath(tex);
+                var guid = AssetDatabase.AssetPathToGUID(path);
+                var fileName = Path.GetFileName(path);
+
+                var tempFolder = Path.Combine(TempTextureFolder, guid);
+                Directory.CreateDirectory(tempFolder);
+                var tempPath = Path.Combine(tempFolder, fileName);
+                    
+                if (!File.Exists(tempPath))
+                {
+                    File.Copy(path, tempPath);
+                }
+                AssetDatabase.ImportAsset(tempPath);
+                return AssetDatabase.LoadAssetAtPath<Texture2D>(tempPath);
+            }
+
+            public static void ClearTempTextures()
+            {
+                if (Directory.Exists(TempTextureFolder))
+                {
+                    Directory.Delete(TempTextureFolder, true);
+                }
+            }
+
+            public class FixImportSettings : AssetPostprocessor
+            {
+                private void OnPreprocessTexture()
+                {
+                    var importer = assetImporter as TextureImporter;
+                    if (importer == null || !importer.assetPath.StartsWith(TempTextureFolder, StringComparison.Ordinal)) return;
+
+                    importer.filterMode = FilterMode.Point;
+                    importer.wrapMode = TextureWrapMode.Clamp;
+                    importer.textureCompression = TextureImporterCompression.Uncompressed;
+                    importer.anisoLevel = 0;
+                    importer.sRGBTexture = true;
+                    importer.mipmapEnabled = false;
+                }
             }
         }
     }
