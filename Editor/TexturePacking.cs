@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 
 
-namespace z3y.Editor
+namespace z3y.Shaders
 {
     public static class TexturePacking
     {
