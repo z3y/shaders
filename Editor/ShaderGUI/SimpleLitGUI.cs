@@ -126,7 +126,7 @@ namespace z3y.Shaders
                         Prop(_MetallicMap, _MetallicMapChannel, _MetallicMapInvert);
                         Prop(_OcclusionMap, _OcclusionMapChannel, _OcclusionMapInvert);
                         Prop(_DetailMaskMap, _DetailMaskMapChannel, _DetailMaskMapInvert);
-                        Prop(_SmoothnessMap, _SmoothnessMapChannel, _SmoothnessMapInvert);
+                        Prop(_SmoothnessMap, _SmoothnessMapChannel, _SmoothnessMapInvert, _SmoothnessMapInvert.floatValue == 1 ? "Roughness Map" : null);
                         EditorGUILayout.BeginHorizontal();
                         if (GUILayout.Button("Pack"))
                         {
@@ -425,6 +425,6 @@ namespace z3y.Shaders
             };
         }
 
-        private void Prop(MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null) => _materialEditor.DrawMaterialProperty(property, extraProperty, extraProperty2);
+        private void Prop(MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null, string nameOverride = null) => _materialEditor.DrawMaterialProperty(property, extraProperty, extraProperty2, nameOverride);
     }
 }

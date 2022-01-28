@@ -87,14 +87,14 @@ namespace z3y.Shaders
 			}
 		}
 
-        public static void DrawMaterialProperty(this MaterialEditor me, MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null)
+        public static void DrawMaterialProperty(this MaterialEditor me, MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null, string nameOverride = null)
         {
             if (property is null) return;
             if (property.type == MaterialProperty.PropType.Texture) 
             {
                 string[] p = property.displayName.Split(':');
                 EditorGUILayout.BeginHorizontal();
-                me.TexturePropertySingleLine(new GUIContent(p[0], p.Length == 2 ? p[1] : null), property, extraProperty);
+                me.TexturePropertySingleLine(new GUIContent(nameOverride ?? p[0], p.Length == 2 ? p[1] : null), property, extraProperty);
 
                 if (extraProperty2 == null)
                 {
