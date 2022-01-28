@@ -132,6 +132,38 @@ namespace z3y.Shaders
                         {
                             if (PackMaskMap()) return;
                         }
+                        
+                        if (GUILayout.Button("Modify"))
+                        {
+                            var t = _MetallicGlossMap.textureValue;
+                            if (!_MetallicMap.textureValue)
+                            {
+                                material.SetTexture("_MetallicMap", t);
+                                material.SetInt("_MetallicMapChannel", 0);
+                                material.SetInt("_MetallicMapInvert", 0);
+                            }
+
+                            if (!_OcclusionMap.textureValue)
+                            {
+                                material.SetTexture("_OcclusionMap", t);
+                                material.SetInt("_OcclusionMapChannel", 1);
+                                material.SetInt("_OcclusionMapInvert", 0);
+                            }
+
+                            if (!_DetailMaskMap.textureValue)
+                            {
+                                material.SetTexture("_DetailMaskMap", t);
+                                material.SetInt("_DetailMaskMapChannel", 2);
+                                material.SetInt("_DetailMaskMapInvert", 0);
+                            }
+
+                            if (!_SmoothnessMap.textureValue)
+                            {
+                                material.SetTexture("_SmoothnessMap", t);
+                                material.SetInt("_SmoothnessMapChannel", 3);
+                                material.SetInt("_SmoothnessMapInvert", 0);
+                            }
+                        }
 
                         if (GUILayout.Button("Close"))
                         {

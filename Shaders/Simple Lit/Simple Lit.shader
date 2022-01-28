@@ -24,13 +24,13 @@
         // properties used only for texture packing
         _IsPackingMetallicGlossMap ("", Float) = 0
         _MetallicMap ("Metallic Map", 2D) = "black" {}
-        [Enum(R, 0, G, 1, B, 2, A, 3)]  _MetallicMapChannel ("", Int) = 0
+        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _MetallicMapChannel ("", Int) = 0
         _OcclusionMap ("Occlusion Map", 2D) = "white" {}
-        [Enum(R, 0, G, 1, B, 2, A, 3)]  _OcclusionMapChannel ("", Int) = 0
+        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _OcclusionMapChannel ("", Int) = 0
         _DetailMaskMap ("Detail Mask", 2D) = "white" {}
-        [Enum(R, 0, G, 1, B, 2, A, 3)]  _DetailMaskMapChannel ("", Int) = 0
+        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _DetailMaskMapChannel ("", Int) = 0
         _SmoothnessMap ("Smoothness Map", 2D) = "white" {}
-        [Enum(R, 0, G, 1, B, 2, A, 3)]  _SmoothnessMapChannel ("", Int) = 0
+        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _SmoothnessMapChannel ("", Int) = 0
         [ToggleUI] _SmoothnessMapInvert ("Invert", Float) = 0
         [ToggleUI] _DetailMaskMapInvert ("Invert", Float) = 0
         [ToggleUI] _OcclusionMapInvert ("Invert", Float) = 0
