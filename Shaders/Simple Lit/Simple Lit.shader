@@ -33,8 +33,8 @@
         [Enum(R, 0, G, 1, B, 2, A, 3)]  _SmoothnessMapChannel ("", Int) = 0
         [ToggleUI] _SmoothnessMapInvert ("Invert", Float) = 0
         [ToggleUI] _DetailMaskMapInvert ("Invert", Float) = 0
-        [ToggleUI] _OcclusionMapMapInvert ("Invert", Float) = 0
-        [ToggleUI] _MetallicMapMapInvert ("Invert", Float) = 0
+        [ToggleUI] _OcclusionMapInvert ("Invert", Float) = 0
+        [ToggleUI] _MetallicMapInvert ("Invert", Float) = 0
 
 
         [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}

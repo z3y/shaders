@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using UnityEditor;
 using UnityEngine;
+using z3y.Editor;
 using static z3y.Shaders.GUIHelpers;
-using static z3y.Shaders.TexturePacking;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace z3y.Shaders
@@ -68,8 +68,8 @@ namespace z3y.Shaders
         private MaterialProperty _DetailSmoothnessScale = null;
         private MaterialProperty _SpecularOcclusion = null;
         private MaterialProperty _DetailMaskMapInvert = null;
-        private MaterialProperty _OcclusionMapMapInvert = null;
-        private MaterialProperty _MetallicMapMapInvert = null;
+        private MaterialProperty _OcclusionMapInvert = null;
+        private MaterialProperty _MetallicMapInvert = null;
         private MaterialProperty _QueueOffset = null;
         private MaterialProperty _AudioLinkEmission = null;
 
@@ -123,8 +123,8 @@ namespace z3y.Shaders
                     //texture packing
                     PropertyGroup(()=>
                     {
-                        Prop(_MetallicMap, _MetallicMapChannel, _MetallicMapMapInvert);
-                        Prop(_OcclusionMap, _OcclusionMapChannel, _OcclusionMapMapInvert);
+                        Prop(_MetallicMap, _MetallicMapChannel, _MetallicMapInvert);
+                        Prop(_OcclusionMap, _OcclusionMapChannel, _OcclusionMapInvert);
                         Prop(_DetailMaskMap, _DetailMaskMapChannel, _DetailMaskMapInvert);
                         Prop(_SmoothnessMap, _SmoothnessMapChannel, _SmoothnessMapInvert);
                         EditorGUILayout.BeginHorizontal();
@@ -276,44 +276,58 @@ namespace z3y.Shaders
 
         private bool PackMaskMap()
         {
-            ChannelTexture redChannel = new ChannelTexture("Red", (int) _MetallicMapChannel.floatValue);
-            ChannelTexture greenChannel = new ChannelTexture("Green", (int) _OcclusionMapChannel.floatValue);
-            ChannelTexture blueChannel = new ChannelTexture("Blue", (int) _DetailMaskMapChannel.floatValue);
-            ChannelTexture alphaChannel = new ChannelTexture("Alpha", (int) _SmoothnessMapChannel.floatValue);
-
-            redChannel.texture = (Texture2D) _MetallicMap.textureValue;
-            greenChannel.texture = (Texture2D) _OcclusionMap.textureValue;
-            blueChannel.texture = (Texture2D) _DetailMaskMap.textureValue;
-            alphaChannel.texture = (Texture2D) _SmoothnessMap.textureValue;
-            alphaChannel.invert = _SmoothnessMapInvert.floatValue == 1;
-            blueChannel.invert = _DetailMaskMapInvert.floatValue == 1;
-            greenChannel.invert = _OcclusionMapMapInvert.floatValue == 1;
-            redChannel.invert = _MetallicMapMapInvert.floatValue == 1;
-
-            Texture2D reference = alphaChannel.texture ?? blueChannel.texture ?? greenChannel.texture ?? redChannel.texture;
+            var rTex = (Texture2D)_MetallicMap.textureValue;
+            var gTex = (Texture2D)_OcclusionMap.textureValue;
+            var bTex = (Texture2D)_DetailMaskMap.textureValue;
+            var aTex = (Texture2D)_SmoothnessMap.textureValue;
+            
+            var reference = aTex ?? gTex ?? rTex ?? bTex;
             if (reference == null) return true;
+            
+            var rChannel = new TexturePacking.TextureChannel()
+            {
+                Tex = rTex,
+                Channel = (int)_MetallicMapChannel.floatValue,
+                Invert = _MetallicMapInvert.floatValue == 1,
+                DefaultWhite = false
+            };
+            
+            var gChannel = new TexturePacking.TextureChannel()
+            {
+                Tex = gTex,
+                Channel = (int)_OcclusionMapChannel.floatValue,
+                Invert = _OcclusionMapInvert.floatValue == 1
+            };
+            
+            var bChannel = new TexturePacking.TextureChannel()
+            {
+                Tex = bTex,
+                Channel = (int)_DetailMaskMapChannel.floatValue,
+                Invert = _DetailMaskMapInvert.floatValue == 1
+            };
+            
+            var aChannel = new TexturePacking.TextureChannel()
+            {
+                Tex = aTex,
+                Channel = (int)_SmoothnessMapChannel.floatValue,
+                Invert = _SmoothnessMapInvert.floatValue == 1
+            };
 
-            string path = AssetDatabase.GetAssetPath(reference);
+            var path = AssetDatabase.GetAssetPath(reference);
+            var newPath = Path.GetDirectoryName(path) + "/" + Path.GetFileNameWithoutExtension(path) + "_Packed";
 
-            path = Path.GetDirectoryName(path) + "/" + Path.GetFileNameWithoutExtension(path);
-
-            ChannelTexture[] channelTextures = {redChannel, greenChannel, blueChannel, alphaChannel};
-            string newTexturePath = ChannelTexture.PackTexture(channelTextures, path, reference.width, reference.height,
-                ChannelTexture.TexEncoding.SaveAsPNG);
-
-            TextureImporter tex = (TextureImporter) AssetImporter.GetAtPath(newTexturePath);
-            tex.textureCompression = TextureImporterCompression.Compressed;
-            tex.sRGBTexture = false;
-            tex.SaveAndReimport();
-
-            _MetallicGlossMap.textureValue = AssetDatabase.LoadAssetAtPath<Texture2D>(newTexturePath);
+            TexturePacking.Pack(rChannel, gChannel, bChannel, aChannel, newPath, reference.width, reference.height);
+            var packedTexture = TexturePacking.GetPackedTexture(newPath);
+            TexturePacking.DisableSrgb(packedTexture);
+            _MetallicGlossMap.textureValue = packedTexture;
             return false;
         }
 
         private void SetupBlendMode(MaterialEditor materialEditor)
         {
-            foreach (Material m in materialEditor.targets)
+            foreach (var o in materialEditor.targets)
             {
+                var m = (Material) o;
                 SetupMaterialWithBlendMode(m, (int) _Mode.floatValue);
             }
         }
