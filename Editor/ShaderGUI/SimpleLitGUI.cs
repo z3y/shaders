@@ -315,39 +315,39 @@ namespace z3y.Shaders
             var reference = aTex ?? gTex ?? rTex ?? bTex;
             if (reference == null) return true;
             
-            var rChannel = new TexturePacking.TextureChannel()
+            var rChannel = new TexturePacking.Channel()
             {
                 Tex = rTex,
-                Channel = (int)_MetallicMapChannel.floatValue,
+                ID = (int)_MetallicMapChannel.floatValue,
                 Invert = _MetallicMapInvert.floatValue == 1,
                 DefaultWhite = false
             };
             
-            var gChannel = new TexturePacking.TextureChannel()
+            var gChannel = new TexturePacking.Channel()
             {
                 Tex = gTex,
-                Channel = (int)_OcclusionMapChannel.floatValue,
+                ID = (int)_OcclusionMapChannel.floatValue,
                 Invert = _OcclusionMapInvert.floatValue == 1
             };
             
-            var bChannel = new TexturePacking.TextureChannel()
+            var bChannel = new TexturePacking.Channel()
             {
                 Tex = bTex,
-                Channel = (int)_DetailMaskMapChannel.floatValue,
+                ID = (int)_DetailMaskMapChannel.floatValue,
                 Invert = _DetailMaskMapInvert.floatValue == 1
             };
             
-            var aChannel = new TexturePacking.TextureChannel()
+            var aChannel = new TexturePacking.Channel()
             {
                 Tex = aTex,
-                Channel = (int)_SmoothnessMapChannel.floatValue,
+                ID = (int)_SmoothnessMapChannel.floatValue,
                 Invert = _SmoothnessMapInvert.floatValue == 1
             };
 
             var path = AssetDatabase.GetAssetPath(reference);
             var newPath = Path.GetDirectoryName(path) + "/" + Path.GetFileNameWithoutExtension(path) + "_Packed";
 
-            TexturePacking.Pack(rChannel, gChannel, bChannel, aChannel, newPath, reference.width, reference.height);
+            TexturePacking.Pack(new []{rChannel, gChannel, bChannel, aChannel}, newPath, reference.width, reference.height);
             var packedTexture = TexturePacking.GetPackedTexture(newPath);
             TexturePacking.DisableSrgb(packedTexture);
             _MetallicGlossMap.textureValue = packedTexture;

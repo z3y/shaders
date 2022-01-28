@@ -81,11 +81,13 @@
                 float texture2 = SampleChannel(_Texture2, _Texture2Channel, i.uv);
                 float texture3 = SampleChannel(_Texture3, _Texture3Channel, i.uv);
 
+
                 if (_Texture0Invert) texture0 = 1.0 - texture0;
                 if (_Texture1Invert) texture1 = 1.0 - texture1;
                 if (_Texture2Invert) texture2 = 1.0 - texture2;
                 if (_Texture3Invert) texture3 = 1.0 - texture3;
 
+                if (_Texture3Channel != 3) texture3 = pow(texture3, 1.0/2.2);
 
                 return float4(texture0, texture1, texture2, texture3);
             }
