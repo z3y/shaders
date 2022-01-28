@@ -21,7 +21,6 @@
     SubShader
     {
         Tags { "RenderType"="Opaque" }
-        LOD 100
 
         Pass
         {
@@ -75,7 +74,7 @@
                 return sampl[channel];
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
                 float texture0 = SampleChannel(_Texture0, _Texture0Channel, i.uv);
                 float texture1 = SampleChannel(_Texture1, _Texture1Channel, i.uv);

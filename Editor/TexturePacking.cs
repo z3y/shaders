@@ -69,7 +69,7 @@ namespace z3y.Editor
             var rt = new RenderTexture(newWidth, newHeight, 0, RenderTextureFormat.ARGB32)
             {
                 filterMode = FilterMode.Point,
-                useMipMap = true,
+                useMipMap = false,
                 anisoLevel = 0,
                 wrapMode = TextureWrapMode.Clamp,
             };
@@ -78,7 +78,7 @@ namespace z3y.Editor
             Graphics.Blit(null, rt, mat, 0);
             
             var newTexture = new Texture2D(newWidth, newHeight);
-            newTexture.ReadPixels( new Rect( 0, 0, rt.width, rt.height ), 0, 0, false );
+            newTexture.ReadPixels( new Rect( 0, 0, rt.width, rt.height ), 0, 0, true );
             newTexture.Apply();
 
             var bytes = newTexture.EncodeToPNG();
@@ -125,10 +125,9 @@ namespace z3y.Editor
 
         private static void ClearTempTextures()
         {
-            if (Directory.Exists(TempTextureFolder))
-            {
-                Directory.Delete(TempTextureFolder, true);
-            }
+            if (!Directory.Exists(TempTextureFolder)) return;
+            Directory.Delete(TempTextureFolder, true);
+            File.Delete(TempTextureFolder.Remove(TempTextureFolder.Length-1) + ".meta");
         }
 
         public class FixImportSettings : AssetPostprocessor
