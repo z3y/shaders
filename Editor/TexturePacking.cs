@@ -44,32 +44,30 @@ namespace z3y.Shaders
                 mat.SetInt($"_Texture{i}Channel", channels[i].ID);
                 mat.SetInt($"_Texture{i}Invert", channels[i].Invert ? 1 : 0);
             }
-            
+
             var rt = new RenderTexture(newWidth, newHeight, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear)
             {
                 filterMode = FilterMode.Point,
                 useMipMap = false,
                 anisoLevel = 0,
-                wrapMode = TextureWrapMode.Clamp,
+                wrapMode = TextureWrapMode.Clamp
             };
             rt.Create();
             
             Graphics.Blit(null, rt, mat, 0);
-
+            
             var newTexture = new Texture2D(newWidth, newHeight, TextureFormat.ARGB32, Texture.GenerateAllMips, true);
             newTexture.ReadPixels( new Rect( 0, 0, rt.width, rt.height ), 0, 0, true );
             newTexture.Apply();
+            var bytes = newTexture.EncodeToTGA();
 
-            var bytes = newTexture.EncodeToPNG();
-            
             RenderTexture.active = null;
             rt.Release();
             UnityEngine.Object.DestroyImmediate(newTexture);
             UnityEngine.Object.DestroyImmediate(rt);
-            
-            
-            File.WriteAllBytes(newTexturePath + ".png", bytes);
-            AssetDatabase.ImportAsset(newTexturePath + ".png");
+
+            File.WriteAllBytes(newTexturePath + ".tga", bytes);
+            AssetDatabase.ImportAsset(newTexturePath + ".tga");
 
             ClearTempTextures();
         }
@@ -81,7 +79,7 @@ namespace z3y.Shaders
             importer.SaveAndReimport();
         }
 
-        public static Texture2D GetPackedTexture(string path) => (Texture2D)AssetDatabase.LoadAssetAtPath(path + ".png", typeof(Texture2D));
+        public static Texture2D GetPackedTexture(string path) => (Texture2D)AssetDatabase.LoadAssetAtPath(path + ".tga", typeof(Texture2D));
         
         private const string TempTextureFolder = "Assets/z3y/TexturePackingUncompressedTemp/";
         private static Texture2D GetTempUncompressedTexture(Texture2D tex)
