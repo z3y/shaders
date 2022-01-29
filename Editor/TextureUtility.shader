@@ -20,28 +20,14 @@
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
-
         Pass
         {
+            Cull Off ZWrite Off ZTest Always
             CGPROGRAM
-            #pragma vertex vert
+            #pragma vertex vert_img
             #pragma fragment frag
             #pragma target 5.0
-
             #include "UnityCG.cginc"
-
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
-
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
-            };
 
             SamplerState inlineSampler_bilinear_clamp_sampler;
 
@@ -60,21 +46,13 @@
             bool _Texture2Invert;
             bool _Texture3Invert;
 
-            v2f vert (appdata v)
-            {
-                v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv;
-                return o;
-            }
-
             float SampleChannel(Texture2D tex, uint channel, float2 uv)
             {
                 float4 sampl = tex.SampleLevel(inlineSampler_bilinear_clamp_sampler, uv, 0);
                 return sampl[channel];
             }
 
-            float4 frag (v2f i) : SV_Target
+            float4 frag (v2f_img i) : SV_Target
             {
                 float texture0 = SampleChannel(_Texture0, _Texture0Channel, i.uv);
                 float texture1 = SampleChannel(_Texture1, _Texture1Channel, i.uv);
