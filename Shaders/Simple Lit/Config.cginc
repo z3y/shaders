@@ -15,7 +15,7 @@
 
 
 // features can globally be defined here without using keywords
-#define NONLINEAR_LIGHTPROBESH
+// #define NONLINEAR_LIGHTPROBESH
 // #define BAKERY_RNM
 // #define BAKERY_SH
 

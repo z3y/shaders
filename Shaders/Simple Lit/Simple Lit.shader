@@ -2,7 +2,7 @@
 {
     Properties
     {
-        [Enum(Opaque, 0, Cutout, 1, Fade, 2, Premultiply, 3, Additive, 4, Multiply, 5)] _Mode ("Rendering Mode", Int) = 0
+        [Enum(Opaque, 0, Cutout, 1, Fade, 2, Transparent, 3, Additive, 4, Multiply, 5)] _Mode ("Rendering Mode", Int) = 0
 
         _Cutoff ("Alpha Cuttoff", Range(0, 1)) = 0.5
 
@@ -70,6 +70,7 @@
             _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
 
         [Toggle(BAKEDSPECULAR)] _BakedSpecular ("Baked Specular ", Int) = 0
+        [Toggle(NONLINEAR_LIGHTPROBESH)] _NonLinearLightProbeSH("Non-linear Light Probe SH", Int) = 0
 
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Source Blend", Int) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Destination Blend", Int) = 0
@@ -137,6 +138,7 @@
             #pragma shader_feature_local BAKEDSPECULAR
             #pragma shader_feature_local PARALLAX
             #pragma shader_feature_local GEOMETRIC_SPECULAR_AA
+            #pragma shader_feature_local NONLINEAR_LIGHTPROBESH
 
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
@@ -170,6 +172,7 @@
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local PARALLAX
             #pragma shader_feature_local GEOMETRIC_SPECULAR_AA
+            #pragma shader_feature_local NONLINEAR_LIGHTPROBESH
 
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
