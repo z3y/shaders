@@ -73,6 +73,11 @@
         [Toggle(BAKEDSPECULAR)] _BakedSpecular ("Baked Specular ", Int) = 0
         [Toggle(NONLINEAR_LIGHTPROBESH)] _NonLinearLightProbeSH("Non-linear Light Probe SH", Int) = 0
 
+        [Toggle(LTCGI)] _LTCGI("LTCGI", Int) = 0
+        [Toggle(LTCGI_DIFFUSE_OFF)] _LTCGI_DIFFUSE_OFF("LTCGI Disable Diffuse", Int) = 0
+        _LTCGI_mat("LTC Mat", 2D) = "black" {}
+        _LTCGI_amp("LTC Amp", 2D) = "black" {}
+
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Source Blend", Int) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Destination Blend", Int) = 0
         [Enum(Off, 0, On, 1)] _ZWrite ("ZWrite", Int) = 1
@@ -112,7 +117,7 @@
         #pragma skip_variants LOD_FADE_CROSSFADE
         ENDCG
 
-        Tags { "RenderType"="Opaque" "Queue"="Geometry" }
+        Tags { "RenderType"="Opaque" "Queue"="Geometry" "LTCGI" = "_LTCGI" }
 
         Pass
         {
@@ -136,7 +141,6 @@
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local REFLECTIONS_OFF
             #pragma shader_feature_local EMISSION
-            #pragma shader_feature_local AUDIOLINK
             #pragma shader_feature_local BAKEDSPECULAR
             #pragma shader_feature_local PARALLAX
             #pragma shader_feature_local GEOMETRIC_SPECULAR_AA
@@ -147,6 +151,10 @@
             #pragma shader_feature_local _NORMAL_MAP
             #pragma shader_feature_local _DETAILALBEDO_MAP
             #pragma shader_feature_local _DETAILNORMAL_MAP
+
+            #pragma shader_feature_local AUDIOLINK
+            #pragma shader_feature_local LTCGI
+            #pragma shader_feature_local LTCGI_DIFFUSE_OFF
 
             #include "PassCGI.cginc"
             ENDCG
@@ -181,6 +189,7 @@
             #pragma shader_feature_local _NORMAL_MAP
             #pragma shader_feature_local _DETAILALBEDO_MAP
             #pragma shader_feature_local _DETAILNORMAL_MAP
+            
 
             
             #include "PassCGI.cginc"

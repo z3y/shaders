@@ -311,6 +311,21 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     #endif
 
+    #ifdef LTCGI
+            float2 ltcgi_lmuv;
+    #if defined(LIGHTMAP_ON)
+            ltcgi_lmuv = i.coord0.zw;
+            indirectDiffuse = max(0, indirectDiffuse);
+    #else
+            ltcgi_lmuv = float2(0, 0);
+    #endif
+            LTCGI_Contribution(i.worldPos, worldNormal, viewDir, surf.perceptualRoughness, ltcgi_lmuv, indirectDiffuse
+    #ifndef SPECULAR_HIGHLIGHTS_OFF
+                , directSpecular
+    #endif
+            );
+    #endif
+
   
     #if defined(UNITY_PASS_FORWARDBASE)
         #if !defined(REFLECTIONS_OFF)
@@ -372,6 +387,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         metaInput.Albedo = surf.albedo.rgb;
         return float4(UnityMetaFragment(metaInput).rgb, surf.alpha);
     #endif
+
+    
 
     UNITY_APPLY_FOG(i.fogCoord, finalColor);
 

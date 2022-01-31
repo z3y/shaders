@@ -72,6 +72,8 @@ namespace z3y.Shaders
         private MaterialProperty _QueueOffset = null;
         private MaterialProperty _AudioLinkEmission = null;
         private MaterialProperty _TextureIndex;
+        private MaterialProperty _LTCGI = null;
+        private MaterialProperty _LTCGI_DIFFUSE_OFF = null;
         #endregion
 
         private void DrawProperties(Material material, MaterialEditor me)
@@ -100,6 +102,17 @@ namespace z3y.Shaders
             Prop(_Reflectance);
             Prop(_SpecularOcclusion);
             EditorGUILayout.Space();
+
+
+#if LTCGI_INCLUDED
+            EditorGUILayout.Space();
+            Prop(_LTCGI);
+            Prop(_LTCGI_DIFFUSE_OFF);
+#else
+            _LTCGI.floatValue = 0.0f;
+            material.DisableKeyword("LTCGI");
+#endif
+
 
 #if BAKERY_INCLUDED
             Prop(Bakery);
@@ -383,7 +396,6 @@ namespace z3y.Shaders
 
             var samplingMode = _Texture.floatValue;
             mat.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);
-            
             
             mat.ToggleKeyword("AUDIOLINK", _AudioLinkEmission.floatValue != 1000);
             

@@ -12,6 +12,7 @@
     #undef HEMIOCTAHEDRON_DECODING
     #undef BICUBIC_LIGHTMAP
     #undef BAKERY_BICUBIC
+    #undef LTCGI
 #endif
 
 #ifdef UNITY_PASS_META
@@ -27,6 +28,13 @@
         #define BAKERYLM_ENABLED
         #undef DIRLIGHTMAP_COMBINED
     #endif
+#endif
+
+#ifdef LTCGI
+    #ifdef SPECULAR_HIGHLIGHTS_OFF
+        #define LTCGI_SPECULAR_OFF
+    #endif
+#include "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc"
 #endif
 
 
