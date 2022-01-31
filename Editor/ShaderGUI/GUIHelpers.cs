@@ -7,8 +7,44 @@ namespace z3y.Shaders
 {
     public static class GUIHelpers
     {
-       public static void PropertyGroup(Action action)
-       {
+		public static Texture2D groupTex = (Texture2D)Resources.Load(EditorGUIUtility.isProSkin ? "z3y_shaders_foldout_group" : "z3y_shaders_foldout_group_light", typeof(Texture2D));
+        public static bool DrawGroupFoldout(Material material, string title, bool defaultValue)
+        {
+            var tagName = $"z3y_group_foldout_{title}";
+            var tagValue = material.GetTag(tagName, false);
+            bool isOpen = string.IsNullOrEmpty(tagValue) ? defaultValue : tagValue[0] == 't';
+            var HeaderHeight = 18;
+            var style = new GUIStyle("BoldLabel")
+            {
+                font = new GUIStyle(EditorStyles.boldLabel).font,
+                fontSize = 12,
+                fixedHeight = HeaderHeight,
+                contentOffset = new Vector2(18f, 0f)
+            };
+            var rect = GUILayoutUtility.GetRect(16f, HeaderHeight, style);
+            var rect2 = new Rect(rect.x + -20f, rect.y, rect.width + 30f, rect.height + 2);
+            var rectText = new Rect(rect.x - 8f, rect.y + 1, rect.width, rect.height);
+            GUI.DrawTexture(rect2, groupTex);
+            GUI.Label(rectText, title, style);
+            if (isOpen) EditorGUILayout.Space();
+
+            var e = Event.current;
+            var toggleRect = new Rect(rect2.x + 12f, rect2.y + 3f, 13f, 13f);
+            if (e.type == EventType.Repaint)
+            {
+                EditorStyles.foldout.Draw(toggleRect, false, false, isOpen, false);
+            }
+            if (e.type == EventType.MouseDown && rect2.Contains(e.mousePosition))
+            {
+                isOpen = !isOpen;
+                e.Use();
+            }
+            material.SetOverrideTag(tagName, isOpen.ToString());
+            return isOpen;
+        }
+
+        public static void PropertyGroup(Action action)
+        {
             GUILayout.Space(1);
 			using (new EditorGUILayout.VerticalScope("box"))
             {
@@ -19,15 +55,9 @@ namespace z3y.Shaders
 			GUILayout.Space(1);
 		}
 
-		public static bool boolValue(this MaterialProperty p)
-        {
-			if (p.type == MaterialProperty.PropType.Texture)
-				return p.textureValue;
+        public static bool BoolValue(this MaterialProperty p) => p.type == MaterialProperty.PropType.Texture ? p.textureValue : p.floatValue == 1;
 
-			return p.floatValue == 1;
-        }
-       
-       public static bool TextureFoldout(bool display)
+        public static bool TextureFoldout(bool display)
        {
 	       //var rect = GUILayoutUtility.GetRect(16f, -4);
 	       var lastRect = GUILayoutUtility.GetLastRect();
@@ -62,7 +92,6 @@ namespace z3y.Shaders
 			GUILayout.EndVertical();
 			return buttonPress;
 		}
-
 
 		public static void sRGBWarning(MaterialProperty tex)
 		{

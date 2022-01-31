@@ -35,6 +35,7 @@
         [ToggleUI] _DetailMaskMapInvert ("Invert", Float) = 0
         [ToggleUI] _OcclusionMapInvert ("Invert", Float) = 0
         [ToggleUI] _MetallicMapInvert ("Invert", Float) = 0
+        
 
 
         [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
@@ -56,12 +57,12 @@
             [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
             [Enum(Disabled, 1000, Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3, Autocorrelator, 27, Filtered Bass, 28)] _AudioLinkEmission ("Audio Link", Int) = 0
 
-        _DetailAlbedoMap ("Detail Albedo:Albedo (RGB) | Smoothness (A)", 2D) = "linearGrey" {}
-        [Normal] _DetailNormalMap ("Detail Normal", 2D) = "bump" {}
+        _DetailAlbedoMap ("Albedo & Smoothness:Albedo (RGB) | Smoothness (A)", 2D) = "linearGrey" {}
+        [Normal] _DetailNormalMap ("Normal Map", 2D) = "bump" {}
             [Enum(UV0, 0, UV1, 1, UV2, 2)]  _DetailMapUV ("Detail UV", Int) = 0
-            _DetailAlbedoScale ("Albedo Scale", Range(0.0, 2.0)) = 1
-            _DetailNormalScale ("Normal Scale", Float) = 1
-            _DetailSmoothnessScale ("Smoothness Scale", Range(0.0, 2.0)) = 0
+            _DetailAlbedoScale ("Albedo", Range(0.0, 2.0)) = 1
+            _DetailNormalScale ("Normal", Float) = 1
+            _DetailSmoothnessScale ("Smoothness", Range(0.0, 2.0)) = 0
 
         [Toggle(PARALLAX)] _EnableParallax ("Parallax", Int) = 0
             _Parallax ("Height Scale", Range (0, 0.2)) = 0.02
@@ -84,7 +85,8 @@
             _RNM1("RNM1", 2D) = "black" {}
             _RNM2("RNM2", 2D) = "black" {}
 
-        [Enum(Default, 0, Array, 1, Array Instanced, 2)] _Texture ("Sampling Mode", Int) = 0
+        [Enum(Default, 0, Texture Array, 1, Texture Array Instanced, 2)] _Texture ("Sampling Mode", Int) = 0
+        _TextureIndex("Array Index", Int) = 0
 
         [HideInInspector] [ToggleOff(BAKERY_NONE)] _KeywordOffBakery ("", Float) = 1
 

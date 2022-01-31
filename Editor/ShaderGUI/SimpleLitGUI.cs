@@ -9,7 +9,7 @@ namespace z3y.Shaders
 
     public class SimpleLitGUI : ShaderGUI
     {
-
+        #region Material Properties
         private MaterialProperty _MainTex = null;
         private MaterialProperty _Mode = null;
         private MaterialProperty _Cutoff = null;
@@ -71,31 +71,105 @@ namespace z3y.Shaders
         private MaterialProperty _MetallicMapInvert = null;
         private MaterialProperty _QueueOffset = null;
         private MaterialProperty _AudioLinkEmission = null;
+        private MaterialProperty _TextureIndex;
+        #endregion
 
-
-
-        private void DrawProperties(Material material, MaterialProperty[] props, MaterialEditor me)
+        private void DrawProperties(Material material, MaterialEditor me)
         {
+            DrawSurfaceInputs(material, me);
+            DrawDetailInputs(material, me);
+            DrawRenderingOptions(material, me);
+        }
 
+        private void DrawRenderingOptions(Material material, MaterialEditor me)
+        {
+            if (!DrawGroupFoldout(material, "Rendering Options", false))
+            {
+                return;
+            }
+            Prop(_GlossyReflections);
+            Prop(_SpecularHighlights);
+            Prop(_GSAA);
+            if (_GSAA.floatValue == 1)
+            {
+                EditorGUI.indentLevel += 1;
+                Prop(_specularAntiAliasingVariance);
+                Prop(_specularAntiAliasingThreshold);
+                EditorGUI.indentLevel -= 1;
+            }
+            Prop(_Reflectance);
+            Prop(_SpecularOcclusion);
+            EditorGUILayout.Space();
+
+#if BAKERY_INCLUDED
+            Prop(Bakery);
+            if (Bakery.floatValue != 0)
+            {
+                EditorGUI.BeginDisabledGroup(true);
+                Prop(_RNM0);
+                Prop(_RNM1);
+                Prop(_RNM2);
+                EditorGUI.EndDisabledGroup();
+            }
+#endif
+
+            Prop(_BakedSpecular);
+            Prop(_NonLinearLightProbeSH);
+            EditorGUILayout.Space();
+
+            Prop(_Cull);
+            me.DoubleSidedGIField();
+            me.EnableInstancingField();
+            me.RenderQueueField();
+            if (_Mode.floatValue > 1)
+            {
+                Prop(_QueueOffset);
+            }
+            EditorGUILayout.Space();
+        }
+
+        private void DrawDetailInputs(Material material, MaterialEditor me)
+        {
+            if (!DrawGroupFoldout(material, "Detail Maps", false))
+            {
+                return;
+            }
+
+            Prop(_DetailAlbedoMap, _DetailAlbedoScale);
+            EditorGUI.indentLevel += 2;
+            Prop(_DetailSmoothnessScale);
+            EditorGUI.indentLevel -= 2;
+
+            Prop(_DetailNormalMap, _DetailNormalScale);
+            me.TextureScaleOffsetProperty(_DetailAlbedoMap);
+            Prop(_DetailMapUV);
+            EditorGUILayout.Space();
+        }
+
+        private void DrawSurfaceInputs(Material material, MaterialEditor me)
+        {
             EditorGUI.BeginChangeCheck();
             Prop(_Mode);
             if (EditorGUI.EndChangeCheck())
             {
                 SetupBlendMode(me);
             }
-
             if (_Mode.floatValue == 1) Prop(_Cutoff);
 
-            
 
             EditorGUILayout.Space();
 
-            if(_Texture.floatValue == 1 || _Texture.floatValue == 2)
+            if (!DrawGroupFoldout(material, "Main Maps", true))
             {
-                Prop(_MainTexArray, _Color);
+                return;
+            }
+
+            if (_Texture.floatValue == 1 || _Texture.floatValue == 2)
+            {
+                Prop(_MainTexArray, _Color, _AlbedoSaturation);
                 Prop(_MetallicGlossMapArray);
 
-                EditorGUI.indentLevel+=2;
+                EditorGUI.indentLevel += 2;
                 if (_MetallicGlossMapArray.textureValue == null)
                 {
                     Prop(_Metallic);
@@ -107,7 +181,7 @@ namespace z3y.Shaders
                     me.DrawRangedProperty(_GlossinessMin, _Glossiness);
                     Prop(_Occlusion);
                 }
-                EditorGUI.indentLevel-=2;
+                EditorGUI.indentLevel -= 2;
                 Prop(_BumpMapArray, _BumpScale);
             }
             else
@@ -116,67 +190,9 @@ namespace z3y.Shaders
                 Prop(_MetallicGlossMap);
                 sRGBWarning(_MetallicGlossMap);
 
-                _IsPackingMetallicGlossMap.floatValue = TextureFoldout(_IsPackingMetallicGlossMap.floatValue == 1) ? 1 : 0;
-                if(_IsPackingMetallicGlossMap.floatValue == 1)
-                {
-                    //texture packing
-                    PropertyGroup(()=>
-                    {
-                        Prop(_MetallicMap, _MetallicMapChannel, _MetallicMapInvert);
-                        Prop(_OcclusionMap, _OcclusionMapChannel, _OcclusionMapInvert);
-                        Prop(_DetailMaskMap, _DetailMaskMapChannel, _DetailMaskMapInvert);
-                        Prop(_SmoothnessMap, _SmoothnessMapChannel, _SmoothnessMapInvert, _SmoothnessMapInvert.floatValue == 1 ? "Roughness Map" : null);
-                        EditorGUILayout.BeginHorizontal();
-                        if (GUILayout.Button("Pack"))
-                        {
-                            if (PackMaskMap()) return;
-                        }
-                        
-                        if (GUILayout.Button("Modify"))
-                        {
-                            var t = _MetallicGlossMap.textureValue;
-                            if (!_MetallicMap.textureValue)
-                            {
-                                material.SetTexture("_MetallicMap", t);
-                                material.SetInt("_MetallicMapChannel", 0);
-                                material.SetInt("_MetallicMapInvert", 0);
-                            }
+                DrawMaskMapPacking(material);
 
-                            if (!_OcclusionMap.textureValue)
-                            {
-                                material.SetTexture("_OcclusionMap", t);
-                                material.SetInt("_OcclusionMapChannel", 1);
-                                material.SetInt("_OcclusionMapInvert", 0);
-                            }
-
-                            if (!_DetailMaskMap.textureValue)
-                            {
-                                material.SetTexture("_DetailMaskMap", t);
-                                material.SetInt("_DetailMaskMapChannel", 2);
-                                material.SetInt("_DetailMaskMapInvert", 0);
-                            }
-
-                            if (!_SmoothnessMap.textureValue)
-                            {
-                                material.SetTexture("_SmoothnessMap", t);
-                                material.SetInt("_SmoothnessMapChannel", 3);
-                                material.SetInt("_SmoothnessMapInvert", 0);
-                            }
-                        }
-
-                        if (GUILayout.Button("Close"))
-                        {
-                            _MetallicMap.textureValue = null;
-                            _OcclusionMap.textureValue = null;
-                            _DetailMaskMap.textureValue = null;
-                            _SmoothnessMap.textureValue = null;
-                            _IsPackingMetallicGlossMap.floatValue = 0;
-                        }
-                        EditorGUILayout.EndHorizontal();
-                    });
-                }
-
-                EditorGUI.indentLevel+=2;
+                EditorGUI.indentLevel += 2;
                 if (_MetallicGlossMap.textureValue == null)
                 {
                     Prop(_Metallic);
@@ -188,121 +204,111 @@ namespace z3y.Shaders
                     me.DrawRangedProperty(_GlossinessMin, _Glossiness);
                     Prop(_Occlusion);
                 }
-                EditorGUI.indentLevel-=2;
+                EditorGUI.indentLevel -= 2;
 
-                
+
                 Prop(_BumpMap, _BumpScale);
             }
 
 
             Prop(_EnableEmission);
-            if (_EnableEmission.boolValue())
+            if (_EnableEmission.BoolValue())
             {
                 Prop(_EmissionMap, _EmissionColor, _EmissionMultBase);
-                EditorGUI.indentLevel+=2;
-                #if UDON
+                EditorGUI.indentLevel += 2;
+#if UDON
                 Prop(_AudioLinkEmission);
-                #endif
+#endif
                 me.LightmapEmissionProperty();
-                EditorGUI.indentLevel-=2;
+                EditorGUI.indentLevel -= 2;
                 EditorGUILayout.Space();
             }
 
             Prop(_EnableParallax);
-            if (_EnableParallax.boolValue())
+            if (_EnableParallax.BoolValue())
             {
                 Prop(_ParallaxMap, _Parallax);
-                EditorGUI.indentLevel+=2;
+                EditorGUI.indentLevel += 2;
                 Prop(_ParallaxOffset);
                 Prop(_ParallaxSteps);
-                EditorGUI.indentLevel-=2;;
+                EditorGUI.indentLevel -= 2; ;
             }
 
             sRGBWarning(_ParallaxMap);
-            
+
             EditorGUILayout.Space();
             me.TextureScaleOffsetProperty(_MainTex);
-
-
-
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Detail Inputs", EditorStyles.boldLabel);
-            if(_DetailAlbedoMap.textureValue)
-            {
-                Prop(_DetailAlbedoMap, _DetailAlbedoScale);
-                EditorGUI.indentLevel+=2;
-                Prop(_DetailSmoothnessScale);
-                EditorGUI.indentLevel-=2;
-            }
-            else
-            {
-                Prop(_DetailAlbedoMap);
-            }
-            
-            if(_DetailNormalMap.textureValue)
-            {
-                Prop(_DetailNormalMap, _DetailNormalScale);
-            }
-            else
-            {
-                Prop(_DetailNormalMap);
-            }
-
-            if(_DetailNormalMap.textureValue || _DetailAlbedoMap.textureValue)
-            {
-                Prop(_DetailMapUV);
-                me.TextureScaleOffsetProperty(_DetailAlbedoMap);
-            }
-
-
-
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Rendering Options", EditorStyles.boldLabel);
-            Prop(_GlossyReflections);
-            Prop(_SpecularHighlights);
-            Prop(_Reflectance);
-            Prop(_SpecularOcclusion);
-
-            EditorGUILayout.Space();
-
-            
-            Prop(_GSAA);
-            if (_GSAA.floatValue == 1)
-            {
-                EditorGUI.indentLevel += 1;
-                Prop(_specularAntiAliasingVariance);
-                Prop(_specularAntiAliasingThreshold);
-                EditorGUI.indentLevel -= 1;
-            }
-
-            Prop(_NonLinearLightProbeSH);
-            Prop(_BakedSpecular);
-
-
-#if BAKERY_INCLUDED
-            EditorGUILayout.Space();
-            Prop(Bakery);
-
-            if (Bakery.floatValue != 0)
-            {
-                EditorGUI.BeginDisabledGroup(true);
-                Prop(_RNM0);
-                Prop(_RNM1);
-                Prop(_RNM2);
-                EditorGUI.EndDisabledGroup();
-            }
-#endif
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Advanced Options", EditorStyles.boldLabel);
             Prop(_Texture);
-            Prop(_Cull);
-            me.DoubleSidedGIField();
-            me.EnableInstancingField();
-            me.RenderQueueField();
-            if (_Mode.floatValue > 1)
+            if (_Texture.floatValue == 2)
             {
-                Prop(_QueueOffset);
+                Prop(_TextureIndex);
             }
+            EditorGUILayout.Space();
+
+        }
+
+        private void DrawMaskMapPacking(Material material)
+        {
+            _IsPackingMetallicGlossMap.floatValue = TextureFoldout(_IsPackingMetallicGlossMap.floatValue == 1) ? 1 : 0;
+            if (_IsPackingMetallicGlossMap.floatValue != 1)
+            {
+                return;
+            }
+
+            PropertyGroup(() =>
+            {
+                Prop(_MetallicMap, _MetallicMapChannel, _MetallicMapInvert);
+                Prop(_OcclusionMap, _OcclusionMapChannel, _OcclusionMapInvert);
+                Prop(_DetailMaskMap, _DetailMaskMapChannel, _DetailMaskMapInvert);
+                Prop(_SmoothnessMap, _SmoothnessMapChannel, _SmoothnessMapInvert, _SmoothnessMapInvert.floatValue == 1 ? "Roughness Map" : null);
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Pack"))
+                {
+                    if (PackMaskMap()) return;
+                }
+
+                if (GUILayout.Button("Modify"))
+                {
+                    var t = _MetallicGlossMap.textureValue;
+                    if (!_MetallicMap.textureValue)
+                    {
+                        material.SetTexture("_MetallicMap", t);
+                        material.SetInt("_MetallicMapChannel", 0);
+                        material.SetInt("_MetallicMapInvert", 0);
+                    }
+
+                    if (!_OcclusionMap.textureValue)
+                    {
+                        material.SetTexture("_OcclusionMap", t);
+                        material.SetInt("_OcclusionMapChannel", 1);
+                        material.SetInt("_OcclusionMapInvert", 0);
+                    }
+
+                    if (!_DetailMaskMap.textureValue)
+                    {
+                        material.SetTexture("_DetailMaskMap", t);
+                        material.SetInt("_DetailMaskMapChannel", 2);
+                        material.SetInt("_DetailMaskMapInvert", 0);
+                    }
+
+                    if (!_SmoothnessMap.textureValue)
+                    {
+                        material.SetTexture("_SmoothnessMap", t);
+                        material.SetInt("_SmoothnessMapChannel", 3);
+                        material.SetInt("_SmoothnessMapInvert", 0);
+                    }
+                }
+
+                if (GUILayout.Button("Close"))
+                {
+                    _MetallicMap.textureValue = null;
+                    _OcclusionMap.textureValue = null;
+                    _DetailMaskMap.textureValue = null;
+                    _SmoothnessMap.textureValue = null;
+                    _IsPackingMetallicGlossMap.floatValue = 0;
+                }
+                EditorGUILayout.EndHorizontal();
+            });
         }
 
         private bool PackMaskMap()
@@ -400,6 +406,8 @@ namespace z3y.Shaders
         private MaterialEditor _materialEditor;
         private bool _firstTimeApply = true;
         private Material _material = null;
+        
+
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
         {
             _materialEditor = materialEditor;
@@ -416,7 +424,7 @@ namespace z3y.Shaders
 
             EditorGUI.BeginChangeCheck();
 
-            DrawProperties(_material, props, materialEditor);
+            DrawProperties(_material, materialEditor);
 
             if (EditorGUI.EndChangeCheck())
             {
