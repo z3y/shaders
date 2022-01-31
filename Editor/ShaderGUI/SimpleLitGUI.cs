@@ -105,9 +105,9 @@ namespace z3y.Shaders
 
 
 #if LTCGI_INCLUDED
-            EditorGUILayout.Space();
             Prop(_LTCGI);
             Prop(_LTCGI_DIFFUSE_OFF);
+            EditorGUILayout.Space();
 #else
             _LTCGI.floatValue = 0.0f;
             material.DisableKeyword("LTCGI");
