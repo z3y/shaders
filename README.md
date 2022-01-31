@@ -1,8 +1,12 @@
 Repository for my Unity shaders for VRChat.
-### [Unity Package](https://github.com/z3y/shaders/releases)
+
+
+
 
 #
-### Simple Lit:
+### Simple Lit
+Download [Unity Package](https://github.com/z3y/shaders/releases) or [latest commit](https://github.com/z3y/shaders/archive/refs/heads/main.zip)
+
 - Accurate PBR Shading
 - Geometric Specular AA
 - Antialiased Cutout (Alpha to Coverage Sharpened)
