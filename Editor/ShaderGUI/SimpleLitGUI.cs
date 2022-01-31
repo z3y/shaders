@@ -108,10 +108,8 @@ namespace z3y.Shaders
             Prop(_LTCGI);
             Prop(_LTCGI_DIFFUSE_OFF);
             EditorGUILayout.Space();
-#else
-            _LTCGI.floatValue = 0.0f;
-            material.DisableKeyword("LTCGI");
 #endif
+
 
 
 #if BAKERY_INCLUDED
@@ -413,8 +411,13 @@ namespace z3y.Shaders
             }
             mat.ToggleKeyword("_DETAILALBEDO_MAP", _DetailAlbedoMap.textureValue);
             mat.ToggleKeyword("_DETAILNORMAL_MAP", _DetailNormalMap.textureValue);
+
+#if !LTCGI_INCLUDED
+            _LTCGI.floatValue = 0.0f;
+            material.DisableKeyword("LTCGI");
+#endif
         }
-        
+
         private MaterialEditor _materialEditor;
         private bool _firstTimeApply = true;
         private Material _material = null;
