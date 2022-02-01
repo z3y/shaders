@@ -3,33 +3,25 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
 namespace z3y.Shaders
 {
+    
     public class ShaderConfigWindow : EditorWindow
     {
         [MenuItem("z3y/Shader Config")]
-        public static void ShowWindow() => GetWindow<ShaderConfigWindow>("Shader Config");
-
-        bool firstTime = true;
-
-        internal class ShaderConfig
+        public static void ShowWindow()
         {
-            public static bool VERTEXLIGHT;
-            public static bool VERTEXLIGHT_PS = true;
-            public static bool NEED_CENTROID_NORMAL;
-            public static bool NONLINEAR_LIGHTPROBESH = true;
-            public static bool BAKERY_RNM;
-            public static bool BAKERY_SH;
-            public static bool BICUBIC_LIGHTMAP = true;
-            public static bool UNITY_LIGHT_PROBE_PROXY_VOLUME = false;
-            public static bool UNITY_SPECCUBE_BLENDING = true;
+            GetWindow<ShaderConfigWindow>("Shader Config");
         }
 
+        static FieldInfo[] configFields = typeof(ShaderConfig).GetFields(BindingFlags.Public | BindingFlags.Static);
+        
 
-        FieldInfo[] configFields = typeof(ShaderConfig).GetFields(BindingFlags.Public | BindingFlags.Static);
+        bool firstTime = true;
         private void OnGUI()
         {
             if (firstTime)
@@ -43,16 +35,15 @@ namespace z3y.Shaders
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Apply"))
             {
-
+                ShaderConfigData.Generate();
             }
             if (GUILayout.Button("Reset"))
             {
                 HandleConfigFields((bool value, FieldInfo field) =>
                 {
-                    ShaderConfigData.Save(field.Name, false);
+                    field.SetValue(typeof(bool), false);
                 });
-                var constructor = typeof(ShaderConfig).GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null);
-                constructor.Invoke(null, null);
+                typeof(ShaderConfig).GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null).Invoke(null, null);
             }
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
@@ -65,8 +56,6 @@ namespace z3y.Shaders
             DrawToggle(ref ShaderConfig.BAKERY_RNM, "Bakery RNM");
             DrawToggle(ref ShaderConfig.BAKERY_SH, "Bakery SH");
             DrawToggle(ref ShaderConfig.BICUBIC_LIGHTMAP, "Bicubic Lightmap");
-            DrawToggle(ref ShaderConfig.UNITY_LIGHT_PROBE_PROXY_VOLUME, "Allow Light Probe Proxy Volumes");
-            DrawToggle(ref ShaderConfig.UNITY_SPECCUBE_BLENDING, "Allow Reflection Probe Blending");
 
 
 
@@ -78,7 +67,7 @@ namespace z3y.Shaders
             }
         }
 
-        private void HandleConfigFields(Action<bool, FieldInfo> action)
+        internal static void HandleConfigFields(Action<bool, FieldInfo> action)
         {
             for (int i = 0; i < configFields.Length; i++)
             {
@@ -90,7 +79,16 @@ namespace z3y.Shaders
 
         private void DrawToggle(ref bool toggle, string display) => toggle = GUILayout.Toggle(toggle, display);
     }
-    
+    internal static class ShaderConfig
+    {
+        public static bool VERTEXLIGHT;
+        public static bool VERTEXLIGHT_PS = true;
+        public static bool NEED_CENTROID_NORMAL;
+        public static bool NONLINEAR_LIGHTPROBESH = true;
+        public static bool BAKERY_RNM;
+        public static bool BAKERY_SH;
+        public static bool BICUBIC_LIGHTMAP = true;
+    }
 
     internal static class ShaderConfigData
     {
@@ -103,6 +101,33 @@ namespace z3y.Shaders
         internal static bool Load(string keyword, bool defaultValue = false)
         {
             return EditorPrefs.GetBool(PrefsPrefix + keyword, defaultValue);
+        }
+
+        //static readonly string ConfigFilePath = "/.." + AssetDatabase.GetAssetPath(Shader.Find("Simple Lit")) + "Config.cginc";
+        static readonly string ConfigCgincPath = "Assets/z3y/Shaders/Config.cginc";
+
+        private static readonly string NewLine = Environment.NewLine;
+        private const string SkipVariant = "#pragma skip_variants ";
+        private const string Define = "#define ";
+        private const string Undef = "#undef ";
+
+        private static StringBuilder sb;
+        internal static void Generate()
+        {
+            Debug.Log(ConfigCgincPath);
+            sb = new StringBuilder("//File Automatically Generated").AppendLine();
+
+            sb.AppendLine(ShaderConfig.NONLINEAR_LIGHTPROBESH ? $"{Define}NONLINEAR_LIGHTPROBESH{NewLine}{SkipVariant}NONLINEAR_LIGHTPROBESH" : "");
+            sb.AppendLine(ShaderConfig.VERTEXLIGHT ? "" : SkipVariant + "VERTEXLIGHT");
+            sb.AppendLine(ShaderConfig.VERTEXLIGHT_PS ? Define + "VERTEXLIGHT_PS" : "");
+            sb.AppendLine(ShaderConfig.NEED_CENTROID_NORMAL ? Define + "NEED_CENTROID_NORMAL" : "");
+            sb.AppendLine(ShaderConfig.BAKERY_RNM ? $"{Define}BAKERY_RNM{NewLine}{SkipVariant}BAKERY_RNM" : "");
+            sb.AppendLine(ShaderConfig.BAKERY_SH ? $"{Define}BAKERY_SH{NewLine}{SkipVariant}BAKERY_SH" : "");
+            sb.AppendLine(ShaderConfig.BICUBIC_LIGHTMAP ? Define + "BICUBIC_LIGHTMAP" : "");
+
+            File.WriteAllText(ConfigCgincPath, sb.ToString());
+            AssetDatabase.Refresh();
+
         }
     }
 }
