@@ -39,7 +39,7 @@ namespace z3y.Shaders
                     field.SetValue(typeof(bool), ShaderConfigData.Load(field.Name, value));
                 });
             }
-
+            EditorGUI.BeginChangeCheck();
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Apply"))
             {
@@ -47,18 +47,17 @@ namespace z3y.Shaders
             }
             if (GUILayout.Button("Reset"))
             {
-                HandleConfigFields((bool value, FieldInfo field) => {
-                    var defaultValue = (bool)field.GetValue(new ShaderConfig());
-                    field.SetValue(typeof(bool), defaultValue);
-                    Debug.Log(defaultValue);
-                    ShaderConfigData.Save(field.Name, defaultValue);
+                HandleConfigFields((bool value, FieldInfo field) =>
+                {
+                    ShaderConfigData.Save(field.Name, false);
                 });
+                var constructor = typeof(ShaderConfig).GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null);
+                constructor.Invoke(null, null);
             }
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
 
             EditorGUILayout.LabelField("Global Toggles", EditorStyles.boldLabel);
-            EditorGUI.BeginChangeCheck();
             DrawToggle(ref ShaderConfig.NONLINEAR_LIGHTPROBESH, "Non-Linear Light Probe SH");
             DrawToggle(ref ShaderConfig.VERTEXLIGHT, "Allow Non-Important Lights");
             DrawToggle(ref ShaderConfig.VERTEXLIGHT_PS, "Non-Important Lights per Pixel");
