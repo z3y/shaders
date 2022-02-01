@@ -24,13 +24,7 @@ half4 SampleTexture(Texture2DArray t, SamplerState s, float2 uv)
 
 void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 {
-    #ifdef _TEXTURE_ARRAY
-        arrayIndex = i.coord1.z;
-        UNITY_FLATTEN
-        if (_Texture == 2)
-            arrayIndex = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _TextureIndex);
-    #endif
-
+    arrayIndex = i.coord1.z;
 
     float4 mainST = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _MainTex_ST);
 

@@ -84,7 +84,9 @@ v2f vert (appdata v)
     o.coord0.xy = v.uv0.xy;
     o.coord0.zw = v.uv1;
     o.coord1.xy = v.uv2;
-    o.coord1.z = v.uv0.z;
+    #ifdef _TEXTURE_ARRAY
+        o.coord1.z = _Texture == 2 ? UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _TextureIndex) : v.uv0.z;
+    #endif
 
     o.worldNormal = UnityObjectToWorldNormal(v.normal);
     o.tangent = UnityObjectToWorldDir(v.tangent.xyz);
