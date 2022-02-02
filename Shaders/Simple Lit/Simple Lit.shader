@@ -75,8 +75,6 @@
 
         [Toggle(LTCGI)] _LTCGI("LTCGI", Int) = 0
         [Toggle(LTCGI_DIFFUSE_OFF)] _LTCGI_DIFFUSE_OFF("LTCGI Disable Diffuse", Int) = 0
-        _LTCGI_mat("LTC Mat", 2D) = "black" {}
-        _LTCGI_amp("LTC Amp", 2D) = "black" {}
 
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Source Blend", Int) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Destination Blend", Int) = 0
@@ -98,23 +96,29 @@
         [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
     }
 
+CGINCLUDE
+#ifndef UNITY_PBS_USE_BRDF1
+    #ifndef SHADER_API_MOBILE
+        #define SHADER_API_MOBILE
+    #endif
+#endif
+#pragma vertex vert
+#pragma fragment frag
+#pragma fragmentoption ARB_precision_hint_fastest // probably doesnt do anything
+
+/*RantBegin
+It really sucks that this Unity version doesn't let us use pragmas in cgincs and I have to edit the shader
+It also sucks that I cant use an #ifdef with #pragma skip_variants
+RantEnd*/
+
+//ShaderConfigBegin
+//ShaderConfigEnd
+ENDCG
+
     SubShader
     {
         CGINCLUDE
         #pragma target 4.5
-        #pragma vertex vert
-        #pragma fragment frag
-        #pragma fragmentoption ARB_precision_hint_fastest // probably doesnt do anything
-        
-        #ifndef UNITY_PBS_USE_BRDF1
-            #ifndef SHADER_API_MOBILE
-            #define SHADER_API_MOBILE
-            #endif
-        #endif
-
-        // comment out to enable
-        #pragma skip_variants VERTEXLIGHT_ON
-        #pragma skip_variants LOD_FADE_CROSSFADE
         ENDCG
 
         Tags { "RenderType"="Opaque" "Queue"="Geometry" "LTCGI" = "_LTCGI" }

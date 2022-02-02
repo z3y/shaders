@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
@@ -50,7 +51,7 @@ namespace z3y.Shaders
 
             EditorGUILayout.LabelField("Global Toggles", EditorStyles.boldLabel);
             DrawToggle(ref ShaderConfig.NONLINEAR_LIGHTPROBESH, "Non-Linear Light Probe SH");
-            DrawToggle(ref ShaderConfig.VERTEXLIGHT, "Allow Non-Important Lights");
+            DrawToggle(ref ShaderConfig.VERTEXLIGHT_ON, "Allow Non-Important Lights");
             DrawToggle(ref ShaderConfig.VERTEXLIGHT_PS, "Non-Important Lights per Pixel");
             DrawToggle(ref ShaderConfig.NEED_CENTROID_NORMAL, "Centroid Normal Sampling");
             DrawToggle(ref ShaderConfig.BAKERY_RNM, "Bakery RNM");
@@ -81,7 +82,7 @@ namespace z3y.Shaders
     }
     internal static class ShaderConfig
     {
-        public static bool VERTEXLIGHT;
+        public static bool VERTEXLIGHT_ON;
         public static bool VERTEXLIGHT_PS = true;
         public static bool NEED_CENTROID_NORMAL;
         public static bool NONLINEAR_LIGHTPROBESH = true;
@@ -105,27 +106,33 @@ namespace z3y.Shaders
 
         //static readonly string ConfigFilePath = "/.." + AssetDatabase.GetAssetPath(Shader.Find("Simple Lit")) + "Config.cginc";
         static readonly string ConfigCgincPath = "Assets/z3y/Shaders/Config.cginc";
+        static readonly string ShaderPath = AssetDatabase.GetAssetPath(Shader.Find("Simple Lit"));
 
         private static readonly string NewLine = Environment.NewLine;
         private const string SkipVariant = "#pragma skip_variants ";
         private const string Define = "#define ";
         private const string Undef = "#undef ";
 
-        private static StringBuilder sb;
         internal static void Generate()
         {
             Debug.Log(ConfigCgincPath);
-            sb = new StringBuilder("//File Automatically Generated").AppendLine();
+            var sb = new StringBuilder().AppendLine();
 
+    
             sb.AppendLine(ShaderConfig.NONLINEAR_LIGHTPROBESH ? $"{Define}NONLINEAR_LIGHTPROBESH{NewLine}{SkipVariant}NONLINEAR_LIGHTPROBESH" : "");
-            sb.AppendLine(ShaderConfig.VERTEXLIGHT ? "" : SkipVariant + "VERTEXLIGHT");
+            sb.AppendLine(ShaderConfig.VERTEXLIGHT_ON ? "" : SkipVariant + "VERTEXLIGHT_ON");
             sb.AppendLine(ShaderConfig.VERTEXLIGHT_PS ? Define + "VERTEXLIGHT_PS" : "");
             sb.AppendLine(ShaderConfig.NEED_CENTROID_NORMAL ? Define + "NEED_CENTROID_NORMAL" : "");
             sb.AppendLine(ShaderConfig.BAKERY_RNM ? $"{Define}BAKERY_RNM{NewLine}{SkipVariant}BAKERY_RNM" : "");
             sb.AppendLine(ShaderConfig.BAKERY_SH ? $"{Define}BAKERY_SH{NewLine}{SkipVariant}BAKERY_SH" : "");
             sb.AppendLine(ShaderConfig.BICUBIC_LIGHTMAP ? Define + "BICUBIC_LIGHTMAP" : "");
 
-            File.WriteAllText(ConfigCgincPath, sb.ToString());
+            var lines = File.ReadAllLines(ShaderPath).ToList();
+            var being = lines.FindIndex(x => x.StartsWith("//ShaderConfigBegin", StringComparison.Ordinal)) + 1;
+            lines.Insert(being, sb.ToString());
+
+
+            File.WriteAllLines(ShaderPath, lines);
             AssetDatabase.Refresh();
 
         }
