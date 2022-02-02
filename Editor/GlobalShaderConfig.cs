@@ -27,9 +27,7 @@ namespace z3y.Shaders
             if (firstTime)
             {
                 firstTime = false;
-                HandleConfigFields((bool value, FieldInfo field) => {
-                    field.SetValue(typeof(bool), ShaderConfigData.Load(field.Name, value));
-                });
+                ShaderConfigData.LoadAll();
             }
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.BeginHorizontal();
@@ -66,9 +64,7 @@ namespace z3y.Shaders
 
             if (EditorGUI.EndChangeCheck())
             {
-                HandleConfigFields((bool value, FieldInfo field) => {
-                    ShaderConfigData.Save(field.Name, value);
-                });
+                ShaderConfigData.SaveAll();
             }
         }
 
@@ -100,15 +96,32 @@ namespace z3y.Shaders
 
     internal static class ShaderConfigData
     {
-        const string PrefsPrefix = "z3yGlobalShaderConfig";
-        internal static void Save(string keyword, bool toggle)
+        private static string configPath = Path.Combine(Application.dataPath, "../") + "ProjectSettings/z3yGlobalShaderConfig.txt";
+        internal static void SaveAll()
         {
-            EditorPrefs.SetBool(PrefsPrefix + keyword, toggle);
+            var sb = new StringBuilder();
+            ShaderConfigWindow.HandleConfigFields((bool value, FieldInfo field) => {
+                sb.AppendLine(field.Name + " " + (value ? 'T' : 'F'));
+            });
+            File.WriteAllText(configPath, sb.ToString());
         }
-
-        internal static bool Load(string keyword, bool defaultValue = false)
+        internal static void LoadAll()
         {
-            return EditorPrefs.GetBool(PrefsPrefix + keyword, defaultValue);
+            if (!File.Exists(configPath))
+            {
+                SaveAll();
+            }
+            var config = File.ReadAllLines(configPath);
+            ShaderConfigWindow.HandleConfigFields((bool value, FieldInfo field) => {
+                foreach(var line in config)
+                {
+                    if (line.StartsWith(field.Name, StringComparison.Ordinal))
+                    {
+                        field.SetValue(typeof(bool), line[line.Length-1] == 'T');
+                        break;
+                    }
+                }
+            });
         }
 
         static readonly string ShaderPath = AssetDatabase.GetAssetPath(Shader.Find("Simple Lit"));
