@@ -414,7 +414,7 @@ namespace z3y.Shaders
 
 #if !LTCGI_INCLUDED
             _LTCGI.floatValue = 0.0f;
-            material.DisableKeyword("LTCGI");
+            mat.DisableKeyword("LTCGI");
 #endif
         }
 
