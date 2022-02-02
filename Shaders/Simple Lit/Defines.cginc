@@ -13,6 +13,9 @@
     #undef BICUBIC_LIGHTMAP
     #undef BAKERY_BICUBIC
     #undef LTCGI
+
+    #define SPECULAR_HIGHLIGHTS_OFF
+    #undef _DETAILALBEDO_MAP
 #endif
 
 #ifdef UNITY_PASS_META

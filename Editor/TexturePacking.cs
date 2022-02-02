@@ -56,7 +56,7 @@ namespace z3y.Shaders
             
             Graphics.Blit(null, rt, mat, 0);
             
-            var newTexture = new Texture2D(newWidth, newHeight, TextureFormat.ARGB32, Texture.GenerateAllMips, true);
+            var newTexture = new Texture2D(newWidth, newHeight, TextureFormat.ARGB32, 0, true);
             newTexture.ReadPixels( new Rect( 0, 0, rt.width, rt.height ), 0, 0, true );
             newTexture.Apply();
             var bytes = newTexture.EncodeToTGA();

@@ -1,4 +1,4 @@
-﻿Shader "Simple Lit"
+Shader "Simple Lit"
 {
     Properties
     {
@@ -112,6 +112,19 @@ It also sucks that I cant use an #ifdef with #pragma skip_variants
 RantEnd*/
 
 //ShaderConfigBegin
+
+
+#pragma skip_variants VERTEXLIGHT_ON
+#define VERTEXLIGHT_PS
+
+
+
+#define BICUBIC_LIGHTMAP
+#pragma skip_variants LOD_FADE_CROSSFADE
+
+#define UNITY_LIGHT_PROBE_PROXY_VOLUME 0
+
+
 //ShaderConfigEnd
 ENDCG
 

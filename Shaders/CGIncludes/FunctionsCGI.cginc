@@ -1,3 +1,7 @@
+// Partially taken from Google Filament, Xiexe and Catlike Coding
+// https://google.github.io/filament/Filament.html
+// https://github.com/Xiexe/Unity-Lit-Shader-Templates
+// https://catlikecoding.com/
 
 half RemapMinMax(half value, half remapMin, half remapMax)
 {

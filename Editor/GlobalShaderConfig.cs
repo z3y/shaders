@@ -20,9 +20,8 @@ namespace z3y.Shaders
         }
 
         static FieldInfo[] configFields = typeof(ShaderConfig).GetFields(BindingFlags.Public | BindingFlags.Static);
-        
 
-        bool firstTime = true;
+        static bool firstTime = true;
         private void OnGUI()
         {
             if (firstTime)
@@ -57,6 +56,9 @@ namespace z3y.Shaders
             DrawToggle(ref ShaderConfig.BAKERY_RNM, "Bakery RNM");
             DrawToggle(ref ShaderConfig.BAKERY_SH, "Bakery SH");
             DrawToggle(ref ShaderConfig.BICUBIC_LIGHTMAP, "Bicubic Lightmap");
+            DrawToggle(ref ShaderConfig.LOD_FADE_CROSSFADE, "Allow Dithered Lod Cross-Fade");
+            DrawToggle(ref ShaderConfig.UNITY_SPECCUBE_BLENDING, "Allow Reflection Probe Blending");
+            DrawToggle(ref ShaderConfig.UNITY_LIGHT_PROBE_PROXY_VOLUME, "Allow Light Probe Proxy Volumes");
 
 
 
@@ -85,10 +87,13 @@ namespace z3y.Shaders
         public static bool VERTEXLIGHT_ON;
         public static bool VERTEXLIGHT_PS = true;
         public static bool NEED_CENTROID_NORMAL;
-        public static bool NONLINEAR_LIGHTPROBESH = true;
+        public static bool NONLINEAR_LIGHTPROBESH;
         public static bool BAKERY_RNM;
         public static bool BAKERY_SH;
         public static bool BICUBIC_LIGHTMAP = true;
+        public static bool LOD_FADE_CROSSFADE;
+        public static bool UNITY_SPECCUBE_BLENDING = true;
+        public static bool UNITY_LIGHT_PROBE_PROXY_VOLUME = false;
     }
 
     internal static class ShaderConfigData
@@ -104,10 +109,7 @@ namespace z3y.Shaders
             return EditorPrefs.GetBool(PrefsPrefix + keyword, defaultValue);
         }
 
-        //static readonly string ConfigFilePath = "/.." + AssetDatabase.GetAssetPath(Shader.Find("Simple Lit")) + "Config.cginc";
-        static readonly string ConfigCgincPath = "Assets/z3y/Shaders/Config.cginc";
         static readonly string ShaderPath = AssetDatabase.GetAssetPath(Shader.Find("Simple Lit"));
-
         private static readonly string NewLine = Environment.NewLine;
         private const string SkipVariant = "#pragma skip_variants ";
         private const string Define = "#define ";
@@ -115,7 +117,6 @@ namespace z3y.Shaders
 
         internal static void Generate()
         {
-            Debug.Log(ConfigCgincPath);
             var sb = new StringBuilder().AppendLine();
 
     
@@ -126,15 +127,21 @@ namespace z3y.Shaders
             sb.AppendLine(ShaderConfig.BAKERY_RNM ? $"{Define}BAKERY_RNM{NewLine}{SkipVariant}BAKERY_RNM" : "");
             sb.AppendLine(ShaderConfig.BAKERY_SH ? $"{Define}BAKERY_SH{NewLine}{SkipVariant}BAKERY_SH" : "");
             sb.AppendLine(ShaderConfig.BICUBIC_LIGHTMAP ? Define + "BICUBIC_LIGHTMAP" : "");
+            sb.AppendLine(ShaderConfig.LOD_FADE_CROSSFADE ? "" : SkipVariant + "LOD_FADE_CROSSFADE");
+            sb.AppendLine(ShaderConfig.UNITY_SPECCUBE_BLENDING ? "" : Undef + "UNITY_SPECCUBE_BLENDING");
+            sb.AppendLine(ShaderConfig.UNITY_LIGHT_PROBE_PROXY_VOLUME ? "" : Define + "UNITY_LIGHT_PROBE_PROXY_VOLUME 0");
 
             var lines = File.ReadAllLines(ShaderPath).ToList();
             var being = lines.FindIndex(x => x.StartsWith("//ShaderConfigBegin", StringComparison.Ordinal)) + 1;
+            var end = lines.FindIndex(x => x.StartsWith("//ShaderConfigEnd", StringComparison.Ordinal)) - 1;
+            var count = end - being;
+            if (count > 0) lines.RemoveRange(being, count);
             lines.Insert(being, sb.ToString());
 
 
             File.WriteAllLines(ShaderPath, lines);
             AssetDatabase.Refresh();
-
+            Debug.Log("Updated Shader File");
         }
     }
 }

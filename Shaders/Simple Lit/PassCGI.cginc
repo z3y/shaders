@@ -6,7 +6,6 @@
 
 #include "InputsCGI.cginc"
 #include "SurfaceData.cginc"
-#include "Config.cginc"
 #include "Defines.cginc"
 
 struct appdata
@@ -44,7 +43,7 @@ struct v2f
         centroid half4 color : COLOR;
     #endif
 
-    #if defined(NEED_CENTROID_NORMAL) && defined(NEED_WORLD_NORMAL)
+    #if defined(NEED_CENTROID_NORMAL)
         centroid float3 centroidWorldNormal : TEXCOORD8;
     #endif
 
@@ -126,7 +125,7 @@ v2f vert (appdata v)
     #endif
 
 
-    #if defined(NEED_CENTROID_NORMAL) && defined(NEED_WORLD_NORMAL)
+    #if defined(NEED_CENTROID_NORMAL)
         o.centroidWorldNormal = o.worldNormal;
     #endif
 
