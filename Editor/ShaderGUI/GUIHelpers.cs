@@ -2,6 +2,7 @@
 using UnityEngine;
 using System;
 using System.Reflection;
+using System.Linq;
 
 namespace z3y.Shaders
 {
@@ -104,10 +105,11 @@ namespace z3y.Shaders
 			importer.sRGBTexture = false;
 			importer.SaveAndReimport();
 		}
+        
 
-		public static void InitializeAllProperties(MaterialProperty[] props, object obj, Func<string, MaterialProperty[], bool, MaterialProperty> findProperty)
+        public static void InitializeAllProperties(FieldInfo[] infos,MaterialProperty[] props, object obj, Func<string, MaterialProperty[], bool, MaterialProperty> findProperty)
 		{
-			foreach (var property in obj.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
+			foreach (var property in infos)
 			{
 				if (property.FieldType != typeof(MaterialProperty))
 					continue;

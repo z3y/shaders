@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using static z3y.Shaders.GUIHelpers;
@@ -421,13 +422,13 @@ namespace z3y.Shaders
         private MaterialEditor _materialEditor;
         private bool _firstTimeApply = true;
         private Material _material = null;
-        
+        private readonly FieldInfo[] PropertyInfos = typeof(SimpleLitGUI).GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
         {
             _materialEditor = materialEditor;
             _material = materialEditor.target as Material;
-            InitializeAllProperties(props, this, FindProperty);
+            InitializeAllProperties(PropertyInfos, props, this, FindProperty);
 
             if (_firstTimeApply)
             {

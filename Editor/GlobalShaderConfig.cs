@@ -19,7 +19,7 @@ namespace z3y.Shaders
             GetWindow<ShaderConfigWindow>("Shader Config");
         }
 
-        static FieldInfo[] configFields = typeof(ShaderConfig).GetFields(BindingFlags.Public | BindingFlags.Static);
+        static readonly FieldInfo[] configFields = typeof(ShaderConfig).GetFields(BindingFlags.Public | BindingFlags.Static);
 
         static bool firstTime = true;
         private void OnGUI()
@@ -39,7 +39,7 @@ namespace z3y.Shaders
             {
                 HandleConfigFields((bool value, FieldInfo field) =>
                 {
-                    field.SetValue(typeof(bool), false);
+                    field.SetValue(null, false);
                 });
                 typeof(ShaderConfig).GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null).Invoke(null, null);
             }
@@ -117,7 +117,7 @@ namespace z3y.Shaders
                 {
                     if (line.StartsWith(field.Name, StringComparison.Ordinal))
                     {
-                        field.SetValue(typeof(bool), line[line.Length-1] == 'T');
+                        field.SetValue(null, line[line.Length-1] == 'T');
                         break;
                     }
                 }
