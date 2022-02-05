@@ -55,7 +55,7 @@ Shader "Simple Lit"
             _EmissionMap ("Emission Map", 2D) = "white" {}
             [ToggleUI] _EmissionMultBase ("Multiply Base", Int) = 0
             [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
-            [Enum(Disabled, 1000, Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3, Autocorrelator, 27, Filtered Bass, 28)] _AudioLinkEmission ("Audio Link", Int) = 0
+            [Enum(Disabled, 1000, Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3, Autocorrelator, 27, Filtered Bass, 28)] _AudioLinkEmission ("Audio Link", Int) = 1000
 
         _DetailAlbedoMap ("Albedo & Smoothness:Albedo (RGB) | Smoothness (A)", 2D) = "linearGrey" {}
         [Normal] _DetailNormalMap ("Normal Map", 2D) = "bump" {}

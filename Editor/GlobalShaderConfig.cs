@@ -20,6 +20,7 @@ namespace z3y.Shaders
         }
 
         static readonly FieldInfo[] configFields = typeof(ShaderConfig).GetFields(BindingFlags.Public | BindingFlags.Static);
+        static readonly ConstructorInfo ShaderConfigConsturctor = typeof(ShaderConfig).GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null);
 
         static bool firstTime = true;
         private void OnGUI()
@@ -41,7 +42,7 @@ namespace z3y.Shaders
                 {
                     field.SetValue(null, false);
                 });
-                typeof(ShaderConfig).GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null).Invoke(null, null);
+                ShaderConfigConsturctor.Invoke(null, null);
             }
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
