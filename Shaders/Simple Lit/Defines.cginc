@@ -31,6 +31,9 @@
         #define BAKERYLM_ENABLED
         #undef DIRLIGHTMAP_COMBINED
     #endif
+#else
+    #undef BAKERY_SH
+    #undef BAKERY_RNM
 #endif
 
 #ifdef LTCGI
@@ -42,7 +45,6 @@
 
 
 #if defined(BAKERY_SH) || defined(BAKERY_RNM) || defined(BAKERY_VOLUME)
-
     #ifdef BAKERY_SH
         #ifndef SHADER_API_MOBILE
             #define BAKERY_SHNONLINEAR
