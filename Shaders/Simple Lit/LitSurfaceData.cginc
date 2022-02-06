@@ -28,7 +28,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
     float4 mainST = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _MainTex_ST);
 
-    float2 parallaxOffset = 0;
+    float2 parallaxOffset = 0.0;
     #if defined(PARALLAX)
         float2 parallaxUV = i.coord0.xy * mainST.xy + mainST.zw;
         parallaxOffset = ParallaxOffset(i.parallaxViewDir, parallaxUV);
@@ -45,22 +45,22 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     surf.alpha = mainTexture.a;
 
 
-    half4 maskMap = 1;
+    half4 maskMap = 1.0;
     #ifdef _MASK_MAP
         // maskMap = _MetallicGlossMap.Sample(sampler_MainTex, mainUV);
         maskMap = SampleTexture(TEXARGS(_MetallicGlossMap), TEXARGS(sampler_MetallicGlossMap), mainUV);
-        surf.perceptualRoughness = 1 - (RemapMinMax(maskMap.a, _GlossinessMin, _Glossiness));
+        surf.perceptualRoughness = 1.0 - (RemapMinMax(maskMap.a, _GlossinessMin, _Glossiness));
         surf.metallic = RemapMinMax(maskMap.r, _MetallicMin, _Metallic);
-        surf.occlusion = lerp(1, maskMap.g, _Occlusion);
+        surf.occlusion = lerp(1.0, maskMap.g, _Occlusion);
     #else
-        surf.perceptualRoughness = 1 - _Glossiness;
+        surf.perceptualRoughness = 1.0 - _Glossiness;
         surf.metallic = _Metallic;
-        surf.occlusion = 1;
+        surf.occlusion = 1.0;
     #endif
 
     
 
-    half4 normalMap = float4(0.5, 0.5, 1, 1);
+    half4 normalMap = float4(0.5, 0.5, 1.0, 1.0);
     #ifdef _NORMAL_MAP
         normalMap = SampleTexture(TEXARGS(_BumpMap), TEXARGS(sampler_BumpMap), mainUV);
         surf.tangentNormal = UNPACK_NORMAL(normalMap, _BumpScale);
@@ -70,17 +70,17 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
 
         float2 detailUV = i.coord0.xy;
-        if (_DetailMapUV == 1)
+        if (_DetailMapUV == 1.0)
             detailUV = i.coord0.zw;
-        else if (_DetailMapUV == 2)
+        else if (_DetailMapUV == 2.0)
             detailUV = i.coord1.xy;
 
         detailUV = (detailUV * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset;
 
         float detailMask = maskMap.b;
         float4 detailMap = 0.5;
-        float3 detailAlbedo = 0;
-        float detailSmoothness = 0;
+        float3 detailAlbedo = 0.0;
+        float detailSmoothness = 0.0;
         
         #if defined(_DETAILALBEDO_MAP)
             // float4 detailAlbedoTex = _DetailAlbedoMap.Sample(sampler_DetailAlbedoMap, detailUV) * 2.0 - 1.0;
@@ -109,14 +109,14 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         #endif
 
         #if defined(_DETAILALBEDO_MAP)
-            float perceptualSmoothness = (1 - surf.perceptualRoughness);
+            float perceptualSmoothness = (1.0 - surf.perceptualRoughness);
             // See comment for baseColorOverlay
             float smoothnessDetailSpeed = saturate(abs(detailSmoothness) * _DetailSmoothnessScale);
             float smoothnessOverlay = lerp(perceptualSmoothness, (detailSmoothness < 0.0) ? 0.0 : 1.0, smoothnessDetailSpeed);
             // Lerp with details mask
             perceptualSmoothness = lerp(perceptualSmoothness, saturate(smoothnessOverlay), detailMask);
 
-            surf.perceptualRoughness = (1 - perceptualSmoothness);
+            surf.perceptualRoughness = (1.0 - perceptualSmoothness);
         #endif
         
     #endif
@@ -124,10 +124,10 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     surf.albedo.rgb = lerp(dot(surf.albedo.rgb, grayscaleVec), surf.albedo.rgb, _AlbedoSaturation);
     
     #if defined(EMISSION)
-        float3 emissionMap = 1;
+        float3 emissionMap = 1.0;
         emissionMap =  SampleTexture(_EmissionMap, sampler_EmissionMap, mainUV).rgb;
         
-        emissionMap *= _EmissionMultBase ? surf.albedo.rgb : 1;
+        emissionMap *= _EmissionMultBase == 1.0 ? surf.albedo.rgb : 1.0;
     
         surf.emission = emissionMap * UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _EmissionColor);
         #if defined(AUDIOLINK)

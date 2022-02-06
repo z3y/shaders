@@ -49,16 +49,16 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     float3 bitangent = i.bitangent;
     float3 tangent = i.tangent;
 
-    half3 indirectSpecular = 0;
-    half3 directSpecular = 0;
+    half3 indirectSpecular = 0.0;
+    half3 directSpecular = 0.0;
 
     #if !defined(SHADER_API_MOBILE) && !defined(LIGHTMAP_ON)
     UNITY_FLATTEN
     if (!facing)
     {
-        worldNormal *= -1;
-        bitangent *= -1;
-        tangent *= -1;
+        worldNormal *= -1.0;
+        bitangent *= -1.0;
+        tangent *= -1.0;
     }
     #endif
 
@@ -69,7 +69,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     
     float3 tangentNormalInv = surf.tangentNormal;
     #if defined(_NORMAL_MAP) || defined(_DETAILNORMAL_MAP)
-        surf.tangentNormal.g *= -1; // still need to figure out why its inverted by default
+        surf.tangentNormal.g *= -1.0; // still need to figure out why its inverted by default
         worldNormal = normalize(surf.tangentNormal.x * tangent + surf.tangentNormal.y * bitangent + surf.tangentNormal.z * worldNormal);
         tangent = normalize(cross(worldNormal, bitangent));
         bitangent = normalize(cross(worldNormal, tangent));
@@ -79,9 +79,9 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
 
     float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPos.xyz);
-    half NoV = abs(dot(worldNormal, viewDir)) + 1e-5;
+    half NoV = abs(dot(worldNormal, viewDir)) + 1e-5f;
 
-    half3 pixelLight = 0;
+    half3 pixelLight = 0.0;
     #ifdef USING_LIGHT_MULTI_COMPILE
         bool lightExists = any(_WorldSpaceLightPos0.xyz);
         float3 lightDirection = Unity_SafeNormalize(UnityWorldSpaceLightDir(i.worldPos.xyz));
@@ -97,7 +97,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
     #endif
 
-    half3 vertexLight = 0;
+    half3 vertexLight = 0.0;
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
         vertexLight = i.vertexLight;
     #endif
@@ -129,12 +129,12 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #ifdef BAKERY_SH
             half3 L0 = lightMap;
 
-            half3 nL1x = BakeryTex2D(_RNM0, lightmapUV, _RNM0_TexelSize) * 2 - 1;
-            half3 nL1y = BakeryTex2D(_RNM1, lightmapUV, _RNM0_TexelSize) * 2 - 1;
-            half3 nL1z = BakeryTex2D(_RNM2, lightmapUV, _RNM0_TexelSize) * 2 - 1;
-            half3 L1x = nL1x * L0 * 2;
-            half3 L1y = nL1y * L0 * 2;
-            half3 L1z = nL1z * L0 * 2;
+            half3 nL1x = BakeryTex2D(_RNM0, lightmapUV, _RNM0_TexelSize) * 2.0 - 1.0;
+            half3 nL1y = BakeryTex2D(_RNM1, lightmapUV, _RNM0_TexelSize) * 2.0 - 1.0;
+            half3 nL1z = BakeryTex2D(_RNM2, lightmapUV, _RNM0_TexelSize) * 2.0 - 1.0;
+            half3 L1x = nL1x * L0 * 2.0;
+            half3 L1y = nL1y * L0 * 2.0;
+            half3 L1z = nL1z * L0 * 2.0;
 
             #ifdef BAKERY_SHNONLINEAR
                 float lumaL0 = dot(L0, float(1));
@@ -144,8 +144,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                 float lumaSH = shEvaluateDiffuseL1Geomerics(lumaL0, float3(lumaL1x, lumaL1y, lumaL1z), worldNormal);
 
                 lightMap = L0 + worldNormal.x * L1x + worldNormal.y * L1y + worldNormal.z * L1z;
-                float regularLumaSH = dot(lightMap, 1);
-                lightMap *= lerp(1, lumaSH / regularLumaSH, saturate(regularLumaSH*16));
+                float regularLumaSH = dot(lightMap, 1.0);
+                lightMap *= lerp(1.0, lumaSH / regularLumaSH, saturate(regularLumaSH * 16.0));
             #else
                 lightMap = L0 + worldNormal.x * L1x + worldNormal.y * L1y + worldNormal.z * L1z;
             #endif
@@ -163,8 +163,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
 
         #if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN)
-            pixelLight = 0;
-            vertexLight = 0;
+            pixelLight = 0.0;
+            vertexLight = 0.0;
             lightMap = SubtractMainLightWithRealtimeAttenuationFromLightmap (lightMap, lightAttenuation, bakedColorTex, worldNormal);
         #endif
 
@@ -175,7 +175,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             UNITY_BRANCH
             if (unity_ProbeVolumeParams.x == 1.0)
             {
-                indirectDiffuse = SHEvalLinearL0L1_SampleProbeVolume(float4(worldNormal, 1), i.worldPos);
+                indirectDiffuse = SHEvalLinearL0L1_SampleProbeVolume(float4(worldNormal, 1.0), i.worldPos);
             }
             else
             {
@@ -220,7 +220,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         F *= energyCompensation;
         #endif
 
-        directSpecular = max(0, (D * V) * F) * pixelLight * UNITY_PI;
+        directSpecular = max(0.0, (D * V) * F) * pixelLight * UNITY_PI;
     #endif
 
 
@@ -229,7 +229,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         for(int j = 0; j < 4; j++)
         {
             UNITY_BRANCH
-            if(vLights.Attenuation[j] > 0)
+            if (vLights.Attenuation[j] > 0.0)
             {
                 vLights.Direction[j] = normalize(vLights.Direction[j]);
                 half vLightNoL = saturate(dot(worldNormal, vLights.Direction[j]));
@@ -244,7 +244,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                     half3 Fv = F_Schlick(vLoH, f0);
                     half Dv = D_GGX(vNoH, clampedRoughness);
                     half Vv = V_SmithGGXCorrelatedFast(NoV, vLightNoL, clampedRoughness);
-                    directSpecular += max(0, (Dv * Vv) * Fv) * vLightCol * UNITY_PI;
+                    directSpecular += max(0.0, (Dv * Vv) * Fv) * vLightCol * UNITY_PI;
                 #endif
             }
         }
@@ -254,8 +254,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     #if defined(BAKEDSPECULAR) && defined(UNITY_PASS_FORWARDBASE) && !defined(BAKERYLM_ENABLED)
     {
-        float3 bakedDominantDirection = 1;
-        half3 bakedSpecularColor = 0;
+        float3 bakedDominantDirection = 1.0;
+        half3 bakedSpecularColor = 0.0;
 
         #if defined(DIRLIGHTMAP_COMBINED) && defined(LIGHTMAP_ON)
             bakedDominantDirection = (lightMapDirection.xyz) * 2.0 - 1.0;
@@ -350,7 +350,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
             half specularOcclusion = lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
             #ifndef SHADER_API_MOBILE
-                float horizon = min(1 + dot(reflDir, worldNormal), 1.0);
+                float horizon = min(1.0 + dot(reflDir, worldNormal), 1.0);
                 dfg.x *= specularOcclusion;
                 indirectSpecular = indirectSpecular * horizon * horizon * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
             #else

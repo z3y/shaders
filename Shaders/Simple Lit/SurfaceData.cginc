@@ -12,12 +12,12 @@ struct SurfaceData
 
 void InitializeDefaultSurfaceData(inout SurfaceData surf)
 {
-    surf.albedo = 1;
+    surf.albedo = 1.0;
     surf.tangentNormal = half3(0,0,1);
-    surf.emission = 0;
-    surf.metallic = 0;
-    surf.perceptualRoughness = 0;
-    surf.occlusion = 1;
+    surf.emission = 0.0;
+    surf.metallic = 0.0;
+    surf.perceptualRoughness = 0.0;
+    surf.occlusion = 1.0;
     surf.reflectance = 0.5;
-    surf.alpha = 1;
+    surf.alpha = 1.0;
 }

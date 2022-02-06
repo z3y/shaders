@@ -9,18 +9,18 @@ struct VertexLightInformation
 
 void get4VertexLightsColFalloff(inout VertexLightInformation vLight, float3 worldPos, float3 normal)
 {
-    float3 lightColor = 0;
+    float3 lightColor = 0.0;
     float4 toLightX = unity_4LightPosX0 - worldPos.x;
     float4 toLightY = unity_4LightPosY0 - worldPos.y;
     float4 toLightZ = unity_4LightPosZ0 - worldPos.z;
 
-    float4 lengthSq = 0;
+    float4 lengthSq = 0.0;
     lengthSq += toLightX * toLightX;
     lengthSq += toLightY * toLightY;
     lengthSq += toLightZ * toLightZ;
 
     float4 atten = 1.0 / (1.0 + lengthSq * unity_4LightAtten0);
-    float4 atten2 = saturate(1 - (lengthSq * unity_4LightAtten0 / 25));
+    float4 atten2 = saturate(1 - (lengthSq * unity_4LightAtten0 / 25.0));
     atten = min(atten, atten2 * atten2);
 
     vLight.ColorFalloff[0] = unity_LightColor[0] * atten.x;

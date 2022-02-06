@@ -44,7 +44,7 @@ float3 UnpackScaleNormalHemiOctahedron(float4 normalMap, float bumpScale)
         return UnpackScaleNormal(normalMap, bumpScale).xyz;
     #endif
     // https://twitter.com/Stubbesaurus/status/937994790553227264
-    half2 f = normalMap.ag * 2 - 1;
+    half2 f = normalMap.ag * 2.0 - 1.0;
     normalMap.xyz = float3(f.x, f.y, 1 - abs(f.x) - abs(f.y));
     float t = saturate(-normalMap.z);
     normalMap.xy += normalMap.xy >= 0.0 ? -t : t;
@@ -56,9 +56,9 @@ float3 UnpackScaleNormalHemiOctahedron(float4 normalMap, float bumpScale)
 float3 getBoxProjection (float3 direction, float3 position, float4 cubemapPosition, float3 boxMin, float3 boxMax)
 {
     #if defined(UNITY_SPECCUBE_BOX_PROJECTION) && !defined(SHADER_API_MOBILE)
-        if (cubemapPosition.w > 0)
+        if (cubemapPosition.w > 0.0)
         {
-            float3 factors = ((direction > 0 ? boxMax : boxMin) - position) / direction;
+            float3 factors = ((direction > 0.0 ? boxMax : boxMin) - position) / direction;
             float scalar = min(min(factors.x, factors.y), factors.z);
             direction = direction * scalar + (position - cubemapPosition.xyz);
         }
