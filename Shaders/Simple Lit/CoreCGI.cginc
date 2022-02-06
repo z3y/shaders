@@ -175,7 +175,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
         #if UNITY_LIGHT_PROBE_PROXY_VOLUME
             UNITY_BRANCH
-            if (unity_ProbeVolumeParams.x == 1)
+            if (unity_ProbeVolumeParams.x == 1.0)
             {
                 indirectDiffuse = SHEvalLinearL0L1_SampleProbeVolume(float4(worldNormal, 1), i.worldPos);
             }
@@ -187,16 +187,15 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                     indirectDiffuse.r = shEvaluateDiffuseL1Geomerics_local(L0.r, unity_SHAr.xyz, worldNormal);
                     indirectDiffuse.g = shEvaluateDiffuseL1Geomerics_local(L0.g, unity_SHAg.xyz, worldNormal);
                     indirectDiffuse.b = shEvaluateDiffuseL1Geomerics_local(L0.b, unity_SHAb.xyz, worldNormal);
-                    indirectDiffuse = max(0, indirectDiffuse);
                 #else
-                    indirectDiffuse = max(0, ShadeSH9(float4(worldNormal, 1)));
+                    indirectDiffuse = ShadeSH9(float4(worldNormal, 1.0));
                 #endif
         #if UNITY_LIGHT_PROBE_PROXY_VOLUME
             }
         #endif
 
     #endif
-
+    indirectDiffuse = max(0.0, indirectDiffuse);
 
     #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
         pixelLight *= UnityComputeForwardShadows(i.coord0.zw, i.worldPos, i.screenPos);
@@ -315,7 +314,6 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             float2 ltcgi_lmuv;
     #if defined(LIGHTMAP_ON)
             ltcgi_lmuv = i.coord0.zw;
-            indirectDiffuse = max(0, indirectDiffuse);
     #else
             ltcgi_lmuv = float2(0, 0);
     #endif
