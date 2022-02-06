@@ -1,4 +1,4 @@
-float _ParallaxSteps;
+#define ParallaxSteps 15
 float _ParallaxOffset;
 float _Parallax;
 Texture2D _ParallaxMap;
@@ -13,30 +13,28 @@ float3 CalculateTangentViewDir(float3 tangentViewDir)
 float2 ParallaxOffsetMultiStep(float surfaceHeight, float strength, float2 uv, float3 tangentViewDir)
 {
     float2 uvOffset = 0.0;
-	float stepSize = 1.0/_ParallaxSteps;
+	float stepSize = 1.0 / ParallaxSteps;
 	float stepHeight = 1.0;
 	float2 uvDelta = tangentViewDir.xy * (stepSize * strength);
 
-    [unroll(50)]
-    for (int j = 1; j <= _ParallaxSteps && stepHeight > surfaceHeight; j++){
-        uvOffset -= uvDelta;
-        stepHeight -= stepSize;
+    [unroll(ParallaxSteps)]
+    for (int j = 0; j < ParallaxSteps; j++)
+    {
+        float increase = stepHeight > surfaceHeight; // removes if
+        uvOffset -= uvDelta * increase;
+        stepHeight -= stepSize * increase;
         surfaceHeight = _ParallaxMap.Sample(sampler_MainTex, (uv + uvOffset)) + _ParallaxOffset;
     }
     
     [unroll(3)]
-    for (int k = 0; k < 3; k++) {
+    for (int k = 0; k < 3; k++)
+    {
         uvDelta *= 0.5;
         stepSize *= 0.5;
 
-        if (stepHeight < surfaceHeight) {
-            uvOffset += uvDelta;
-            stepHeight += stepSize;
-        }
-        else {
-            uvOffset -= uvDelta;
-            stepHeight -= stepSize;
-        }
+        float increase = (stepHeight < surfaceHeight) * 2.0 - 1.0;
+        uvOffset += uvDelta * increase;
+        stepHeight += stepSize * increase;
         surfaceHeight = _ParallaxMap.Sample(sampler_MainTex, (uv + uvOffset)) + _ParallaxOffset;
     }
 

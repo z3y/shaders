@@ -67,7 +67,6 @@ Shader "Simple Lit"
         [Toggle(PARALLAX)] _EnableParallax ("Parallax", Int) = 0
             _Parallax ("Height Scale", Range (0, 0.2)) = 0.02
             _ParallaxMap ("Height Map", 2D) = "white" {}
-            [IntRange] _ParallaxSteps ("Parallax Steps", Range(1,50)) = 25
             _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
 
         [Toggle(BAKEDSPECULAR)] _BakedSpecular ("Baked Specular ", Int) = 0
