@@ -20,10 +20,13 @@ float2 ParallaxOffsetMultiStep(float surfaceHeight, float strength, float2 uv, f
     [unroll(ParallaxSteps)]
     for (int j = 0; j < ParallaxSteps; j++)
     {
-        float increase = stepHeight > surfaceHeight; // removes if
-        uvOffset -= uvDelta * increase;
-        stepHeight -= stepSize * increase;
-        surfaceHeight = _ParallaxMap.Sample(sampler_MainTex, (uv + uvOffset)) + _ParallaxOffset;
+        UNITY_BRANCH
+        if (stepHeight > surfaceHeight)
+        {
+            uvOffset -= uvDelta;
+            stepHeight -= stepSize;
+            surfaceHeight = _ParallaxMap.Sample(sampler_MainTex, (uv + uvOffset)) + _ParallaxOffset;
+        }
     }
     
     [unroll(3)]
