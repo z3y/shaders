@@ -196,7 +196,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     indirectDiffuse = max(0.0, indirectDiffuse);
 
     #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
-        pixelLight *= UnityComputeForwardShadows(i.coord0.zw, i.worldPos, i.screenPos);
+        pixelLight *= UnityComputeForwardShadows(lightmapUV, i.worldPos, i.screenPos);
     #endif
 
     half3 f0 = 0.16 * surf.reflectance * surf.reflectance * (1.0 - surf.metallic) + surf.albedo.rgb * surf.metallic;
