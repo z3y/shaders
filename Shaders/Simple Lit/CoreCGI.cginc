@@ -1,4 +1,3 @@
-sampler3D _DitherMaskLOD;
 half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 {
     UNITY_SETUP_INSTANCE_ID(i)
@@ -26,8 +25,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
 
     #if defined(_ALPHAPREMULTIPLY_ON) || defined(_MODE_FADE)
-        half dither = tex3D(_DitherMaskLOD, float3(i.pos.xy * 0.25, surf.alpha * 0.9375)).a;
-        if(dither < 0.1) discard;
+        half dither = Unity_Dither(surf.alpha, i.pos.xy);
+        if(dither < 0.0) discard;
     #endif
 
     SHADOW_CASTER_FRAGMENT(i);
