@@ -78,6 +78,16 @@ namespace z3y.Shaders
             importer.sRGBTexture = false;
             importer.SaveAndReimport();
         }
+        public static void CopyImportSettings(Texture refTex, Texture toTex)
+        {
+            var refImporter = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(refTex));
+            var toImporter = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(toTex));
+            var textureSettings = new TextureImporterSettings();
+            refImporter.ReadTextureSettings(textureSettings);
+            toImporter.SetTextureSettings(textureSettings);
+            toImporter.SaveAndReimport();
+        }
+
 
         public static Texture2D GetPackedTexture(string path) => (Texture2D)AssetDatabase.LoadAssetAtPath(path + ".tga", typeof(Texture2D));
         
