@@ -1,4 +1,4 @@
-#define ParallaxSteps 15
+#define ParallaxSteps 25
 float _ParallaxOffset;
 float _Parallax;
 Texture2D _ParallaxMap;
