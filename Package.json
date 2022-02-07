@@ -1,6 +1,8 @@
 {
-	"name" : "z3y.Shaders",
-	"displayName" : "z3y Shaders",
-	"version" : "1.6.4",
-	"description" : "Shaders"
+  "name": "z3y.shaders",
+  "displayName": "z3y Shaders",
+  "version": "1.7.0",
+  "description": "Shader",
+  "hideInEditor": false,
+  "unity": "2019.4"
 }
