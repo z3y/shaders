@@ -33,8 +33,10 @@ namespace z3y.Shaders.SimpleLit
         private static readonly int OcclusionMap = Shader.PropertyToID("_OcclusionMap");
         private static readonly int DetailMaskMap = Shader.PropertyToID("_DetailMaskMap");
         private static readonly int SmoothnessMap = Shader.PropertyToID("_SmoothnessMap");
+        private static readonly int DetailSmoothnessPacking = Shader.PropertyToID("_DetailSmoothnessPacking");
+        private static readonly int DetailAlbedoPacking = Shader.PropertyToID("_DetailAlbedoPacking");
 
-        // [MenuItem("OnBuildCleanup/CleanUpTexturePacking")]
+        //[MenuItem("z3y/CleanUpTexturePacking")]
         public static void CleanUpTexturePacking()
         {
             foreach (var m in Helpers.FindMaterialsUsingShader("Simple Lit"))
@@ -43,6 +45,8 @@ namespace z3y.Shaders.SimpleLit
                 m.SetTexture(OcclusionMap, null);
                 m.SetTexture(DetailMaskMap, null);
                 m.SetTexture(SmoothnessMap, null);
+                m.SetTexture(DetailAlbedoPacking, null);
+                m.SetTexture(DetailSmoothnessPacking, null);
             }
         }
 

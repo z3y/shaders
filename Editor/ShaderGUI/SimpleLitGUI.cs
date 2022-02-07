@@ -75,6 +75,11 @@ namespace z3y.Shaders
         private MaterialProperty _TextureIndex;
         private MaterialProperty _LTCGI = null;
         private MaterialProperty _LTCGI_DIFFUSE_OFF = null;
+        private MaterialProperty _IsPackingDetailAlbedo = null;
+        private MaterialProperty _DetailAlbedoPacking = null;
+        private MaterialProperty _DetailSmoothnessPacking = null;
+        private MaterialProperty _DetailSmoothnessPackingChannel = null;
+        private MaterialProperty _DetailSmoothnessPackingInvert = null;
         #endregion
 
         private void DrawProperties(Material material, MaterialEditor me)
@@ -148,6 +153,7 @@ namespace z3y.Shaders
             }
 
             Prop(_DetailAlbedoMap, _DetailAlbedoScale);
+            DrawDetailAlbedoPacking(material);
             EditorGUI.indentLevel += 2;
             Prop(_DetailSmoothnessScale);
             EditorGUI.indentLevel -= 2;
@@ -323,6 +329,50 @@ namespace z3y.Shaders
             });
         }
 
+        private void DrawDetailAlbedoPacking(Material material)
+        {
+            _IsPackingDetailAlbedo.floatValue = TextureFoldout(_IsPackingDetailAlbedo.floatValue == 1) ? 1 : 0;
+            if (_IsPackingDetailAlbedo.floatValue != 1)
+            {
+                return;
+            }
+
+            PropertyGroup(() =>
+            {
+                Prop(_DetailAlbedoPacking);
+                Prop(_DetailSmoothnessPacking, _DetailSmoothnessPackingChannel, _DetailSmoothnessPackingInvert, _DetailSmoothnessPackingInvert.floatValue == 1 ? "Roughness Map" : null);
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Pack"))
+                {
+                    if (PackDetailAlbedoMap()) return;
+                }
+
+                if (GUILayout.Button("Modify"))
+                {
+                    var t = _DetailAlbedoMap.textureValue;
+                    if (!_DetailAlbedoPacking.textureValue)
+                    {
+                        material.SetTexture("_DetailAlbedoPacking", t);
+                    }
+
+                    if (!_DetailSmoothnessPacking.textureValue)
+                    {
+                        material.SetTexture("_DetailSmoothnessPacking", t);
+                        material.SetInt("_DetailSmoothnessPackingChannel", 3);
+                        material.SetInt("_DetailSmoothnessPackingInvert", 0);
+                    }
+                }
+
+                if (GUILayout.Button("Close"))
+                {
+                    _DetailAlbedoPacking.textureValue = null;
+                    _DetailSmoothnessPacking.textureValue = null;
+                    _IsPackingDetailAlbedo.floatValue = 0;
+                }
+                EditorGUILayout.EndHorizontal();
+            });
+        }
+
         private bool PackMaskMap()
         {
             var rTex = (Texture2D)_MetallicMap.textureValue;
@@ -372,6 +422,48 @@ namespace z3y.Shaders
             return false;
         }
 
+        private bool PackDetailAlbedoMap()
+        {
+            var detailAlbedo = (Texture2D)_DetailAlbedoPacking.textureValue;
+            var detailSmoothness = (Texture2D)_DetailSmoothnessPacking.textureValue;
+
+            var reference = detailAlbedo ?? detailSmoothness;
+            if (reference == null) return true;
+
+            var rChannel = new TexturePacking.Channel()
+            {
+                Tex = detailAlbedo,
+                ID = 0,
+            };
+
+            var gChannel = new TexturePacking.Channel()
+            {
+                Tex = detailAlbedo,
+                ID = 1,
+            };
+
+            var bChannel = new TexturePacking.Channel()
+            {
+                Tex = detailAlbedo,
+                ID = 2,
+            };
+
+            var aChannel = new TexturePacking.Channel()
+            {
+                Tex = detailSmoothness,
+                ID = (int)_DetailSmoothnessPackingChannel.floatValue,
+                Invert = _DetailSmoothnessPackingInvert.floatValue == 1
+            };
+
+            var path = AssetDatabase.GetAssetPath(reference);
+            var newPath = Path.GetDirectoryName(path) + "/" + Path.GetFileNameWithoutExtension(path) + "_Packed";
+
+            TexturePacking.Pack(new[] { rChannel, gChannel, bChannel, aChannel }, newPath, reference.width, reference.height);
+            var packedTexture = TexturePacking.GetPackedTexture(newPath);
+            _DetailAlbedoMap.textureValue = packedTexture;
+            return false;
+        }
+
         private void SetupBlendMode(MaterialEditor materialEditor)
         {
             foreach (var o in materialEditor.targets)
@@ -415,6 +507,7 @@ namespace z3y.Shaders
 
 #if !LTCGI_INCLUDED
             _LTCGI.floatValue = 0.0f;
+            _LTCGI_DIFFUSE_OFF.floatValue = 0.0f;
             mat.DisableKeyword("LTCGI");
 #endif
         }

@@ -47,7 +47,6 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
     half4 maskMap = 1.0;
     #ifdef _MASK_MAP
-        // maskMap = _MetallicGlossMap.Sample(sampler_MainTex, mainUV);
         maskMap = SampleTexture(TEXARGS(_MetallicGlossMap), TEXARGS(sampler_MetallicGlossMap), mainUV);
         surf.perceptualRoughness = 1.0 - (RemapMinMax(maskMap.a, _GlossinessMin, _Glossiness));
         surf.metallic = RemapMinMax(maskMap.r, _MetallicMin, _Metallic);
@@ -83,7 +82,6 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         float detailSmoothness = 0.0;
         
         #if defined(_DETAILALBEDO_MAP)
-            // float4 detailAlbedoTex = _DetailAlbedoMap.Sample(sampler_DetailAlbedoMap, detailUV) * 2.0 - 1.0;
             float4 detailAlbedoTex = SampleTexture(_DetailAlbedoMap, sampler_DetailAlbedoMap, detailUV) * 2.0 - 1.0;
             detailAlbedo = detailAlbedoTex.rgb;
             detailSmoothness = detailAlbedoTex.a;

@@ -64,6 +64,13 @@ Shader "Simple Lit"
             _DetailNormalScale ("Normal", Float) = 1
             _DetailSmoothnessScale ("Smoothness", Range(0.0, 2.0)) = 0
 
+        // properties used only for texture packing
+        _IsPackingDetailAlbedo ("", Float) = 0
+        _DetailAlbedoPacking ("Albedo Map", 2D) = "linearGrey" {}
+        _DetailSmoothnessPacking ("Smoothness Map", 2D) = "white" {}
+        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _DetailSmoothnessPackingChannel ("", Int) = 0
+        [ToggleUI] _DetailSmoothnessPackingInvert ("Invert", Float) = 0
+
         [Toggle(PARALLAX)] _EnableParallax ("Parallax", Int) = 0
             _Parallax ("Height Scale", Range (0, 0.2)) = 0.02
             _ParallaxMap ("Height Map", 2D) = "white" {}
