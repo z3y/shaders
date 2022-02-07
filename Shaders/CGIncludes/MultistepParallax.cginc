@@ -12,36 +12,30 @@ float3 CalculateTangentViewDir(float3 tangentViewDir)
 
 float2 ParallaxOffsetMultiStep(float surfaceHeight, float strength, float2 uv, float3 tangentViewDir)
 {
-    float2 uvOffset = 0.0;
 	float stepSize = 1.0 / ParallaxSteps;
-	float stepHeight = 1.0;
-	float2 uvDelta = tangentViewDir.xy * (stepSize * strength);
+    float3 uvDelta_stepSize = float3(tangentViewDir.xy * (stepSize * strength), stepSize);
+    float3 uvOffset_stepHeight = float3(float2(0, 0), 1.0);
 
     [unroll(ParallaxSteps)]
     for (int j = 0; j < ParallaxSteps; j++)
     {
         UNITY_BRANCH
-        if (stepHeight > surfaceHeight)
+        if (uvOffset_stepHeight.z > surfaceHeight)
         {
-            uvOffset -= uvDelta;
-            stepHeight -= stepSize;
-            surfaceHeight = _ParallaxMap.Sample(sampler_MainTex, (uv + uvOffset)) + _ParallaxOffset;
+            uvOffset_stepHeight -= uvDelta_stepSize;
+            surfaceHeight = _ParallaxMap.Sample(sampler_MainTex, (uv + uvOffset_stepHeight.xy)) + _ParallaxOffset;
         }
     }
-    
+
     [unroll(3)]
     for (int k = 0; k < 3; k++)
     {
-        uvDelta *= 0.5;
-        stepSize *= 0.5;
-
-        float increase = (stepHeight < surfaceHeight) * 2.0 - 1.0;
-        uvOffset += uvDelta * increase;
-        stepHeight += stepSize * increase;
-        surfaceHeight = _ParallaxMap.Sample(sampler_MainTex, (uv + uvOffset)) + _ParallaxOffset;
+        uvDelta_stepSize *= 0.5;
+        uvOffset_stepHeight += uvDelta_stepSize * ((uvOffset_stepHeight.z < surfaceHeight) * 2.0 - 1.0);
+        surfaceHeight = _ParallaxMap.Sample(sampler_MainTex, (uv + uvOffset_stepHeight.xy)) + _ParallaxOffset;
     }
 
-    return uvOffset;
+    return uvOffset_stepHeight.xy;
 }
 
 float2 ParallaxOffset (float3 viewDirForParallax, float2 parallaxUV)
