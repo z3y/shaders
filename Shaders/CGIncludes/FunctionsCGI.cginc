@@ -197,7 +197,7 @@ half3 GetSpecularHighlights(float3 worldNormal, half3 lightColor, float3 lightDi
 float Unity_Dither(float In, float2 ScreenPosition)
 {
     float2 uv = ScreenPosition * _ScreenParams.xy;
-    float DITHER_THRESHOLDS[16] =
+    const float DITHER_THRESHOLDS[16] =
     {
         1.0 / 17.0,  9.0 / 17.0,  3.0 / 17.0, 11.0 / 17.0,
         13.0 / 17.0,  5.0 / 17.0, 15.0 / 17.0,  7.0 / 17.0,
