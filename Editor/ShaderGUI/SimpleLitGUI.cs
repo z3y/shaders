@@ -70,11 +70,12 @@ namespace z3y.Shaders
         private MaterialProperty _DetailMaskMapInvert = null;
         private MaterialProperty _OcclusionMapInvert = null;
         private MaterialProperty _MetallicMapInvert = null;
-        private MaterialProperty _QueueOffset = null;
         private MaterialProperty _AudioLinkEmission = null;
         private MaterialProperty _TextureIndex;
+#if LTCGI_INCLUDED
         private MaterialProperty _LTCGI = null;
         private MaterialProperty _LTCGI_DIFFUSE_OFF = null;
+#endif
         private MaterialProperty _IsPackingDetailAlbedo = null;
         private MaterialProperty _DetailAlbedoPacking = null;
         private MaterialProperty _DetailSmoothnessPacking = null;
@@ -138,10 +139,6 @@ namespace z3y.Shaders
             me.DoubleSidedGIField();
             me.EnableInstancingField();
             me.RenderQueueField();
-            if (_Mode.floatValue > 1)
-            {
-                Prop(_QueueOffset);
-            }
             EditorGUILayout.Space();
         }
 
@@ -473,42 +470,58 @@ namespace z3y.Shaders
             }
         }
 
+        public override void AssignNewShaderToMaterial(Material m, Shader oldShader, Shader newShader)
+        {
+            base.AssignNewShaderToMaterial(m, oldShader, newShader);
+            if (m == null || m.shader == null || m.shader.name != ShaderName)
+            {
+                return;
+            }
+
+            foreach (var keyword in m.shaderKeywords)
+            {
+                m.DisableKeyword(keyword);
+            }
+
+            SetupMaterialWithBlendMode(m, (int)m.GetFloat("_Mode"));
+            MaterialEditor.ApplyMaterialPropertyDrawers(m);
+            ApplyChanges(m);
+        }
+
+        
 
         // On inspector change
-        private void ApplyChanges(MaterialEditor materialEditor, Material mat)
+        private static void ApplyChanges(Material m)
         {
-            SetupGIFlags(_EnableEmission.floatValue, _material);
-            
-            SetupBlendMode(materialEditor);
-            mat.ToggleKeyword("_MODE_CUTOUT", _Mode.floatValue == 1);
-            mat.ToggleKeyword("_MODE_FADE", _Mode.floatValue == 2);
-            mat.ToggleKeyword("_ALPHAPREMULTIPLY_ON", _Mode.floatValue == 3);
-            mat.ToggleKeyword("_ALPHAMODULATE_ON", _Mode.floatValue == 5);
+            SetupGIFlags(m.GetFloat("_EnableEmission"), m);
 
-            var samplingMode = _Texture.floatValue;
-            mat.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);
+            int mode = (int)m.GetFloat("_Mode");
+            m.ToggleKeyword("_MODE_CUTOUT", mode == 1);
+            m.ToggleKeyword("_MODE_FADE", mode == 2);
+            m.ToggleKeyword("_ALPHAPREMULTIPLY_ON", mode == 3);
+            m.ToggleKeyword("_ALPHAMODULATE_ON", mode == 5);
+
+            m.ToggleKeyword("AUDIOLINK", m.GetFloat("_AudioLinkEmission") != 1000);
+
+            var samplingMode = (int)m.GetFloat("_Texture");
+            m.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);
             
-            mat.ToggleKeyword("AUDIOLINK", _AudioLinkEmission.floatValue != 1000);
-            
-            
-            
-            if(_Texture.floatValue == 1 || _Texture.floatValue == 2)
+            if(samplingMode == 1 || samplingMode == 2)
             {
-                mat.ToggleKeyword("_MASK_MAP", _MetallicGlossMapArray.textureValue);
-                mat.ToggleKeyword("_NORMAL_MAP", _BumpMapArray.textureValue);
+                m.ToggleKeyword("_MASK_MAP", m.GetTexture("_MetallicGlossMapArray"));
+                m.ToggleKeyword("_NORMAL_MAP", m.GetTexture("_BumpMapArray"));
             }
             else
             {
-                mat.ToggleKeyword("_MASK_MAP", _MetallicGlossMap.textureValue);
-                mat.ToggleKeyword("_NORMAL_MAP", _BumpMap.textureValue);
+                m.ToggleKeyword("_MASK_MAP", m.GetTexture("_MetallicGlossMap"));
+                m.ToggleKeyword("_NORMAL_MAP", m.GetTexture("_BumpMap"));
             }
-            mat.ToggleKeyword("_DETAILALBEDO_MAP", _DetailAlbedoMap.textureValue);
-            mat.ToggleKeyword("_DETAILNORMAL_MAP", _DetailNormalMap.textureValue);
+            m.ToggleKeyword("_DETAILALBEDO_MAP", m.GetTexture("_DetailAlbedoMap"));
+            m.ToggleKeyword("_DETAILNORMAL_MAP", m.GetTexture("_DetailNormalMap"));
 
 #if !LTCGI_INCLUDED
-            _LTCGI.floatValue = 0.0f;
-            _LTCGI_DIFFUSE_OFF.floatValue = 0.0f;
-            mat.DisableKeyword("LTCGI");
+            m.SetFloat("_LTCGI", 0f);
+            m.DisableKeyword("LTCGI");
 #endif
         }
 
@@ -516,6 +529,7 @@ namespace z3y.Shaders
         private bool _firstTimeApply = true;
         private Material _material = null;
         private readonly FieldInfo[] PropertyInfos = typeof(SimpleLitGUI).GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+        public static readonly string ShaderName = "Simple Lit";
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
         {
@@ -526,8 +540,7 @@ namespace z3y.Shaders
             if (_firstTimeApply)
             {
                 _firstTimeApply = false;
-                SetupBlendMode(materialEditor);
-                ApplyChanges(materialEditor, _material);
+                ApplyChanges(_material);
             }
 
 
@@ -537,7 +550,7 @@ namespace z3y.Shaders
 
             if (EditorGUI.EndChangeCheck())
             {
-                ApplyChanges(materialEditor, _material);
+                ApplyChanges(_material);
             };
         }
 

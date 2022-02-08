@@ -242,14 +242,7 @@ namespace z3y.Shaders
 	        material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
 	        material.SetInt("_ZWrite", 0);
 	        material.SetInt("_AlphaToMask", 0);
-	        
-	        if (material.HasProperty("_QueueOffset"))
-	        {
-		        material.renderQueue += (int)material.GetFloat("_QueueOffset");
-	        }
         }
-
     }
-
 }
 

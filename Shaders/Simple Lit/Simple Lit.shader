@@ -87,7 +87,6 @@ Shader "Simple Lit"
         [Enum(Off, 0, On, 1)] _ZWrite ("ZWrite", Int) = 1
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Int) = 2
         [Enum(Off, 0, On, 1)] _AlphaToMask ("Alpha To Coverage", Int) = 0
-        [IntRange] _QueueOffset ("Queue Offset", Range(-50, 50)) = 0
 
         [KeywordEnum(None, SH, RNM)] Bakery ("Bakery Mode", Int) = 0
             _RNM0("RNM0", 2D) = "black" {}
