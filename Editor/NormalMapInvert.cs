@@ -9,6 +9,10 @@ namespace z3y.Shaders
         [MenuItem("Assets/Invert Normal Map")]
         public static void InvertMenuItem()
         {
+            if (Selection.activeGameObject == null)
+            {
+                return;
+            }
             var selection = Selection.activeObject;
             if (selection.GetType() != typeof(Texture2D)) return;
             var texture = (Texture2D)selection;
@@ -58,6 +62,10 @@ namespace z3y.Shaders
         [MenuItem("Assets/Invert Normal Map", true)]
         private static bool InvertMenuItemValidation()
         {
+            if (Selection.activeGameObject == null)
+            {
+                return false;
+            }
             var isTexture = Selection.activeObject.GetType() == typeof(Texture2D);
             if (!isTexture) return false;
 
