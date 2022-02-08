@@ -79,7 +79,7 @@ Shader "Simple Lit"
         [Toggle(BAKEDSPECULAR)] _BakedSpecular ("Baked Specular ", Int) = 0
         [Toggle(NONLINEAR_LIGHTPROBESH)] _NonLinearLightProbeSH("Non-linear Light Probe SH", Int) = 0
 
-        [Toggle(LTCGI)] _LTCGI("LTCGI", Int) = 0
+        [Toggle(LTCGI)] _LTCGI("LTCGI (Expensive)", Int) = 0
         [Toggle(LTCGI_DIFFUSE_OFF)] _LTCGI_DIFFUSE_OFF("LTCGI Disable Diffuse", Int) = 0
 
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Source Blend", Int) = 1
