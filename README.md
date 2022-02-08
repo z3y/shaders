@@ -19,7 +19,6 @@ Download [Unity Package](https://github.com/z3y/shaders/releases) or [latest com
 - In-editor texture packing
 - Lightmap Specular Occlusion
 - Tex2DArray Workflow
-- [LTCGI](https://github.com/PiMaker/ltcgi)
 
 ### [Documentation](https://github.com/z3y/shaders/wiki/Simple-Lit)
 
