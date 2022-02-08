@@ -125,7 +125,7 @@ namespace z3y.Shaders
             });
         }
 
-        static readonly string ShaderPath = AssetDatabase.GetAssetPath(Shader.Find("Simple Lit"));
+        static readonly string ShaderPath = AssetDatabase.GetAssetPath(Shader.Find(SimpleLitGUI.ShaderName));
         private static readonly string NewLine = Environment.NewLine;
         private const string SkipVariant = "#pragma skip_variants ";
         private const string Define = "#define ";

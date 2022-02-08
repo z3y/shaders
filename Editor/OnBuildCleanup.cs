@@ -39,7 +39,7 @@ namespace z3y.Shaders.SimpleLit
         //[MenuItem("z3y/CleanUpTexturePacking")]
         public static void CleanUpTexturePacking()
         {
-            foreach (var m in Helpers.FindMaterialsUsingShader("Simple Lit"))
+            foreach (var m in Helpers.FindMaterialsUsingShader(SimpleLitGUI.ShaderName))
             {
                 m.SetTexture(MetallicMap, null);
                 m.SetTexture(OcclusionMap, null);

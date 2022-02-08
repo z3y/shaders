@@ -30,7 +30,7 @@ namespace z3y.Shaders
                 for (var j = 0; j < renderers[i].sharedMaterials?.Length; j++)
                 {
                     var a = renderers[i].sharedMaterials[j]?.shader;
-                    if (a == null || !a.name.Equals("Simple Lit") ) continue;
+                    if (a == null || !a.name.Equals(SimpleLitGUI.ShaderName) ) continue;
                     
                     var material = renderers[i].sharedMaterials[j];
 
