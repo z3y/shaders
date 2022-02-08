@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+﻿#if !VRC_SDK_VRCSDK3 || UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

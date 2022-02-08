@@ -91,7 +91,7 @@ namespace z3y.Shaders
 
         public static Texture2D GetPackedTexture(string path) => (Texture2D)AssetDatabase.LoadAssetAtPath(path + ".tga", typeof(Texture2D));
         
-        private const string TempTextureFolder = "Assets/z3y/TexturePackingUncompressedTemp/";
+        private const string TempTextureFolder = "Assets/_TexturePackingUncompressedTemp/";
         private static Texture2D GetTempUncompressedTexture(Texture2D tex)
         {
             var path = AssetDatabase.GetAssetPath(tex);
