@@ -473,7 +473,7 @@ namespace z3y.Shaders
         public override void AssignNewShaderToMaterial(Material m, Shader oldShader, Shader newShader)
         {
             base.AssignNewShaderToMaterial(m, oldShader, newShader);
-            if (m == null || m.shader == null || m.shader.name != ShaderName)
+            if (m == null || newShader == null || newShader.name != ShaderName)
             {
                 return;
             }
@@ -483,8 +483,8 @@ namespace z3y.Shaders
                 m.DisableKeyword(keyword);
             }
 
-            SetupMaterialWithBlendMode(m, (int)m.GetFloat("_Mode"));
             MaterialEditor.ApplyMaterialPropertyDrawers(m);
+            SetupMaterialWithBlendMode(m, (int)m.GetFloat("_Mode"));
             ApplyChanges(m);
         }
 
