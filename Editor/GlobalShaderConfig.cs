@@ -19,8 +19,8 @@ namespace z3y.Shaders
             GetWindow<ShaderConfigWindow>("Shader Config");
         }
 
-        static readonly FieldInfo[] configFields = typeof(ShaderConfig).GetFields(BindingFlags.Public | BindingFlags.Static);
-        static readonly ConstructorInfo ShaderConfigConsturctor = typeof(ShaderConfig).GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null);
+        private static readonly FieldInfo[] ConfigFields = typeof(ShaderConfig).GetFields(BindingFlags.Public | BindingFlags.Static);
+        private static readonly ConstructorInfo ShaderConfigConsturctor = typeof(ShaderConfig).GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null);
 
         static bool firstTime = true;
         private void OnGUI()
@@ -71,9 +71,9 @@ namespace z3y.Shaders
 
         internal static void HandleConfigFields(Action<bool, FieldInfo> action)
         {
-            for (int i = 0; i < configFields.Length; i++)
+            for (int i = 0; i < ConfigFields.Length; i++)
             {
-                var field = configFields[i];
+                var field = ConfigFields[i];
                 var value = (bool)field.GetValue(null);
                 action.Invoke(value, field);
             }
@@ -97,22 +97,22 @@ namespace z3y.Shaders
 
     internal static class ShaderConfigData
     {
-        private static string configPath = Path.Combine(Application.dataPath, "../") + "ProjectSettings/z3yGlobalShaderConfig.txt";
+        private static readonly string ConfigPath = Path.Combine(Application.dataPath, "../") + "ProjectSettings/z3yGlobalShaderConfig.txt";
         internal static void SaveAll()
         {
             var sb = new StringBuilder();
             ShaderConfigWindow.HandleConfigFields((bool value, FieldInfo field) => {
                 sb.AppendLine(field.Name + " " + (value ? 'T' : 'F'));
             });
-            File.WriteAllText(configPath, sb.ToString());
+            File.WriteAllText(ConfigPath, sb.ToString());
         }
         internal static void LoadAll()
         {
-            if (!File.Exists(configPath))
+            if (!File.Exists(ConfigPath))
             {
                 SaveAll();
             }
-            var config = File.ReadAllLines(configPath);
+            var config = File.ReadAllLines(ConfigPath);
             ShaderConfigWindow.HandleConfigFields((bool value, FieldInfo field) => {
                 foreach(var line in config)
                 {

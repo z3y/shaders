@@ -506,7 +506,7 @@ namespace z3y.Shaders
             var samplingMode = (int)m.GetFloat("_Texture");
             m.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);
             
-            if(samplingMode == 1 || samplingMode == 2)
+            if (samplingMode == 1 || samplingMode == 2)
             {
                 m.ToggleKeyword("_MASK_MAP", m.GetTexture("_MetallicGlossMapArray"));
                 m.ToggleKeyword("_NORMAL_MAP", m.GetTexture("_BumpMapArray"));
@@ -516,6 +516,7 @@ namespace z3y.Shaders
                 m.ToggleKeyword("_MASK_MAP", m.GetTexture("_MetallicGlossMap"));
                 m.ToggleKeyword("_NORMAL_MAP", m.GetTexture("_BumpMap"));
             }
+
             m.ToggleKeyword("_DETAILALBEDO_MAP", m.GetTexture("_DetailAlbedoMap"));
             m.ToggleKeyword("_DETAILNORMAL_MAP", m.GetTexture("_DetailNormalMap"));
 
