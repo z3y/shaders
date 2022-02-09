@@ -12,8 +12,8 @@ namespace z3y.Shaders
         public static bool DrawGroupFoldout(Material material, string title, bool defaultValue)
         {
             var tagName = $"z3y_group_foldout_{title}";
-            var tagValue = material.GetTag(tagName, false);
-            bool isOpen = string.IsNullOrEmpty(tagValue) ? defaultValue : tagValue[0] == 't';
+            var tagValue = material.GetFloat(tagName);
+            bool isOpen = !material.HasProperty(tagName) ? defaultValue : tagValue == 1;
             var HeaderHeight = 18;
             var style = new GUIStyle("BoldLabel")
             {
@@ -40,7 +40,7 @@ namespace z3y.Shaders
                 isOpen = !isOpen;
                 e.Use();
             }
-            material.SetOverrideTag(tagName, isOpen.ToString());
+            material.SetFloat(tagName, isOpen ? 1 : 0);
             return isOpen;
         }
 
