@@ -12,8 +12,7 @@ namespace z3y.Shaders
         public static bool DrawGroupFoldout(Material material, string title, bool defaultValue)
         {
             var tagName = $"z3y_group_foldout_{title}";
-            var tagValue = material.GetFloat(tagName);
-            bool isOpen = !material.HasProperty(tagName) ? defaultValue : tagValue == 1;
+            bool isOpen = material.HasProperty(tagName) ? material.GetFloat(tagName) == 1 : defaultValue;
             var HeaderHeight = 18;
             var style = new GUIStyle("BoldLabel")
             {
