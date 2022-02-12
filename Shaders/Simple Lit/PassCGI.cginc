@@ -133,7 +133,7 @@ v2f vert (appdata v)
 }
 
 #include "../CGIncludes/FunctionsCGI.cginc"
-#include "../CGIncludes/Bicubic.cginc"
+#include "../CGIncludes/BicubicSampling.cginc"
 #include "../CGIncludes/MultistepParallax.cginc"
 #include "../CGIncludes/NonImportantLights.cginc"
 #include "../CGIncludes/EnvironmentBRDF.cginc"

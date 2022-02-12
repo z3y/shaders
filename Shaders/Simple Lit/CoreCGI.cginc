@@ -111,9 +111,10 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     half3 indirectDiffuse;
     #if defined(LIGHTMAP_ON) || defined(DYNAMICLIGHTMAP_ON)
 
-        half4 bakedColorTex;
         float2 lightmapUV = i.coord0.zw * unity_LightmapST.xy + unity_LightmapST.zw;
-        half3 lightMap = tex2DFastBicubicLightmap(lightmapUV, bakedColorTex);
+        half4 bakedColorTex = SampleBicubic(unity_Lightmap, samplerunity_Lightmap, lightmapUV);
+        //half3 lightMap = tex2DFastBicubicLightmap(lightmapUV, bakedColorTex);
+        half3 lightMap = DecodeLightmap(bakedColorTex);
 
         #ifdef BAKERY_RNM
             half3 rnm0 = DecodeLightmap(BakeryTex2D(_RNM0, lightmapUV, _RNM0_TexelSize));

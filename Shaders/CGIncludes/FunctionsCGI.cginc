@@ -55,7 +55,7 @@ float3 UnpackScaleNormalHemiOctahedron(float4 normalMap, float bumpScale)
 
 float3 getBoxProjection (float3 direction, float3 position, float4 cubemapPosition, float3 boxMin, float3 boxMax)
 {
-    #if defined(UNITY_SPECCUBE_BOX_PROJECTION) && !defined(SHADER_API_MOBILE)
+    #if defined(UNITY_SPECCUBE_BOX_PROJECTION)
         if (cubemapPosition.w > 0.0)
         {
             float3 factors = ((direction > 0.0 ? boxMax : boxMin) - position) / direction;
