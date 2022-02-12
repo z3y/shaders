@@ -1,5 +1,5 @@
-#define grayscaleVec half3(0.2125, 0.7154, 0.0721)
-#define TAU 6.28318530718
+#define GRAYSCALE float3(0.2125, 0.7154, 0.0721)
+#define TAU float(6.28318530718)
 #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y))))
 
 
@@ -13,6 +13,7 @@
     #undef BICUBIC_LIGHTMAP
     #undef BAKERY_BICUBIC
     #undef LTCGI
+    #undef BAKERY_SHNONLINEAR
 
     #define SPECULAR_HIGHLIGHTS_OFF // TODO: fix precision issues on mobile
     #undef _DETAILALBEDO_MAP
@@ -44,19 +45,10 @@
 #endif
 
 
-#if defined(BAKERY_SH) || defined(BAKERY_RNM) || defined(BAKERY_VOLUME)
-    #ifdef BAKERY_SH
-        #ifndef SHADER_API_MOBILE
-            #define BAKERY_SHNONLINEAR
-        #endif
-    #endif
-
+#if defined(BAKERY_SH) || defined(BAKERY_RNM)
     #define NEED_PARALLAX_DIR
     
     #ifdef BAKEDSPECULAR
-        #define _BAKERY_LMSPEC
         #define BAKERY_LMSPEC
     #endif
-
-    #include "../CGIncludes/Bakery.cginc"
 #endif

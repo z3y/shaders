@@ -1,6 +1,6 @@
 #ifndef BICUBIC_SAMPLING_INCLUDED
 #define BICUBIC_SAMPLING_INCLUDED
-//https://ndotl.wordpress.com/2018/08/29/baking-artifact-free-lightmaps
+// https://ndotl.wordpress.com/2018/08/29/baking-artifact-free-lightmaps
 // bicubicw0, bicubicw1, bicubicw2, and bicubicw3 are the four cubic B-spline basis functions
 float bicubicw0(float a)
 {
@@ -50,7 +50,7 @@ float bicubich1(float a)
 
 half4 SampleBicubic(Texture2D t, SamplerState s, float2 uv, float2 widthHeight, float2 texelSize)
 {
-    #ifdef SHADER_API_MOBILE
+    #if defined(SHADER_API_MOBILE) || !defined(BICUBIC_LIGHTMAP)
         return t.Sample(s, uv);
     #else
 

@@ -119,7 +119,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         
     #endif
 
-    surf.albedo.rgb = lerp(dot(surf.albedo.rgb, grayscaleVec), surf.albedo.rgb, _AlbedoSaturation);
+    surf.albedo.rgb = lerp(dot(surf.albedo.rgb, GRAYSCALE), surf.albedo.rgb, _AlbedoSaturation);
     
     #if defined(EMISSION)
         float3 emissionMap = 1.0;

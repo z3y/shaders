@@ -54,6 +54,7 @@ namespace z3y.Shaders
             DrawToggle(ref ShaderConfig.BICUBIC_LIGHTMAP, "Bicubic Lightmap");
             DrawToggle(ref ShaderConfig.BAKERY_RNM, "Bakery RNM");
             DrawToggle(ref ShaderConfig.BAKERY_SH, "Bakery SH");
+            DrawToggle(ref ShaderConfig.BAKERY_SHNONLINEAR, "Bakery SH Non-Linear ");
 
             EditorGUILayout.Space();
             DrawToggle(ref ShaderConfig.VERTEXLIGHT_ON, "Allow Non-Important Lights (Multicompile)");
@@ -89,6 +90,7 @@ namespace z3y.Shaders
         public static bool NONLINEAR_LIGHTPROBESH;
         public static bool BAKERY_RNM;
         public static bool BAKERY_SH;
+        public static bool BAKERY_SHNONLINEAR = true;
         public static bool BICUBIC_LIGHTMAP = true;
         public static bool LOD_FADE_CROSSFADE;
         public static bool UNITY_SPECCUBE_BLENDING = true;
@@ -142,6 +144,7 @@ namespace z3y.Shaders
             sb.AppendLine(ShaderConfig.NEED_CENTROID_NORMAL ? Define + "NEED_CENTROID_NORMAL" : "");
             sb.AppendLine(ShaderConfig.BAKERY_RNM ? $"{Define}BAKERY_RNM{NewLine}{SkipVariant}BAKERY_RNM" : "");
             sb.AppendLine(ShaderConfig.BAKERY_SH ? $"{Define}BAKERY_SH{NewLine}{SkipVariant}BAKERY_SH" : "");
+            sb.AppendLine(ShaderConfig.BAKERY_SHNONLINEAR ? $"{Define}BAKERY_SHNONLINEAR" : "");
             sb.AppendLine(ShaderConfig.BICUBIC_LIGHTMAP ? Define + "BICUBIC_LIGHTMAP" : "");
             sb.AppendLine(ShaderConfig.LOD_FADE_CROSSFADE ? "" : SkipVariant + "LOD_FADE_CROSSFADE");
             sb.AppendLine(ShaderConfig.UNITY_SPECCUBE_BLENDING ? "" : Undef + "UNITY_SPECCUBE_BLENDING");

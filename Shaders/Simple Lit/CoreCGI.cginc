@@ -51,7 +51,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     half3 indirectSpecular = 0.0;
     half3 directSpecular = 0.0;
 
-    #if !defined(SHADER_API_MOBILE) && !defined(LIGHTMAP_ON)
+    #if !defined(LIGHTMAP_ON)
     UNITY_FLATTEN
     if (!facing)
     {
@@ -113,13 +113,16 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
         float2 lightmapUV = i.coord0.zw * unity_LightmapST.xy + unity_LightmapST.zw;
         half4 bakedColorTex = SampleBicubic(unity_Lightmap, samplerunity_Lightmap, lightmapUV);
-        //half3 lightMap = tex2DFastBicubicLightmap(lightmapUV, bakedColorTex);
         half3 lightMap = DecodeLightmap(bakedColorTex);
 
         #ifdef BAKERY_RNM
-            half3 rnm0 = DecodeLightmap(BakeryTex2D(_RNM0, lightmapUV, _RNM0_TexelSize));
-            half3 rnm1 = DecodeLightmap(BakeryTex2D(_RNM1, lightmapUV, _RNM0_TexelSize));
-            half3 rnm2 = DecodeLightmap(BakeryTex2D(_RNM2, lightmapUV, _RNM0_TexelSize));
+            half3 rnm0 = DecodeLightmap(_RNM0.Sample(sampler_RNM0, lightmapUV));
+            half3 rnm1 = DecodeLightmap(_RNM1.Sample(sampler_RNM1, lightmapUV));
+            half3 rnm2 = DecodeLightmap(_RNM2.Sample(sampler_RNM2, lightmapUV));
+
+            const float3 rnmBasis0 = float3(0.816496580927726f, 0.0f, 0.5773502691896258f);
+            const float3 rnmBasis1 = float3(-0.4082482904638631f, 0.7071067811865475f, 0.5773502691896258f);
+            const float3 rnmBasis2 = float3(-0.4082482904638631f, -0.7071067811865475f, 0.5773502691896258f);
 
             lightMap =    saturate(dot(rnmBasis0, tangentNormalInv)) * rnm0
                         + saturate(dot(rnmBasis1, tangentNormalInv)) * rnm1
@@ -128,10 +131,9 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
         #ifdef BAKERY_SH
             half3 L0 = lightMap;
-
-            half3 nL1x = BakeryTex2D(_RNM0, lightmapUV, _RNM0_TexelSize) * 2.0 - 1.0;
-            half3 nL1y = BakeryTex2D(_RNM1, lightmapUV, _RNM0_TexelSize) * 2.0 - 1.0;
-            half3 nL1z = BakeryTex2D(_RNM2, lightmapUV, _RNM0_TexelSize) * 2.0 - 1.0;
+            half3 nL1x = _RNM0.Sample(sampler_RNM0, lightmapUV) * 2.0 - 1.0;
+            half3 nL1y = _RNM1.Sample(sampler_RNM1, lightmapUV) * 2.0 - 1.0;
+            half3 nL1z = _RNM2.Sample(sampler_RNM2, lightmapUV) * 2.0 - 1.0;
             half3 L1x = nL1x * L0 * 2.0;
             half3 L1y = nL1y * L0 * 2.0;
             half3 L1z = nL1z * L0 * 2.0;
@@ -141,7 +143,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                 float lumaL1x = dot(L1x, float(1));
                 float lumaL1y = dot(L1y, float(1));
                 float lumaL1z = dot(L1z, float(1));
-                float lumaSH = shEvaluateDiffuseL1Geomerics(lumaL0, float3(lumaL1x, lumaL1y, lumaL1z), worldNormal);
+                float lumaSH = shEvaluateDiffuseL1Geomerics_local(lumaL0, float3(lumaL1x, lumaL1y, lumaL1z), worldNormal);
 
                 lightMap = L0 + worldNormal.x * L1x + worldNormal.y * L1y + worldNormal.z * L1z;
                 float regularLumaSH = dot(lightMap, 1.0);
@@ -278,9 +280,9 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #ifdef BAKERY_RNM
         {
             float3 viewDirT = -normalize(i.parallaxViewDir);
-            float3 dominantDirT = rnmBasis0 * dot(rnm0, lumaConv) +
-                                  rnmBasis1 * dot(rnm1, lumaConv) +
-                                  rnmBasis2 * dot(rnm2, lumaConv);
+            float3 dominantDirT = rnmBasis0 * dot(rnm0, GRAYSCALE) +
+                                  rnmBasis1 * dot(rnm1, GRAYSCALE) +
+                                  rnmBasis2 * dot(rnm2, GRAYSCALE);
 
             float3 dominantDirTN = normalize(dominantDirT);
             half3 specColor = saturate(dot(rnmBasis0, dominantDirTN)) * rnm0 +
@@ -296,7 +298,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
         #ifdef BAKERY_SH
         {
-            float3 dominantDir = float3(dot(nL1x, lumaConv), dot(nL1y, lumaConv), dot(nL1z, lumaConv));
+            float3 dominantDir = float3(dot(nL1x, GRAYSCALE), dot(nL1y, GRAYSCALE), dot(nL1z, GRAYSCALE));
             half3 halfDir = Unity_SafeNormalize(normalize(dominantDir) + viewDir);
             half NoH = saturate(dot(worldNormal, halfDir));
             half spec = D_GGX(NoH, clampedRoughness);
