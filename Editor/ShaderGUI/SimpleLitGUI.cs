@@ -81,6 +81,7 @@ namespace z3y.Shaders
         private MaterialProperty _DetailSmoothnessPacking = null;
         private MaterialProperty _DetailSmoothnessPackingChannel = null;
         private MaterialProperty _DetailSmoothnessPackingInvert = null;
+        private MaterialProperty _DetailAlbedoAlpha = null;
         #endregion
 
         private void DrawProperties(Material material, MaterialEditor me)
@@ -149,11 +150,19 @@ namespace z3y.Shaders
                 return;
             }
 
-            Prop(_DetailAlbedoMap, _DetailAlbedoScale);
+            Prop(_DetailAlbedoAlpha);
+            Prop(_DetailAlbedoMap, _DetailAlbedoScale, null, _DetailAlbedoAlpha.floatValue == 1 ? "Albedo & Mask" : null);
             DrawDetailAlbedoPacking(material);
-            EditorGUI.indentLevel += 2;
-            Prop(_DetailSmoothnessScale);
-            EditorGUI.indentLevel -= 2;
+            if (_DetailAlbedoAlpha.floatValue == 0)
+            {
+                EditorGUI.indentLevel += 2;
+                Prop(_DetailSmoothnessScale);
+                EditorGUI.indentLevel -= 2;
+            }
+            else
+            {
+                _DetailSmoothnessScale.floatValue = 0f;
+            }
 
             Prop(_DetailNormalMap, _DetailNormalScale);
             me.TextureScaleOffsetProperty(_DetailAlbedoMap);
@@ -337,7 +346,8 @@ namespace z3y.Shaders
             PropertyGroup(() =>
             {
                 Prop(_DetailAlbedoPacking);
-                Prop(_DetailSmoothnessPacking, _DetailSmoothnessPackingChannel, _DetailSmoothnessPackingInvert, _DetailSmoothnessPackingInvert.floatValue == 1 ? "Roughness Map" : null);
+                Prop(_DetailSmoothnessPacking, _DetailSmoothnessPackingChannel, _DetailSmoothnessPackingInvert,
+                _DetailAlbedoAlpha.floatValue == 1 ? "Mask Map" : _DetailSmoothnessPackingInvert.floatValue == 1 ? "Roughness Map" : null);
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button("Pack"))
                 {

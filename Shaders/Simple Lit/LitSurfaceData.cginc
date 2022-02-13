@@ -76,22 +76,27 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
         detailUV = (detailUV * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset;
 
-        float detailMask = maskMap.b;
         float4 detailMap = 0.5;
         float3 detailAlbedo = 0.0;
         float detailSmoothness = 0.0;
         
         #if defined(_DETAILALBEDO_MAP)
-            float4 detailAlbedoTex = SampleTexture(_DetailAlbedoMap, sampler_DetailAlbedoMap, detailUV) * 2.0 - 1.0;
+            float4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap, sampler_DetailAlbedoMap, detailUV);
+            float4 detailAlbedoTex = sampledDetailAlbedo * 2.0 - 1.0;
             detailAlbedo = detailAlbedoTex.rgb;
             detailSmoothness = detailAlbedoTex.a;
+        #else
+            float4 sampledDetailAlbedo = half4(0.5, 0.5, 0.5, 1);
         #endif
+
+        float detailMask = _DetailAlbedoAlpha == 0.0 ? maskMap.b : sampledDetailAlbedo.a;
 
         #if defined(_DETAILNORMAL_MAP)
             float4 detailNormalMap = SampleTexture(_DetailNormalMap, sampler_DetailNormalMap, detailUV);
-            float3 detailNormal = UNPACK_NORMAL(detailNormalMap, _DetailNormalScale * maskMap.b);
+            float3 detailNormal = UNPACK_NORMAL(detailNormalMap, _DetailNormalScale * detailMask);
             surf.tangentNormal = BlendNormals(surf.tangentNormal, detailNormal);
         #endif
+
         
         #if defined(_DETAILALBEDO_MAP)
             // Goal: we want the detail albedo map to be able to darken down to black and brighten up to white the surface albedo.
