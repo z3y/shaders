@@ -48,19 +48,27 @@ namespace z3y.Shaders
             EditorGUILayout.Space();
 
             EditorGUILayout.LabelField("Global Toggles", EditorStyles.boldLabel);
-            DrawToggle(ref ShaderConfig.NONLINEAR_LIGHTPROBESH, "Non-Linear Light Probe SH");
             DrawToggle(ref ShaderConfig.VERTEXLIGHT_PS, "Non-Important Lights per Pixel");
             DrawToggle(ref ShaderConfig.NEED_CENTROID_NORMAL, "Centroid Normal Sampling");
             DrawToggle(ref ShaderConfig.BICUBIC_LIGHTMAP, "Bicubic Lightmap");
-            DrawToggle(ref ShaderConfig.BAKERY_RNM, "Bakery RNM");
-            DrawToggle(ref ShaderConfig.BAKERY_SH, "Bakery SH");
-            DrawToggle(ref ShaderConfig.BAKERY_SHNONLINEAR, "Bakery SH Non-Linear ");
 
             EditorGUILayout.Space();
-            DrawToggle(ref ShaderConfig.VERTEXLIGHT_ON, "Allow Non-Important Lights (Multicompile)");
-            DrawToggle(ref ShaderConfig.LOD_FADE_CROSSFADE, "Allow Dithered Lod Cross-Fade (Multicompile)");
+            DrawToggle(ref ShaderConfig.BAKERY_RNM, "Bakery RNM");
+            DrawToggle(ref ShaderConfig.BAKERY_SH, "Bakery SH");
+            DrawToggle(ref ShaderConfig.BAKERY_SHNONLINEAR, "Bakery Lightmap SH Non-Linear ");
+            DrawToggle(ref ShaderConfig.NONLINEAR_LIGHTPROBESH, "Non-Linear Light Probe SH");
+
+            EditorGUILayout.Space();
             DrawToggle(ref ShaderConfig.UNITY_SPECCUBE_BLENDING, "Allow Reflection Probe Blending");
             DrawToggle(ref ShaderConfig.UNITY_LIGHT_PROBE_PROXY_VOLUME, "Allow Light Probe Proxy Volumes");
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Multi Compiles", EditorStyles.boldLabel);
+            DrawToggle(ref ShaderConfig.VERTEXLIGHT_ON, "Allow Non-Important Lights");
+            DrawToggle(ref ShaderConfig.LOD_FADE_CROSSFADE, "Allow Dithered Lod Cross-Fade");
+
+            EditorGUILayout.Space();
+            EditorGUILayout.HelpBox("Changing settings above will cause the shader to recompile at build", MessageType.Info);
 
 
 
