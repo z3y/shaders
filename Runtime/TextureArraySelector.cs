@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace z3y.Shaders
 {
-    [ExecuteInEditMode]
+    [ExecuteInEditMode, AddComponentMenu("z3y/Array Index UV")]
     public class TextureArraySelector : MonoBehaviour
     {
         public List<int> index = new List<int>();
