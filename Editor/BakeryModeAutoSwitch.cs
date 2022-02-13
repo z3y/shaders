@@ -49,6 +49,7 @@ namespace z3y.Shaders
                     
                     material.ToggleKeyword("BAKERY_RNM", bakeryMode == 2);
                     material.ToggleKeyword("BAKERY_SH", bakeryMode == 3);
+                    SimpleLitGUI.ApplyChanges(material);
                 }
             }
             

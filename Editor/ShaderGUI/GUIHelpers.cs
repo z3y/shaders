@@ -122,13 +122,16 @@ namespace z3y.Shaders
             if (property is null) return;
             if (property.type == MaterialProperty.PropType.Texture) 
             {
+                if (extraProperty2 != null)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                }
+
                 string[] p = property.displayName.Split(':');
-                EditorGUILayout.BeginHorizontal();
                 me.TexturePropertySingleLine(new GUIContent(nameOverride ?? p[0], p.Length == 2 ? p[1] : null), property, extraProperty);
 
                 if (extraProperty2 == null)
                 {
-                    EditorGUILayout.EndHorizontal();
                     return;
                 }
 				
@@ -230,7 +233,6 @@ namespace z3y.Shaders
 	                material.SetupTransparentMaterial();
 	                material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.DstColor);
 	                material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
-	                material.SetInt("_AlphaToMask", 0);
 	                break;
             }
         }

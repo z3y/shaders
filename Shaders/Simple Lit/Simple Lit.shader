@@ -88,17 +88,16 @@ Shader "Simple Lit"
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Int) = 2
         [Enum(Off, 0, On, 1)] _AlphaToMask ("Alpha To Coverage", Int) = 0
 
-        [KeywordEnum(None, SH, RNM)] Bakery ("Bakery Mode", Int) = 0
+        [Enum(None, 0, SH, 1, RNM, 2)] Bakery ("Bakery Mode", Int) = 0
             _RNM0("RNM0", 2D) = "black" {}
             _RNM1("RNM1", 2D) = "black" {}
             _RNM2("RNM2", 2D) = "black" {}
 
         [Enum(Default, 0, Texture Array, 1, Texture Array Instanced, 2)] _Texture ("Sampling Mode", Int) = 0
-        _TextureIndex("Array Index", Int) = 0
-
-        [HideInInspector] [ToggleOff(BAKERY_NONE)] _KeywordOffBakery ("", Float) = 1
+            _TextureIndex("Array Index", Int) = 0
 
         [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
+
     }
 
 CGINCLUDE

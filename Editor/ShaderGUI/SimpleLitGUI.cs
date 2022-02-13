@@ -491,7 +491,7 @@ namespace z3y.Shaders
         
 
         // On inspector change
-        private static void ApplyChanges(Material m)
+        public static void ApplyChanges(Material m)
         {
             SetupGIFlags(m.GetFloat("_EnableEmission"), m);
 
@@ -516,6 +516,10 @@ namespace z3y.Shaders
                 m.ToggleKeyword("_MASK_MAP", m.GetTexture("_MetallicGlossMap"));
                 m.ToggleKeyword("_NORMAL_MAP", m.GetTexture("_BumpMap"));
             }
+
+            int bakeryMode = (int)m.GetFloat("Bakery");
+            m.ToggleKeyword("BAKERY_RNM", bakeryMode == 2);
+            m.ToggleKeyword("BAKERY_SH", bakeryMode == 3);
 
             m.ToggleKeyword("_DETAILALBEDO_MAP", m.GetTexture("_DetailAlbedoMap"));
             m.ToggleKeyword("_DETAILNORMAL_MAP", m.GetTexture("_DetailNormalMap"));
