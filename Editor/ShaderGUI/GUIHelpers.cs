@@ -11,7 +11,7 @@ namespace z3y.Shaders
 		public static Texture2D groupTex = (Texture2D)Resources.Load(EditorGUIUtility.isProSkin ? "z3y_shaders_foldout_group" : "z3y_shaders_foldout_group_light", typeof(Texture2D));
         public static bool DrawGroupFoldout(Material material, string title, bool defaultValue)
         {
-            var tagName = $"z3y_group_foldout_{title}";
+            var tagName = $"z3y_group_foldout_{title.Replace(' ', '_')}";
             bool isOpen = material.HasProperty(tagName) ? material.GetFloat(tagName) == 1 : defaultValue;
             var HeaderHeight = 18;
             var style = new GUIStyle("BoldLabel")

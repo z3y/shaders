@@ -99,6 +99,10 @@ Shader "Simple Lit"
 
         [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
 
+        // where else do I save this?
+        z3y_group_foldout_Main_Maps("", Int) = 1
+        z3y_group_foldout_Detail_Maps("", Int) = 0
+        z3y_group_foldout_Rendering_Options("", Int) = 0
     }
 
 CGINCLUDE
