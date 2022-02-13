@@ -13,7 +13,7 @@ namespace z3y.Shaders
     {
         public int Index = 0;
         public Color BaseColor;
-        public Color EmissionColor;
+        [ColorUsage(false, true)] public Color EmissionColor;
         public Vector2 Tiling;
         public Vector2 Offset;
 
