@@ -139,9 +139,16 @@ float BlendMode_Overlay(float base, float blend)
 // }
 
 // optimized without unnecessary casting
+
 float3 BlendMode_Overlay(float3 base, float3 blend)
 {
 	return (base <= 0.5) ? 2*base*blend : 1 - 2*(1-base)*(1-blend);
+}
+
+float3 BlendMode_Overlay_sRGB(float3 base, float3 blend)
+{
+	base = sqrt(base);
+	return BlendMode_Overlay(base, blend);
 }
 
 //******************************************************************************

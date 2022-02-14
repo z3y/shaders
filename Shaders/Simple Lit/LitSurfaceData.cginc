@@ -108,7 +108,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
                 surf.albedo = lerp(surf.albedo, sampledDetailAlbedo.rgb, detailMask * _DetailAlbedoScale);
                 surf.perceptualRoughness = lerp(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a, detailMask * _DetailSmoothnessScale);
             #else // default overlay
-                surf.albedo = lerp(surf.albedo, BlendMode_Overlay(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale);
+                surf.albedo = lerp(surf.albedo, BlendMode_Overlay_sRGB(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale);
                 surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Overlay(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
             #endif
         #endif
