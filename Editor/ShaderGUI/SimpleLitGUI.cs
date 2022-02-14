@@ -529,7 +529,7 @@ namespace z3y.Shaders
 
             int bakeryMode = (int)m.GetFloat("Bakery");
             m.ToggleKeyword("BAKERY_RNM", bakeryMode == 2);
-            m.ToggleKeyword("BAKERY_SH", bakeryMode == 3);
+            m.ToggleKeyword("BAKERY_SH", bakeryMode == 1);
 
             m.ToggleKeyword("_DETAILALBEDO_MAP", m.GetTexture("_DetailAlbedoMap"));
             m.ToggleKeyword("_DETAILNORMAL_MAP", m.GetTexture("_DetailNormalMap"));
