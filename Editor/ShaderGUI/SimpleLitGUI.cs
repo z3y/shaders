@@ -83,7 +83,6 @@ namespace z3y.Shaders
         private MaterialProperty _DetailSmoothnessPackingInvert = null;
         private MaterialProperty _DetailAlbedoAlpha = null;
         private MaterialProperty _Ior = null;
-        private MaterialProperty _Refraction = null;
         #endregion
 
         private void DrawProperties(Material material, MaterialEditor me)
@@ -99,18 +98,12 @@ namespace z3y.Shaders
             {
                 return;
             }
-            Prop(_SpecularHighlights);
             Prop(_GlossyReflections);
-            if (_GlossyReflections.floatValue == 1)
+            if (_GlossyReflections.floatValue == 2)
             {
-                Prop(_Refraction);
-                if (_Refraction.floatValue == 1)
-                {
-                    Prop(_Ior);
-                }
+                Prop(_Ior);
             }
-            EditorGUILayout.Space();
-
+            Prop(_SpecularHighlights);
             Prop(_GSAA);
             if (_GSAA.floatValue == 1)
             {
@@ -545,6 +538,10 @@ namespace z3y.Shaders
 
             m.ToggleKeyword("_DETAILALBEDO_MAP", m.GetTexture("_DetailAlbedoMap"));
             m.ToggleKeyword("_DETAILNORMAL_MAP", m.GetTexture("_DetailNormalMap"));
+
+            var reflections = m.GetFloat("_GlossyReflections");
+            m.ToggleKeyword("REFLECTIONS_OFF", reflections == 0);
+            m.ToggleKeyword("_REFRACTION", reflections == 2);
 
 #if !LTCGI_INCLUDED
             m.SetFloat("_LTCGI", 0f);

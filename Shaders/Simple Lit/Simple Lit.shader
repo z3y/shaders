@@ -43,7 +43,7 @@ Shader "Simple Lit"
             _BumpScale ("Bump Scale", Float) = 1
 
         [ToggleOff(SPECULAR_HIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
-        [ToggleOff(REFLECTIONS_OFF)] _GlossyReflections("Reflections", Float) = 1
+        [Enum(Off, 0, Reflect, 1, Refract, 2)] _GlossyReflections ("Reflection Probes", Float) = 1
 
         _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
 
@@ -98,7 +98,6 @@ Shader "Simple Lit"
             _TextureIndex("Array Index", Int) = 0
 
         [PowerSlider(0.333)] _Ior ("IOR", Range(0,1)) = 0.98
-        [Toggle(_REFRACTION)] _Refraction ("Refraction", Int) = 0
 
 
         [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
