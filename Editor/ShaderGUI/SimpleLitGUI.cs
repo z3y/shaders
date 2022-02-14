@@ -82,6 +82,8 @@ namespace z3y.Shaders
         private MaterialProperty _DetailSmoothnessPackingChannel = null;
         private MaterialProperty _DetailSmoothnessPackingInvert = null;
         private MaterialProperty _DetailAlbedoAlpha = null;
+        private MaterialProperty _Ior = null;
+        private MaterialProperty _Refraction = null;
         #endregion
 
         private void DrawProperties(Material material, MaterialEditor me)
@@ -97,8 +99,18 @@ namespace z3y.Shaders
             {
                 return;
             }
-            Prop(_GlossyReflections);
             Prop(_SpecularHighlights);
+            Prop(_GlossyReflections);
+            if (_GlossyReflections.floatValue == 1)
+            {
+                Prop(_Refraction);
+                if (_Refraction.floatValue == 1)
+                {
+                    Prop(_Ior);
+                }
+            }
+            EditorGUILayout.Space();
+
             Prop(_GSAA);
             if (_GSAA.floatValue == 1)
             {

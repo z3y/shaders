@@ -200,12 +200,11 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
         pixelLight *= UnityComputeForwardShadows(lightmapUV, i.worldPos, i.screenPos);
     #endif
-
+    
     half3 f0 = 0.16 * surf.reflectance * surf.reflectance * (1.0 - surf.metallic) + surf.albedo.rgb * surf.metallic;
 
     half2 dfg = SampleDFG(NoV, surf.perceptualRoughness).rg;
     half3 energyCompensation = EnvBRDFEnergyCompensation(dfg, f0);
-
 
 
     half roughness = surf.perceptualRoughness * surf.perceptualRoughness;
@@ -327,7 +326,12 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
   
     #if defined(UNITY_PASS_FORWARDBASE)
         #if !defined(REFLECTIONS_OFF)
-            float3 reflDir = reflect(-viewDir, worldNormal);
+
+            #ifdef _REFRACTION
+                float3 reflDir = refract(-viewDir, worldNormal, _Ior);
+            #else
+                float3 reflDir = reflect(-viewDir, worldNormal);
+            #endif
 
             #ifndef SHADER_API_MOBILE
                 reflDir = lerp(reflDir, worldNormal, roughness * roughness);
@@ -350,13 +354,18 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                 }
             #endif
 
+            float horizon = min(1.0 + dot(reflDir, worldNormal), 1.0);
             half specularOcclusion = lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
-            #ifndef SHADER_API_MOBILE
-                float horizon = min(1.0 + dot(reflDir, worldNormal), 1.0);
-                dfg.x *= specularOcclusion;
-                indirectSpecular = indirectSpecular * horizon * horizon * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
+
+            #ifdef _REFRACTION
+                indirectSpecular = indirectSpecular * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
             #else
-                indirectSpecular = probe0 * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0) * specularOcclusion;
+                #ifndef SHADER_API_MOBILE
+                    dfg.x *= specularOcclusion;
+                    indirectSpecular = indirectSpecular * horizon * horizon * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
+                #else
+                    indirectSpecular = probe0 * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0) * specularOcclusion;
+                #endif
             #endif
 
         #endif

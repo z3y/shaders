@@ -97,6 +97,10 @@ Shader "Simple Lit"
         [Enum(Default, 0, Texture Array, 1, Texture Array Instanced, 2)] _Texture ("Sampling Mode", Int) = 0
             _TextureIndex("Array Index", Int) = 0
 
+        [PowerSlider(0.333)] _Ior ("IOR", Range(0,1)) = 0.98
+        [Toggle(_REFRACTION)] _Refraction ("Refraction", Int) = 0
+
+
         [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
 
         // where else do I save this?
@@ -167,6 +171,7 @@ ENDCG
             #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local REFLECTIONS_OFF
+            #pragma shader_feature_local _REFRACTION
             #pragma shader_feature_local EMISSION
             #pragma shader_feature_local BAKEDSPECULAR
             #pragma shader_feature_local PARALLAX

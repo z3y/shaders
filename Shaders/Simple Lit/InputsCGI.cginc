@@ -38,6 +38,7 @@ half _EmissionMultBase;
 half _Texture;
 half _AudioLinkEmission;
 half _DetailAlbedoAlpha;
+half _Ior;
 
 UNITY_INSTANCING_BUFFER_START(InstancedProps)
     UNITY_DEFINE_INSTANCED_PROP(float, _TextureIndex)
