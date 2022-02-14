@@ -171,7 +171,6 @@ namespace z3y.Shaders
             {
                 _DetailSmoothnessScale.floatValue = 0f;
             }
-            EditorGUILayout.Space();
 
             Prop(_DetailNormalMap, _DetailNormalScale);
             me.TextureScaleOffsetProperty(_DetailAlbedoMap);
