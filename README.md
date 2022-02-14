@@ -23,9 +23,9 @@ Download [Unity Package](https://github.com/z3y/shaders/releases) or [latest com
 ### [Documentation](https://github.com/z3y/shaders/wiki/Simple-Lit)
 
 
-![Inspector](https://i.postimg.cc/xYBk8R1p/image.png)
+![Inspector](https://user-images.githubusercontent.com/33181641/153788980-6012e4bf-ebfd-402e-bbbd-c73c558dc549.png)
 
-![Texture Packing](https://i.postimg.cc/1RFDXYhP/image.png)
+![Texture Packing](https://user-images.githubusercontent.com/33181641/153789051-8c5f8b1f-a82e-4ee4-bc4b-0c54dc3091c9.png)
 
 #
 If you want to ask something add me z3y#3214 or join https://discord.gg/bw46tKgRFT
