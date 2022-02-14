@@ -66,7 +66,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     #endif
 
 
-    #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP) || defined(_DETAILALBEDO_MAP_SCREEN) || defined(_DETAILALBEDO_MAP_MULT)
+    #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP) || defined(_DETAILALBEDO_MAP_SCREEN) || defined(_DETAILALBEDO_MAP_MULTX2) || defined(_DETAILALBEDO_MAP_LERP)
 
         float2 detailUV = i.coord0.xy;
         if (_DetailMapUV == 1.0)
@@ -79,7 +79,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         float3 detailAlbedo = 0.0;
         float detailSmoothness = 0.0;
         
-        #if defined(_DETAILALBEDO_MAP) || defined(_DETAILALBEDO_MAP_SCREEN) || defined(_DETAILALBEDO_MAP_MULT)
+        #if defined(_DETAILALBEDO_MAP) || defined(_DETAILALBEDO_MAP_SCREEN) || defined(_DETAILALBEDO_MAP_MULTX2) || defined(_DETAILALBEDO_MAP_LERP)
             float4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap, sampler_DetailAlbedoMap, detailUV);
         #else
             float4 sampledDetailAlbedo = half4(1.0, 1.0, 1.0, 1.0);
@@ -95,17 +95,22 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
         #if defined(_DETAILALBEDO_MAP)
             surf.albedo = lerp(surf.albedo, BlendMode_Overlay(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale);
-            surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Overlay(surf.perceptualRoughness, sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
+            surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Overlay(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
         #endif
         
         #if defined(_DETAILALBEDO_MAP_SCREEN)
             surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale);
-            surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Screen(surf.perceptualRoughness, sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
+            surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Screen(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
         #endif
         
-        #if defined(_DETAILALBEDO_MAP_MULT)
-            surf.albedo = lerp(surf.albedo, BlendMode_Multiply(surf.albedo * 2.0, sampledDetailAlbedo.rgb * 2.0), detailMask * _DetailAlbedoScale);
-            surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Multiply(surf.perceptualRoughness, sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
+        #if defined(_DETAILALBEDO_MAP_MULTX2)
+            surf.albedo = lerp(surf.albedo, BlendMode_MultiplyX2(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale);
+            surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_MultiplyX2(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
+        #endif
+
+        #if defined(_DETAILALBEDO_MAP_LERP)
+            surf.albedo = lerp(surf.albedo, sampledDetailAlbedo.rgb, detailMask * _DetailAlbedoScale);
+            surf.perceptualRoughness = lerp(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a, detailMask * _DetailSmoothnessScale);
         #endif
         
     #endif

@@ -26,6 +26,11 @@ float3 BlendMode_Multiply(float3 base, float3 blend)
 	return base*blend;
 }
 
+float3 BlendMode_MultiplyX2(float3 base, float3 blend)
+{
+	return base * blend * unity_ColorSpaceDouble.rgb;
+}
+
 //******************************************************************************
 // Looks at the color information in each channel and darkens the base color to 
 // reflect the blend color by increasing the contrast between the two.

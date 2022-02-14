@@ -543,9 +543,9 @@ namespace z3y.Shaders
             var detailBlend = (int)m.GetFloat("_DetailBlendMode");
             m.ToggleKeyword("_DETAILALBEDO_MAP", m.GetTexture("_DetailAlbedoMap") && detailBlend == 0);
             m.ToggleKeyword("_DETAILALBEDO_MAP_SCREEN", m.GetTexture("_DetailAlbedoMap") && detailBlend == 1);
-            m.ToggleKeyword("_DETAILALBEDO_MAP_MULT", m.GetTexture("_DetailAlbedoMap") && detailBlend == 2);
+            m.ToggleKeyword("_DETAILALBEDO_MAP_MULTX2", m.GetTexture("_DetailAlbedoMap") && detailBlend == 2);
+            m.ToggleKeyword("_DETAILALBEDO_MAP_LERP", m.GetTexture("_DetailAlbedoMap") && detailBlend == 3);
             m.ToggleKeyword("_DETAILNORMAL_MAP", m.GetTexture("_DetailNormalMap"));
-
 
 
             var reflections = m.GetFloat("_GlossyReflections");
