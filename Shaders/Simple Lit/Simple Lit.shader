@@ -58,12 +58,13 @@ Shader "Simple Lit"
             [Enum(Disabled, 1000, Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3, Autocorrelator, 27, Filtered Bass, 28)] _AudioLinkEmission ("Audio Link", Int) = 1000
 
         _DetailAlbedoMap ("Albedo & Smoothness", 2D) = "linearGrey" {}
+        [Enum(Overlay, 0, Screen, 1, Multiply X2, 2)] _DetailBlendMode ("Blend Mode", Int) = 0
         [Enum(Detail Smoothness, 0, Detail Mask, 1)] _DetailAlbedoAlpha ("Albedo Alpha", Int) = 0
         [Normal] _DetailNormalMap ("Normal Map", 2D) = "bump" {}
             [Enum(UV0, 0, UV1, 1, UV2, 2)]  _DetailMapUV ("Detail UV", Int) = 0
-            _DetailAlbedoScale ("Albedo", Range(0.0, 2.0)) = 1
-            _DetailNormalScale ("Normal", Float) = 1
-            _DetailSmoothnessScale ("Smoothness", Range(0.0, 2.0)) = 0
+            _DetailAlbedoScale ("Albedo Scale", Range(0.0, 1.0)) = 1
+            _DetailNormalScale ("Normal Scale", Float) = 1
+            _DetailSmoothnessScale ("Smoothness Scale", Range(0.0, 1.0)) = 0
 
         // properties used only for texture packing
         _IsPackingDetailAlbedo ("", Float) = 0
@@ -97,7 +98,7 @@ Shader "Simple Lit"
         [Enum(Default, 0, Texture Array, 1, Texture Array Instanced, 2)] _Texture ("Sampling Mode", Int) = 0
             _TextureIndex("Array Index", Int) = 0
 
-        [PowerSlider(0.333)] _Ior ("IOR", Range(0,1)) = 0.98
+        [PowerSlider(0.333)] _Ior ("Refraction", Range(0,1)) = 0.98 // not real PBR IOR values
 
 
         [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
@@ -180,7 +181,7 @@ ENDCG
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP
-            #pragma shader_feature_local _DETAILALBEDO_MAP
+            #pragma shader_feature_local _ _DETAILALBEDO_MAP _DETAILALBEDO_MAP_SCREEN _DETAILALBEDO_MAP_MULT
             #pragma shader_feature_local _DETAILNORMAL_MAP
 
             #pragma shader_feature_local AUDIOLINK
@@ -218,7 +219,7 @@ ENDCG
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP
-            #pragma shader_feature_local _DETAILALBEDO_MAP
+            #pragma shader_feature_local _ _DETAILALBEDO_MAP _DETAILALBEDO_MAP_SCREEN _DETAILALBEDO_MAP_MULT
             #pragma shader_feature_local _DETAILNORMAL_MAP
             
 

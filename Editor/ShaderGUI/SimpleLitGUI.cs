@@ -82,6 +82,7 @@ namespace z3y.Shaders
         private MaterialProperty _DetailSmoothnessPackingChannel = null;
         private MaterialProperty _DetailSmoothnessPackingInvert = null;
         private MaterialProperty _DetailAlbedoAlpha = null;
+        private MaterialProperty _DetailBlendMode = null;
         private MaterialProperty _Ior = null;
         #endregion
 
@@ -111,6 +112,7 @@ namespace z3y.Shaders
                 Prop(_specularAntiAliasingVariance);
                 Prop(_specularAntiAliasingThreshold);
                 EditorGUI.indentLevel -= 1;
+                EditorGUILayout.Space();
             }
             Prop(_Reflectance);
             Prop(_SpecularOcclusion);
@@ -155,6 +157,7 @@ namespace z3y.Shaders
                 return;
             }
 
+            Prop(_DetailBlendMode);
             Prop(_DetailAlbedoAlpha);
             Prop(_DetailAlbedoMap, _DetailAlbedoScale, null, _DetailAlbedoAlpha.floatValue == 1 ? "Albedo & Mask" : null);
             DrawDetailAlbedoPacking(material);
@@ -168,6 +171,7 @@ namespace z3y.Shaders
             {
                 _DetailSmoothnessScale.floatValue = 0f;
             }
+            EditorGUILayout.Space();
 
             Prop(_DetailNormalMap, _DetailNormalScale);
             me.TextureScaleOffsetProperty(_DetailAlbedoMap);
@@ -536,8 +540,13 @@ namespace z3y.Shaders
             m.ToggleKeyword("BAKERY_RNM", bakeryMode == 2);
             m.ToggleKeyword("BAKERY_SH", bakeryMode == 1);
 
-            m.ToggleKeyword("_DETAILALBEDO_MAP", m.GetTexture("_DetailAlbedoMap"));
+            var detailBlend = (int)m.GetFloat("_DetailBlendMode");
+            m.ToggleKeyword("_DETAILALBEDO_MAP", m.GetTexture("_DetailAlbedoMap") && detailBlend == 0);
+            m.ToggleKeyword("_DETAILALBEDO_MAP_SCREEN", m.GetTexture("_DetailAlbedoMap") && detailBlend == 1);
+            m.ToggleKeyword("_DETAILALBEDO_MAP_MULT", m.GetTexture("_DetailAlbedoMap") && detailBlend == 2);
             m.ToggleKeyword("_DETAILNORMAL_MAP", m.GetTexture("_DetailNormalMap"));
+
+
 
             var reflections = m.GetFloat("_GlossyReflections");
             m.ToggleKeyword("REFLECTIONS_OFF", reflections == 0);

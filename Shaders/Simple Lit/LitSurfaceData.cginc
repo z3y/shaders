@@ -66,7 +66,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     #endif
 
 
-    #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
+    #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP) || defined(_DETAILALBEDO_MAP_SCREEN) || defined(_DETAILALBEDO_MAP_MULT)
 
         float2 detailUV = i.coord0.xy;
         if (_DetailMapUV == 1.0)
@@ -75,18 +75,14 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
             detailUV = i.coord1.xy;
 
         detailUV = (detailUV * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset;
-
         float4 detailMap = 0.5;
         float3 detailAlbedo = 0.0;
         float detailSmoothness = 0.0;
         
-        #if defined(_DETAILALBEDO_MAP)
+        #if defined(_DETAILALBEDO_MAP) || defined(_DETAILALBEDO_MAP_SCREEN) || defined(_DETAILALBEDO_MAP_MULT)
             float4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap, sampler_DetailAlbedoMap, detailUV);
-            float4 detailAlbedoTex = sampledDetailAlbedo * 2.0 - 1.0;
-            detailAlbedo = detailAlbedoTex.rgb;
-            detailSmoothness = detailAlbedoTex.a;
         #else
-            float4 sampledDetailAlbedo = half4(0.5, 0.5, 0.5, 1);
+            float4 sampledDetailAlbedo = half4(1.0, 1.0, 1.0, 1.0);
         #endif
 
         float detailMask = _DetailAlbedoAlpha == 0.0 ? maskMap.b : sampledDetailAlbedo.a;
@@ -97,29 +93,19 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
             surf.tangentNormal = BlendNormals(surf.tangentNormal, detailNormal);
         #endif
 
-        
         #if defined(_DETAILALBEDO_MAP)
-            // Goal: we want the detail albedo map to be able to darken down to black and brighten up to white the surface albedo.
-            // The scale control the speed of the gradient. We simply remap detailAlbedo from [0..1] to [-1..1] then perform a lerp to black or white
-            // with a factor based on speed.
-            // For base color we interpolate in sRGB space (approximate here as square) as it get a nicer perceptual gradient
-
-            float3 albedoDetailSpeed = saturate(abs(detailAlbedo) * _DetailAlbedoScale);
-            float3 baseColorOverlay = lerp(sqrt(surf.albedo.rgb), (detailAlbedo < 0.0) ? float3(0.0, 0.0, 0.0) : float3(1.0, 1.0, 1.0), albedoDetailSpeed * albedoDetailSpeed);
-            baseColorOverlay *= baseColorOverlay;							   
-            // Lerp with details mask
-            surf.albedo.rgb = lerp(surf.albedo.rgb, saturate(baseColorOverlay), detailMask);
+            surf.albedo = lerp(surf.albedo, BlendMode_Overlay(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale);
+            surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Overlay(surf.perceptualRoughness, sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
         #endif
-
-        #if defined(_DETAILALBEDO_MAP)
-            float perceptualSmoothness = (1.0 - surf.perceptualRoughness);
-            // See comment for baseColorOverlay
-            float smoothnessDetailSpeed = saturate(abs(detailSmoothness) * _DetailSmoothnessScale);
-            float smoothnessOverlay = lerp(perceptualSmoothness, (detailSmoothness < 0.0) ? 0.0 : 1.0, smoothnessDetailSpeed);
-            // Lerp with details mask
-            perceptualSmoothness = lerp(perceptualSmoothness, saturate(smoothnessOverlay), detailMask);
-
-            surf.perceptualRoughness = (1.0 - perceptualSmoothness);
+        
+        #if defined(_DETAILALBEDO_MAP_SCREEN)
+            surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale);
+            surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Screen(surf.perceptualRoughness, sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
+        #endif
+        
+        #if defined(_DETAILALBEDO_MAP_MULT)
+            surf.albedo = lerp(surf.albedo, BlendMode_Multiply(surf.albedo * 2.0, sampledDetailAlbedo.rgb * 2.0), detailMask * _DetailAlbedoScale);
+            surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Multiply(surf.perceptualRoughness, sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
         #endif
         
     #endif

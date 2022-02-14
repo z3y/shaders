@@ -137,6 +137,7 @@ v2f vert (appdata v)
 #include "../CGIncludes/MultistepParallax.cginc"
 #include "../CGIncludes/NonImportantLights.cginc"
 #include "../CGIncludes/EnvironmentBRDF.cginc"
+#include "../CGIncludes/BlendModes.cginc"
 #ifdef AUDIOLINK
 #include "../CGIncludes/AudioLink.cginc"
 #endif
