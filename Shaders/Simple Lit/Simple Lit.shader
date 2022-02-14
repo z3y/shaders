@@ -181,8 +181,9 @@ ENDCG
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP
-            #pragma shader_feature_local _ _DETAILALBEDO_MAP _DETAILALBEDO_MAP_SCREEN _DETAILALBEDO_MAP_MULTX2 _DETAILALBEDO_MAP_LERP
+            #pragma shader_feature_local _DETAILALBEDO_MAP
             #pragma shader_feature_local _DETAILNORMAL_MAP
+            #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP
 
             #pragma shader_feature_local AUDIOLINK
             #pragma shader_feature_local LTCGI
@@ -219,8 +220,9 @@ ENDCG
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP
-            #pragma shader_feature_local _ _DETAILALBEDO_MAP _DETAILALBEDO_MAP_SCREEN _DETAILALBEDO_MAP_MULTX2 _DETAILALBEDO_MAP_LERP
+            #pragma shader_feature_local _DETAILALBEDO_MAP
             #pragma shader_feature_local _DETAILNORMAL_MAP
+            #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP
             
 
             

@@ -541,11 +541,11 @@ namespace z3y.Shaders
             m.ToggleKeyword("BAKERY_SH", bakeryMode == 1);
 
             var detailBlend = (int)m.GetFloat("_DetailBlendMode");
-            m.ToggleKeyword("_DETAILALBEDO_MAP", m.GetTexture("_DetailAlbedoMap") && detailBlend == 0);
-            m.ToggleKeyword("_DETAILALBEDO_MAP_SCREEN", m.GetTexture("_DetailAlbedoMap") && detailBlend == 1);
-            m.ToggleKeyword("_DETAILALBEDO_MAP_MULTX2", m.GetTexture("_DetailAlbedoMap") && detailBlend == 2);
-            m.ToggleKeyword("_DETAILALBEDO_MAP_LERP", m.GetTexture("_DetailAlbedoMap") && detailBlend == 3);
+            m.ToggleKeyword("_DETAILALBEDO_MAP", m.GetTexture("_DetailAlbedoMap"));
             m.ToggleKeyword("_DETAILNORMAL_MAP", m.GetTexture("_DetailNormalMap"));
+            m.ToggleKeyword("_DETAILBLEND_SCREEN", detailBlend == 1);
+            m.ToggleKeyword("_DETAILBLEND_MULX2", detailBlend == 2);
+            m.ToggleKeyword("_DETAILBLEND_LERP", detailBlend == 3);
 
 
             var reflections = m.GetFloat("_GlossyReflections");
