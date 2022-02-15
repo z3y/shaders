@@ -316,11 +316,13 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #else
             ltcgi_lmuv = float2(0, 0);
     #endif
+            float3 ltcgiSpecular = 0;
             LTCGI_Contribution(i.worldPos, worldNormal, viewDir, surf.perceptualRoughness, ltcgi_lmuv, indirectDiffuse
     #ifndef SPECULAR_HIGHLIGHTS_OFF
-                , directSpecular
+                , ltcgiSpecular
     #endif
             );
+            directSpecular += ltcgiSpecular * fresnel;
     #endif
 
   
