@@ -73,9 +73,8 @@ Shader "Simple Lit"
         [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _DetailSmoothnessPackingChannel ("", Int) = 0
         [ToggleUI] _DetailSmoothnessPackingInvert ("Invert", Float) = 0
 
-        [Toggle(PARALLAX)] _EnableParallax ("Parallax", Int) = 0
+        _ParallaxMap ("Height Map", 2D) = "white" {}
             _Parallax ("Height Scale", Range (0, 0.2)) = 0.02
-            _ParallaxMap ("Height Map", 2D) = "white" {}
             _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
 
         [Toggle(BAKEDSPECULAR)] _BakedSpecular ("Baked Specular ", Int) = 0

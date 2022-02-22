@@ -41,7 +41,6 @@ namespace z3y.Shaders
         private MaterialProperty _EmissionMap = null;
         private MaterialProperty _EmissionColor = null;
         private MaterialProperty _EmissionMultBase = null;
-        private MaterialProperty _EnableParallax = null;
         private MaterialProperty _Parallax = null;
         private MaterialProperty _ParallaxMap = null;
         private MaterialProperty Bakery = null;
@@ -242,6 +241,19 @@ namespace z3y.Shaders
                 Prop(_BumpMap, _BumpScale);
             }
 
+            if (_ParallaxMap.BoolValue())
+            {
+                Prop(_ParallaxMap, _Parallax);
+                EditorGUI.indentLevel += 2;
+                Prop(_ParallaxOffset);
+                Prop(_ParallaxSteps);
+                EditorGUI.indentLevel -= 2; ;
+            }
+            else
+            {
+                Prop(_ParallaxMap);
+            }
+            sRGBWarning(_ParallaxMap);
 
             Prop(_EnableEmission);
             if (_EnableEmission.BoolValue())
@@ -255,18 +267,6 @@ namespace z3y.Shaders
                 EditorGUI.indentLevel -= 2;
                 EditorGUILayout.Space();
             }
-
-            Prop(_EnableParallax);
-            if (_EnableParallax.BoolValue())
-            {
-                Prop(_ParallaxMap, _Parallax);
-                EditorGUI.indentLevel += 2;
-                Prop(_ParallaxOffset);
-                Prop(_ParallaxSteps);
-                EditorGUI.indentLevel -= 2; ;
-            }
-
-            sRGBWarning(_ParallaxMap);
 
             EditorGUILayout.Space();
             me.TextureScaleOffsetProperty(_MainTex);
@@ -545,6 +545,8 @@ namespace z3y.Shaders
             m.ToggleKeyword("_DETAILBLEND_SCREEN", detailBlend == 1);
             m.ToggleKeyword("_DETAILBLEND_MULX2", detailBlend == 2);
             m.ToggleKeyword("_DETAILBLEND_LERP", detailBlend == 3);
+
+            m.ToggleKeyword("PARALLAX", m.GetTexture("_ParallaxMap"));
 
 
             var reflections = m.GetFloat("_GlossyReflections");
