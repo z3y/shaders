@@ -267,7 +267,10 @@ ENDCG
             #pragma shader_feature_local EMISSION
             #pragma shader_feature_local AUDIOLINK
 
-            #pragma shader_feature_local _TEXTURE_ARRAY        
+            #pragma shader_feature_local _TEXTURE_ARRAY
+            #pragma shader_feature_local _MASK_MAP
+            #pragma shader_feature_local _DETAILALBEDO_MAP
+            #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP    
 
             #include "PassCGI.cginc"
             ENDCG
