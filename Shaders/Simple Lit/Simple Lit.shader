@@ -43,7 +43,7 @@ Shader "Simple Lit"
             _BumpScale ("Bump Scale", Float) = 1
 
         [ToggleOff(SPECULAR_HIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
-        [Enum(Off, 0, Reflect, 1, Refract, 2)] _GlossyReflections ("Reflection Probes", Float) = 1
+        [ToggleOff(REFLECTIONS_OFF)] _GlossyReflections ("Reflection Probes", Float) = 1
 
         _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
 
@@ -126,7 +126,7 @@ RantEnd*/
 //ShaderConfigBegin
 
 
-#pragma skip_variants VERTEXLIGHT_ON
+
 #define VERTEXLIGHT_PS
 
 
@@ -170,7 +170,6 @@ ENDCG
             #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local REFLECTIONS_OFF
-            #pragma shader_feature_local _REFRACTION
             #pragma shader_feature_local EMISSION
             #pragma shader_feature_local BAKEDSPECULAR
             #pragma shader_feature_local PARALLAX

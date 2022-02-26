@@ -92,7 +92,7 @@ namespace z3y.Shaders
     }
     internal static class ShaderConfig
     {
-        public static bool VERTEXLIGHT_ON;
+        public static bool VERTEXLIGHT_ON = true;
         public static bool VERTEXLIGHT_PS = true;
         public static bool NEED_CENTROID_NORMAL;
         public static bool NONLINEAR_LIGHTPROBESH;
@@ -102,7 +102,7 @@ namespace z3y.Shaders
         public static bool BICUBIC_LIGHTMAP = true;
         public static bool LOD_FADE_CROSSFADE;
         public static bool UNITY_SPECCUBE_BLENDING = true;
-        public static bool UNITY_LIGHT_PROBE_PROXY_VOLUME = false;
+        public static bool UNITY_LIGHT_PROBE_PROXY_VOLUME;
     }
 
     internal static class ShaderConfigData

@@ -549,9 +549,9 @@ namespace z3y.Shaders
             m.ToggleKeyword("PARALLAX", m.GetTexture("_ParallaxMap"));
 
 
-            var reflections = m.GetFloat("_GlossyReflections");
+            /*var reflections = m.GetFloat("_GlossyReflections");
             m.ToggleKeyword("REFLECTIONS_OFF", reflections == 0);
-            m.ToggleKeyword("_REFRACTION", reflections == 2);
+            m.ToggleKeyword("_REFRACTION", reflections == 2);*/
 
 #if !LTCGI_INCLUDED
             m.SetFloat("_LTCGI", 0f);
