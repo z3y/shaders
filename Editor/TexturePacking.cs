@@ -115,6 +115,7 @@ namespace z3y.Shaders
             if (!Directory.Exists(TempTextureFolder)) return;
             Directory.Delete(TempTextureFolder, true);
             File.Delete(TempTextureFolder.Remove(TempTextureFolder.Length-1) + ".meta");
+            AssetDatabase.Refresh();
         }
 
         public class FixImportSettings : AssetPostprocessor
