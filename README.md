@@ -21,7 +21,6 @@ Repository for my Unity shaders for VRChat.
 - Tex2DArray Workflow
 - Non-Important lights per pixel
 - Lod Crossfade
-- Refraction Probes
 - LTCGI
 
 And QoL editor tools like automatic bakery mode switching on all materials, texture packing in inspector, normal map orientation conversion, global toggles
