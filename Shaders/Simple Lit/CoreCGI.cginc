@@ -369,7 +369,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                 dfg.x *= specularOcclusion;
                 indirectSpecular = indirectSpecular * horizon * horizon * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
             #else
-                indirectSpecular = probe0 * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0) * specularOcclusion;
+                indirectSpecular = probe0 * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0, specularOcclusion);
             #endif
 
         #endif
