@@ -291,19 +291,29 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             half3 halfDir = Unity_SafeNormalize(dominantDirTN - viewDirT);
             half NoH = saturate(dot(tangentNormalInv, halfDir));
             half spec = D_GGX(NoH, clampedRoughness);
+
+            #ifdef SHADER_API_MOBILE
             directSpecular += spec * specColor * fresnel;
+            #else
+            directSpecular += spec * specColor * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
+            #endif
         }
         #endif
 
         #ifdef BAKERY_SH
         {
             float3 dominantDir = float3(dot(nL1x, GRAYSCALE), dot(nL1y, GRAYSCALE), dot(nL1z, GRAYSCALE));
-            half3 halfDir = Unity_SafeNormalize(normalize(dominantDir) + viewDir);
+            float3 halfDir = Unity_SafeNormalize(normalize(dominantDir) + viewDir);
             half NoH = saturate(dot(worldNormal, halfDir));
             half spec = D_GGX(NoH, clampedRoughness);
-            float3 sh = L0 + dominantDir.x * L1x + dominantDir.y * L1y + dominantDir.z * L1z;
+            half3 sh = L0 + dominantDir.x * L1x + dominantDir.y * L1y + dominantDir.z * L1z;
             dominantDir = normalize(dominantDir);
+
+            #ifdef SHADER_API_MOBILE
             directSpecular += max(spec * sh, 0.0) * fresnel;
+            #else
+            directSpecular += max(spec * sh, 0.0) * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
+            #endif
         }
         #endif
 
@@ -329,11 +339,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #if defined(UNITY_PASS_FORWARDBASE)
         #if !defined(REFLECTIONS_OFF)
 
-            #ifdef _REFRACTION
-                float3 reflDir = refract(-viewDir, worldNormal, _Ior);
-            #else
-                float3 reflDir = reflect(-viewDir, worldNormal);
-            #endif
+            float3 reflDir = reflect(-viewDir, worldNormal);
 
             #ifndef SHADER_API_MOBILE
                 reflDir = lerp(reflDir, worldNormal, roughness * roughness);
@@ -359,15 +365,11 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             float horizon = min(1.0 + dot(reflDir, worldNormal), 1.0);
             half specularOcclusion = lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
 
-            #ifdef _REFRACTION
-                indirectSpecular = indirectSpecular * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
+            #ifndef SHADER_API_MOBILE
+                dfg.x *= specularOcclusion;
+                indirectSpecular = indirectSpecular * horizon * horizon * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
             #else
-                #ifndef SHADER_API_MOBILE
-                    dfg.x *= specularOcclusion;
-                    indirectSpecular = indirectSpecular * horizon * horizon * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
-                #else
-                    indirectSpecular = probe0 * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0) * specularOcclusion;
-                #endif
+                indirectSpecular = probe0 * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0) * specularOcclusion;
             #endif
 
         #endif
