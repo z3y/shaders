@@ -119,14 +119,22 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     
     #if defined(EMISSION)
         float3 emissionMap = 1.0;
-        emissionMap =  SampleTexture(_EmissionMap, sampler_EmissionMap, mainUV).rgb;
-        
-        emissionMap *= _EmissionMultBase == 1.0 ? surf.albedo.rgb : 1.0;
+
+        UNITY_BRANCH
+        if (_EmissionMap_TexelSize.w > 1.0)
+        {
+            emissionMap = SampleTexture(_EmissionMap, sampler_EmissionMap, mainUV).rgb;
+        }
+
+        emissionMap = lerp(emissionMap, emissionMap * surf.albedo.rgb, _EmissionMultBase);
     
         surf.emission = emissionMap * UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _EmissionColor);
         #if defined(AUDIOLINK)
             surf.emission *= AudioLinkLerp(uint2(1, _AudioLinkEmission)).r;
         #endif
+
+        half3 emissionPulse = sin(_Time.y * _EmissionPulseSpeed) + 1;
+        surf.emission = lerp(surf.emission, surf.emission * emissionPulse, _EmissionPulseIntensity);
     #endif
 
 

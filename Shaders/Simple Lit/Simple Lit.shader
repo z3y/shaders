@@ -53,7 +53,9 @@ Shader "Simple Lit"
 
         [Toggle(EMISSION)] _EnableEmission ("Emission", Int) = 0
             _EmissionMap ("Emission Map", 2D) = "white" {}
-            [ToggleUI] _EmissionMultBase ("Multiply Base", Int) = 0
+            _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
+            _EmissionPulseIntensity ("Pulse Intensity", Range(0,1)) = 0
+            _EmissionPulseSpeed ("Pulse Speed", Float) = 1
             [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
             [Enum(Disabled, 1000, Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3, Autocorrelator, 27, Filtered Bass, 28)] _AudioLinkEmission ("Audio Link", Int) = 1000
 

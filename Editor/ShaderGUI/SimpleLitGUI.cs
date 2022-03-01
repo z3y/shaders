@@ -82,7 +82,8 @@ namespace z3y.Shaders
         private MaterialProperty _DetailSmoothnessPackingInvert = null;
         private MaterialProperty _DetailAlbedoAlpha = null;
         private MaterialProperty _DetailBlendMode = null;
-        private MaterialProperty _Ior = null;
+        private MaterialProperty _EmissionPulseIntensity = null;
+        private MaterialProperty _EmissionPulseSpeed = null;
         #endregion
 
         private void DrawProperties(Material material, MaterialEditor me)
@@ -99,10 +100,6 @@ namespace z3y.Shaders
                 return;
             }
             Prop(_GlossyReflections);
-            if (_GlossyReflections.floatValue == 2)
-            {
-                Prop(_Ior);
-            }
             Prop(_SpecularHighlights);
             Prop(_GSAA);
             if (_GSAA.floatValue == 1)
@@ -258,12 +255,16 @@ namespace z3y.Shaders
             Prop(_EnableEmission);
             if (_EnableEmission.BoolValue())
             {
-                Prop(_EmissionMap, _EmissionColor, _EmissionMultBase);
+                Prop(_EmissionMap, _EmissionColor);
                 EditorGUI.indentLevel += 2;
+                me.LightmapEmissionProperty();
 #if UDON
                 Prop(_AudioLinkEmission);
 #endif
-                me.LightmapEmissionProperty();
+                Prop(_EmissionMultBase);
+                Prop(_EmissionPulseIntensity);
+                Prop(_EmissionPulseSpeed);
+
                 EditorGUI.indentLevel -= 2;
                 EditorGUILayout.Space();
             }
@@ -547,11 +548,6 @@ namespace z3y.Shaders
             m.ToggleKeyword("_DETAILBLEND_LERP", detailBlend == 3);
 
             m.ToggleKeyword("PARALLAX", m.GetTexture("_ParallaxMap"));
-
-
-            /*var reflections = m.GetFloat("_GlossyReflections");
-            m.ToggleKeyword("REFLECTIONS_OFF", reflections == 0);
-            m.ToggleKeyword("_REFRACTION", reflections == 2);*/
 
 #if !LTCGI_INCLUDED
             m.SetFloat("_LTCGI", 0f);

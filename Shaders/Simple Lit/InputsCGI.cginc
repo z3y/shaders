@@ -34,11 +34,15 @@ half _AlbedoSaturation;
 half _SpecularOcclusion;
 half _Cutoff;
 
-half _EmissionMultBase;
 half _Texture;
 half _AudioLinkEmission;
 half _DetailAlbedoAlpha;
-half _Ior;
+
+half4 _EmissionMap_TexelSize;
+half _EmissionMultBase;
+half _EmissionPulseIntensity;
+half _EmissionPulseSpeed;
+
 
 UNITY_INSTANCING_BUFFER_START(InstancedProps)
     UNITY_DEFINE_INSTANCED_PROP(float, _TextureIndex)
