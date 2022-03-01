@@ -53,6 +53,7 @@ Shader "Simple Lit"
 
         [Toggle(EMISSION)] _EnableEmission ("Emission", Int) = 0
             _EmissionMap ("Emission Map", 2D) = "white" {}
+            _EmissionDepth("Depth", Float) = 0
             _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
             _EmissionPulseIntensity ("Pulse Intensity", Range(0,1)) = 0
             _EmissionPulseSpeed ("Pulse Speed", Float) = 1

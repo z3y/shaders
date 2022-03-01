@@ -84,6 +84,7 @@ namespace z3y.Shaders
         private MaterialProperty _DetailBlendMode = null;
         private MaterialProperty _EmissionPulseIntensity = null;
         private MaterialProperty _EmissionPulseSpeed = null;
+        private MaterialProperty _EmissionDepth = null;
         #endregion
 
         private void DrawProperties(Material material, MaterialEditor me)
@@ -257,14 +258,15 @@ namespace z3y.Shaders
             {
                 Prop(_EmissionMap, _EmissionColor);
                 EditorGUI.indentLevel += 2;
-                me.LightmapEmissionProperty();
 #if UDON
                 Prop(_AudioLinkEmission);
 #endif
+                Prop(_EmissionDepth);
                 Prop(_EmissionMultBase);
                 Prop(_EmissionPulseIntensity);
                 Prop(_EmissionPulseSpeed);
 
+                me.LightmapEmissionProperty();
                 EditorGUI.indentLevel -= 2;
                 EditorGUILayout.Space();
             }

@@ -123,7 +123,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         UNITY_BRANCH
         if (_EmissionMap_TexelSize.w > 1.0)
         {
-            emissionMap = SampleTexture(_EmissionMap, sampler_EmissionMap, mainUV).rgb;
+            emissionMap = SampleTexture(_EmissionMap, sampler_EmissionMap, mainUV + ParallaxOffsetUV(_EmissionDepth, i.parallaxViewDir)).rgb;
         }
 
         emissionMap = lerp(emissionMap, emissionMap * surf.albedo.rgb, _EmissionMultBase);

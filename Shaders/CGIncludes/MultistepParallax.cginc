@@ -48,6 +48,25 @@ float2 ParallaxOffset (float3 viewDirForParallax, float2 parallaxUV)
 	return offset;
 }
 
+
+float2 ParallaxOffsetOneStep(half depth, float3 tangentViewDir)
+{
+    float3 uvDelta_stepSize = float3(tangentViewDir.xy * depth, 1);
+    float3 uvOffset_stepHeight = float3(float2(0, 0), 1.0);
+    uvOffset_stepHeight -= uvDelta_stepSize;
+        
+    return uvOffset_stepHeight.xy;
+}
+float2 ParallaxOffsetUV (half depth, float3 viewDirForParallax)
+{
+    viewDirForParallax = CalculateTangentViewDir(viewDirForParallax);
+    float2 offset = ParallaxOffsetOneStep(depth, viewDirForParallax);
+
+	return offset;
+}
+
+
+
 // parallax from mochie
 // https://github.com/MochiesCode/Mochies-Unity-Shaders/blob/7d48f101d04dac11bd4702586ee838ca669f426b/Mochie/Standard%20Shader/MochieStandardParallax.cginc#L13
 // MIT License

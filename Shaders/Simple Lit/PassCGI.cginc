@@ -35,7 +35,7 @@ struct v2f
     float3 worldNormal : TEXCOORD4;
     float4 worldPos : TEXCOORD5;
 
-    #if defined(PARALLAX) || defined(BAKERYLM_ENABLED)
+    #if defined(PARALLAX) || defined(BAKERYLM_ENABLED) || defined(EMISSION)
         float3 parallaxViewDir : TEXCOORD6;
     #endif
 
@@ -106,7 +106,7 @@ v2f vert (appdata v)
         o.color = v.color;
     #endif
 
-    #if defined(PARALLAX) || defined(BAKERYLM_ENABLED)
+    #if defined(PARALLAX) || defined(BAKERYLM_ENABLED) || defined(EMISSION)
         TANGENT_SPACE_ROTATION;
         o.parallaxViewDir = mul (rotation, ObjSpaceViewDir(v.vertex));
     #endif

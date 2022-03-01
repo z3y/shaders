@@ -40,6 +40,7 @@ half _DetailAlbedoAlpha;
 
 half4 _EmissionMap_TexelSize;
 half _EmissionMultBase;
+half _EmissionDepth;
 half _EmissionPulseIntensity;
 half _EmissionPulseSpeed;
 
