@@ -258,15 +258,14 @@ namespace z3y.Shaders
             {
                 Prop(_EmissionMap, _EmissionColor);
                 EditorGUI.indentLevel += 2;
-#if UDON
-                Prop(_AudioLinkEmission);
-#endif
                 Prop(_EmissionDepth);
+                me.LightmapEmissionProperty();
+
                 Prop(_EmissionMultBase);
                 Prop(_EmissionPulseIntensity);
                 Prop(_EmissionPulseSpeed);
 
-                me.LightmapEmissionProperty();
+                Prop(_AudioLinkEmission);
                 EditorGUI.indentLevel -= 2;
                 EditorGUILayout.Space();
             }
