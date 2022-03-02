@@ -25,7 +25,7 @@ Repository for my Unity shaders for VRChat.
 
 And QoL editor tools like automatic bakery mode switching on all materials, texture packing in inspector, normal map orientation conversion, global toggles
 
-### [Documentation](https://github.com/z3y/shaders/wiki/Simple-Lit)
+### [Documentation](https://github.com/z3y/shaders/wiki/Features-Overview)
 
 
 ![Inspector](https://user-images.githubusercontent.com/33181641/153788980-6012e4bf-ebfd-402e-bbbd-c73c558dc549.png)
