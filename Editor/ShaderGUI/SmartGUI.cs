@@ -7,11 +7,9 @@ using UnityEditor;
 using UnityEngine;
 
 
-    
-
 namespace z3y.Shaders
 {
-    public class BetterGUI : ShaderGUI
+    public class SmartGUI : ShaderGUI
     {
         private bool _initialized = false;
         private FieldInfo[] _fieldInfo;
@@ -21,6 +19,7 @@ namespace z3y.Shaders
         public bool drawAll = true;
 
         private MaterialEditor _materialEditor;
+        private MaterialProperty[] _materialProperties;
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] materialProperties)
         {
@@ -34,6 +33,7 @@ namespace z3y.Shaders
                 _initialized = true;
             }
             UpdateProperties(materialProperties);
+            _materialProperties = materialProperties;
 
 
             EditorGUI.BeginChangeCheck();
@@ -45,12 +45,31 @@ namespace z3y.Shaders
         }
 
         public void Draw(MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null, string onHover = null, string nameOverride = null)
-            => Draw(_materialEditor, property, extraProperty, extraProperty2, onHover, nameOverride);
-
-        private static void Draw(MaterialEditor materialEditor, MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null, string onHover = null, string nameOverride = null)
         {
             if (property is null) return;
 
+            Draw(_materialEditor, property, extraProperty, extraProperty2, onHover, nameOverride);
+
+            if (drawAll)
+            {
+                int currentIndex = Array.IndexOf(_materialProperties, property);
+                currentIndex++;
+                if (extraProperty != null) currentIndex++;
+                if (extraProperty2 != null) currentIndex++;
+
+                for (int i = currentIndex; i < _isDrawn.Length; i++)
+                {
+                    if (_isDrawn[i])
+                    {
+                        break;
+                    }
+                    Draw(_materialEditor, _materialProperties[i]);
+                }
+            }
+        }
+
+        private void Draw(MaterialEditor materialEditor, MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null, string onHover = null, string nameOverride = null)
+        {
             if (property.type == MaterialProperty.PropType.Texture)
             {
                 materialEditor.TexturePropertySingleLine(new GUIContent(nameOverride ?? property.displayName, onHover), property, extraProperty, extraProperty2);
@@ -59,8 +78,9 @@ namespace z3y.Shaders
             {
                 materialEditor.ShaderProperty(property, new GUIContent(nameOverride ?? property.displayName, onHover));
             }
-
         }
+
+        /// <summary> Draws a foldout and saves the state in the material property</summary>
         public static bool Foldout(MaterialProperty foldout)
         {
             bool isOpen = foldout.floatValue == 1;
