@@ -6,28 +6,11 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
+
+    
+
 namespace z3y.Shaders
 {
-    public static class BetterGUIExtensions
-    {
-        public static void Draw(this MaterialEditor materialEditor, MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null, string nameOverride = null, string onHover = null)
-        {
-
-            if (property is null) return;
-
-            if (property.type == MaterialProperty.PropType.Texture)
-            {
-                materialEditor.TexturePropertySingleLine(new GUIContent(nameOverride ?? property.displayName, onHover), property, extraProperty, extraProperty2);
-            }
-            else
-            {
-                materialEditor.ShaderProperty(property, new GUIContent(nameOverride ?? property.displayName, onHover));
-            }
-
-        }
-    }
-
-
     public class BetterGUI : ShaderGUI
     {
         private bool _initialized = false;
@@ -37,7 +20,7 @@ namespace z3y.Shaders
 
         public bool drawAll = true;
 
-
+        private MaterialEditor _materialEditor;
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] materialProperties)
         {
@@ -45,6 +28,7 @@ namespace z3y.Shaders
 
             if (!_initialized)
             {
+                _materialEditor = materialEditor;
                 Initialize(materialProperties);
                 OnValidate(material);
                 _initialized = true;
@@ -60,6 +44,33 @@ namespace z3y.Shaders
             };
         }
 
+        public void Draw(MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null, string onHover = null, string nameOverride = null)
+            => Draw(_materialEditor, property, extraProperty, extraProperty2, onHover, nameOverride);
+
+        private static void Draw(MaterialEditor materialEditor, MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null, string onHover = null, string nameOverride = null)
+        {
+            if (property is null) return;
+
+            if (property.type == MaterialProperty.PropType.Texture)
+            {
+                materialEditor.TexturePropertySingleLine(new GUIContent(nameOverride ?? property.displayName, onHover), property, extraProperty, extraProperty2);
+            }
+            else
+            {
+                materialEditor.ShaderProperty(property, new GUIContent(nameOverride ?? property.displayName, onHover));
+            }
+
+        }
+        public static bool Foldout(MaterialProperty foldout)
+        {
+            bool isOpen = foldout.floatValue == 1;
+            GUIHelpers.DrawSplitter();
+            isOpen = GUIHelpers.DrawHeaderFoldout(foldout.displayName, isOpen);
+            foldout.floatValue = isOpen ? 1 : 0;
+            if (isOpen) EditorGUILayout.Space();
+            return isOpen;
+        }
+
         private void Initialize(MaterialProperty[] materialProperties)
         {
             _fieldInfo = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance).Where(x => x.FieldType == typeof(MaterialProperty)).ToArray();
@@ -67,7 +78,7 @@ namespace z3y.Shaders
             
             for (int i = 0; i < _fieldInfo.Length; i++)
             {
-                _index[i] = Array.FindIndex(materialProperties, x => x.name == _fieldInfo[i].Name);
+                _index[i] = Array.FindIndex(materialProperties, x => x.name.Equals(_fieldInfo[i].Name, StringComparison.OrdinalIgnoreCase));
             }
             if (drawAll)
             {
@@ -75,7 +86,7 @@ namespace z3y.Shaders
 
                 for (int i = 0; i < materialProperties.Length; i++)
                 {
-                    _isDrawn[i] = Array.FindIndex(_fieldInfo, x => x.Name == materialProperties[i].name) != -1;
+                    _isDrawn[i] = Array.FindIndex(_fieldInfo, x => x.Name.Equals(materialProperties[i].name, StringComparison.OrdinalIgnoreCase)) != -1;
                 }
 
             }

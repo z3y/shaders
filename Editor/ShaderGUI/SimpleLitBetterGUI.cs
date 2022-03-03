@@ -7,12 +7,21 @@ namespace z3y.Shaders
 {
     public class SimpleLitBetterGUI : BetterGUI
     {
-        private MaterialProperty _MainTex;
-        private MaterialProperty _Color;
+        private MaterialProperty _mainTex;
+        private MaterialProperty _color;
+        private MaterialProperty _glossiness;
+        private MaterialProperty _testFoldout;
 
         public override void OnGUIProperties(MaterialEditor m, MaterialProperty[] materialProperties, Material material)
         {
-            m.Draw(_MainTex, _Color);
+            if (Foldout(_testFoldout))
+            {
+
+                Draw(_mainTex, _color, null, "On Hover");
+            }
+
+            Draw(_glossiness, null, null, "On Hover");
+            
         }
     }
 
@@ -24,9 +33,9 @@ namespace z3y.Shaders
 
         public override void OnGUIProperties(MaterialEditor m, MaterialProperty[] materialProperties, Material material)
         {
-            m.Draw(_Test);
-            m.Draw(_Test23);
-            m.Draw(_Color);
+            Draw(_Test);
+            Draw(_Test23);
+            Draw(_Color);
         }
 
         public override void OnValidate(Material material)
