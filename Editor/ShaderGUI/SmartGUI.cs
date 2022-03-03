@@ -20,18 +20,21 @@ namespace z3y.Shaders
 
         private MaterialEditor _materialEditor;
         private MaterialProperty[] _materialProperties;
+        private int propertyCount = 0;
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] materialProperties)
         {
             var material = materialEditor.target as Material;
 
-            if (!_initialized)
+            if (!_initialized || propertyCount != materialProperties.Length)
             {
                 _materialEditor = materialEditor;
                 Initialize(materialProperties);
                 OnValidate(material);
+                propertyCount = materialProperties.Length;
                 _initialized = true;
             }
+
             UpdateProperties(materialProperties);
             _materialProperties = materialProperties;
 
@@ -50,13 +53,18 @@ namespace z3y.Shaders
 
             Draw(_materialEditor, property, extraProperty, extraProperty2, onHover, nameOverride);
 
+            int currentIndex = Array.IndexOf(_materialProperties, property);
+            currentIndex++;
+            if (extraProperty != null) currentIndex++;
+            if (extraProperty2 != null) currentIndex++;
+
+            DrawRest(currentIndex);
+        }
+
+        private void DrawRest(int currentIndex)
+        {
             if (drawAll)
             {
-                int currentIndex = Array.IndexOf(_materialProperties, property);
-                currentIndex++;
-                if (extraProperty != null) currentIndex++;
-                if (extraProperty2 != null) currentIndex++;
-
                 for (int i = currentIndex; i < _isDrawn.Length; i++)
                 {
                     if (_isDrawn[i])
@@ -81,13 +89,18 @@ namespace z3y.Shaders
         }
 
         /// <summary> Draws a foldout and saves the state in the material property</summary>
-        public static bool Foldout(MaterialProperty foldout)
+        public bool Foldout(MaterialProperty foldout)
         {
             bool isOpen = foldout.floatValue == 1;
             GUIHelpers.DrawSplitter();
             isOpen = GUIHelpers.DrawHeaderFoldout(foldout.displayName, isOpen);
             foldout.floatValue = isOpen ? 1 : 0;
-            if (isOpen) EditorGUILayout.Space();
+            if (isOpen)
+            {
+                EditorGUILayout.Space();
+                int currentIndex = Array.IndexOf(_materialProperties, foldout);
+                DrawRest(currentIndex + 1);
+            }
             return isOpen;
         }
 
@@ -107,6 +120,7 @@ namespace z3y.Shaders
                 for (int i = 0; i < materialProperties.Length; i++)
                 {
                     _isDrawn[i] = Array.FindIndex(_fieldInfo, x => x.Name.Equals(materialProperties[i].name, StringComparison.OrdinalIgnoreCase)) != -1;
+                    _isDrawn[i] |= materialProperties[i].flags.ToString().Contains("HideInInspector");
                 }
 
             }
@@ -131,7 +145,10 @@ namespace z3y.Shaders
 
         public virtual void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
-            
+            for (int i = 0; i < materialProperties.Length; i++)
+            {
+                Draw(materialEditor, materialProperties[i]);
+            }
         }
     }
 }
