@@ -1,4 +1,4 @@
-Shader "Simple Lit new ui"
+Shader "Simple Lit"
 {
     Properties
     {

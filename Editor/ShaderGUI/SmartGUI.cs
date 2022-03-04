@@ -170,7 +170,16 @@ namespace z3y.Shaders
             }
         }
 
-        public static bool TextureFoldout(MaterialProperty display) => TextureFoldout(display.floatValue == 1);
+        public static bool TextureFoldout(MaterialProperty floatProperty)
+        {
+            floatProperty.floatValue = TextureFoldout(floatProperty.floatValue == 1) ? 1 : 0;
+            if (floatProperty.floatValue != 1)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public static bool TextureFoldout(bool display)
         {
             var lastRect = GUILayoutUtility.GetLastRect();
