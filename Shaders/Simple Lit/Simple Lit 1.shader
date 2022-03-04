@@ -1,10 +1,9 @@
-Shader "Simple Lit new ui"
+Shader "Simple Lit"
 {
     Properties
     {
         [Enum(Opaque, 0, Cutout, 1, Fade, 2, Transparent, 3, Additive, 4, Multiply, 5)] _Mode ("Rendering Mode", Int) = 0
 
-Foldout_SurfaceInputs("Surface Inputs", Int) = 1
         _Cutoff ("Alpha Cuttoff", Range(0, 1)) = 0.5
 
         _MainTex ("Base Map", 2D) = "white" {}
@@ -19,8 +18,8 @@ Foldout_SurfaceInputs("Surface Inputs", Int) = 1
         _Occlusion ("Occlusion", Range(0,1)) = 0
         _Reflectance ("Reflectance", Range(0.0, 1.0)) = 0.5
 
-        _MetallicGlossMap ("Packed Mask", 2D) = "white" {}
-        _MetallicGlossMapArray ("Packed Mask Array", 2DArray) = "" {}
+        _MetallicGlossMap ("Packed Mask:Metallic (R) | Occlusion (G) | Detail Mask (B) | Smoothness (A)", 2D) = "white" {}
+        _MetallicGlossMapArray ("Packed Mask Array:Metallic (R) | Occlusion (G) | Detail Mask (B) | Smoothness (A)", 2DArray) = "" {}
 
         // properties used only for texture packing
         _IsPackingMetallicGlossMap ("", Float) = 0
@@ -54,14 +53,13 @@ Foldout_SurfaceInputs("Surface Inputs", Int) = 1
 
         [Toggle(EMISSION)] _EnableEmission ("Emission", Int) = 0
             _EmissionMap ("Emission Map", 2D) = "white" {}
-            [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
-            _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
             _EmissionDepth("Depth", Float) = 0
+            _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
             _EmissionPulseIntensity ("Pulse Intensity", Range(0,1)) = 0
             _EmissionPulseSpeed ("Pulse Speed", Float) = 1
+            [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
             [Enum(Disabled, 1000, Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3, Autocorrelator, 27, Filtered Bass, 28)] _AudioLinkEmission ("Audio Link", Int) = 1000
 
-Foldout_DetailInputs("Detail Inputs", Int) = 0
         _DetailAlbedoMap ("Albedo & Smoothness", 2D) = "linearGrey" {}
         [Enum(Overlay, 0, Screen, 1, Multiply X2, 2, Replace, 3)] _DetailBlendMode ("Blend Mode", Int) = 0
         [Enum(Detail Smoothness, 0, Detail Mask, 1)] _DetailAlbedoAlpha ("Albedo Alpha", Int) = 0
@@ -82,19 +80,17 @@ Foldout_DetailInputs("Detail Inputs", Int) = 0
             _Parallax ("Height Scale", Range (0, 0.2)) = 0.02
             _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
 
-Foldout_RenderingOptions("Rendering Options", Int) = 0
-
         [Toggle(BAKEDSPECULAR)] _BakedSpecular ("Baked Specular ", Int) = 0
         [Toggle(NONLINEAR_LIGHTPROBESH)] _NonLinearLightProbeSH("Non-linear Light Probe SH", Int) = 0
 
         [Toggle(LTCGI)] _LTCGI("LTCGI", Int) = 0
         [Toggle(LTCGI_DIFFUSE_OFF)] _LTCGI_DIFFUSE_OFF("LTCGI Disable Diffuse", Int) = 0
 
-        [HideInInspector] [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Source Blend", Int) = 1
-        [HideInInspector] [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Destination Blend", Int) = 0
-        [HideInInspector] [Enum(Off, 0, On, 1)] _ZWrite ("ZWrite", Int) = 1
-        [HideInInspector] [Enum(Off, 0, On, 1)] _AlphaToMask ("Alpha To Coverage", Int) = 0
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Source Blend", Int) = 1
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Destination Blend", Int) = 0
+        [Enum(Off, 0, On, 1)] _ZWrite ("ZWrite", Int) = 1
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Int) = 2
+        [Enum(Off, 0, On, 1)] _AlphaToMask ("Alpha To Coverage", Int) = 0
 
         [Enum(None, 0, SH, 1, RNM, 2)] Bakery ("Bakery Mode", Int) = 0
             _RNM0("RNM0", 2D) = "black" {}
@@ -104,10 +100,15 @@ Foldout_RenderingOptions("Rendering Options", Int) = 0
         [Enum(Default, 0, Texture Array, 1, Texture Array Instanced, 2)] _Texture ("Sampling Mode", Int) = 0
             _TextureIndex("Array Index", Int) = 0
 
-            [HideInInspector] [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
+        [PowerSlider(0.333)] _Ior ("Refraction", Range(0,1)) = 0.98 // not real PBR IOR values
 
 
-        
+        [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
+
+        // where else do I save this?
+        z3y_group_foldout_Main_Maps("", Int) = 1
+        z3y_group_foldout_Detail_Maps("", Int) = 0
+        z3y_group_foldout_Rendering_Options("", Int) = 0
     }
 
 CGINCLUDE
@@ -277,5 +278,5 @@ ENDCG
             ENDCG
         }
     }
-    CustomEditor "z3y.Shaders.SimpleLitSmartGUI"
+    CustomEditor "z3y.Shaders.SimpleLitGUI"
 }

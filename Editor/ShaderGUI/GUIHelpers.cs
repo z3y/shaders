@@ -4,7 +4,7 @@ using System;
 using System.Reflection;
 using System.Linq;
 
-namespace z3y.Shaders
+namespace z3y.Shaders2
 {
     public static class GUIHelpers
     {

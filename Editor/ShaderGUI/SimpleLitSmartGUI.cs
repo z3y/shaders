@@ -7,43 +7,378 @@ namespace z3y.Shaders
 {
     public class SimpleLitSmartGUI : SmartGUI
     {
-        private MaterialProperty _mainTex;
-        private MaterialProperty _color;
+        #region Material Properties
 
-        private MaterialProperty _testFoldout;
-        private MaterialProperty _testFoldout2;
-        private MaterialProperty _testFoldout3;
+        private MaterialProperty _Mode;
+        private MaterialProperty _Cutoff;
+        private MaterialProperty Foldout_SurfaceInputs;
+        private MaterialProperty _MainTex;
+        private MaterialProperty _Color;
+        private MaterialProperty _AlbedoSaturation;
+        private MaterialProperty _Texture;
+        private MaterialProperty _MainTexArray;
+        private MaterialProperty _MetallicGlossMapArray;
+        private MaterialProperty _Metallic;
+        private MaterialProperty _Glossiness;
+        private MaterialProperty _MetallicMin;
+        private MaterialProperty _GlossinessMin;
+        private MaterialProperty _Occlusion;
+
+        private MaterialProperty _MetallicGlossMap;
+
+        private MaterialProperty _IsPackingMetallicGlossMap;
+        private MaterialProperty _MetallicMap;
+        private MaterialProperty _MetallicMapChannel;
+        private MaterialProperty _MetallicMapInvert;
+        private MaterialProperty _OcclusionMap;
+        private MaterialProperty _OcclusionMapChannel;
+        private MaterialProperty _OcclusionMapInvert;
+        private MaterialProperty _DetailMaskMap;
+        private MaterialProperty _DetailMaskMapChannel;
+        private MaterialProperty _DetailMaskMapInvert;
+        private MaterialProperty _SmoothnessMap;
+        private MaterialProperty _SmoothnessMapChannel;
+        private MaterialProperty _SmoothnessMapInvert;
+
+        private MaterialProperty _BumpMap;
+        private MaterialProperty _BumpScale;
+        private MaterialProperty _BumpMapArray;
+
         private MaterialProperty _EnableEmission;
         private MaterialProperty _EmissionMap;
+        private MaterialProperty _EmissionColor;
+        private MaterialProperty _EmissionMultBase;
 
-        public override void OnGUIProperties(MaterialEditor m, MaterialProperty[] materialProperties, Material material)
+        private MaterialProperty _Parallax;
+        private MaterialProperty _ParallaxMap;
+        private MaterialProperty _ParallaxOffset;
+        private MaterialProperty _ParallaxSteps;
+
+        private MaterialProperty _TextureIndex;
+
+        private MaterialProperty Foldout_DetailInputs;
+        private MaterialProperty _DetailAlbedoMap;
+        private MaterialProperty _DetailNormalMap;
+        private MaterialProperty _DetailNormalScale;
+        private MaterialProperty _DetailMapUV;
+        private MaterialProperty _DetailAlbedoScale;
+        private MaterialProperty _DetailSmoothnessScale;
+
+        private MaterialProperty _IsPackingDetailAlbedo;
+        private MaterialProperty _DetailAlbedoPacking;
+        private MaterialProperty _DetailSmoothnessPacking;
+        private MaterialProperty _DetailSmoothnessPackingChannel;
+        private MaterialProperty _DetailSmoothnessPackingInvert;
+        private MaterialProperty _DetailAlbedoAlpha;
+        private MaterialProperty _DetailBlendMode;
+
+
+        private MaterialProperty Foldout_RenderingOptions;
+        private MaterialProperty _RNM0;
+        private MaterialProperty _RNM1;
+        private MaterialProperty _RNM2;
+        private MaterialProperty _Cull;
+        private MaterialProperty _SpecularOcclusion;
+        private MaterialProperty Bakery;
+        private MaterialProperty _GlossyReflections;
+        private MaterialProperty _SpecularHighlights;
+        private MaterialProperty _Reflectance;
+        private MaterialProperty _GSAA;
+        private MaterialProperty _specularAntiAliasingVariance;
+        private MaterialProperty _specularAntiAliasingThreshold;
+        private MaterialProperty _NonLinearLightProbeSH;
+        private MaterialProperty _BakedSpecular;
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
+        private MaterialProperty _LTCGI;
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
+        private MaterialProperty _LTCGI_DIFFUSE_OFF;
+        #endregion
+
+
+        public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
-            if (Foldout(_testFoldout))
+            DrawSurfaceInputs(material, materialEditor);
+            DrawDetailInputs(material, materialEditor);
+            DrawRenderingOptions(material, materialEditor);
+        }
+
+        
+
+        private void DrawSurfaceInputs(Material material, MaterialEditor me)
+        {
+            EditorGUI.BeginChangeCheck();
+            Draw(_Mode);
+            if (EditorGUI.EndChangeCheck())
             {
+                SetupBlendMode(me, _Mode);
+            }
+            if (_Mode.floatValue == 1) Draw(_Cutoff);
 
-                Draw(_mainTex, _color);
 
+            EditorGUILayout.Space();
+
+            if (!Foldout(Foldout_SurfaceInputs))
+            {
+                return;
             }
 
-            if (Foldout(_testFoldout2))
+            if (_Texture.floatValue == 1 || _Texture.floatValue == 2)
             {
+                Draw(_MainTexArray, _Color, _AlbedoSaturation);
+                Draw(_MetallicGlossMapArray, null, null, "Metallic (R) | Occlusion (G) | Detail Mask (B) | Smoothness (A)");
 
-            }
-
-
-
-            if (Foldout(_testFoldout3))
-            {
-                Draw(_EnableEmission);
-                if (_EnableEmission.floatValue == 1)
-
+                EditorGUI.indentLevel += 2;
+                if (_MetallicGlossMapArray.textureValue == null)
                 {
-                    Draw(_EmissionMap);
+                    Draw(_Metallic);
+                    Draw(_Glossiness);
+                }
+                else
+                {
+                    DrawMinMax(_MetallicMin, _Metallic);
+                    DrawMinMax(_GlossinessMin, _Glossiness);
+                    Draw(_Occlusion);
+                }
+                EditorGUI.indentLevel -= 2;
+                Draw(_BumpMapArray, _BumpScale);
+            }
+            else
+            {
+                Draw(_MainTex, _Color, _AlbedoSaturation);
+                Draw(_MetallicGlossMap, null, null, "Metallic (R) | Occlusion (G) | Detail Mask (B) | Smoothness (A)");
+                sRGBWarning(_MetallicGlossMap);
+
+                //DrawMaskMapPacking(material);
+
+                EditorGUI.indentLevel += 2;
+                if (_MetallicGlossMap.textureValue == null)
+                {
+                    Draw(_Metallic);
+                    Draw(_Glossiness);
+                }
+                else
+                {
+                    DrawMinMax(_MetallicMin, _Metallic);
+                    DrawMinMax(_GlossinessMin, _Glossiness);
+                    Draw(_Occlusion);
+                }
+                EditorGUI.indentLevel -= 2;
+
+
+                Draw(_BumpMap, _BumpScale);
+            }
+
+            if (_ParallaxMap.textureValue)
+            {
+                Draw(_ParallaxMap, _Parallax);
+                EditorGUI.indentLevel += 2;
+                Draw(_ParallaxOffset);
+                Draw(_ParallaxSteps);
+                EditorGUI.indentLevel -= 2; ;
+            }
+            else
+            {
+                Draw(_ParallaxMap);
+            }
+            sRGBWarning(_ParallaxMap);
+
+            Draw(_EnableEmission);
+            if (_EnableEmission.floatValue == 1)
+            {
+                Draw(_EmissionMap, _EmissionColor);
+                EditorGUI.indentLevel += 2;
+                Draw(_EmissionMultBase);
+
+                me.LightmapEmissionProperty();
+                EditorGUI.indentLevel -= 2;
+                EditorGUILayout.Space();
+            }
+
+            EditorGUILayout.Space();
+            me.TextureScaleOffsetProperty(_MainTex);
+            Draw(_Texture);
+            if (_Texture.floatValue == 2)
+            {
+                Draw(_TextureIndex);
+            }
+            EditorGUILayout.Space();
+
+        }
+
+        private void DrawDetailInputs(Material material, MaterialEditor me)
+        {
+            if (!Foldout(Foldout_DetailInputs))
+            {
+                return;
+            }
+
+            Draw(_DetailBlendMode);
+            Draw(_DetailAlbedoAlpha);
+            Draw(_DetailAlbedoMap, _DetailAlbedoScale, null, _DetailAlbedoAlpha.floatValue == 1 ? "Albedo & Mask" : null);
+            DrawDetailAlbedoPacking(material);
+            if (_DetailAlbedoAlpha.floatValue == 0)
+            {
+                EditorGUI.indentLevel += 2;
+                Draw(_DetailSmoothnessScale);
+                EditorGUI.indentLevel -= 2;
+            }
+            else
+            {
+                _DetailSmoothnessScale.floatValue = 0f;
+            }
+
+            Draw(_DetailNormalMap, _DetailNormalScale);
+            me.TextureScaleOffsetProperty(_DetailAlbedoMap);
+            Draw(_DetailMapUV);
+            EditorGUILayout.Space();
+        }
+
+        private void DrawRenderingOptions(Material material, MaterialEditor me)
+        {
+            if (!Foldout(Foldout_RenderingOptions))
+            {
+                return;
+            }
+            Draw(_GlossyReflections);
+            Draw(_SpecularHighlights);
+            Draw(_GSAA);
+            if (_GSAA.floatValue == 1)
+            {
+                EditorGUI.indentLevel += 1;
+                Draw(_specularAntiAliasingVariance);
+                Draw(_specularAntiAliasingThreshold);
+                EditorGUI.indentLevel -= 1;
+                EditorGUILayout.Space();
+            }
+            Draw(_Reflectance);
+            Draw(_SpecularOcclusion);
+            EditorGUILayout.Space();
+
+
+#if LTCGI_INCLUDED
+            Draw(_LTCGI);
+            Draw(_LTCGI_DIFFUSE_OFF);
+            EditorGUILayout.Space();
+#endif
+
+
+
+#if BAKERY_INCLUDED
+            Draw(Bakery);
+            if (Bakery.floatValue != 0)
+            {
+                EditorGUI.BeginDisabledGroup(true);
+                Draw(_RNM0);
+                Draw(_RNM1);
+                Draw(_RNM2);
+                EditorGUI.EndDisabledGroup();
+            }
+#endif
+
+            Draw(_BakedSpecular);
+            Draw(_NonLinearLightProbeSH);
+            EditorGUILayout.Space();
+
+            Draw(_Cull);
+            me.DoubleSidedGIField();
+            me.EnableInstancingField();
+            me.RenderQueueField();
+            EditorGUILayout.Space();
+        }
+
+        private void DrawDetailAlbedoPacking(Material material)
+        {
+            if (!TextureFoldout(_IsPackingDetailAlbedo))
+            {
+                return;
+            }
+
+            VerticalScopeBox(() =>
+            {
+                Draw(_DetailAlbedoPacking);
+                Draw(_DetailSmoothnessPacking, _DetailSmoothnessPackingChannel, _DetailSmoothnessPackingInvert,
+                _DetailAlbedoAlpha.floatValue == 1 ? "Mask Map" : _DetailSmoothnessPackingInvert.floatValue == 1 ? "Roughness Map" : null);
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Pack"))
+                {
+                    //PackDetailAlbedoMap();
                 }
 
+                if (GUILayout.Button("Close"))
+                {
+                    ResetProperty(material, new [] { _DetailAlbedoPacking, _DetailSmoothnessPacking, _IsPackingDetailAlbedo });
+                }
+                EditorGUILayout.EndHorizontal();
+            });
+        }
+
+        public const string ShaderName = "Simple Lit";
+        public override void AssignNewShaderToMaterial(Material m, Shader oldShader, Shader newShader)
+        {
+            base.AssignNewShaderToMaterial(m, oldShader, newShader);
+            if (m == null || newShader == null || newShader.name != ShaderName)
+            {
+                return;
             }
 
+            foreach (var keyword in m.shaderKeywords)
+            {
+                m.DisableKeyword(keyword);
+            }
 
+            MaterialEditor.ApplyMaterialPropertyDrawers(m);
+            SetupMaterialWithBlendMode(m, (int)m.GetFloat("_Mode"));
+            ApplyChanges(m);
+        }
+
+        public override void OnValidate(Material material)
+        {
+            ApplyChanges(material);
+        }
+
+        public static void ApplyChanges(Material m)
+        {
+            SetupGIFlags(m.GetFloat("_EnableEmission"), m);
+
+            int mode = (int)m.GetFloat("_Mode");
+            m.ToggleKeyword("_MODE_CUTOUT", mode == 1);
+            m.ToggleKeyword("_MODE_FADE", mode == 2);
+            m.ToggleKeyword("_ALPHAPREMULTIPLY_ON", mode == 3);
+            m.ToggleKeyword("_ALPHAMODULATE_ON", mode == 5);
+
+            m.ToggleKeyword("AUDIOLINK", m.GetFloat("_AudioLinkEmission") != 1000);
+
+            var samplingMode = (int)m.GetFloat("_Texture");
+            m.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);
+
+            if (samplingMode == 1 || samplingMode == 2)
+            {
+                m.ToggleKeyword("_MASK_MAP", m.GetTexture("_MetallicGlossMapArray"));
+                m.ToggleKeyword("_NORMAL_MAP", m.GetTexture("_BumpMapArray"));
+            }
+            else
+            {
+                m.ToggleKeyword("_MASK_MAP", m.GetTexture("_MetallicGlossMap"));
+                m.ToggleKeyword("_NORMAL_MAP", m.GetTexture("_BumpMap"));
+            }
+
+            int bakeryMode = (int)m.GetFloat("Bakery");
+            m.ToggleKeyword("BAKERY_RNM", bakeryMode == 2);
+            m.ToggleKeyword("BAKERY_SH", bakeryMode == 1);
+
+            var detailBlend = (int)m.GetFloat("_DetailBlendMode");
+            m.ToggleKeyword("_DETAILALBEDO_MAP", m.GetTexture("_DetailAlbedoMap"));
+            m.ToggleKeyword("_DETAILNORMAL_MAP", m.GetTexture("_DetailNormalMap"));
+            m.ToggleKeyword("_DETAILBLEND_SCREEN", detailBlend == 1);
+            m.ToggleKeyword("_DETAILBLEND_MULX2", detailBlend == 2);
+            m.ToggleKeyword("_DETAILBLEND_LERP", detailBlend == 3);
+
+            m.ToggleKeyword("PARALLAX", m.GetTexture("_ParallaxMap"));
+
+#if !LTCGI_INCLUDED
+            m.SetFloat("_LTCGI", 0f);
+            m.DisableKeyword("LTCGI");
+#endif
         }
     }
 }

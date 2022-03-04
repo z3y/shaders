@@ -2,7 +2,7 @@
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using static z3y.Shaders.GUIHelpers;
+using static z3y.Shaders2.GUIHelpers;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace z3y.Shaders

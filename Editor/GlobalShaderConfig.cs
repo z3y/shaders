@@ -135,7 +135,7 @@ namespace z3y.Shaders
             });
         }
 
-        static readonly string ShaderPath = AssetDatabase.GetAssetPath(Shader.Find(SimpleLitGUI.ShaderName));
+        static readonly string ShaderPath = AssetDatabase.GetAssetPath(Shader.Find(SimpleLitSmartGUI.ShaderName));
         private static readonly string NewLine = Environment.NewLine;
         private const string SkipVariant = "#pragma skip_variants ";
         private const string Define = "#define ";
