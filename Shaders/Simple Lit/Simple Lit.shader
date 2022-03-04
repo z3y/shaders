@@ -25,13 +25,13 @@ Foldout_SurfaceInputs("Surface Inputs", Int) = 1
         // properties used only for texture packing
         _IsPackingMetallicGlossMap ("", Float) = 0
         _MetallicMap ("Metallic Map", 2D) = "black" {}
-        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _MetallicMapChannel ("", Int) = 0
+        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _MetallicMapChannel ("Channel", Int) = 0
         _OcclusionMap ("Occlusion Map", 2D) = "white" {}
-        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _OcclusionMapChannel ("", Int) = 0
+        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _OcclusionMapChannel ("Channel", Int) = 0
         _DetailMaskMap ("Detail Mask", 2D) = "white" {}
-        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _DetailMaskMapChannel ("", Int) = 0
+        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _DetailMaskMapChannel ("Channel", Int) = 0
         _SmoothnessMap ("Smoothness Map", 2D) = "white" {}
-        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _SmoothnessMapChannel ("", Int) = 0
+        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _SmoothnessMapChannel ("Channel", Int) = 0
         [ToggleUI] _SmoothnessMapInvert ("Invert", Float) = 0
         [ToggleUI] _DetailMaskMapInvert ("Invert", Float) = 0
         [ToggleUI] _OcclusionMapInvert ("Invert", Float) = 0
@@ -41,7 +41,7 @@ Foldout_SurfaceInputs("Surface Inputs", Int) = 1
 
         [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
             _BumpMapArray ("Normal Map Array", 2DArray) = "" {}
-            _BumpScale ("Bump Scale", Float) = 1
+            _BumpScale ("Scale", Float) = 1
 
         [ToggleOff(SPECULAR_HIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
         [ToggleOff(REFLECTIONS_OFF)] _GlossyReflections ("Reflection Probes", Float) = 1
@@ -55,8 +55,8 @@ Foldout_SurfaceInputs("Surface Inputs", Int) = 1
         [Toggle(EMISSION)] _EnableEmission ("Emission", Int) = 0
             _EmissionMap ("Emission Map", 2D) = "white" {}
             [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
-            _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
             _EmissionDepth("Depth", Float) = 0
+            _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
             _EmissionPulseIntensity ("Pulse Intensity", Range(0,1)) = 0
             _EmissionPulseSpeed ("Pulse Speed", Float) = 1
             [Enum(Disabled, 1000, Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3, Autocorrelator, 27, Filtered Bass, 28)] _AudioLinkEmission ("Audio Link", Int) = 1000
@@ -68,8 +68,8 @@ Foldout_DetailInputs("Detail Inputs", Int) = 0
         [Normal] _DetailNormalMap ("Normal Map", 2D) = "bump" {}
             [Enum(UV0, 0, UV1, 1, UV2, 2)]  _DetailMapUV ("Detail UV", Int) = 0
             _DetailAlbedoScale ("Albedo Scale", Range(0.0, 1.0)) = 1
-            _DetailNormalScale ("Normal Scale", Float) = 1
-            _DetailSmoothnessScale ("Smoothness Scale", Range(0.0, 1.0)) = 0
+            _DetailNormalScale ("Scale", Float) = 1
+            _DetailSmoothnessScale ("Smoothness", Range(0.0, 1.0)) = 0
 
         // properties used only for texture packing
         _IsPackingDetailAlbedo ("", Float) = 0
@@ -79,7 +79,7 @@ Foldout_DetailInputs("Detail Inputs", Int) = 0
         [ToggleUI] _DetailSmoothnessPackingInvert ("Invert", Float) = 0
 
         _ParallaxMap ("Height Map", 2D) = "white" {}
-            _Parallax ("Height Scale", Range (0, 0.2)) = 0.02
+            _Parallax ("Scale", Range (0, 0.2)) = 0.02
             _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
 
 Foldout_RenderingOptions("Rendering Options", Int) = 0

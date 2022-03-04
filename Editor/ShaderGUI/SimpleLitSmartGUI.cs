@@ -48,6 +48,7 @@ namespace z3y.Shaders
         private MaterialProperty _EnableEmission;
         private MaterialProperty _EmissionMap;
         private MaterialProperty _EmissionColor;
+        private MaterialProperty _EmissionDepth;
         private MaterialProperty _EmissionMultBase;
 
         private MaterialProperty _Parallax;
@@ -186,7 +187,7 @@ namespace z3y.Shaders
             Draw(_EnableEmission);
             if (_EnableEmission.floatValue == 1)
             {
-                Draw(_EmissionMap, _EmissionColor);
+                Draw(_EmissionMap, _EmissionColor, _EmissionDepth);
                 EditorGUI.indentLevel += 2;
                 Draw(_EmissionMultBase);
 

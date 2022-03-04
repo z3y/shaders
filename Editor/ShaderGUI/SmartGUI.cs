@@ -23,7 +23,8 @@ namespace z3y.Shaders
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] materialProperties)
         {
             var material = materialEditor.target as Material;
-
+            EditorGUIUtility.labelWidth = 0f;
+            EditorGUIUtility.fieldWidth = 48f;
             if (!_initialized || propertyCount != materialProperties.Length)
             {
                 _materialEditor = materialEditor;
@@ -76,11 +77,76 @@ namespace z3y.Shaders
             }
         }
 
+        private Rect GetControlRectForSingleLine()
+        {
+            return EditorGUILayout.GetControlRect(true, 20f, EditorStyles.layerMaskField);
+        }
+        private void ExtraPropertyAfterTexture(MaterialEditor materialEditor, Rect r, MaterialProperty property)
+        {
+            if ((property.type == MaterialProperty.PropType.Float || property.type == MaterialProperty.PropType.Color) && r.width > EditorGUIUtility.fieldWidth)
+            {
+                float labelWidth = EditorGUIUtility.labelWidth;
+                EditorGUIUtility.labelWidth = r.width - EditorGUIUtility.fieldWidth - 2f;
+
+                var labelRect = new Rect(r.x, r.y, r.width - EditorGUIUtility.fieldWidth - 4f, r.height);
+                var style = new GUIStyle("label");
+                style.alignment = TextAnchor.MiddleRight;
+                EditorGUI.LabelField(labelRect, property.displayName, style);
+                materialEditor.ShaderProperty(r, property, " ");
+                EditorGUIUtility.labelWidth = labelWidth;
+
+            }
+            else
+            {
+                materialEditor.ShaderProperty(r, property, string.Empty);
+            }
+        }
+
+        public Rect TexturePropertySingleLine(MaterialEditor materialEditor, GUIContent label, MaterialProperty textureProp, MaterialProperty extraProperty1, MaterialProperty extraProperty2)
+        {
+            Rect controlRectForSingleLine = GetControlRectForSingleLine();
+            materialEditor.TexturePropertyMiniThumbnail(controlRectForSingleLine, textureProp, label.text, label.tooltip);
+            if (extraProperty1 == null && extraProperty2 == null)
+            {
+                return controlRectForSingleLine;
+            }
+
+            int indentLevel = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = 0;
+            if (extraProperty1 == null || extraProperty2 == null)
+            {
+                MaterialProperty materialProperty = extraProperty1 ?? extraProperty2;
+                if (materialProperty.type == MaterialProperty.PropType.Color)
+                {
+                    ExtraPropertyAfterTexture(materialEditor, MaterialEditor.GetLeftAlignedFieldRect(controlRectForSingleLine), materialProperty);
+                }
+                else
+                {
+                    ExtraPropertyAfterTexture(materialEditor, MaterialEditor.GetRectAfterLabelWidth(controlRectForSingleLine), materialProperty);
+                }
+            }
+            else if (extraProperty1.type == MaterialProperty.PropType.Color)
+            {
+                ExtraPropertyAfterTexture(materialEditor, MaterialEditor.GetFlexibleRectBetweenFieldAndRightEdge(controlRectForSingleLine), extraProperty2);
+                ExtraPropertyAfterTexture(materialEditor, MaterialEditor.GetLeftAlignedFieldRect(controlRectForSingleLine), extraProperty1);
+            }
+            else
+            {
+                ExtraPropertyAfterTexture(materialEditor, MaterialEditor.GetRightAlignedFieldRect(controlRectForSingleLine), extraProperty2);
+                ExtraPropertyAfterTexture(materialEditor, MaterialEditor.GetFlexibleRectBetweenLabelAndField(controlRectForSingleLine), extraProperty1);
+            }
+
+            EditorGUI.indentLevel = indentLevel;
+            return controlRectForSingleLine;
+        }
+
         private void Draw(MaterialEditor materialEditor, MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null, string onHover = null, string nameOverride = null)
         {
             if (property.type == MaterialProperty.PropType.Texture)
             {
-                materialEditor.TexturePropertySingleLine(new GUIContent(nameOverride ?? property.displayName, onHover), property, extraProperty, extraProperty2);
+                TexturePropertySingleLine(materialEditor, new GUIContent(nameOverride ?? property.displayName, onHover), property, extraProperty, extraProperty2);
+
+                return;
             }
             else
             {
