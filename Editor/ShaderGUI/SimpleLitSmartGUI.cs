@@ -288,8 +288,7 @@ namespace z3y.Shaders
         }
         private void DrawMaskMapPacking(Material material)
         {
-            _IsPackingMetallicGlossMap.floatValue = TextureFoldout(_IsPackingMetallicGlossMap.floatValue == 1) ? 1 : 0;
-            if (_IsPackingMetallicGlossMap.floatValue != 1)
+            if (!TextureFoldout(_IsPackingMetallicGlossMap))
             {
                 return;
             }
