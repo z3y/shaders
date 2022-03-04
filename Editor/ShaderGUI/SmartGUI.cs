@@ -139,17 +139,19 @@ namespace z3y.Shaders
             return controlRectForSingleLine;
         }
 
-        private void Draw(MaterialEditor materialEditor, MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null, string onHover = null, string nameOverride = null)
+
+        private bool Draw(MaterialEditor materialEditor, MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null, string onHover = null, string nameOverride = null)
         {
             if (property.type == MaterialProperty.PropType.Texture)
             {
                 TexturePropertySingleLine(materialEditor, new GUIContent(nameOverride ?? property.displayName, onHover), property, extraProperty, extraProperty2);
 
-                return;
+                return property.textureValue != null;
             }
             else
             {
                 materialEditor.ShaderProperty(property, new GUIContent(nameOverride ?? property.displayName, onHover));
+                return property.floatValue == 1;
             }
         }
 

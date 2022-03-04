@@ -74,7 +74,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         else if (_DetailMapUV == 2.0)
             detailUV = i.coord1.xy;
 
-        detailUV = (detailUV * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset;
+        detailUV = (detailUV * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset + ParallaxOffsetUV(_DetailDepth, i.parallaxViewDir);
         float4 detailMap = 0.5;
         float3 detailAlbedo = 0.0;
         float detailSmoothness = 0.0;
@@ -135,6 +135,10 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
         half3 emissionPulse = sin(_Time.y * _EmissionPulseSpeed) + 1;
         surf.emission = lerp(surf.emission, surf.emission * emissionPulse, _EmissionPulseIntensity);
+
+        #ifdef UNITY_PASS_META
+            surf.emission *= _EmissionGIMultiplier;
+        #endif
     #endif
 
 

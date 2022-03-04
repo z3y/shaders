@@ -45,11 +45,13 @@ namespace z3y.Shaders
         private MaterialProperty _BumpScale;
         private MaterialProperty _BumpMapArray;
 
+        private MaterialProperty Foldout_EmissionInputs;
         private MaterialProperty _EnableEmission;
         private MaterialProperty _EmissionMap;
         private MaterialProperty _EmissionColor;
         private MaterialProperty _EmissionDepth;
         private MaterialProperty _EmissionMultBase;
+        private MaterialProperty _EmissionGIMultiplier;
 
         private MaterialProperty _Parallax;
         private MaterialProperty _ParallaxMap;
@@ -94,12 +96,14 @@ namespace z3y.Shaders
         private MaterialProperty _LTCGI;
         //[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private MaterialProperty _LTCGI_DIFFUSE_OFF;
+        private MaterialProperty _DetailDepth;
         #endregion
 
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
             DrawSurfaceInputs(material, materialEditor);
+            DrawEmissionMaps(material, materialEditor);
             DrawDetailInputs(material, materialEditor);
             DrawRenderingOptions(material, materialEditor);
         }
@@ -184,18 +188,6 @@ namespace z3y.Shaders
             }
             sRGBWarning(_ParallaxMap);
 
-            Draw(_EnableEmission);
-            if (_EnableEmission.floatValue == 1)
-            {
-                Draw(_EmissionMap, _EmissionColor, _EmissionDepth);
-                EditorGUI.indentLevel += 2;
-                Draw(_EmissionMultBase);
-
-                me.LightmapEmissionProperty();
-                EditorGUI.indentLevel -= 2;
-                EditorGUILayout.Space();
-            }
-
             EditorGUILayout.Space();
             me.TextureScaleOffsetProperty(_MainTex);
             Draw(_Texture);
@@ -205,6 +197,28 @@ namespace z3y.Shaders
             }
             EditorGUILayout.Space();
 
+        }
+
+        private void DrawEmissionMaps(Material material, MaterialEditor me)
+        {
+            if (!Foldout(Foldout_EmissionInputs))
+            {
+                return;
+            }
+
+            Draw(_EnableEmission);
+            EditorGUILayout.Space();
+            Draw(_EmissionMap, _EmissionColor, _EmissionDepth);
+            Draw(_EmissionMultBase);
+
+            EditorGUILayout.Space();
+            me.LightmapEmissionProperty();
+
+            if (material.globalIlluminationFlags != MaterialGlobalIlluminationFlags.EmissiveIsBlack)
+            {
+                Draw(_EmissionGIMultiplier);
+            }
+            EditorGUILayout.Space();
         }
 
         private void DrawDetailInputs(Material material, MaterialEditor me)
@@ -232,6 +246,7 @@ namespace z3y.Shaders
             Draw(_DetailNormalMap, _DetailNormalScale);
             me.TextureScaleOffsetProperty(_DetailAlbedoMap);
             Draw(_DetailMapUV);
+            Draw(_DetailDepth);
             EditorGUILayout.Space();
         }
 

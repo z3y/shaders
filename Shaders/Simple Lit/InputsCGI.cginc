@@ -26,6 +26,7 @@ half _Reflectance;
 
 half4 _DetailAlbedoMap_ST;
 half _DetailMapUV;
+half _DetailDepth;
 half _DetailAlbedoScale;
 half _DetailNormalScale;
 half _DetailSmoothnessScale;
@@ -43,6 +44,7 @@ half _EmissionMultBase;
 half _EmissionDepth;
 half _EmissionPulseIntensity;
 half _EmissionPulseSpeed;
+half _EmissionGIMultiplier;
 
 
 UNITY_INSTANCING_BUFFER_START(InstancedProps)

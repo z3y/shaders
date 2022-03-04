@@ -4,7 +4,7 @@ Shader "Simple Lit"
     {
         [Enum(Opaque, 0, Cutout, 1, Fade, 2, Transparent, 3, Additive, 4, Multiply, 5)] _Mode ("Rendering Mode", Int) = 0
 
-Foldout_SurfaceInputs("Surface Inputs", Int) = 1
+Foldout_SurfaceInputs("Main Maps", Int) = 1
         _Cutoff ("Alpha Cuttoff", Range(0, 1)) = 0.5
 
         _MainTex ("Base Map", 2D) = "white" {}
@@ -52,21 +52,25 @@ Foldout_SurfaceInputs("Surface Inputs", Int) = 1
             [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
             [PowerSlider(2)] _specularAntiAliasingThreshold ("Threshold", Range(0.0, 1.0)) = 0.1
 
+        Foldout_EmissionInputs("Emission", Int) = 0
         [Toggle(EMISSION)] _EnableEmission ("Emission", Int) = 0
             _EmissionMap ("Emission Map", 2D) = "white" {}
             [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
             _EmissionDepth("Depth", Float) = 0
             _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
-            _EmissionPulseIntensity ("Pulse Intensity", Range(0,1)) = 0
+            [Space(10)]_EmissionPulseIntensity ("Pulse Intensity", Range(0,1)) = 0
             _EmissionPulseSpeed ("Pulse Speed", Float) = 1
             [Enum(Disabled, 1000, Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3, Autocorrelator, 27, Filtered Bass, 28)] _AudioLinkEmission ("Audio Link", Int) = 1000
 
-Foldout_DetailInputs("Detail Inputs", Int) = 0
+            _EmissionGIMultiplier("GI Multiplier", Float) = 1
+
+Foldout_DetailInputs("Detail Maps", Int) = 0
         _DetailAlbedoMap ("Albedo & Smoothness", 2D) = "linearGrey" {}
         [Enum(Overlay, 0, Screen, 1, Multiply X2, 2, Replace, 3)] _DetailBlendMode ("Blend Mode", Int) = 0
         [Enum(Detail Smoothness, 0, Detail Mask, 1)] _DetailAlbedoAlpha ("Albedo Alpha", Int) = 0
         [Normal] _DetailNormalMap ("Normal Map", 2D) = "bump" {}
             [Enum(UV0, 0, UV1, 1, UV2, 2)]  _DetailMapUV ("Detail UV", Int) = 0
+            _DetailDepth("Depth", Float) = 0
             _DetailAlbedoScale ("Albedo Scale", Range(0.0, 1.0)) = 1
             _DetailNormalScale ("Scale", Float) = 1
             _DetailSmoothnessScale ("Smoothness", Range(0.0, 1.0)) = 0
