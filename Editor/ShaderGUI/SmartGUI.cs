@@ -181,15 +181,20 @@ namespace z3y.Shaders
                 _materialEditor.TexturePropertySingleLine(new GUIContent(tex.displayName), tex);
 
 
-            EditorGUI.indentLevel -= 6;
+            var rect = GUILayoutUtility.GetLastRect();
+            rect = MaterialEditor.GetRectAfterLabelWidth(rect);
+            float offset = 28f;
+            rect.width += offset;
+            rect.position = new Vector2(rect.x- offset, rect.y);
+
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.MinMaxSlider(ref currentMin, ref currentMax, minLimit, maxLimit);
+            EditorGUI.MinMaxSlider(rect, ref currentMin, ref currentMax, minLimit, maxLimit);
             if (EditorGUI.EndChangeCheck())
             {
                 min.floatValue = currentMin;
                 max.floatValue = currentMax;
             }
-            EditorGUI.indentLevel += 6;
+
             EditorGUILayout.EndHorizontal();
         }
 
