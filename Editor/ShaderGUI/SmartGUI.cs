@@ -94,7 +94,6 @@ namespace z3y.Shaders
                 EditorGUI.LabelField(labelRect, property.displayName, style);
                 materialEditor.ShaderProperty(r, property, " ");
                 EditorGUIUtility.labelWidth = labelWidth;
-
             }
             else
             {

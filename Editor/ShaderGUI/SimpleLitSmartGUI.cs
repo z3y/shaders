@@ -296,10 +296,10 @@ namespace z3y.Shaders
 
             VerticalScopeBox(() =>
             {
-                Draw(_MetallicMap, _MetallicMapChannel, _MetallicMapInvert);
-                Draw(_OcclusionMap, _OcclusionMapChannel, _OcclusionMapInvert);
-                Draw(_DetailMaskMap, _DetailMaskMapChannel, _DetailMaskMapInvert);
-                Draw(_SmoothnessMap, _SmoothnessMapChannel, _SmoothnessMapInvert, null, _SmoothnessMapInvert.floatValue == 1 ? "Roughness Map" : null);
+                Draw(_MetallicMap, _MetallicMapInvert, _MetallicMapChannel);
+                Draw(_OcclusionMap, _OcclusionMapInvert, _OcclusionMapChannel);
+                Draw(_DetailMaskMap, _DetailMaskMapInvert, _DetailMaskMapChannel);
+                Draw(_SmoothnessMap, _SmoothnessMapInvert, _SmoothnessMapChannel, null, _SmoothnessMapInvert.floatValue == 1 ? "Roughness Map" : null);
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button("Pack"))
                 {
