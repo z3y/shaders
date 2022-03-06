@@ -282,4 +282,5 @@ ENDCG
         }
     }
     CustomEditor "z3y.Shaders.SimpleLitSmartGUI"
+    Fallback "VRChat/Mobile/Lightmapped"
 }
