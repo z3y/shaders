@@ -99,6 +99,10 @@ namespace z3y.Shaders
         private MaterialProperty _LTCGI;
         //[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private MaterialProperty _LTCGI_DIFFUSE_OFF;
+        private MaterialProperty _EmissionPulseIntensity;
+        private MaterialProperty _EmissionPulseSpeed;
+        private MaterialProperty _AudioLinkEmission;
+        private MaterialProperty _AudioTexture;
 
         #endregion
 
@@ -213,15 +217,22 @@ namespace z3y.Shaders
             EditorGUILayout.Space();
             Draw(_EmissionMap, _EmissionColor, _EmissionDepth);
             Draw(_EmissionMultBase);
-
-            EditorGUILayout.Space();
             me.LightmapEmissionProperty();
+            Draw(_EmissionGIMultiplier);
+            EditorGUILayout.Space();
 
-            if (material.globalIlluminationFlags != MaterialGlobalIlluminationFlags.EmissiveIsBlack)
+            Draw(_EmissionPulseIntensity);
+            Draw(_EmissionPulseSpeed);
+            EditorGUILayout.Space();
+            Draw(_AudioLinkEmission);
+            if (_AudioLinkEmission.floatValue != 1000)
             {
-                Draw(_EmissionGIMultiplier);
+                Draw(_AudioTexture);
             }
             EditorGUILayout.Space();
+            
+            
+            
         }
 
         private void DrawDetailInputs(Material material, MaterialEditor me)

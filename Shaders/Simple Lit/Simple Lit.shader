@@ -112,6 +112,7 @@ Foldout_RenderingOptions("Rendering Options", Int) = 0
         [Enum(Default, 0, Texture Array, 1, Texture Array Instanced, 2)] _Texture ("Sampling Mode", Int) = 0
             _TextureIndex("Array Index", Int) = 0
 
+            _AudioTexture ("Audio Link Render Texture", 2D) = "black" {}
             [HideInInspector] [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
 
 
