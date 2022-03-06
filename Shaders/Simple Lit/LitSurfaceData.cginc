@@ -77,7 +77,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         #endif
 
         #ifdef _DETAILMASK_MAP
-            float2 detailMaskUV = (i.uv[_DetailMaskUV].xy * _DetailMask_ST.xy) + _DetailMask_ST.zw + parallaxOffset + detailDepth;
+            float2 detailMaskUV = (i.uv[_DetailMaskUV].xy * _DetailMask_ST.xy) + _DetailMask_ST.zw + parallaxOffset ;
             float detailMask = SampleTexture(_DetailMask, sampler_DetailMask, detailMaskUV).g;
         #else
             float detailMask = maskMap.b;
