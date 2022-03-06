@@ -14,7 +14,7 @@ Foldout_SurfaceInputs("Main Maps", Int) = 1
 
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _GlossinessMin ("Smoothness Min", Range(0,1)) = 0
-        [Gamma] _Metallic ("Metallic", Range(0,1)) = 0
+        _Metallic ("Metallic", Range(0,1)) = 0
         _MetallicMin ("Metallic Min", Range(0,1)) = 0
         _Occlusion ("Occlusion", Range(0,1)) = 0
         _Reflectance ("Reflectance", Range(0.0, 1.0)) = 0.5
@@ -64,12 +64,16 @@ Foldout_SurfaceInputs("Main Maps", Int) = 1
 
             _EmissionGIMultiplier("GI Multiplier", Float) = 1
 
-Foldout_DetailInputs("Detail Maps", Int) = 0
-        _DetailAlbedoMap ("Albedo & Smoothness", 2D) = "linearGrey" {}
+        Foldout_DetailInputs("Detail Maps", Int) = 0
         [Enum(Overlay, 0, Screen, 1, Multiply X2, 2, Replace, 3)] _DetailBlendMode ("Blend Mode", Int) = 0
-        [Enum(Detail Smoothness, 0, Detail Mask, 1)] _DetailAlbedoAlpha ("Albedo Alpha", Int) = 0
+
+        [Enum(Packed, 0, Mask Map, 1)] _DetailMaskSelect ("Mask", Int) = 0
+        [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]  _DetailMaskUV ("UV", Int) = 0
+        _DetailMask ("Mask", 2D) = "white" {}
+
+        [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]  _DetailMapUV ("UV", Int) = 0
+        _DetailAlbedoMap ("Albedo & Smoothness", 2D) = "linearGrey" {}
         [Normal] _DetailNormalMap ("Normal Map", 2D) = "bump" {}
-            [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]  _DetailMapUV ("Detail UV", Int) = 0
             _DetailDepth("Depth", Float) = 0
             _DetailAlbedoScale ("Albedo Scale", Range(0.0, 1.0)) = 1
             _DetailNormalScale ("Scale", Float) = 1
@@ -83,7 +87,7 @@ Foldout_DetailInputs("Detail Maps", Int) = 0
         [ToggleUI] _DetailSmoothnessPackingInvert ("Invert", Float) = 0
 
         _ParallaxMap ("Height Map", 2D) = "white" {}
-            _Parallax ("Scale", Range (0, 0.2)) = 0.02
+            [PowerSlider(2)] _Parallax ("Scale", Range (0, 0.2)) = 0.02
             _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
 
 Foldout_RenderingOptions("Rendering Options", Int) = 0
@@ -187,6 +191,7 @@ ENDCG
             #pragma shader_feature_local _NORMAL_MAP
             #pragma shader_feature_local _DETAILALBEDO_MAP
             #pragma shader_feature_local _DETAILNORMAL_MAP
+            #pragma shader_feature_local _DETAILMASK_MAP
             #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP
 
             #pragma shader_feature_local AUDIOLINK
@@ -226,6 +231,7 @@ ENDCG
             #pragma shader_feature_local _NORMAL_MAP
             #pragma shader_feature_local _DETAILALBEDO_MAP
             #pragma shader_feature_local _DETAILNORMAL_MAP
+            #pragma shader_feature_local _DETAILMASK_MAP
             #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP
             
 
@@ -275,6 +281,7 @@ ENDCG
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _DETAILALBEDO_MAP
+            #pragma shader_feature_local _DETAILMASK_MAP
             #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP    
 
             #include "PassCGI.cginc"

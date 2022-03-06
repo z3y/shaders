@@ -61,6 +61,10 @@ namespace z3y.Shaders
         private MaterialProperty _TextureIndex;
 
         private MaterialProperty Foldout_DetailInputs;
+        private MaterialProperty _DetailDepth;
+        private MaterialProperty _DetailMaskSelect;
+        private MaterialProperty _DetailMask;
+        private MaterialProperty _DetailMaskUV;
         private MaterialProperty _DetailAlbedoMap;
         private MaterialProperty _DetailNormalMap;
         private MaterialProperty _DetailNormalScale;
@@ -73,7 +77,6 @@ namespace z3y.Shaders
         private MaterialProperty _DetailSmoothnessPacking;
         private MaterialProperty _DetailSmoothnessPackingChannel;
         private MaterialProperty _DetailSmoothnessPackingInvert;
-        private MaterialProperty _DetailAlbedoAlpha;
         private MaterialProperty _DetailBlendMode;
 
 
@@ -96,7 +99,7 @@ namespace z3y.Shaders
         private MaterialProperty _LTCGI;
         //[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private MaterialProperty _LTCGI_DIFFUSE_OFF;
-        private MaterialProperty _DetailDepth;
+
         #endregion
 
 
@@ -229,24 +232,29 @@ namespace z3y.Shaders
             }
 
             Draw(_DetailBlendMode);
-            Draw(_DetailAlbedoAlpha);
-            Draw(_DetailAlbedoMap, _DetailAlbedoScale, null, _DetailAlbedoAlpha.floatValue == 1 ? "Albedo & Mask" : null);
+            
+
+            Draw(_DetailAlbedoMap, _DetailAlbedoScale);
             DrawDetailAlbedoPacking(material);
-            if (_DetailAlbedoAlpha.floatValue == 0)
-            {
-                EditorGUI.indentLevel += 2;
-                Draw(_DetailSmoothnessScale);
-                EditorGUI.indentLevel -= 2;
-            }
-            else
-            {
-                _DetailSmoothnessScale.floatValue = 0f;
-            }
+
+            EditorGUI.indentLevel += 2;
+            Draw(_DetailSmoothnessScale);
+            EditorGUI.indentLevel -= 2;
 
             Draw(_DetailNormalMap, _DetailNormalScale);
             me.TextureScaleOffsetProperty(_DetailAlbedoMap);
             Draw(_DetailMapUV);
             Draw(_DetailDepth);
+            EditorGUILayout.Space();
+
+            Draw(_DetailMaskSelect);
+            if (_DetailMaskSelect.floatValue == 1)
+            {
+                Draw(_DetailMask);
+                me.TextureScaleOffsetProperty(_DetailMask);
+                Draw(_DetailMaskUV);
+
+            }
             EditorGUILayout.Space();
         }
 
@@ -387,8 +395,7 @@ namespace z3y.Shaders
             VerticalScopeBox(() =>
             {
                 Draw(_DetailAlbedoPacking);
-                Draw(_DetailSmoothnessPacking, _DetailSmoothnessPackingChannel, _DetailSmoothnessPackingInvert, null, 
-                    _DetailAlbedoAlpha.floatValue == 1 ? "Mask Map" : _DetailSmoothnessPackingInvert.floatValue == 1 ? "Roughness Map" : null);
+                Draw(_DetailSmoothnessPacking, _DetailSmoothnessPackingChannel, _DetailSmoothnessPackingInvert);
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button("Pack"))
                 {
@@ -480,6 +487,8 @@ namespace z3y.Shaders
             m.ToggleKeyword("_ALPHAMODULATE_ON", mode == 5);
 
             m.ToggleKeyword("AUDIOLINK", m.GetFloat("_AudioLinkEmission") != 1000);
+
+            m.ToggleKeyword("_DETAILMASK_MAP", m.GetFloat("_DetailMaskSelect") == 1 && m.GetTexture("_DetailMask"));
 
             var samplingMode = (int)m.GetFloat("_Texture");
             m.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);

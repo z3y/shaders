@@ -2,6 +2,7 @@ Texture2D _MainTex; SamplerState sampler_MainTex;
 Texture2D _MetallicGlossMap; SamplerState sampler_MetallicGlossMap;
 Texture2D _BumpMap; SamplerState sampler_BumpMap;
 
+Texture2D _DetailMask; SamplerState sampler_DetailMask;
 Texture2D _DetailNormalMap; SamplerState sampler_DetailNormalMap;
 Texture2D _DetailAlbedoMap; SamplerState sampler_DetailAlbedoMap;
 
@@ -21,6 +22,8 @@ half _BumpScale;
 half _Reflectance;
 
 half4 _DetailAlbedoMap_ST;
+half _DetailMaskUV;
+half4 _DetailMask_ST;
 half _DetailMapUV;
 half _DetailDepth;
 half _DetailAlbedoScale;

@@ -64,7 +64,8 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
 
         float2 detailUV = i.uv[_DetailMapUV].xy;
-        detailUV = (detailUV * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset + ParallaxOffsetUV(_DetailDepth, i.parallaxViewDir);
+        float2 detailDepth = ParallaxOffsetUV(_DetailDepth, i.parallaxViewDir);
+        detailUV = (detailUV * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset + detailDepth;
         float4 detailMap = 0.5;
         float3 detailAlbedo = 0.0;
         float detailSmoothness = 0.0;
@@ -75,7 +76,12 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
             float4 sampledDetailAlbedo = half4(1.0, 1.0, 1.0, 1.0);
         #endif
 
-        float detailMask = _DetailAlbedoAlpha == 0.0 ? maskMap.b : sampledDetailAlbedo.a;
+        #ifdef _DETAILMASK_MAP
+            float2 detailMaskUV = (i.uv[_DetailMaskUV].xy * _DetailMask_ST.xy) + _DetailMask_ST.zw + parallaxOffset + detailDepth;
+            float detailMask = SampleTexture(_DetailMask, sampler_DetailMask, detailMaskUV).g;
+        #else
+            float detailMask = maskMap.b;
+        #endif
 
         #if defined(_DETAILNORMAL_MAP)
             float4 detailNormalMap = SampleTexture(_DetailNormalMap, sampler_DetailNormalMap, detailUV);
