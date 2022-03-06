@@ -5,25 +5,9 @@
 #include "Lighting.cginc"
 
 #include "InputsCGI.cginc"
-#include "SurfaceData.cginc"
+#include "../ShaderLibrary/SurfaceData.cginc"
 #include "Defines.cginc"
-
-struct appdata
-{
-    float4 vertex : POSITION;
-    float3 normal : NORMAL;
-    float3 uv0 : TEXCOORD0;
-    float2 uv1 : TEXCOORD1;
-    float2 uv2 : TEXCOORD2;
-    float4 tangent : TANGENT;
-
-    #ifdef NEED_VERTEX_COLOR
-        half4 color : COLOR;
-    #endif
-
-    uint vertexId : SV_VertexID;
-    UNITY_VERTEX_INPUT_INSTANCE_ID
-};
+#include "../ShaderLibrary/CommonFunctions.cginc"
 
 struct v2f
 {
@@ -64,7 +48,7 @@ struct v2f
 	UNITY_VERTEX_OUTPUT_STEREO
 };
 
-v2f vert (appdata v)
+v2f vert (appdata_all v)
 {
     v2f o;
     UNITY_INITIALIZE_OUTPUT(v2f, o);
@@ -81,8 +65,8 @@ v2f vert (appdata v)
     #endif
 
     o.coord0.xy = v.uv0.xy;
-    o.coord0.zw = v.uv1;
-    o.coord1.xy = v.uv2;
+    o.coord0.zw = v.uv1.xy;
+    o.coord1.xy = v.uv2.xy;
     #ifdef _TEXTURE_ARRAY
         o.coord1.z = _Texture == 2.0 ? UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _TextureIndex) : v.uv0.z;
     #endif
@@ -132,14 +116,13 @@ v2f vert (appdata v)
     return o;
 }
 
-#include "../CGIncludes/FunctionsCGI.cginc"
-#include "../CGIncludes/BicubicSampling.cginc"
-#include "../CGIncludes/MultistepParallax.cginc"
-#include "../CGIncludes/NonImportantLights.cginc"
-#include "../CGIncludes/EnvironmentBRDF.cginc"
-#include "../CGIncludes/BlendModes.cginc"
+#include "../ShaderLibrary/BicubicSampling.cginc"
+#include "../ShaderLibrary/MultistepParallax.cginc"
+#include "../ShaderLibrary/NonImportantLights.cginc"
+#include "../ShaderLibrary/EnvironmentBRDF.cginc"
+#include "../ShaderLibrary/BlendModes.cginc"
 #ifdef AUDIOLINK
-#include "../CGIncludes/AudioLink.cginc"
+#include "../ShaderLibrary/AudioLink.cginc"
 #endif
 #include "LitSurfaceData.cginc"
 #include "CoreCGI.cginc"

@@ -11,10 +11,6 @@ Texture2DArray _MainTexArray; SamplerState sampler_MainTexArray;
 Texture2DArray _BumpMapArray; SamplerState sampler_BumpMapArray;
 Texture2DArray _MetallicGlossMapArray; SamplerState sampler_MetallicGlossMapArray;
 
-Texture2D _RNM0, _RNM1, _RNM2;
-SamplerState sampler_RNM0, sampler_RNM1, sampler_RNM2;
-float4 _RNM0_TexelSize;
-
 half _Glossiness;
 half _GlossinessMin;
 half _Metallic;

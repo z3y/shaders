@@ -1,7 +1,34 @@
+#ifndef COMMON_FUNCTIONS_INCLUDED
+#define COMMON_FUNCTIONS_INCLUDED
+
 // Partially taken from Google Filament, Xiexe, Catlike Coding and Unity
 // https://google.github.io/filament/Filament.html
 // https://github.com/Xiexe/Unity-Lit-Shader-Templates
 // https://catlikecoding.com/
+
+#define GRAYSCALE float3(0.2125, 0.7154, 0.0721)
+#define TAU float(6.28318530718)
+#define glsl_mod(x,y) (((x)-(y)*floor((x)/(y))))
+
+struct appdata_all
+{
+    float4 vertex : POSITION;
+    float3 normal : NORMAL;
+    float4 uv0 : TEXCOORD0;
+    float4 uv1 : TEXCOORD1;
+    float4 uv2 : TEXCOORD2;
+    float4 uv3 : TEXCOORD3;
+    float4 tangent : TANGENT;
+    half4 color : COLOR;
+
+    uint vertexId : SV_VertexID;
+    UNITY_VERTEX_INPUT_INSTANCE_ID
+};
+
+
+Texture2D _RNM0, _RNM1, _RNM2;
+SamplerState sampler_RNM0, sampler_RNM1, sampler_RNM2;
+float4 _RNM0_TexelSize;
 
 half RemapMinMax(half value, half remapMin, half remapMax)
 {
@@ -162,12 +189,11 @@ float shEvaluateDiffuseL1Geomerics_local(float L0, float3 L1, float3 n)
 #ifdef DYNAMICLIGHTMAP_ON
 float3 getRealtimeLightmap(float2 uv, float3 worldNormal)
 {   
-    float2 realtimeUV = uv * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
-    half4 bakedCol = UNITY_SAMPLE_TEX2D(unity_DynamicLightmap, realtimeUV);
+    half4 bakedCol = UNITY_SAMPLE_TEX2D(unity_DynamicLightmap, uv);
     float3 realtimeLightmap = DecodeRealtimeLightmap(bakedCol);
 
     #ifdef DIRLIGHTMAP_COMBINED
-        half4 realtimeDirTex = UNITY_SAMPLE_TEX2D_SAMPLER(unity_DynamicDirectionality, unity_DynamicLightmap, realtimeUV);
+        half4 realtimeDirTex = UNITY_SAMPLE_TEX2D_SAMPLER(unity_DynamicDirectionality, unity_DynamicLightmap, uv);
         realtimeLightmap += DecodeDirectionalLightmap (realtimeLightmap, realtimeDirTex, worldNormal);
     #endif
 
@@ -207,3 +233,4 @@ float Unity_Dither(float In, float2 ScreenPosition)
 
     return In - DITHER_THRESHOLDS[uint(uv.x) % 4][uint(uv.y) % 4];
 }
+#endif

@@ -1,4 +1,5 @@
-
+#ifndef ENVIRONMENTBRDF_INCLUDED
+#define ENVIRONMENTBRDF_INCLUDED
 Texture2D _DFG;
 SamplerState sampler_DFG;
 
@@ -33,3 +34,4 @@ half3 EnvBRDFApprox(half perceptualRoughness, half NoV, half3 f0, half specOcclu
     half a1 = t.w;
     return saturate(lerp(a0*specOcclusion, a1, f0));
 }
+#endif

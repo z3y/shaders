@@ -20,6 +20,22 @@ namespace z3y.Shaders
         private MaterialProperty[] _materialProperties;
         private int propertyCount = 0;
 
+        public enum UVSelect
+        {
+            UV0,
+            UV1,
+            UV2,
+            UV3
+        }
+        
+        public enum ChannelSelect
+        {
+            Red,
+            Green,
+            Blue,
+            Alpha
+        }
+
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] materialProperties)
         {
             var material = materialEditor.target as Material;

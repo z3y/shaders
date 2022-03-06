@@ -1,7 +1,3 @@
-#define GRAYSCALE float3(0.2125, 0.7154, 0.0721)
-#define TAU float(6.28318530718)
-#define glsl_mod(x,y) (((x)-(y)*floor((x)/(y))))
-
 
 #if defined(SHADER_API_MOBILE)
     #undef _DETAILNORMAL_MAP
