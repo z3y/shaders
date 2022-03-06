@@ -24,19 +24,14 @@ half4 SampleTexture(Texture2DArray t, SamplerState s, float2 uv)
 
 void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 {
-    arrayIndex = i.coord1.z;
-
-    float4 mainST = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _MainTex_ST);
-
+    arrayIndex = i.uv[3].z;
     float2 parallaxOffset = 0.0;
     #if defined(PARALLAX)
-        float2 parallaxUV = i.coord0.xy * mainST.xy + mainST.zw;
+        float2 parallaxUV = i.uv[0].zw;
         parallaxOffset = ParallaxOffset(i.parallaxViewDir, parallaxUV);
     #endif
 
-    half2 mainUV = i.coord0.xy * mainST.xy + mainST.zw + parallaxOffset;
-    
-    
+    half2 mainUV = i.uv[0].zw + parallaxOffset;
     half4 mainTexture = SampleTexture(TEXARGS(_MainTex), TEXARGS(sampler_MainTex), mainUV);
 
     mainTexture *= UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _Color);
@@ -68,12 +63,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
     #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
 
-        float2 detailUV = i.coord0.xy;
-        if (_DetailMapUV == 1.0)
-            detailUV = i.coord0.zw;
-        else if (_DetailMapUV == 2.0)
-            detailUV = i.coord1.xy;
-
+        float2 detailUV = i.uv[_DetailMapUV].xy;
         detailUV = (detailUV * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset + ParallaxOffsetUV(_DetailDepth, i.parallaxViewDir);
         float4 detailMap = 0.5;
         float3 detailAlbedo = 0.0;

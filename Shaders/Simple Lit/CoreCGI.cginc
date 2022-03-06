@@ -111,7 +111,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     half3 indirectDiffuse;
     #if defined(LIGHTMAP_ON) || defined(DYNAMICLIGHTMAP_ON)
 
-        float2 lightmapUV = i.coord0.zw * unity_LightmapST.xy + unity_LightmapST.zw;
+        float2 lightmapUV = i.uv[1].zw;
         half4 bakedColorTex = SampleBicubic(unity_Lightmap, samplerunity_Lightmap, lightmapUV);
         half3 lightMap = DecodeLightmap(bakedColorTex);
 
@@ -160,7 +160,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
 
         #if defined(DYNAMICLIGHTMAP_ON) && !defined(SHADER_API_MOBILE)
-            float3 realtimeLightMap = getRealtimeLightmap(i.coord1.xy, worldNormal);
+            float3 realtimeLightMap = getRealtimeLightmap(i.uv[2].zw, worldNormal);
             lightMap += realtimeLightMap; 
         #endif
 
@@ -322,7 +322,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #ifdef LTCGI
             float2 ltcgi_lmuv;
     #if defined(LIGHTMAP_ON)
-            ltcgi_lmuv = i.coord0.zw;
+            ltcgi_lmuv = i.uv[1].xy;
     #else
             ltcgi_lmuv = float2(0, 0);
     #endif

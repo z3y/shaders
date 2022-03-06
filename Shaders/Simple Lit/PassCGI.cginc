@@ -12,15 +12,14 @@
 struct v2f
 {
     float4 pos : SV_POSITION;
-    float4 coord0 : TEXCOORD0;
-    float3 coord1 : TEXCOORD1;
-    float3 bitangent : TEXCOORD2;
-    float3 tangent : TEXCOORD3;
-    float3 worldNormal : TEXCOORD4;
-    float4 worldPos : TEXCOORD5;
+    float4 uv[4] : TEXCOORD0;
+    float3 bitangent : TEXCOORD4;
+    float3 tangent : TEXCOORD5;
+    float3 worldNormal : TEXCOORD6;
+    float4 worldPos : TEXCOORD7;
 
     #if defined(PARALLAX) || defined(BAKERYLM_ENABLED) || defined(EMISSION) || defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
-        float3 parallaxViewDir : TEXCOORD6;
+        float3 parallaxViewDir : TEXCOORD8;
     #endif
 
     #ifdef NEED_VERTEX_COLOR
@@ -28,20 +27,20 @@ struct v2f
     #endif
 
     #if defined(NEED_CENTROID_NORMAL)
-        centroid float3 centroidWorldNormal : TEXCOORD8;
+        centroid float3 centroidWorldNormal : TEXCOORD10;
     #endif
 
     #ifdef NEED_SCREEN_POS
-        float4 screenPos : TEXCOORD9;
+        float4 screenPos : TEXCOORD11;
     #endif
 
     #if !defined(UNITY_PASS_SHADOWCASTER)
-        UNITY_FOG_COORDS(10)
-        UNITY_SHADOW_COORDS(11)
+        UNITY_FOG_COORDS(12)
+        UNITY_SHADOW_COORDS(13)
     #endif
 
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
-        half3 vertexLight : TEXCOORD12;
+        half3 vertexLight : TEXCOORD14;
     #endif
 
     UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -64,11 +63,18 @@ v2f vert (appdata_all v)
         #endif
     #endif
 
-    o.coord0.xy = v.uv0.xy;
-    o.coord0.zw = v.uv1.xy;
-    o.coord1.xy = v.uv2.xy;
+    o.uv[0].xy = v.uv0.xy;
+    o.uv[1].xy = v.uv1.xy;
+    o.uv[2].xy = v.uv2.xy;
+    o.uv[3].xy = v.uv3.xy;
+
+    float4 mainST = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _MainTex_ST);
+    o.uv[0].zw = v.uv0.xy * mainST.xy + mainST.zw;
+    o.uv[1].zw = v.uv1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
+    o.uv[2].zw = v.uv2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+
     #ifdef _TEXTURE_ARRAY
-        o.coord1.z = _Texture == 2.0 ? UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _TextureIndex) : v.uv0.z;
+        o.uv[3].z = _Texture == 2.0 ? UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _TextureIndex) : v.uv0.z;
     #endif
 
     o.worldNormal = UnityObjectToWorldNormal(v.normal);
@@ -100,7 +106,7 @@ v2f vert (appdata_all v)
         o.pos = UnityApplyLinearShadowBias(o.pos);
         TRANSFER_SHADOW_CASTER_NOPOS(o, o.pos);
     #else
-        UNITY_TRANSFER_SHADOW(o, o.coord0.zw);
+        UNITY_TRANSFER_SHADOW(o, o.uv[1].xy);
         UNITY_TRANSFER_FOG(o,o.pos);
     #endif
 
