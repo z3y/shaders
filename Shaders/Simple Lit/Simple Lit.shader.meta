@@ -23,7 +23,7 @@ ShaderImporter:
   - _RNM0: {instanceID: 0}
   - _RNM1: {instanceID: 0}
   - _RNM2: {instanceID: 0}
-  - _AudioTexture: {instanceID: 0}
+  - _AudioTexture: {fileID: 8600000, guid: f51fa799ef0abde489235f40fc0328ef, type: 2}
   nonModifiableTextures:
   - _DFG: {fileID: 2800000, guid: cbf702fb4e469384aa70ef8f9e6230c7, type: 3}
   userData: 
