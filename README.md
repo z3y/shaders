@@ -22,13 +22,15 @@ Repository for my Unity shaders for VRChat.
 - Non-Important lights per pixel
 - Lod Crossfade
 - LTCGI
+- Pulse emission
 
 And QoL editor tools like automatic bakery mode switching on all materials, texture packing in inspector, normal map orientation conversion, global toggles
 
 ### [Documentation](https://github.com/z3y/shaders/wiki/Features-Overview)
 
 
-![Inspector](https://user-images.githubusercontent.com/33181641/153788980-6012e4bf-ebfd-402e-bbbd-c73c558dc549.png)
+![Inspector](https://user-images.githubusercontent.com/33181641/157121128-f1820571-d9d5-419a-9d5a-654039f92c89.png)
+
 
 ![Texture Packing](https://user-images.githubusercontent.com/33181641/153789051-8c5f8b1f-a82e-4ee4-bc4b-0c54dc3091c9.png)
 
