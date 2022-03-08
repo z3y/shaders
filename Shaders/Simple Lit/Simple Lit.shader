@@ -22,22 +22,6 @@ Foldout_SurfaceInputs("Main Maps", Int) = 1
         _MetallicGlossMap ("Packed Mask", 2D) = "white" {}
         _MetallicGlossMapArray ("Packed Mask Array", 2DArray) = "" {}
 
-        // properties used only for texture packing
-        _IsPackingMetallicGlossMap ("", Float) = 0
-        _MetallicMap ("Metallic Map", 2D) = "black" {}
-        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _MetallicMapChannel ("Channel", Int) = 0
-        _OcclusionMap ("Occlusion Map", 2D) = "white" {}
-        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _OcclusionMapChannel ("Channel", Int) = 0
-        _DetailMaskMap ("Detail Mask", 2D) = "white" {}
-        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _DetailMaskMapChannel ("Channel", Int) = 0
-        _SmoothnessMap ("Smoothness Map", 2D) = "white" {}
-        [Enum(Red, 0, Green, 1, Blue, 2, Alpha, 3)]  _SmoothnessMapChannel ("Channel", Int) = 0
-        [ToggleUI] _SmoothnessMapInvert ("Invert", Float) = 0
-        [ToggleUI] _DetailMaskMapInvert ("Invert", Float) = 0
-        [ToggleUI] _OcclusionMapInvert ("Invert", Float) = 0
-        [ToggleUI] _MetallicMapInvert ("Invert", Float) = 0
-        
-
 
         [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
             _BumpMapArray ("Normal Map Array", 2DArray) = "" {}

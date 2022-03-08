@@ -118,6 +118,145 @@ namespace z3y.Shaders
             AssetDatabase.Refresh();
         }
 
+        public enum ChannelSelect
+        {
+            Red,
+            Green,
+            Blue,
+            Alpha
+        }
+
+        public static void TexturePackingField(ref FieldData data, string name, string invertName = null)
+        { 
+            TexturePackingField(ref data.texture, ref data.channelSelect, ref data.invert, name, invertName);
+        }
+
+        public static void PackButton(Action onPack, Action onClose)
+        {
+            GUILayout.Space(1);
+            using (new EditorGUILayout.VerticalScope("box"))
+            {
+                GUILayout.Space(1);
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Pack"))
+                {
+                    onPack();
+                }
+
+                if (GUILayout.Button("Close"))
+                {
+                    onClose();
+                }
+                EditorGUILayout.EndHorizontal();
+                GUILayout.Space(1);
+            }
+            GUILayout.Space(1);
+        }
+
+        public static bool Pack(MaterialProperty setTexture, FieldData red, FieldData green, FieldData blue, FieldData alpha, bool disableSrgb = false)
+        {
+            var reference = green.texture ?? red.texture ?? alpha.texture ?? blue.texture;
+            if (reference == null)
+            {
+                return true;
+            }
+
+            var rChannel = new Channel()
+            {
+                Tex = red.texture,
+                ID = (int)red.channelSelect,
+                Invert = red.invert,
+                DefaultWhite = red.isWhite
+            };
+
+            var gChannel = new Channel()
+            {
+                Tex = green.texture,
+                ID = (int) green.channelSelect,
+                Invert = green.invert,
+                DefaultWhite = green.isWhite
+            };
+
+            var bChannel = new Channel()
+            {
+                Tex = blue.texture,
+                ID = (int)blue.channelSelect,
+                Invert = blue.invert,
+                DefaultWhite = blue.isWhite
+            };
+
+            var aChannel = new Channel()
+            {
+                Tex = alpha.texture,
+                ID = (int)alpha.channelSelect,
+                Invert = alpha.invert,
+                DefaultWhite = alpha.isWhite
+            };
+
+            var path = AssetDatabase.GetAssetPath(reference);
+            var newPath = Path.GetDirectoryName(path) + "/" + Path.GetFileNameWithoutExtension(path) + "_Packed";
+
+            Pack(new[] { rChannel, gChannel, bChannel, aChannel }, newPath, reference.width, reference.height);
+            var packedTexture = GetPackedTexture(newPath);
+            if (disableSrgb)
+            {
+                DisableSrgb(packedTexture);
+            }
+            setTexture.textureValue = packedTexture;
+            return false;
+        }
+
+        private static void TexturePackingField(ref Texture2D texture, ref ChannelSelect channelSelect, ref bool invert, string name, string invertName = null)
+        {
+            using (new EditorGUILayout.VerticalScope("box"))
+            {
+                GUILayout.Space(1);
+
+                GUILayout.BeginHorizontal();
+                var style = new GUIStyle(GUI.skin.label)
+                {
+                    alignment = TextAnchor.UpperLeft,
+                    richText = true,
+                    
+                };
+                texture = (Texture2D)EditorGUILayout.ObjectField(texture, typeof(Texture2D), false, GUILayout.Width(40), GUILayout.Height(40));
+                GUILayout.Space(10);
+                GUILayout.BeginVertical();
+
+                GUILayout.BeginHorizontal();
+                if (invertName != null && invert)
+                {
+                    GUILayout.Label($"<b>{invertName}</b>", style, GUILayout.Width(75));
+                }
+                else
+                {
+                    GUILayout.Label($"<b>{name}</b>", style, GUILayout.Width(75));
+                }
+                GUILayout.Label(texture ? texture.name :  " ", style);
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                channelSelect = (ChannelSelect)EditorGUILayout.EnumPopup(channelSelect, GUILayout.Width(70));
+                GUILayout.Space(10);
+                invert = GUILayout.Toggle(invert, "Invert", GUILayout.Width(70));
+                GUILayout.EndHorizontal();
+
+                GUILayout.EndVertical();
+                GUILayout.EndHorizontal();
+
+                GUILayout.Space(1);
+            }
+
+        }
+
+        public struct FieldData
+        {
+            public Texture2D texture;
+            public bool invert;
+            public bool isWhite;
+            public ChannelSelect channelSelect;
+        }
+
         public class FixImportSettings : AssetPostprocessor
         {
             private void OnPreprocessTexture()

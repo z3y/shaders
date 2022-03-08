@@ -27,20 +27,6 @@ namespace z3y.Shaders
 
         private MaterialProperty _MetallicGlossMap;
 
-        private MaterialProperty _IsPackingMetallicGlossMap;
-        private MaterialProperty _MetallicMap;
-        private MaterialProperty _MetallicMapChannel;
-        private MaterialProperty _MetallicMapInvert;
-        private MaterialProperty _OcclusionMap;
-        private MaterialProperty _OcclusionMapChannel;
-        private MaterialProperty _OcclusionMapInvert;
-        private MaterialProperty _DetailMaskMap;
-        private MaterialProperty _DetailMaskMapChannel;
-        private MaterialProperty _DetailMaskMapInvert;
-        private MaterialProperty _SmoothnessMap;
-        private MaterialProperty _SmoothnessMapChannel;
-        private MaterialProperty _SmoothnessMapInvert;
-
         private MaterialProperty _BumpMap;
         private MaterialProperty _BumpScale;
         private MaterialProperty _BumpMapArray;
@@ -95,9 +81,9 @@ namespace z3y.Shaders
         private MaterialProperty _specularAntiAliasingThreshold;
         private MaterialProperty _NonLinearLightProbeSH;
         private MaterialProperty _BakedSpecular;
-        //[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private MaterialProperty _LTCGI;
-        //[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private MaterialProperty _LTCGI_DIFFUSE_OFF;
         private MaterialProperty _EmissionPulseIntensity;
         private MaterialProperty _EmissionPulseSpeed;
@@ -107,8 +93,16 @@ namespace z3y.Shaders
         #endregion
 
 
+
+        private static bool _maskPacking;
+        private static TexturePacking.FieldData _maskPackingMetallic;
+        private static TexturePacking.FieldData _maskPackingDetailMask;
+        private static TexturePacking.FieldData _maskPackingOcclusion;
+        private static TexturePacking.FieldData _maskPackingSmoothness;
+
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
+            
             DrawSurfaceInputs(material, materialEditor);
             DrawEmissionMaps(material, materialEditor);
             DrawDetailInputs(material, materialEditor);
@@ -138,7 +132,7 @@ namespace z3y.Shaders
             if (_Texture.floatValue == 1 || _Texture.floatValue == 2)
             {
                 Draw(_MainTexArray, _Color, _AlbedoSaturation);
-                Draw(_MetallicGlossMapArray, null, null, "Metallic (R) | Occlusion (G) | Detail Mask (B) | Smoothness (A)");
+                Draw(_MetallicGlossMapArray, null, null, "R: Metallic\nG: Occlusion\nB: Detail Mask\nA: Smoothness");
 
                 EditorGUI.indentLevel += 2;
                 if (_MetallicGlossMapArray.textureValue == null)
@@ -158,7 +152,7 @@ namespace z3y.Shaders
             else
             {
                 Draw(_MainTex, _Color, _AlbedoSaturation);
-                Draw(_MetallicGlossMap, null, null, "Metallic (R) | Occlusion (G) | Detail Mask (B) | Smoothness (A)");
+                Draw(_MetallicGlossMap, null, null, "R: Metallic\nG: Occlusion\nB: Detail Mask\nA: Smoothness");
                 sRGBWarning(_MetallicGlossMap);
 
                 DrawMaskMapPacking(material);
@@ -323,12 +317,21 @@ namespace z3y.Shaders
         }
         private void DrawMaskMapPacking(Material material)
         {
-            if (!TextureFoldout(_IsPackingMetallicGlossMap))
+            if (!TextureFoldout(ref _maskPacking))
             {
                 return;
             }
 
-            VerticalScopeBox(() =>
+            TexturePacking.TexturePackingField(ref _maskPackingMetallic, "Metallic");
+            TexturePacking.TexturePackingField(ref _maskPackingDetailMask, "Detail Mask");
+            TexturePacking.TexturePackingField(ref _maskPackingOcclusion, "Occlusion");
+            TexturePacking.TexturePackingField(ref _maskPackingSmoothness, "Smoothness", "Roughness");
+
+            TexturePacking.PackButton(()=>{
+                TexturePacking.Pack(_MetallicGlossMap, _maskPackingMetallic, _maskPackingDetailMask, _maskPackingOcclusion, _maskPackingSmoothness, true);
+            }, null);
+
+            /*VerticalScopeBox(() =>
             {
                 Draw(_MetallicMap, _MetallicMapInvert, _MetallicMapChannel);
                 Draw(_OcclusionMap, _OcclusionMapInvert, _OcclusionMapChannel);
@@ -345,55 +348,7 @@ namespace z3y.Shaders
                     ResetProperty(material, new[] { _MetallicMap, _OcclusionMap, _DetailMaskMap, _IsPackingMetallicGlossMap });
                 }
                 EditorGUILayout.EndHorizontal();
-            });
-        }
-        private bool PackMaskMap()
-        {
-            var rTex = (Texture2D)_MetallicMap.textureValue;
-            var gTex = (Texture2D)_OcclusionMap.textureValue;
-            var bTex = (Texture2D)_DetailMaskMap.textureValue;
-            var aTex = (Texture2D)_SmoothnessMap.textureValue;
-
-            var reference = aTex ?? gTex ?? rTex ?? bTex;
-            if (reference == null) return true;
-
-            var rChannel = new TexturePacking.Channel()
-            {
-                Tex = rTex,
-                ID = (int)_MetallicMapChannel.floatValue,
-                Invert = _MetallicMapInvert.floatValue == 1,
-                DefaultWhite = false
-            };
-
-            var gChannel = new TexturePacking.Channel()
-            {
-                Tex = gTex,
-                ID = (int)_OcclusionMapChannel.floatValue,
-                Invert = _OcclusionMapInvert.floatValue == 1
-            };
-
-            var bChannel = new TexturePacking.Channel()
-            {
-                Tex = bTex,
-                ID = (int)_DetailMaskMapChannel.floatValue,
-                Invert = _DetailMaskMapInvert.floatValue == 1
-            };
-
-            var aChannel = new TexturePacking.Channel()
-            {
-                Tex = aTex,
-                ID = (int)_SmoothnessMapChannel.floatValue,
-                Invert = _SmoothnessMapInvert.floatValue == 1
-            };
-
-            var path = AssetDatabase.GetAssetPath(reference);
-            var newPath = Path.GetDirectoryName(path) + "/" + Path.GetFileNameWithoutExtension(path) + "_Packed";
-
-            TexturePacking.Pack(new[] { rChannel, gChannel, bChannel, aChannel }, newPath, reference.width, reference.height);
-            var packedTexture = TexturePacking.GetPackedTexture(newPath);
-            TexturePacking.DisableSrgb(packedTexture);
-            _MetallicGlossMap.textureValue = packedTexture;
-            return false;
+            });*/
         }
 
         private void DrawDetailAlbedoPacking(Material material)

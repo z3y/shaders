@@ -76,6 +76,7 @@ namespace z3y.Shaders
                 }
             }
         }
+        
 
         private Rect GetControlRectForSingleLine()
         {
@@ -244,7 +245,9 @@ namespace z3y.Shaders
 
         public static bool TextureFoldout(MaterialProperty floatProperty)
         {
-            floatProperty.floatValue = TextureFoldout(floatProperty.floatValue == 1) ? 1 : 0;
+            bool isOpen = floatProperty.floatValue == 1;
+            TextureFoldout(ref isOpen);
+            floatProperty.floatValue = isOpen ? 1 : 0;
             if (floatProperty.floatValue != 1)
             {
                 return false;
@@ -252,7 +255,7 @@ namespace z3y.Shaders
             return true;
         }
 
-        public static bool TextureFoldout(bool display)
+        public static bool TextureFoldout(ref bool display)
         {
             var lastRect = GUILayoutUtility.GetLastRect();
             var e = Event.current;
