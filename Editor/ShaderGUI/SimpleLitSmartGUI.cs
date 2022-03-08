@@ -210,7 +210,7 @@ namespace z3y.Shaders
             Draw(_EmissionMap, _EmissionColor, _EmissionDepth);
             Draw(_EmissionMultBase);
             me.LightmapEmissionProperty();
-            Draw(_EmissionGIMultiplier);
+            Draw(_EmissionGIMultiplier, "Multiplies baked and realtime emission");
             EditorGUILayout.Space();
 
             Draw(_EmissionPulseIntensity);
@@ -237,7 +237,7 @@ namespace z3y.Shaders
             Draw(_DetailBlendMode);
             
 
-            Draw(_DetailAlbedoMap, _DetailAlbedoScale);
+            Draw(_DetailAlbedoMap, _DetailAlbedoScale, null, "RGB: Albedo\nA: Smoothness");
             DrawDetailAlbedoPacking(material);
 
             EditorGUI.indentLevel += 2;
@@ -269,7 +269,7 @@ namespace z3y.Shaders
             }
             Draw(_GlossyReflections);
             Draw(_SpecularHighlights);
-            Draw(_GSAA);
+            Draw(_GSAA, "Reduces specular shimmering");
             if (_GSAA.floatValue == 1)
             {
                 EditorGUI.indentLevel += 1;
@@ -279,7 +279,7 @@ namespace z3y.Shaders
                 EditorGUILayout.Space();
             }
             Draw(_Reflectance);
-            Draw(_SpecularOcclusion);
+            Draw(_SpecularOcclusion, "Removes fresnel from dark parts of lightmap");
             EditorGUILayout.Space();
 
 
@@ -303,8 +303,8 @@ namespace z3y.Shaders
             }
 #endif
 
-            Draw(_BakedSpecular);
-            Draw(_NonLinearLightProbeSH);
+            Draw(_BakedSpecular, "Specular Highlights from Directional, SH or RNM Lightmaps or Light Probes");
+            Draw(_NonLinearLightProbeSH, "Reduces ringing on Light Probes. Recommended to use with Bakery L1");
             EditorGUILayout.Space();
 
             Draw(_Cull);
@@ -328,9 +328,11 @@ namespace z3y.Shaders
             TexturePacking.TexturePackingField(ref _maskPackingOcclusion, "Occlusion");
             TexturePacking.TexturePackingField(ref _maskPackingSmoothness, "Smoothness", "Roughness");
 
-            TexturePacking.PackButton(()=>{
+            TexturePacking.PackButton( ()=> {
                 TexturePacking.Pack(_MetallicGlossMap, _maskPackingMetallic, _maskPackingDetailMask, _maskPackingOcclusion, _maskPackingSmoothness, true);
-            }, null);
+            }, () => {
+                TexturePacking.ResetPackingField(ref _maskPackingMetallic,ref _maskPackingDetailMask,ref _maskPackingOcclusion,ref _maskPackingSmoothness);
+            });
         }
 
         private void DrawDetailAlbedoPacking(Material material)
@@ -346,8 +348,12 @@ namespace z3y.Shaders
 
             TexturePacking.PackButton(() => {
                 TexturePacking.Pack(_DetailAlbedoMap, _detailPackingAlbedo, _detailPackingSmoothness);
-            }, null);
+            }, () => {
+                TexturePacking.ResetPackingField(ref _detailPackingAlbedo,ref _detailPackingSmoothness);
+            });
         }
+
+        
 
         public const string ShaderName = "Simple Lit";
         public override void AssignNewShaderToMaterial(Material m, Shader oldShader, Shader newShader)

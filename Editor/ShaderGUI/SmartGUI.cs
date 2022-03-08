@@ -46,6 +46,11 @@ namespace z3y.Shaders
             };
         }
 
+        public void Draw(MaterialProperty property, string onHover, string nameOverride = null)
+        {
+            Draw(property, null, null, onHover, nameOverride);
+        }
+
         public void Draw(MaterialProperty property, MaterialProperty extraProperty = null, MaterialProperty extraProperty2 = null, string onHover = null, string nameOverride = null)
         {
             if (property is null) return;

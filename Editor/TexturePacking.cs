@@ -128,7 +128,7 @@ namespace z3y.Shaders
 
         
 
-        public static void PackButton(Action onPack, Action onClose)
+        public static void PackButton(Action onPack, Action onReset)
         {
             GUILayout.Space(1);
             using (new EditorGUILayout.VerticalScope("box"))
@@ -140,14 +140,28 @@ namespace z3y.Shaders
                     onPack();
                 }
 
-                if (GUILayout.Button("Close"))
+                if (GUILayout.Button("Clear"))
                 {
-                    onClose();
+                    onReset();
                 }
                 EditorGUILayout.EndHorizontal();
                 GUILayout.Space(1);
             }
             GUILayout.Space(1);
+        }
+
+        public static void ResetPackingField(ref FieldData d1, ref FieldData d2)
+        {
+            d1 = new FieldData();
+            d2 = new FieldData();
+        }
+
+        public static void ResetPackingField(ref FieldData d1, ref FieldData d2, ref FieldData d3, ref FieldData d4)
+        {
+            d1 = new FieldData();
+            d2 = new FieldData();
+            d3 = new FieldData();
+            d4 = new FieldData();
         }
 
         public static bool Pack(MaterialProperty setTexture, FieldData albedo, FieldData alpha, bool disableSrgb = false)
