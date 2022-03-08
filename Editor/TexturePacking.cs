@@ -126,10 +126,7 @@ namespace z3y.Shaders
             Alpha
         }
 
-        public static void TexturePackingField(ref FieldData data, string name, string invertName = null)
-        { 
-            TexturePackingField(ref data.texture, ref data.channelSelect, ref data.invert, name, invertName);
-        }
+        
 
         public static void PackButton(Action onPack, Action onClose)
         {
@@ -151,6 +148,18 @@ namespace z3y.Shaders
                 GUILayout.Space(1);
             }
             GUILayout.Space(1);
+        }
+
+        public static bool Pack(MaterialProperty setTexture, FieldData albedo, FieldData alpha, bool disableSrgb = false)
+        {
+            FieldData r = albedo;
+            FieldData g = albedo;
+            FieldData b = albedo;
+            r.channelSelect = ChannelSelect.Red;
+            g.channelSelect = ChannelSelect.Green;
+            b.channelSelect = ChannelSelect.Blue;
+
+            return Pack(setTexture, r,g,b, alpha, disableSrgb);
         }
 
         public static bool Pack(MaterialProperty setTexture, FieldData red, FieldData green, FieldData blue, FieldData alpha, bool disableSrgb = false)
@@ -206,7 +215,12 @@ namespace z3y.Shaders
             return false;
         }
 
-        private static void TexturePackingField(ref Texture2D texture, ref ChannelSelect channelSelect, ref bool invert, string name, string invertName = null)
+        public static void TexturePackingField(ref FieldData data, string name, string invertName = null, bool showOptions = true)
+        {
+            TexturePackingField(ref data.texture, ref data.channelSelect, ref data.invert, name, invertName, showOptions);
+        }
+
+        private static void TexturePackingField(ref Texture2D texture, ref ChannelSelect channelSelect, ref bool invert, string name, string invertName = null, bool showOptions = true)
         {
             using (new EditorGUILayout.VerticalScope("box"))
             {
@@ -226,20 +240,23 @@ namespace z3y.Shaders
                 GUILayout.BeginHorizontal();
                 if (invertName != null && invert)
                 {
-                    GUILayout.Label($"<b>{invertName}</b>", style, GUILayout.Width(75));
+                    GUILayout.Label($"<b>{invertName}</b>", style, GUILayout.Width(85));
                 }
                 else
                 {
-                    GUILayout.Label($"<b>{name}</b>", style, GUILayout.Width(75));
+                    GUILayout.Label($"<b>{name}</b>", style, GUILayout.Width(85));
                 }
                 GUILayout.Label(texture ? texture.name :  " ", style);
                 GUILayout.EndHorizontal();
 
-                GUILayout.BeginHorizontal();
-                channelSelect = (ChannelSelect)EditorGUILayout.EnumPopup(channelSelect, GUILayout.Width(70));
-                GUILayout.Space(10);
-                invert = GUILayout.Toggle(invert, "Invert", GUILayout.Width(70));
-                GUILayout.EndHorizontal();
+                if (showOptions)
+                {
+                    GUILayout.BeginHorizontal();
+                    channelSelect = (ChannelSelect)EditorGUILayout.EnumPopup(channelSelect, GUILayout.Width(70));
+                    GUILayout.Space(20);
+                    invert = GUILayout.Toggle(invert, "Invert", GUILayout.Width(70));
+                    GUILayout.EndHorizontal();
+                }
 
                 GUILayout.EndVertical();
                 GUILayout.EndHorizontal();

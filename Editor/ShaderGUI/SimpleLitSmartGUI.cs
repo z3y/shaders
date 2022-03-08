@@ -100,6 +100,10 @@ namespace z3y.Shaders
         private static TexturePacking.FieldData _maskPackingOcclusion;
         private static TexturePacking.FieldData _maskPackingSmoothness;
 
+        private static bool _detailPacking;
+        private static TexturePacking.FieldData _detailPackingAlbedo;
+        private static TexturePacking.FieldData _detailPackingSmoothness;
+
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
             
@@ -322,6 +326,9 @@ namespace z3y.Shaders
                 return;
             }
 
+            _maskPackingDetailMask.isWhite = true;
+            _maskPackingOcclusion.isWhite = true;
+            _maskPackingSmoothness.isWhite = true;
             TexturePacking.TexturePackingField(ref _maskPackingMetallic, "Metallic");
             TexturePacking.TexturePackingField(ref _maskPackingDetailMask, "Detail Mask");
             TexturePacking.TexturePackingField(ref _maskPackingOcclusion, "Occlusion");
@@ -330,92 +337,22 @@ namespace z3y.Shaders
             TexturePacking.PackButton(()=>{
                 TexturePacking.Pack(_MetallicGlossMap, _maskPackingMetallic, _maskPackingDetailMask, _maskPackingOcclusion, _maskPackingSmoothness, true);
             }, null);
-
-            /*VerticalScopeBox(() =>
-            {
-                Draw(_MetallicMap, _MetallicMapInvert, _MetallicMapChannel);
-                Draw(_OcclusionMap, _OcclusionMapInvert, _OcclusionMapChannel);
-                Draw(_DetailMaskMap, _DetailMaskMapInvert, _DetailMaskMapChannel);
-                Draw(_SmoothnessMap, _SmoothnessMapInvert, _SmoothnessMapChannel, null, _SmoothnessMapInvert.floatValue == 1 ? "Roughness Map" : null);
-                EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("Pack"))
-                {
-                    if (PackMaskMap()) return;
-                }
-
-                if (GUILayout.Button("Close"))
-                {
-                    ResetProperty(material, new[] { _MetallicMap, _OcclusionMap, _DetailMaskMap, _IsPackingMetallicGlossMap });
-                }
-                EditorGUILayout.EndHorizontal();
-            });*/
         }
 
         private void DrawDetailAlbedoPacking(Material material)
         {
-            if (!TextureFoldout(_IsPackingDetailAlbedo))
+            if (!TextureFoldout(ref _detailPacking))
             {
                 return;
             }
 
-            VerticalScopeBox(() =>
-            {
-                Draw(_DetailAlbedoPacking);
-                Draw(_DetailSmoothnessPacking, _DetailSmoothnessPackingChannel, _DetailSmoothnessPackingInvert);
-                EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("Pack"))
-                {
-                    PackDetailAlbedoMap();
-                }
+            _detailPackingAlbedo.isWhite = true;
+            TexturePacking.TexturePackingField(ref _detailPackingAlbedo, "Albedo", null, false);
+            TexturePacking.TexturePackingField(ref _detailPackingSmoothness, "Smoothness", "Roughness");
 
-                if (GUILayout.Button("Close"))
-                {
-                    ResetProperty(material, new [] { _DetailAlbedoPacking, _DetailSmoothnessPacking, _IsPackingDetailAlbedo });
-                }
-                EditorGUILayout.EndHorizontal();
-            });
-        }
-
-        private bool PackDetailAlbedoMap()
-        {
-            var detailAlbedo = (Texture2D)_DetailAlbedoPacking.textureValue;
-            var detailSmoothness = (Texture2D)_DetailSmoothnessPacking.textureValue;
-
-            var reference = detailAlbedo ?? detailSmoothness;
-            if (reference == null) return true;
-
-            var rChannel = new TexturePacking.Channel()
-            {
-                Tex = detailAlbedo,
-                ID = 0,
-            };
-
-            var gChannel = new TexturePacking.Channel()
-            {
-                Tex = detailAlbedo,
-                ID = 1,
-            };
-
-            var bChannel = new TexturePacking.Channel()
-            {
-                Tex = detailAlbedo,
-                ID = 2,
-            };
-
-            var aChannel = new TexturePacking.Channel()
-            {
-                Tex = detailSmoothness,
-                ID = (int)_DetailSmoothnessPackingChannel.floatValue,
-                Invert = _DetailSmoothnessPackingInvert.floatValue == 1
-            };
-
-            var path = AssetDatabase.GetAssetPath(reference);
-            var newPath = Path.GetDirectoryName(path) + "/" + Path.GetFileNameWithoutExtension(path) + "_Packed";
-
-            TexturePacking.Pack(new[] { rChannel, gChannel, bChannel, aChannel }, newPath, reference.width, reference.height);
-            var packedTexture = TexturePacking.GetPackedTexture(newPath);
-            _DetailAlbedoMap.textureValue = packedTexture;
-            return false;
+            TexturePacking.PackButton(() => {
+                TexturePacking.Pack(_DetailAlbedoMap, _detailPackingAlbedo, _detailPackingSmoothness);
+            }, null);
         }
 
         public const string ShaderName = "Simple Lit";
