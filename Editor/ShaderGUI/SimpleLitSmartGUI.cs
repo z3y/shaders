@@ -57,12 +57,6 @@ namespace z3y.Shaders
         private MaterialProperty _DetailMapUV;
         private MaterialProperty _DetailAlbedoScale;
         private MaterialProperty _DetailSmoothnessScale;
-
-        private MaterialProperty _IsPackingDetailAlbedo;
-        private MaterialProperty _DetailAlbedoPacking;
-        private MaterialProperty _DetailSmoothnessPacking;
-        private MaterialProperty _DetailSmoothnessPackingChannel;
-        private MaterialProperty _DetailSmoothnessPackingInvert;
         private MaterialProperty _DetailBlendMode;
 
 
