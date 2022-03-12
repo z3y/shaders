@@ -4,11 +4,6 @@
 #include "AutoLight.cginc"
 #include "Lighting.cginc"
 
-#include "InputsCGI.cginc"
-#include "../ShaderLibrary/SurfaceData.cginc"
-#include "Defines.cginc"
-#include "../ShaderLibrary/CommonFunctions.cginc"
-
 struct v2f
 {
     float4 pos : SV_POSITION;
@@ -46,6 +41,11 @@ struct v2f
     UNITY_VERTEX_INPUT_INSTANCE_ID
 	UNITY_VERTEX_OUTPUT_STEREO
 };
+
+#include "InputsCGI.cginc"
+#include "../ShaderLibrary/SurfaceData.cginc"
+#include "Defines.cginc"
+#include "../ShaderLibrary/CommonFunctions.cginc"
 
 v2f vert (appdata_all v)
 {

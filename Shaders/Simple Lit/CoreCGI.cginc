@@ -6,18 +6,14 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 		UnityApplyDitherCrossFade(i.pos);
 	#endif
 
-    
-
-
     SurfaceData surf;
     InitializeDefaultSurfaceData(surf);
     InitializeLitSurfaceData(surf, i);
 
-
 #if defined(UNITY_PASS_SHADOWCASTER)
 
     #if defined(_MODE_CUTOUT)
-        if(surf.alpha < _Cutoff) discard;
+        if (surf.alpha < _Cutoff) discard;
     #endif
 
     #ifdef _ALPHAPREMULTIPLY_ON
@@ -26,77 +22,47 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     #if defined(_ALPHAPREMULTIPLY_ON) || defined(_MODE_FADE)
         half dither = Unity_Dither(surf.alpha, i.pos.xy);
-        if(dither < 0.0) discard;
+        if (dither < 0.0) discard;
     #endif
 
     SHADOW_CASTER_FRAGMENT(i);
 #else
 
-    #if defined (_MODE_CUTOUT)
-        surf.alpha = (surf.alpha - _Cutoff) / max(fwidth(surf.alpha), 0.0001) + 0.5;
-    #endif
-
-    #ifdef NEED_CENTROID_NORMAL
-    UNITY_FLATTEN
-    if ( dot(i.worldNormal, i.worldNormal) >= 1.01 )
-    {
-        i.worldNormal = i.centroidWorldNormal;
-    }
+    #if defined(_MODE_CUTOUT)
+        AACutout(surf.alpha, _Cutoff);
     #endif
 
     float3 worldNormal = i.worldNormal;
     float3 bitangent = i.bitangent;
     float3 tangent = i.tangent;
+    FlipBTN(facing, worldNormal, bitangent, tangent);
 
     half3 indirectSpecular = 0.0;
     half3 directSpecular = 0.0;
-
-    #if !defined(LIGHTMAP_ON)
-    UNITY_FLATTEN
-    if (!facing)
-    {
-        worldNormal *= -1.0;
-        bitangent *= -1.0;
-        tangent *= -1.0;
-    }
-    #endif
-
+    half3 vertexLight = 0.0;
 
     #ifdef GEOMETRIC_SPECULAR_AA
         surf.perceptualRoughness = GSAA_Filament(worldNormal, surf.perceptualRoughness);
     #endif
     
+    half roughness = surf.perceptualRoughness * surf.perceptualRoughness;
+    half clampedRoughness = max(roughness, 0.002);
+
     float3 tangentNormalInv = surf.tangentNormal;
-    #if defined(_NORMAL_MAP) || defined(_DETAILNORMAL_MAP)
-        surf.tangentNormal.g *= -1.0; // still need to figure out why its inverted by default
-        worldNormal = normalize(surf.tangentNormal.x * tangent + surf.tangentNormal.y * bitangent + surf.tangentNormal.z * worldNormal);
-        tangent = normalize(cross(worldNormal, bitangent));
-        bitangent = normalize(cross(worldNormal, tangent));
-    #else
-        worldNormal = normalize(worldNormal);
-    #endif
+    surf.tangentNormal.g *= -1.0; // TODO: figure out why its inverted by default
+    TangentToWorldNormal(surf.tangentNormal, worldNormal, tangent, bitangent);
 
+    float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+    half NoV = NormalDotViewDir(worldNormal, viewDir);
 
-    float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPos.xyz);
-    half NoV = abs(dot(worldNormal, viewDir)) + 1e-5f;
+    LightData lightData;
+    InitializeLightData(lightData, worldNormal, viewDir, i);
+    lightData.FinalColor *= Fd_Burley(surf.perceptualRoughness, NoV, lightData.NoL, lightData.LoH);
 
-    half3 pixelLight = 0.0;
-    #ifdef USING_LIGHT_MULTI_COMPILE
-        bool lightExists = any(_WorldSpaceLightPos0.xyz);
-        float3 lightDirection = Unity_SafeNormalize(UnityWorldSpaceLightDir(i.worldPos.xyz));
-        float3 lightHalfVector = Unity_SafeNormalize(lightDirection + viewDir);
-        half lightNoL = saturate(dot(worldNormal, lightDirection));
-        half lightLoH = saturate(dot(lightDirection, lightHalfVector));
-        UNITY_LIGHT_ATTENUATION(lightAttenuation, i, i.worldPos.xyz);
-        half3 lightCol = lightAttenuation * _LightColor0.rgb;
-        pixelLight = (lightNoL * lightCol);
+    half3 f0 = GetF0(surf.reflectance, surf.metallic, surf.albedo.rgb);
+    DFGLut = SampleDFG(NoV, surf.perceptualRoughness).rg;
+    DFGEnergyCompensation = EnvBRDFEnergyCompensation(DFGLut, f0);
 
-        #if !defined(SHADER_API_MOBILE)
-            pixelLight *= Fd_Burley(surf.perceptualRoughness, NoV, lightNoL, lightLoH);
-        #endif
-    #endif
-
-    half3 vertexLight = 0.0;
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
         vertexLight = i.vertexLight;
     #endif
@@ -165,7 +131,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
 
         #if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN)
-            pixelLight = 0.0;
+            lightData.FinalColor = 0.0;
             vertexLight = 0.0;
             lightMap = SubtractMainLightWithRealtimeAttenuationFromLightmap (lightMap, lightAttenuation, bakedColorTex, worldNormal);
         #endif
@@ -198,30 +164,25 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     indirectDiffuse = max(0.0, indirectDiffuse);
 
     #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
-        pixelLight *= UnityComputeForwardShadows(lightmapUV, i.worldPos, i.screenPos);
+        lightData.FinalColor *= UnityComputeForwardShadows(lightmapUV, i.worldPos, i.screenPos);
     #endif
+
+
     
-    half3 f0 = 0.16 * surf.reflectance * surf.reflectance * (1.0 - surf.metallic) + surf.albedo.rgb * surf.metallic;
-
-    half2 dfg = SampleDFG(NoV, surf.perceptualRoughness).rg;
-    half3 energyCompensation = EnvBRDFEnergyCompensation(dfg, f0);
-
-
-    half roughness = surf.perceptualRoughness * surf.perceptualRoughness;
-    half clampedRoughness = max(roughness, 0.002);
 
     #if !defined(SPECULAR_HIGHLIGHTS_OFF) && defined(USING_LIGHT_MULTI_COMPILE)
-        half NoH = saturate(dot(worldNormal, lightHalfVector));
 
-        half3 F = F_Schlick(lightLoH, f0);
+        half NoH = saturate(dot(worldNormal, lightData.HalfVector));
+
+        half3 F = F_Schlick(lightData.LoH, f0);
         half D = D_GGX(NoH, clampedRoughness);
-        half V = V_SmithGGXCorrelated(NoV, lightNoL, clampedRoughness);
+        half V = V_SmithGGXCorrelated(NoV, lightData.NoL, clampedRoughness);
 
         #ifndef SHADER_API_MOBILE
-        F *= energyCompensation;
+        F *= DFGEnergyCompensation;
         #endif
 
-        directSpecular = max(0.0, (D * V) * F) * pixelLight * UNITY_PI;
+        directSpecular = max(0.0, (D * V) * F) * lightData.FinalColor * UNITY_PI;
     #endif
 
 
@@ -233,19 +194,19 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             if (vLights.Attenuation[j] > 0.0)
             {
                 vLights.Direction[j] = normalize(vLights.Direction[j]);
-                half vLightNoL = saturate(dot(worldNormal, vLights.Direction[j]));
-                half3 vLightCol = vLightNoL * vLights.ColorFalloff[j];
-                vertexLight += vLightCol;
+                half vlightData.NoL = saturate(dot(worldNormal, vLights.Direction[j]));
+                half3 vlightData.Color = vlightData.NoL * vLights.ColorFalloff[j];
+                vertexLight += vlightData.Color;
 
                 #ifndef SPECULAR_HIGHLIGHTS_OFF
-                    float3 vLightHalfVector = Unity_SafeNormalize(vLights.Direction[j] + viewDir);
-                    half vNoH = saturate(dot(worldNormal, vLightHalfVector));
-                    half vLoH = saturate(dot(vLights.Direction[j], vLightHalfVector));
+                    float3 vlightData.HalfVector = Unity_SafeNormalize(vLights.Direction[j] + viewDir);
+                    half vNoH = saturate(dot(worldNormal, vlightData.HalfVector));
+                    half vLoH = saturate(dot(vLights.Direction[j], vlightData.HalfVector));
 
                     half3 Fv = F_Schlick(vLoH, f0);
                     half Dv = D_GGX(vNoH, clampedRoughness);
-                    half Vv = V_SmithGGXCorrelatedFast(NoV, vLightNoL, clampedRoughness);
-                    directSpecular += max(0.0, (Dv * Vv) * Fv) * vLightCol * UNITY_PI;
+                    half Vv = V_SmithGGXCorrelatedFast(NoV, vlightData.NoL, clampedRoughness);
+                    directSpecular += max(0.0, (Dv * Vv) * Fv) * vlightData.Color * UNITY_PI;
                 #endif
             }
         }
@@ -269,7 +230,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #endif
 
         bakedDominantDirection = normalize(bakedDominantDirection);
-        directSpecular += GetSpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, clampedRoughness, NoV, energyCompensation);
+        directSpecular += GetSpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, clampedRoughness, NoV, DFGEnergyCompensation);
     }
     #endif
     
@@ -295,7 +256,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             #ifdef SHADER_API_MOBILE
             directSpecular += spec * specColor * fresnel;
             #else
-            directSpecular += spec * specColor * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
+            directSpecular += spec * specColor * DFGEnergyCompensation * EnvBRDFMultiscatter(DFGLut, f0);
             #endif
         }
         #endif
@@ -312,7 +273,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             #ifdef SHADER_API_MOBILE
             directSpecular += max(spec * sh, 0.0) * fresnel;
             #else
-            directSpecular += max(spec * sh, 0.0) * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
+            directSpecular += max(spec * sh, 0.0) * DFGEnergyCompensation * EnvBRDFMultiscatter(DFGLut, f0);
             #endif
         }
         #endif
@@ -366,8 +327,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             half specularOcclusion = lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
 
             #ifndef SHADER_API_MOBILE
-                dfg.x *= specularOcclusion;
-                indirectSpecular = indirectSpecular * horizon * horizon * energyCompensation * EnvBRDFMultiscatter(dfg, f0);
+                DFGLut.x *= specularOcclusion;
+                indirectSpecular = indirectSpecular * horizon * horizon * DFGEnergyCompensation * EnvBRDFMultiscatter(DFGLut, f0);
             #else
                 indirectSpecular = probe0 * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0, specularOcclusion);
             #endif
@@ -389,7 +350,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         surf.albedo.rgb = lerp(1.0, surf.albedo.rgb, surf.alpha);
     #endif
     
-    half4 finalColor = half4(surf.albedo.rgb * (1.0 - surf.metallic) * (indirectDiffuse * surf.occlusion + (pixelLight + vertexLight)) + indirectSpecular + directSpecular + surf.emission, surf.alpha);
+    half4 finalColor = half4(surf.albedo.rgb * (1.0 - surf.metallic) * (indirectDiffuse * surf.occlusion + (lightData.FinalColor + vertexLight)) + indirectSpecular + directSpecular + surf.emission, surf.alpha);
 
     #ifdef UNITY_PASS_META
         UnityMetaInput metaInput;

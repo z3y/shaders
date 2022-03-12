@@ -233,4 +233,88 @@ float Unity_Dither(float In, float2 ScreenPosition)
 
     return In - DITHER_THRESHOLDS[uint(uv.x) % 4][uint(uv.y) % 4];
 }
+
+void AACutout(inout half alpha, half cutoff)
+{
+    alpha = (alpha - cutoff) / max(fwidth(alpha), 0.0001) + 0.5;
+}
+
+void FlipBTN(uint facing, inout float3 worldNormal, inout float3 bitangent, inout float3 tangent)
+{
+    #if !defined(LIGHTMAP_ON)
+        UNITY_FLATTEN
+        if (!facing)
+        {
+            worldNormal *= -1.0;
+            bitangent *= -1.0;
+            tangent *= -1.0;
+        }
+    #endif
+}
+
+void TangentToWorldNormal(float3 normalTS, inout float3 normalWS, inout float3 tangent, inout float3 bitangent)
+{
+    normalWS = normalize(normalTS.x * tangent + normalTS.y * bitangent + normalTS.z * normalWS);
+    tangent = normalize(cross(normalWS, bitangent));
+    bitangent = normalize(cross(normalWS, tangent));
+}
+
+half NormalDotViewDir(float3 normalWS, float3 viewDir)
+{
+    return abs(dot(normalWS, viewDir)) + 1e-5f;
+}
+
+half3 GetF0(half reflectance, half metallic, half3 albedo)
+{
+    return 0.16 * reflectance * reflectance * (1.0 - metallic) + albedo * metallic;
+}
+
+struct LightData
+{
+    bool Exists;
+    half3 Color;
+    float3 Direction;
+    half NoL;
+    half LoH;
+    float3 HalfVector;
+    half3 FinalColor;
+};
+
+void InitializeLightData(inout LightData lightData, float3 normalWS, float3 viewDir, v2f input)
+{
+    #ifdef USING_LIGHT_MULTI_COMPILE
+        lightData.Exists = any(_WorldSpaceLightPos0.xyz);
+
+        #ifdef UNITY_PASS_FORWARDBASE
+        UNITY_BRANCH
+        if (lightData.Exists)
+        {
+        #endif
+            lightData.Direction = normalize(UnityWorldSpaceLightDir(input.worldPos));
+            lightData.HalfVector = normalize(lightData.Direction + viewDir);
+            lightData.NoL = saturate(dot(normalWS, lightData.Direction));
+            lightData.LoH = saturate(dot(lightData.Direction, lightData.HalfVector));
+            
+            UNITY_LIGHT_ATTENUATION(lightAttenuation, input, input.worldPos.xyz);
+            lightData.Color = lightAttenuation * _LightColor0.rgb;
+            lightData.FinalColor = (lightData.NoL * lightData.Color);
+        #ifdef UNITY_PASS_FORWARDBASE
+        }
+        else
+        {
+            lightData.Direction = 0.0;
+            lightData.HalfVector = 0.0;
+            lightData.NoL = 0.0;
+            lightData.LoH = 0.0;
+            lightData.Color = 0.0;
+            lightData.FinalColor = 0.0;
+        }
+        #endif
+    #else
+        lightData = (LightData)0;
+    #endif
+}
+
+
+
 #endif

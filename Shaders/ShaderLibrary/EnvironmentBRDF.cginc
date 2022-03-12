@@ -3,6 +3,9 @@
 Texture2D _DFG;
 SamplerState sampler_DFG;
 
+static float2 DFGLut;
+static half3 DFGEnergyCompensation;
+
 half4 SampleDFG(half NoV, half perceptualRoughness)
 {
     return _DFG.Sample(sampler_DFG, float3(NoV, perceptualRoughness, 0));
