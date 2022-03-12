@@ -22,9 +22,9 @@ half _BumpScale;
 half _Reflectance;
 
 half4 _DetailAlbedoMap_ST;
-half _DetailMaskUV;
+uint _DetailMaskUV;
 half4 _DetailMask_ST;
-half _DetailMapUV;
+uint _DetailMapUV;
 half _DetailDepth;
 half _DetailAlbedoScale;
 half _DetailNormalScale;

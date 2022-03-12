@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace z3y.Shaders
 {
-    [ExecuteInEditMode, AddComponentMenu("z3y/Instanced Properties")]
+    [ExecuteInEditMode, AddComponentMenu("z3y/Instanced Properties"), HelpURL("https://github.com/z3y/shaders/wiki/Avanced-Features#instanced-properties")]
     public class InstancedPropertyBlocks : MonoBehaviour
     {
         public int Index = 0;
@@ -18,7 +18,7 @@ namespace z3y.Shaders
         public Vector2 Offset;
 
         [SerializeField, HideInInspector] private bool _hasInitialized;
-        
+
         private static readonly int Color1 = Shader.PropertyToID("_Color");
         private static readonly int TextureIndex = Shader.PropertyToID("_TextureIndex");
         private static readonly int EmissionColor1 = Shader.PropertyToID("_EmissionColor");
@@ -48,7 +48,7 @@ namespace z3y.Shaders
             {
                 return;
             }
-            
+
             var material = gameObject.GetComponent<Renderer>().sharedMaterial;
             BaseColor = material.GetColor(Color1);
             EmissionColor = material.GetColor(EmissionColor1);
@@ -75,7 +75,7 @@ namespace z3y.Shaders
             serializedObject.Update();
 
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PropertyField(index);
+            EditorGUILayout.PropertyField(index, new GUIContent("Array Index"));
             if (GUILayout.Button("-")) index.intValue--;
             if (GUILayout.Button("+")) index.intValue++;
             GUILayout.EndHorizontal();

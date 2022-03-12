@@ -37,7 +37,7 @@ Shader "Simple Lit"
         Foldout_EmissionInputs("Emission", Int) = 0
         [Toggle(EMISSION)] _EnableEmission ("Emission", Int) = 0
         _EmissionMap ("Emission Map", 2D) = "white" {}
-        [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
+        [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (1,1,1)
         _EmissionDepth("Depth", Float) = 0
         _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
         [Space(10)]_EmissionPulseIntensity ("Pulse Intensity", Range(0,1)) = 0
