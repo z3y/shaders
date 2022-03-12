@@ -48,7 +48,6 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     half roughness = surf.perceptualRoughness * surf.perceptualRoughness;
     half clampedRoughness = max(roughness, 0.002);
 
-    float3 tangentNormalInv = surf.tangentNormal;
     surf.tangentNormal.g *= -1.0; // TODO: figure out why its inverted by default
     TangentToWorldNormal(surf.tangentNormal, worldNormal, tangent, bitangent);
 
@@ -74,49 +73,18 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     
 
     half3 indirectDiffuse;
-    #if defined(LIGHTMAP_ON) || defined(DYNAMICLIGHTMAP_ON)
+    #if defined(LIGHTMAP_ANY)
 
         float2 lightmapUV = i.uv[1].zw;
         half4 bakedColorTex = SampleBicubic(unity_Lightmap, samplerunity_Lightmap, lightmapUV);
         half3 lightMap = DecodeLightmap(bakedColorTex);
 
         #ifdef BAKERY_RNM
-            half3 rnm0 = DecodeLightmap(_RNM0.Sample(sampler_RNM0, lightmapUV));
-            half3 rnm1 = DecodeLightmap(_RNM1.Sample(sampler_RNM1, lightmapUV));
-            half3 rnm2 = DecodeLightmap(_RNM2.Sample(sampler_RNM2, lightmapUV));
-
-            const float3 rnmBasis0 = float3(0.816496580927726f, 0.0f, 0.5773502691896258f);
-            const float3 rnmBasis1 = float3(-0.4082482904638631f, 0.7071067811865475f, 0.5773502691896258f);
-            const float3 rnmBasis2 = float3(-0.4082482904638631f, -0.7071067811865475f, 0.5773502691896258f);
-
-            lightMap =    saturate(dot(rnmBasis0, tangentNormalInv)) * rnm0
-                        + saturate(dot(rnmBasis1, tangentNormalInv)) * rnm1
-                        + saturate(dot(rnmBasis2, tangentNormalInv)) * rnm2;
+            BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, directSpecular, surf.tangentNormal, i.viewDirTS, viewDir, clampedRoughness, f0);
         #endif
 
         #ifdef BAKERY_SH
-            half3 L0 = lightMap;
-            half3 nL1x = _RNM0.Sample(sampler_RNM0, lightmapUV) * 2.0 - 1.0;
-            half3 nL1y = _RNM1.Sample(sampler_RNM1, lightmapUV) * 2.0 - 1.0;
-            half3 nL1z = _RNM2.Sample(sampler_RNM2, lightmapUV) * 2.0 - 1.0;
-            half3 L1x = nL1x * L0 * 2.0;
-            half3 L1y = nL1y * L0 * 2.0;
-            half3 L1z = nL1z * L0 * 2.0;
-
-            #ifdef BAKERY_SHNONLINEAR
-                float lumaL0 = dot(L0, float(1));
-                float lumaL1x = dot(L1x, float(1));
-                float lumaL1y = dot(L1y, float(1));
-                float lumaL1z = dot(L1z, float(1));
-                float lumaSH = shEvaluateDiffuseL1Geomerics_local(lumaL0, float3(lumaL1x, lumaL1y, lumaL1z), worldNormal);
-
-                lightMap = L0 + worldNormal.x * L1x + worldNormal.y * L1y + worldNormal.z * L1z;
-                float regularLumaSH = dot(lightMap, 1.0);
-                lightMap *= lerp(1.0, lumaSH / regularLumaSH, saturate(regularLumaSH * 16.0));
-            #else
-                lightMap = L0 + worldNormal.x * L1x + worldNormal.y * L1y + worldNormal.z * L1z;
-            #endif
-            
+            BakerySHLightmapAndSpecular(lightMap, lightmapUV, directSpecular, worldNormal, viewDir, clampedRoughness, f0);
         #endif
 
         #if defined(DIRLIGHTMAP_COMBINED) && !defined(SHADER_API_MOBILE)
@@ -138,36 +106,14 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         indirectDiffuse = lightMap;
     #else
 
-        #if UNITY_LIGHT_PROBE_PROXY_VOLUME
-            UNITY_BRANCH
-            if (unity_ProbeVolumeParams.x == 1.0)
-            {
-                indirectDiffuse = SHEvalLinearL0L1_SampleProbeVolume(float4(worldNormal, 1.0), i.worldPos);
-            }
-            else
-            {
-        #endif
-                #ifdef NONLINEAR_LIGHTPROBESH
-                    float3 L0 = float3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
-                    indirectDiffuse.r = shEvaluateDiffuseL1Geomerics_local(L0.r, unity_SHAr.xyz, worldNormal);
-                    indirectDiffuse.g = shEvaluateDiffuseL1Geomerics_local(L0.g, unity_SHAg.xyz, worldNormal);
-                    indirectDiffuse.b = shEvaluateDiffuseL1Geomerics_local(L0.b, unity_SHAb.xyz, worldNormal);
-                #else
-                    indirectDiffuse = ShadeSH9(float4(worldNormal, 1.0));
-                #endif
-        #if UNITY_LIGHT_PROBE_PROXY_VOLUME
-            }
-        #endif
-
+        indirectDiffuse = GetLightProbes(worldNormal, i.worldPos.xyz);
     #endif
+
     indirectDiffuse = max(0.0, indirectDiffuse);
 
     #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
         lightData.FinalColor *= UnityComputeForwardShadows(lightmapUV, i.worldPos, i.screenPos);
     #endif
-
-
-    
 
     #if !defined(SPECULAR_HIGHLIGHTS_OFF) && defined(USING_LIGHT_MULTI_COMPILE)
         directSpecular += lightData.Specular;
@@ -221,52 +167,6 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         directSpecular += GetSpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, clampedRoughness, NoV, DFGEnergyCompensation);
     }
     #endif
-    
-    half3 fresnel = F_Schlick(NoV, f0);
-    #if defined(BAKERY_LMSPEC) && defined(UNITY_PASS_FORWARDBASE) && defined(LIGHTMAP_ON)
-
-        #ifdef BAKERY_RNM
-        {
-            float3 viewDirT = -normalize(i.parallaxViewDir);
-            float3 dominantDirT = rnmBasis0 * dot(rnm0, GRAYSCALE) +
-                                  rnmBasis1 * dot(rnm1, GRAYSCALE) +
-                                  rnmBasis2 * dot(rnm2, GRAYSCALE);
-
-            float3 dominantDirTN = normalize(dominantDirT);
-            half3 specColor = saturate(dot(rnmBasis0, dominantDirTN)) * rnm0 +
-                               saturate(dot(rnmBasis1, dominantDirTN)) * rnm1 +
-                               saturate(dot(rnmBasis2, dominantDirTN)) * rnm2;
-
-            half3 halfDir = Unity_SafeNormalize(dominantDirTN - viewDirT);
-            half NoH = saturate(dot(tangentNormalInv, halfDir));
-            half spec = D_GGX(NoH, clampedRoughness);
-
-            #ifdef SHADER_API_MOBILE
-            directSpecular += spec * specColor * fresnel;
-            #else
-            directSpecular += spec * specColor * DFGEnergyCompensation * EnvBRDFMultiscatter(DFGLut, f0);
-            #endif
-        }
-        #endif
-
-        #ifdef BAKERY_SH
-        {
-            float3 dominantDir = float3(dot(nL1x, GRAYSCALE), dot(nL1y, GRAYSCALE), dot(nL1z, GRAYSCALE));
-            float3 halfDir = Unity_SafeNormalize(normalize(dominantDir) + viewDir);
-            half NoH = saturate(dot(worldNormal, halfDir));
-            half spec = D_GGX(NoH, clampedRoughness);
-            half3 sh = L0 + dominantDir.x * L1x + dominantDir.y * L1y + dominantDir.z * L1z;
-            dominantDir = normalize(dominantDir);
-
-            #ifdef SHADER_API_MOBILE
-            directSpecular += max(spec * sh, 0.0) * fresnel;
-            #else
-            directSpecular += max(spec * sh, 0.0) * DFGEnergyCompensation * EnvBRDFMultiscatter(DFGLut, f0);
-            #endif
-        }
-        #endif
-
-    #endif
 
     // #ifdef LTCGI
     //         float2 ltcgi_lmuv;
@@ -286,7 +186,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
   
     #if !defined(REFLECTIONS_OFF)
-        indirectSpecular += GetReflections(worldNormal, i.worldPos.xyz, viewDir, f0, roughness, NoV, surf);
+        indirectSpecular += GetReflections(worldNormal, i.worldPos.xyz, viewDir, f0, roughness, NoV, surf, indirectDiffuse);
     #endif
 
     #if defined(_ALPHAPREMULTIPLY_ON)

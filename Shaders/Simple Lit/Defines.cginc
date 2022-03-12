@@ -11,7 +11,7 @@
     #undef LTCGI
     #undef BAKERY_SHNONLINEAR
 
-    #define SPECULAR_HIGHLIGHTS_OFF // TODO: fix precision issues on mobile
+    //#define SPECULAR_HIGHLIGHTS_OFF // TODO: fix precision issues on mobile
     #undef _DETAILALBEDO_MAP
 #endif
 

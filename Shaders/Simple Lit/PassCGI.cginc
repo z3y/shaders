@@ -4,6 +4,9 @@
 #include "AutoLight.cginc"
 #include "Lighting.cginc"
 
+#include "Defines.cginc"
+
+
 struct v2f
 {
     float4 pos : SV_POSITION;
@@ -13,8 +16,8 @@ struct v2f
     float3 worldNormal : TEXCOORD6;
     float4 worldPos : TEXCOORD7;
 
-    #if defined(PARALLAX) || defined(BAKERYLM_ENABLED) || defined(EMISSION) || defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
-        float3 parallaxViewDir : TEXCOORD8;
+    #if defined(PARALLAX) || defined(BAKERY_RNM) || defined(EMISSION) || defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
+        float3 viewDirTS : TEXCOORD8;
     #endif
 
     #ifdef NEED_VERTEX_COLOR
@@ -42,10 +45,10 @@ struct v2f
 	UNITY_VERTEX_OUTPUT_STEREO
 };
 
-#include "InputsCGI.cginc"
-#include "../ShaderLibrary/SurfaceData.cginc"
-#include "Defines.cginc"
 #include "../ShaderLibrary/CommonFunctions.cginc"
+
+#include "InputsCGI.cginc"
+
 
 v2f vert (appdata_all v)
 {
@@ -96,9 +99,9 @@ v2f vert (appdata_all v)
         o.color = v.color;
     #endif
 
-    #if defined(PARALLAX) || defined(BAKERYLM_ENABLED) || defined(EMISSION) || defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
+    #if defined(PARALLAX) || defined(BAKERY_RNM) || defined(EMISSION) || defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
         TANGENT_SPACE_ROTATION;
-        o.parallaxViewDir = mul (rotation, ObjSpaceViewDir(v.vertex));
+        o.viewDirTS = mul (rotation, ObjSpaceViewDir(v.vertex));
     #endif
 
     #ifdef UNITY_PASS_SHADOWCASTER
@@ -122,12 +125,12 @@ v2f vert (appdata_all v)
     return o;
 }
 
-#include "../ShaderLibrary/BicubicSampling.cginc"
 #include "../ShaderLibrary/MultistepParallax.cginc"
 #include "../ShaderLibrary/NonImportantLights.cginc"
 #include "../ShaderLibrary/BlendModes.cginc"
 #ifdef AUDIOLINK
 #include "../ShaderLibrary/AudioLink.cginc"
 #endif
+
 #include "LitSurfaceData.cginc"
 #include "CoreCGI.cginc"

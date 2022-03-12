@@ -28,7 +28,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     float2 parallaxOffset = 0.0;
     #if defined(PARALLAX)
         float2 parallaxUV = i.uv[0].zw;
-        parallaxOffset = ParallaxOffset(i.parallaxViewDir, parallaxUV);
+        parallaxOffset = ParallaxOffset(i.viewDirTS, parallaxUV);
     #endif
 
     half2 mainUV = i.uv[0].zw + parallaxOffset;
@@ -64,7 +64,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
 
         float2 detailUV = i.uv[_DetailMapUV].xy;
-        float2 detailDepth = ParallaxOffsetUV(_DetailDepth, i.parallaxViewDir);
+        float2 detailDepth = ParallaxOffsetUV(_DetailDepth, i.viewDirTS);
         detailUV = (detailUV * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset + detailDepth;
         float4 detailMap = 0.5;
         float3 detailAlbedo = 0.0;
@@ -119,7 +119,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         UNITY_BRANCH
         if (_EmissionMap_TexelSize.w > 1.0)
         {
-            emissionMap = SampleTexture(_EmissionMap, sampler_EmissionMap, mainUV + ParallaxOffsetUV(_EmissionDepth, i.parallaxViewDir)).rgb;
+            emissionMap = SampleTexture(_EmissionMap, sampler_EmissionMap, mainUV + ParallaxOffsetUV(_EmissionDepth, i.viewDirTS)).rgb;
         }
 
         emissionMap = lerp(emissionMap, emissionMap * surf.albedo.rgb, _EmissionMultBase);

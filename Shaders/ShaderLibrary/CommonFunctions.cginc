@@ -1,6 +1,6 @@
 #ifndef COMMON_FUNCTIONS_INCLUDED
 #define COMMON_FUNCTIONS_INCLUDED
-#include "../ShaderLibrary/EnvironmentBRDF.cginc"
+
 
 // Partially taken from Google Filament, Xiexe, Catlike Coding and Unity
 // https://google.github.io/filament/Filament.html
@@ -10,6 +10,9 @@
 #define GRAYSCALE float3(0.2125, 0.7154, 0.0721)
 #define TAU float(6.28318530718)
 #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y))))
+
+#include "SurfaceData.cginc"
+#include "BicubicSampling.cginc"
 
 struct appdata_all
 {
@@ -26,15 +29,13 @@ struct appdata_all
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
+#include "EnvironmentBRDF.cginc"
+
 
 #if defined(LIGHTMAP_ON) || defined(DYNAMICLIGHTMAP_ON)
     #define LIGHTMAP_ANY
 #endif
 
-
-Texture2D _RNM0, _RNM1, _RNM2;
-SamplerState sampler_RNM0, sampler_RNM1, sampler_RNM2;
-float4 _RNM0_TexelSize;
 
 half RemapMinMax(half value, half remapMin, half remapMax)
 {
@@ -317,21 +318,13 @@ void InitializeLightData(inout LightData lightData, float3 normalWS, float3 view
             UNITY_LIGHT_ATTENUATION(lightAttenuation, input, input.worldPos.xyz);
             lightData.Color = lightAttenuation * _LightColor0.rgb;
             lightData.FinalColor = (lightData.NoL * lightData.Color);
-
-
+            lightData.FinalColor *= Fd_Burley(perceptualRoughness, NoV, lightData.NoL, lightData.LoH);
             lightData.Specular = MainLightSpecular(lightData, NoV, clampedRoughness, f0);
         #ifdef UNITY_PASS_FORWARDBASE
         }
         else
         {
-            lightData.Direction = 0.0;
-            lightData.HalfVector = 0.0;
-            lightData.NoL = 0.0;
-            lightData.LoH = 0.0;
-            lightData.NoH = 0.0;
-            lightData.Color = 0.0;
-            lightData.Specular = 0.0;
-            lightData.FinalColor = 0.0;
+            lightData = (LightData)0;
         }
         #endif
     #else
@@ -340,7 +333,7 @@ void InitializeLightData(inout LightData lightData, float3 normalWS, float3 view
 }
 
 
-half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half roughness, half NoV, SurfaceData surf)
+half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half roughness, half NoV, SurfaceData surf, half3 indirectDiffuse)
 {
     half3 indirectSpecular = 0;
     #if defined(UNITY_PASS_FORWARDBASE)
@@ -367,7 +360,7 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
 
         float horizon = min(1.0 + dot(reflDir, normalWS), 1.0);
         #ifdef LIGHTMAP_ANY
-            DFGLut.x *=  = saturate(dot(indirectDiffuse, 1.0));
+            DFGLut.x *=  saturate(dot(indirectDiffuse, 1.0));
         #endif
         indirectSpecular = indirectSpecular * horizon * horizon * DFGEnergyCompensation * EnvBRDFMultiscatter(DFGLut, f0);
         indirectSpecular *= computeSpecularAO(NoV, surf.occlusion, surf.perceptualRoughness * surf.perceptualRoughness);
@@ -377,6 +370,36 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
     return indirectSpecular;
 }
 
+half3 GetLightProbes(float3 normalWS, float3 positionWS)
+{
+    half3 indirectDiffuse = 0;
+    #ifndef LIGHTMAP_ANY
+        #if UNITY_LIGHT_PROBE_PROXY_VOLUME
+            UNITY_BRANCH
+            if (unity_ProbeVolumeParams.x == 1.0)
+            {
+                indirectDiffuse = SHEvalLinearL0L1_SampleProbeVolume(float4(normalWS, 1.0), positionWS);
+            }
+            else
+            {
+        #endif
+                #ifdef NONLINEAR_LIGHTPROBESH
+                    float3 L0 = float3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
+                    indirectDiffuse.r = shEvaluateDiffuseL1Geomerics_local(L0.r, unity_SHAr.xyz, normalWS);
+                    indirectDiffuse.g = shEvaluateDiffuseL1Geomerics_local(L0.g, unity_SHAg.xyz, normalWS);
+                    indirectDiffuse.b = shEvaluateDiffuseL1Geomerics_local(L0.b, unity_SHAb.xyz, normalWS);
+                #else
+                    indirectDiffuse = ShadeSH9(float4(normalWS, 1.0));
+                #endif
+        #if UNITY_LIGHT_PROBE_PROXY_VOLUME
+            }
+        #endif
+    #endif
+    return indirectDiffuse;
+}
+
+
+#include "Bakery.cginc"
 
 
 #endif
