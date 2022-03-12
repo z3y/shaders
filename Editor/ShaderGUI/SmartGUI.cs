@@ -29,8 +29,9 @@ namespace z3y.Shaders
             {
                 _materialEditor = materialEditor;
                 Initialize(materialProperties);
-                OnValidate(material);
+                UpdateProperties(materialProperties);
                 propertyCount = materialProperties.Length;
+                OnValidate(material);
                 _initialized = true;
             }
 

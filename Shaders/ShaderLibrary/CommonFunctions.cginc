@@ -113,14 +113,14 @@ half D_GGX(half NoH, half roughness)
     return k * k * (1.0 / UNITY_PI);
 }
 
-half V_SmithGGXCorrelatedFast(half NoV, half NoL, half roughness) {
+float V_SmithGGXCorrelatedFast(half NoV, half NoL, half roughness) {
     half a = roughness;
     float GGXV = NoL * (NoV * (1.0 - a) + a);
     float GGXL = NoV * (NoL * (1.0 - a) + a);
     return 0.5 / (GGXV + GGXL);
 }
 
-half V_SmithGGXCorrelated(half NoV, half NoL, half roughness)
+float V_SmithGGXCorrelated(half NoV, half NoL, half roughness)
 {
     #ifdef SHADER_API_MOBILE
     return V_SmithGGXCorrelatedFast(NoV, NoL, roughness);
@@ -219,7 +219,7 @@ half3 GetSpecularHighlights(float3 worldNormal, half3 lightColor, float3 lightDi
 
     half3 F = F_Schlick(LoH, f0);
     half D = D_GGX(NoH, clampedRoughness);
-    half V = V_SmithGGXCorrelated(NoV, NoL, clampedRoughness);
+    half V = V_SmithGGXCorrelatedFast(NoV, NoL, clampedRoughness);
 
     #ifndef SHADER_API_MOBILE
     F *= energyCompensation;

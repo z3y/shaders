@@ -61,9 +61,6 @@ namespace z3y.Shaders
 
 
         private MaterialProperty Foldout_RenderingOptions;
-        private MaterialProperty _RNM0;
-        private MaterialProperty _RNM1;
-        private MaterialProperty _RNM2;
         private MaterialProperty _Cull;
         private MaterialProperty _SpecularOcclusion;
         private MaterialProperty Bakery;
@@ -127,6 +124,7 @@ namespace z3y.Shaders
                 return;
             }
 
+
             if (_Texture.floatValue == 1 || _Texture.floatValue == 2)
             {
                 Draw(_MainTexArray, _Color, _AlbedoSaturation);
@@ -154,6 +152,8 @@ namespace z3y.Shaders
                 sRGBWarning(_MetallicGlossMap);
 
                 DrawMaskMapPacking(material);
+
+                
 
                 EditorGUI.indentLevel += 2;
                 if (_MetallicGlossMap.textureValue == null)
@@ -290,19 +290,7 @@ namespace z3y.Shaders
 #endif
 
 
-
-#if BAKERY_INCLUDED
             Draw(Bakery);
-            if (Bakery.floatValue != 0)
-            {
-                EditorGUI.BeginDisabledGroup(true);
-                Draw(_RNM0);
-                Draw(_RNM1);
-                Draw(_RNM2);
-                EditorGUI.EndDisabledGroup();
-            }
-#endif
-
             Draw(_BakedSpecular, "Specular Highlights from Directional, SH or RNM Lightmaps or Light Probes");
             Draw(_NonLinearLightProbeSH, "Reduces ringing on Light Probes. Recommended to use with Bakery L1");
             EditorGUILayout.Space();
@@ -376,6 +364,16 @@ namespace z3y.Shaders
 
         public override void OnValidate(Material material)
         {
+            if (_Metallic.floatValue < _MetallicMin.floatValue)
+            {
+                _MetallicMin.floatValue = 0f;
+            }
+
+            if (_Metallic.floatValue < _GlossinessMin.floatValue)
+            {
+                _GlossinessMin.floatValue = 0f;
+            }
+
             ApplyChanges(material);
         }
 

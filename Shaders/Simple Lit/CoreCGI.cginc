@@ -152,7 +152,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                 , ltcgiSpecular
     #endif
             );
-            directSpecular += ltcgiSpecular * fresnel;
+            directSpecular += ltcgiSpecular * EnvBRDFMultiscatter(DFGLut, f0);
     #endif
 
   

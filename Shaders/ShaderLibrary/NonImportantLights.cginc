@@ -45,7 +45,6 @@ void NonImportantLightsPerPixel(inout half3 lightColor, inout half3 directSpecul
 
 
 // Original code by Xiexe
-// only returns the vertex light information struct, the rest is handled in the fragment shader
 // https://github.com/Xiexe/Xiexes-Unity-Shaders
 
 // MIT License
