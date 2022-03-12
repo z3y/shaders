@@ -1,5 +1,6 @@
 #ifndef COMMON_FUNCTIONS_INCLUDED
 #define COMMON_FUNCTIONS_INCLUDED
+#include "../ShaderLibrary/EnvironmentBRDF.cginc"
 
 // Partially taken from Google Filament, Xiexe, Catlike Coding and Unity
 // https://google.github.io/filament/Filament.html
@@ -24,6 +25,11 @@ struct appdata_all
     uint vertexId : SV_VertexID;
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
+
+
+#if defined(LIGHTMAP_ON) || defined(DYNAMICLIGHTMAP_ON)
+    #define LIGHTMAP_ANY
+#endif
 
 
 Texture2D _RNM0, _RNM1, _RNM2;
@@ -186,6 +192,7 @@ float shEvaluateDiffuseL1Geomerics_local(float L0, float3 L1, float3 n)
     return R0 * (a + (1.0f - a) * (p + 1.0f) * pow(q, p));
 }
 
+
 #ifdef DYNAMICLIGHTMAP_ON
 float3 getRealtimeLightmap(float2 uv, float3 worldNormal)
 {   
@@ -276,11 +283,22 @@ struct LightData
     float3 Direction;
     half NoL;
     half LoH;
+    half NoH;
     float3 HalfVector;
     half3 FinalColor;
+    half3 Specular;
 };
 
-void InitializeLightData(inout LightData lightData, float3 normalWS, float3 viewDir, v2f input)
+half3 MainLightSpecular(LightData lightData, half NoV, half clampedRoughness, half3 f0)
+{
+    half3 F = F_Schlick(lightData.LoH, f0) * DFGEnergyCompensation;
+    half D = D_GGX(lightData.NoH, clampedRoughness);
+    half V = V_SmithGGXCorrelated(NoV, lightData.NoL, clampedRoughness);
+
+    return max(0.0, (D * V) * F) * lightData.FinalColor * UNITY_PI;
+}
+
+void InitializeLightData(inout LightData lightData, float3 normalWS, float3 viewDir, half NoV, half clampedRoughness, half perceptualRoughness, half3 f0, v2f input)
 {
     #ifdef USING_LIGHT_MULTI_COMPILE
         lightData.Exists = any(_WorldSpaceLightPos0.xyz);
@@ -294,10 +312,14 @@ void InitializeLightData(inout LightData lightData, float3 normalWS, float3 view
             lightData.HalfVector = normalize(lightData.Direction + viewDir);
             lightData.NoL = saturate(dot(normalWS, lightData.Direction));
             lightData.LoH = saturate(dot(lightData.Direction, lightData.HalfVector));
+            lightData.NoH = saturate(dot(normalWS, lightData.HalfVector));
             
             UNITY_LIGHT_ATTENUATION(lightAttenuation, input, input.worldPos.xyz);
             lightData.Color = lightAttenuation * _LightColor0.rgb;
             lightData.FinalColor = (lightData.NoL * lightData.Color);
+
+
+            lightData.Specular = MainLightSpecular(lightData, NoV, clampedRoughness, f0);
         #ifdef UNITY_PASS_FORWARDBASE
         }
         else
@@ -306,13 +328,53 @@ void InitializeLightData(inout LightData lightData, float3 normalWS, float3 view
             lightData.HalfVector = 0.0;
             lightData.NoL = 0.0;
             lightData.LoH = 0.0;
+            lightData.NoH = 0.0;
             lightData.Color = 0.0;
+            lightData.Specular = 0.0;
             lightData.FinalColor = 0.0;
         }
         #endif
     #else
         lightData = (LightData)0;
     #endif
+}
+
+
+half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half roughness, half NoV, SurfaceData surf)
+{
+    half3 indirectSpecular = 0;
+    #if defined(UNITY_PASS_FORWARDBASE)
+
+        float3 reflDir = reflect(-viewDir, normalWS);
+        reflDir = lerp(reflDir, normalWS, roughness * roughness);
+
+        Unity_GlossyEnvironmentData envData;
+        envData.roughness = surf.perceptualRoughness;
+        envData.reflUVW = getBoxProjection(reflDir, positionWS, unity_SpecCube0_ProbePosition, unity_SpecCube0_BoxMin.xyz, unity_SpecCube0_BoxMax.xyz);
+
+        half3 probe0 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE(unity_SpecCube0), unity_SpecCube0_HDR, envData);
+        indirectSpecular = probe0;
+
+        #if defined(UNITY_SPECCUBE_BLENDING) && !defined(SHADER_API_MOBILE)
+            UNITY_BRANCH
+            if (unity_SpecCube0_BoxMin.w < 0.99999)
+            {
+                envData.reflUVW = getBoxProjection(reflDir, positionWS, unity_SpecCube1_ProbePosition, unity_SpecCube1_BoxMin.xyz, unity_SpecCube1_BoxMax.xyz);
+                float3 probe1 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE_SAMPLER(unity_SpecCube1, unity_SpecCube0), unity_SpecCube1_HDR, envData);
+                indirectSpecular = lerp(probe1, probe0, unity_SpecCube0_BoxMin.w);
+            }
+        #endif
+
+        float horizon = min(1.0 + dot(reflDir, normalWS), 1.0);
+        #ifdef LIGHTMAP_ANY
+            DFGLut.x *=  = saturate(dot(indirectDiffuse, 1.0));
+        #endif
+        indirectSpecular = indirectSpecular * horizon * horizon * DFGEnergyCompensation * EnvBRDFMultiscatter(DFGLut, f0);
+        indirectSpecular *= computeSpecularAO(NoV, surf.occlusion, surf.perceptualRoughness * surf.perceptualRoughness);
+
+    #endif
+
+    return indirectSpecular;
 }
 
 

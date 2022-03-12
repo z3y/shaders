@@ -55,13 +55,12 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
     half NoV = NormalDotViewDir(worldNormal, viewDir);
 
-    LightData lightData;
-    InitializeLightData(lightData, worldNormal, viewDir, i);
-    lightData.FinalColor *= Fd_Burley(surf.perceptualRoughness, NoV, lightData.NoL, lightData.LoH);
-
     half3 f0 = GetF0(surf.reflectance, surf.metallic, surf.albedo.rgb);
     DFGLut = SampleDFG(NoV, surf.perceptualRoughness).rg;
     DFGEnergyCompensation = EnvBRDFEnergyCompensation(DFGLut, f0);
+
+    LightData lightData;
+    InitializeLightData(lightData, worldNormal, viewDir, NoV, clampedRoughness, surf.perceptualRoughness, f0, i);
 
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
         vertexLight = i.vertexLight;
@@ -171,18 +170,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     
 
     #if !defined(SPECULAR_HIGHLIGHTS_OFF) && defined(USING_LIGHT_MULTI_COMPILE)
-
-        half NoH = saturate(dot(worldNormal, lightData.HalfVector));
-
-        half3 F = F_Schlick(lightData.LoH, f0);
-        half D = D_GGX(NoH, clampedRoughness);
-        half V = V_SmithGGXCorrelated(NoV, lightData.NoL, clampedRoughness);
-
-        #ifndef SHADER_API_MOBILE
-        F *= DFGEnergyCompensation;
-        #endif
-
-        directSpecular = max(0.0, (D * V) * F) * lightData.FinalColor * UNITY_PI;
+        directSpecular += lightData.Specular;
     #endif
 
 
@@ -280,66 +268,26 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     #endif
 
-    #ifdef LTCGI
-            float2 ltcgi_lmuv;
-    #if defined(LIGHTMAP_ON)
-            ltcgi_lmuv = i.uv[1].xy;
-    #else
-            ltcgi_lmuv = float2(0, 0);
-    #endif
-            float3 ltcgiSpecular = 0;
-            LTCGI_Contribution(i.worldPos, worldNormal, viewDir, surf.perceptualRoughness, ltcgi_lmuv, indirectDiffuse
-    #ifndef SPECULAR_HIGHLIGHTS_OFF
-                , ltcgiSpecular
-    #endif
-            );
-            directSpecular += ltcgiSpecular * fresnel;
-    #endif
+    // #ifdef LTCGI
+    //         float2 ltcgi_lmuv;
+    // #if defined(LIGHTMAP_ON)
+    //         ltcgi_lmuv = i.uv[1].xy;
+    // #else
+    //         ltcgi_lmuv = float2(0, 0);
+    // #endif
+    //         float3 ltcgiSpecular = 0;
+    //         LTCGI_Contribution(i.worldPos, worldNormal, viewDir, surf.perceptualRoughness, ltcgi_lmuv, indirectDiffuse
+    // #ifndef SPECULAR_HIGHLIGHTS_OFF
+    //             , ltcgiSpecular
+    // #endif
+    //         );
+    //         directSpecular += ltcgiSpecular * fresnel;
+    // #endif
 
   
-    #if defined(UNITY_PASS_FORWARDBASE)
-        #if !defined(REFLECTIONS_OFF)
-
-            float3 reflDir = reflect(-viewDir, worldNormal);
-
-            #ifndef SHADER_API_MOBILE
-                reflDir = lerp(reflDir, worldNormal, roughness * roughness);
-            #endif
-
-            Unity_GlossyEnvironmentData envData;
-            envData.roughness = surf.perceptualRoughness;
-            envData.reflUVW = getBoxProjection(reflDir, i.worldPos.xyz, unity_SpecCube0_ProbePosition, unity_SpecCube0_BoxMin.xyz, unity_SpecCube0_BoxMax.xyz);
-
-            half3 probe0 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE(unity_SpecCube0), unity_SpecCube0_HDR, envData);
-            indirectSpecular = probe0;
-
-            #if defined(UNITY_SPECCUBE_BLENDING) && !defined(SHADER_API_MOBILE)
-                UNITY_BRANCH
-                if (unity_SpecCube0_BoxMin.w < 0.99999)
-                {
-                    envData.reflUVW = getBoxProjection(reflDir, i.worldPos.xyz, unity_SpecCube1_ProbePosition, unity_SpecCube1_BoxMin.xyz, unity_SpecCube1_BoxMax.xyz);
-                    float3 probe1 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE_SAMPLER(unity_SpecCube1, unity_SpecCube0), unity_SpecCube1_HDR, envData);
-                    indirectSpecular = lerp(probe1, probe0, unity_SpecCube0_BoxMin.w);
-                }
-            #endif
-
-            float horizon = min(1.0 + dot(reflDir, worldNormal), 1.0);
-            half specularOcclusion = lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
-
-            #ifndef SHADER_API_MOBILE
-                DFGLut.x *= specularOcclusion;
-                indirectSpecular = indirectSpecular * horizon * horizon * DFGEnergyCompensation * EnvBRDFMultiscatter(DFGLut, f0);
-            #else
-                indirectSpecular = probe0 * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0, specularOcclusion);
-            #endif
-
-        #endif
-
-        #if defined(_MASK_MAP)
-        indirectSpecular *= computeSpecularAO(NoV, surf.occlusion, surf.perceptualRoughness * surf.perceptualRoughness);
-        #endif
+    #if !defined(REFLECTIONS_OFF)
+        indirectSpecular += GetReflections(worldNormal, i.worldPos.xyz, viewDir, f0, roughness, NoV, surf);
     #endif
-    
 
     #if defined(_ALPHAPREMULTIPLY_ON)
         surf.albedo.rgb *= surf.alpha;
@@ -357,11 +305,11 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         UNITY_INITIALIZE_OUTPUT(UnityMetaInput, metaInput);
         metaInput.Emission = surf.emission;
         metaInput.Albedo = surf.albedo.rgb;
+        metaInput.SpecularColor = f0;
         return float4(UnityMetaFragment(metaInput).rgb, surf.alpha);
     #endif
 
     
-
     UNITY_APPLY_FOG(i.fogCoord, finalColor);
 
     return finalColor;

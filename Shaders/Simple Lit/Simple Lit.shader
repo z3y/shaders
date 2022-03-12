@@ -28,8 +28,6 @@ Shader "Simple Lit"
         [ToggleOff(SPECULAR_HIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
         [ToggleOff(REFLECTIONS_OFF)] _GlossyReflections ("Reflection Probes", Float) = 1
 
-        _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
-
         [Toggle(GEOMETRIC_SPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
         [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
         [PowerSlider(2)] _specularAntiAliasingThreshold ("Threshold", Range(0.0, 1.0)) = 0.1
@@ -243,7 +241,6 @@ ENDCG
             Cull Off
 
             CGPROGRAM
-            #pragma shader_feature EDITOR_VISUALIZATION
 
             #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
             #pragma shader_feature_local EMISSION
