@@ -35,7 +35,7 @@ void BakeryRNMLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout
         half3 halfDir = Unity_SafeNormalize(dominantDirTN - viewDirT);
         half NoH = saturate(dot(normalTS, halfDir));
         half spec = D_GGX(NoH, roughness);
-        directSpecular += spec * specColor * EnvBRDFMultiscatter(DFGLut, f0);
+        directSpecular += spec * specColor;
     #endif
 
 #endif
@@ -75,7 +75,7 @@ void BakerySHLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout 
             half3 sh = L0 + dominantDir.x * L1x + dominantDir.y * L1y + dominantDir.z * L1z;
             dominantDir = normalize(dominantDir);
 
-            directSpecular += max(spec * sh, 0.0) * EnvBRDFMultiscatter(DFGLut, f0);
+            directSpecular += max(spec * sh, 0.0);
         #endif
         
     #endif

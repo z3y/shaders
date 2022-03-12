@@ -225,7 +225,7 @@ half3 GetSpecularHighlights(float3 worldNormal, half3 lightColor, float3 lightDi
     F *= energyCompensation;
     #endif
 
-    return max(0, (D * V) * F) * lightColor * NoL * UNITY_PI;
+    return max(0, (D * V) * F) * lightColor * NoL;
 }
 
 float Unity_Dither(float In, float2 ScreenPosition)
@@ -279,7 +279,6 @@ half3 GetF0(half reflectance, half metallic, half3 albedo)
 
 struct LightData
 {
-    bool Exists;
     half3 Color;
     float3 Direction;
     half NoL;
@@ -297,17 +296,15 @@ half3 MainLightSpecular(LightData lightData, half NoV, half clampedRoughness, ha
     half D = D_GGX(lightData.NoH, clampedRoughness);
     half V = V_SmithGGXCorrelated(NoV, lightData.NoL, clampedRoughness);
 
-    return max(0.0, (D * V) * F) * lightData.FinalColor * UNITY_PI;
+    return max(0.0, (D * V) * F) * lightData.FinalColor;
 }
 
 void InitializeLightData(inout LightData lightData, float3 normalWS, float3 viewDir, half NoV, half clampedRoughness, half perceptualRoughness, half3 f0, v2f input)
 {
     #ifdef USING_LIGHT_MULTI_COMPILE
-        lightData.Exists = any(_WorldSpaceLightPos0.xyz);
-
         #ifdef UNITY_PASS_FORWARDBASE
         UNITY_BRANCH
-        if (lightData.Exists)
+        if (any(_WorldSpaceLightPos0.xyz))
         {
         #endif
             lightData.Direction = normalize(UnityWorldSpaceLightDir(input.worldPos));
@@ -320,7 +317,9 @@ void InitializeLightData(inout LightData lightData, float3 normalWS, float3 view
             lightData.Attenuation = lightAttenuation;
             lightData.Color = lightAttenuation * _LightColor0.rgb;
             lightData.FinalColor = (lightData.NoL * lightData.Color);
-            lightData.FinalColor *= Fd_Burley(perceptualRoughness, NoV, lightData.NoL, lightData.LoH);
+            #ifndef SHADER_API_MOBILE
+                lightData.FinalColor *= Fd_Burley(perceptualRoughness, NoV, lightData.NoL, lightData.LoH);
+            #endif
             lightData.Specular = MainLightSpecular(lightData, NoV, clampedRoughness, f0);
         #ifdef UNITY_PASS_FORWARDBASE
         }
@@ -361,10 +360,11 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
         #endif
 
         float horizon = min(1.0 + dot(reflDir, normalWS), 1.0);
+        float2 dfg = DFGLut;
         #ifdef LIGHTMAP_ANY
-            DFGLut.x *=  saturate(dot(indirectDiffuse, 1.0));
+            dfg.x *=  saturate(dot(indirectDiffuse, 1.0));
         #endif
-        indirectSpecular = indirectSpecular * horizon * horizon * DFGEnergyCompensation * EnvBRDFMultiscatter(DFGLut, f0);
+        indirectSpecular = indirectSpecular * horizon * horizon * DFGEnergyCompensation * EnvBRDFMultiscatter(dfg, f0);
         indirectSpecular *= computeSpecularAO(NoV, surf.occlusion, surf.perceptualRoughness * surf.perceptualRoughness);
 
     #endif

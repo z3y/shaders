@@ -36,7 +36,7 @@ void NonImportantLightsPerPixel(inout half3 lightColor, inout half3 directSpecul
                 half3 Fv = F_Schlick(vLoH, f0);
                 half Dv = D_GGX(vNoH, clampedRoughness);
                 half Vv = V_SmithGGXCorrelatedFast(NoV, NoL, clampedRoughness);
-                directSpecular += max(0.0, (Dv * Vv) * Fv) * color * UNITY_PI;
+                directSpecular += max(0.0, (Dv * Vv) * Fv) * color;
             #endif
         }
     }

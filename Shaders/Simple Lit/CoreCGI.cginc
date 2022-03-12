@@ -39,7 +39,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     half3 indirectSpecular = 0.0;
     half3 directSpecular = 0.0;
-    half3 vertexLight = 0.0;
+    half3 otherSpecular = 0.0;
+
 
     #ifdef GEOMETRIC_SPECULAR_AA
         surf.perceptualRoughness = GSAA_Filament(worldNormal, surf.perceptualRoughness);
@@ -79,11 +80,11 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         half3 lightMap = DecodeLightmap(bakedColorTex);
 
         #ifdef BAKERY_RNM
-            BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, directSpecular, surf.tangentNormal, i.viewDirTS, viewDir, clampedRoughness, f0);
+            BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, otherSpecular, surf.tangentNormal, i.viewDirTS, viewDir, clampedRoughness, f0);
         #endif
 
         #ifdef BAKERY_SH
-            BakerySHLightmapAndSpecular(lightMap, lightmapUV, directSpecular, worldNormal, viewDir, clampedRoughness, f0);
+            BakerySHLightmapAndSpecular(lightMap, lightmapUV, otherSpecular, worldNormal, viewDir, clampedRoughness, f0);
         #endif
 
         #if defined(DIRLIGHTMAP_COMBINED)
@@ -98,7 +99,6 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
         #if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN)
             lightData.FinalColor = 0.0;
-            vertexLight = 0.0;
             lightMap = SubtractMainLightWithRealtimeAttenuationFromLightmap (lightMap, lightData.Attenuation, bakedColorTex, worldNormal);
         #endif
 
@@ -152,7 +152,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                 , ltcgiSpecular
     #endif
             );
-            directSpecular += ltcgiSpecular * EnvBRDFMultiscatter(DFGLut, f0);
+            otherSpecular += ltcgiSpecular;
     #endif
 
   
@@ -168,8 +168,10 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #if defined(_ALPHAMODULATE_ON)
         surf.albedo.rgb = lerp(1.0, surf.albedo.rgb, surf.alpha);
     #endif
+
+    otherSpecular *= EnvBRDFMultiscatter(DFGLut, f0) * DFGEnergyCompensation;
     
-    half4 finalColor = half4(surf.albedo.rgb * (1.0 - surf.metallic) * (indirectDiffuse * surf.occlusion + (lightData.FinalColor + vertexLight)) + indirectSpecular + directSpecular + surf.emission, surf.alpha);
+    half4 finalColor = half4(surf.albedo.rgb * (1.0 - surf.metallic) * (indirectDiffuse * surf.occlusion + (lightData.FinalColor)) + indirectSpecular + (directSpecular * UNITY_PI) + otherSpecular + surf.emission, surf.alpha);
 
     #ifdef UNITY_PASS_META
         UnityMetaInput metaInput;
