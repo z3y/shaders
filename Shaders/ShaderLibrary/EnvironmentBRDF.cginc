@@ -26,8 +26,6 @@ half3 EnvBRDFEnergyCompensation(half2 dfg, half3 f0)
     return 1.0 + f0 * (1.0 / dfg.y - 1.0);
 }
 
-//TODO: Fix dark specular with dfg on android
-
 half3 EnvBRDFApprox(half perceptualRoughness, half NoV, half3 f0, half specOcclusion)
 {
     // original code from https://blog.selfshadow.com/publications/s2013-shading-course/lazarov/s2013_pbs_black_ops_2_notes.pdf
