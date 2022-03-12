@@ -66,8 +66,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
 
     #if defined(VERTEXLIGHT_PS) && defined(VERTEXLIGHT_ON)
-        VertexLightInformation vLights = (VertexLightInformation)0;
-        InitVertexLightData(i.worldPos, worldNormal, vLights);
+        NonImportantLightsPerPixel(lightData.FinalColor, directSpecular, i.worldPos, worldNormal, viewDir, NoV, f0, clampedRoughness);
     #endif
 
     
@@ -87,12 +86,12 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             BakerySHLightmapAndSpecular(lightMap, lightmapUV, directSpecular, worldNormal, viewDir, clampedRoughness, f0);
         #endif
 
-        #if defined(DIRLIGHTMAP_COMBINED) && !defined(SHADER_API_MOBILE)
+        #if defined(DIRLIGHTMAP_COMBINED)
             float4 lightMapDirection = UNITY_SAMPLE_TEX2D_SAMPLER (unity_LightmapInd, unity_Lightmap, lightmapUV);
             lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, worldNormal);
         #endif
 
-        #if defined(DYNAMICLIGHTMAP_ON) && !defined(SHADER_API_MOBILE)
+        #if defined(DYNAMICLIGHTMAP_ON)
             float3 realtimeLightMap = getRealtimeLightmap(i.uv[2].zw, worldNormal);
             lightMap += realtimeLightMap; 
         #endif
@@ -100,15 +99,13 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         #if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN)
             lightData.FinalColor = 0.0;
             vertexLight = 0.0;
-            lightMap = SubtractMainLightWithRealtimeAttenuationFromLightmap (lightMap, lightAttenuation, bakedColorTex, worldNormal);
+            lightMap = SubtractMainLightWithRealtimeAttenuationFromLightmap (lightMap, lightData.Attenuation, bakedColorTex, worldNormal);
         #endif
 
         indirectDiffuse = lightMap;
     #else
-
         indirectDiffuse = GetLightProbes(worldNormal, i.worldPos.xyz);
     #endif
-
     indirectDiffuse = max(0.0, indirectDiffuse);
 
     #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
@@ -119,32 +116,6 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         directSpecular += lightData.Specular;
     #endif
 
-
-    #if defined(VERTEXLIGHT_PS) && defined(VERTEXLIGHT_ON)
-        [unroll(4)]
-        for(int j = 0; j < 4; j++)
-        {
-            UNITY_BRANCH
-            if (vLights.Attenuation[j] > 0.0)
-            {
-                vLights.Direction[j] = normalize(vLights.Direction[j]);
-                half vlightData.NoL = saturate(dot(worldNormal, vLights.Direction[j]));
-                half3 vlightData.Color = vlightData.NoL * vLights.ColorFalloff[j];
-                vertexLight += vlightData.Color;
-
-                #ifndef SPECULAR_HIGHLIGHTS_OFF
-                    float3 vlightData.HalfVector = Unity_SafeNormalize(vLights.Direction[j] + viewDir);
-                    half vNoH = saturate(dot(worldNormal, vlightData.HalfVector));
-                    half vLoH = saturate(dot(vLights.Direction[j], vlightData.HalfVector));
-
-                    half3 Fv = F_Schlick(vLoH, f0);
-                    half Dv = D_GGX(vNoH, clampedRoughness);
-                    half Vv = V_SmithGGXCorrelatedFast(NoV, vlightData.NoL, clampedRoughness);
-                    directSpecular += max(0.0, (Dv * Vv) * Fv) * vlightData.Color * UNITY_PI;
-                #endif
-            }
-        }
-    #endif
 
 
 
@@ -158,7 +129,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             bakedSpecularColor = indirectDiffuse;
         #endif
 
-        #ifndef LIGHTMAP_ON
+        #ifndef LIGHTMAP_ANY
             bakedSpecularColor = half3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
             bakedDominantDirection = unity_SHAr.xyz + unity_SHAg.xyz + unity_SHAb.xyz;
         #endif
@@ -168,21 +139,21 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     }
     #endif
 
-    // #ifdef LTCGI
-    //         float2 ltcgi_lmuv;
-    // #if defined(LIGHTMAP_ON)
-    //         ltcgi_lmuv = i.uv[1].xy;
-    // #else
-    //         ltcgi_lmuv = float2(0, 0);
-    // #endif
-    //         float3 ltcgiSpecular = 0;
-    //         LTCGI_Contribution(i.worldPos, worldNormal, viewDir, surf.perceptualRoughness, ltcgi_lmuv, indirectDiffuse
-    // #ifndef SPECULAR_HIGHLIGHTS_OFF
-    //             , ltcgiSpecular
-    // #endif
-    //         );
-    //         directSpecular += ltcgiSpecular * fresnel;
-    // #endif
+    #ifdef LTCGI
+            float2 ltcgi_lmuv;
+    #if defined(LIGHTMAP_ON)
+            ltcgi_lmuv = i.uv[1].xy;
+    #else
+            ltcgi_lmuv = float2(0, 0);
+    #endif
+            float3 ltcgiSpecular = 0;
+            LTCGI_Contribution(i.worldPos, worldNormal, viewDir, surf.perceptualRoughness, ltcgi_lmuv, indirectDiffuse
+    #ifndef SPECULAR_HIGHLIGHTS_OFF
+                , ltcgiSpecular
+    #endif
+            );
+            directSpecular += ltcgiSpecular * fresnel;
+    #endif
 
   
     #if !defined(REFLECTIONS_OFF)

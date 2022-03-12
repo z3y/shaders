@@ -288,6 +288,7 @@ struct LightData
     float3 HalfVector;
     half3 FinalColor;
     half3 Specular;
+    half Attenuation;
 };
 
 half3 MainLightSpecular(LightData lightData, half NoV, half clampedRoughness, half3 f0)
@@ -310,12 +311,13 @@ void InitializeLightData(inout LightData lightData, float3 normalWS, float3 view
         {
         #endif
             lightData.Direction = normalize(UnityWorldSpaceLightDir(input.worldPos));
-            lightData.HalfVector = normalize(lightData.Direction + viewDir);
+            lightData.HalfVector = Unity_SafeNormalize(lightData.Direction + viewDir);
             lightData.NoL = saturate(dot(normalWS, lightData.Direction));
             lightData.LoH = saturate(dot(lightData.Direction, lightData.HalfVector));
             lightData.NoH = saturate(dot(normalWS, lightData.HalfVector));
             
             UNITY_LIGHT_ATTENUATION(lightAttenuation, input, input.worldPos.xyz);
+            lightData.Attenuation = lightAttenuation;
             lightData.Color = lightAttenuation * _LightColor0.rgb;
             lightData.FinalColor = (lightData.NoL * lightData.Color);
             lightData.FinalColor *= Fd_Burley(perceptualRoughness, NoV, lightData.NoL, lightData.LoH);

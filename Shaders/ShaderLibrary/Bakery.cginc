@@ -69,7 +69,7 @@ void BakerySHLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout 
 
         #ifdef BAKERY_LMSPEC
             float3 dominantDir = float3(dot(nL1x, GRAYSCALE), dot(nL1y, GRAYSCALE), dot(nL1z, GRAYSCALE));
-            float3 halfDir = normalize(normalize(dominantDir) + viewDir);
+            float3 halfDir = Unity_SafeNormalize(normalize(dominantDir) + viewDir);
             half NoH = saturate(dot(normalWS, halfDir));
             half spec = D_GGX(NoH, roughness);
             half3 sh = L0 + dominantDir.x * L1x + dominantDir.y * L1y + dominantDir.z * L1z;

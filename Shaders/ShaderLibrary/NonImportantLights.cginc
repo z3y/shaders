@@ -1,66 +1,47 @@
 #ifndef NONIMPORTANTLIGHTS_PERPIXEL_INCLUDED
 #define NONIMPORTANTLIGHTS_PERPIXEL_INCLUDED
-
 #if defined(VERTEXLIGHT_ON) && defined(UNITY_PASS_FORWARDBASE)
-struct VertexLightInformation
-{
-    float3 Direction[4];
-    float3 ColorFalloff[4];
-    float Attenuation[4];
-};
 
-
-void get4VertexLightsColFalloff(inout VertexLightInformation vLight, float3 worldPos, float3 normal)
+void NonImportantLightsPerPixel(inout half3 lightColor, inout half3 directSpecular, float3 positionWS, float3 normalWS, float3 viewDir, half NoV, half3 f0, half clampedRoughness)
 {
-    float3 lightColor = 0.0;
-    float4 toLightX = unity_4LightPosX0 - worldPos.x;
-    float4 toLightY = unity_4LightPosY0 - worldPos.y;
-    float4 toLightZ = unity_4LightPosZ0 - worldPos.z;
+    float4 toLightX = unity_4LightPosX0 - positionWS.x;
+    float4 toLightY = unity_4LightPosY0 - positionWS.y;
+    float4 toLightZ = unity_4LightPosZ0 - positionWS.z;
 
     float4 lengthSq = 0.0;
     lengthSq += toLightX * toLightX;
     lengthSq += toLightY * toLightY;
     lengthSq += toLightZ * toLightZ;
 
-    float4 atten = 1.0 / (1.0 + lengthSq * unity_4LightAtten0);
+    float4 attenuation = 1.0 / (1.0 + lengthSq * unity_4LightAtten0);
     float4 atten2 = saturate(1 - (lengthSq * unity_4LightAtten0 / 25.0));
-    atten = min(atten, atten2 * atten2);
+    attenuation = min(attenuation, atten2 * atten2);
 
-    vLight.ColorFalloff[0] = unity_LightColor[0] * atten.x;
-    vLight.ColorFalloff[1] = unity_LightColor[1] * atten.y;
-    vLight.ColorFalloff[2] = unity_LightColor[2] * atten.z;
-    vLight.ColorFalloff[3] = unity_LightColor[3] * atten.w;
+    [unroll(4)]
+    for(uint i = 0; i < 4; i++)
+    {
+        UNITY_BRANCH
+        if (attenuation[i] > 0.0)
+        {
+            float3 direction = normalize(float3(unity_4LightPosX0[i], unity_4LightPosY0[i], unity_4LightPosZ0[i]) - positionWS);
+            half NoL = saturate(dot(normalWS, direction));
+            half3 color = NoL * attenuation[i] * unity_LightColor[i];
+            lightColor += color;
 
-    vLight.Attenuation[0] = atten.x;
-    vLight.Attenuation[1] = atten.y;
-    vLight.Attenuation[2] = atten.z;
-    vLight.Attenuation[3] = atten.w;
+            #ifndef SPECULAR_HIGHLIGHTS_OFF
+                float3 halfVector = Unity_SafeNormalize(direction + viewDir);
+                half vNoH = saturate(dot(normalWS, halfVector));
+                half vLoH = saturate(dot(direction, halfVector));
+
+                half3 Fv = F_Schlick(vLoH, f0);
+                half Dv = D_GGX(vNoH, clampedRoughness);
+                half Vv = V_SmithGGXCorrelatedFast(NoV, NoL, clampedRoughness);
+                directSpecular += max(0.0, (Dv * Vv) * Fv) * color * UNITY_PI;
+            #endif
+        }
+    }
 }
 
-void getVertexLightsDir(inout VertexLightInformation vLights, float3 worldPos)
-{
-    float3 toLightX = float3(unity_4LightPosX0.x, unity_4LightPosY0.x, unity_4LightPosZ0.x);
-    float3 toLightY = float3(unity_4LightPosX0.y, unity_4LightPosY0.y, unity_4LightPosZ0.y);
-    float3 toLightZ = float3(unity_4LightPosX0.z, unity_4LightPosY0.z, unity_4LightPosZ0.z);
-    float3 toLightW = float3(unity_4LightPosX0.w, unity_4LightPosY0.w, unity_4LightPosZ0.w);
-
-    float3 dirX = toLightX - worldPos;
-    float3 dirY = toLightY - worldPos;
-    float3 dirZ = toLightZ - worldPos;
-    float3 dirW = toLightW - worldPos;
-
-    vLights.Direction[0] = dirX;
-    vLights.Direction[1] = dirY;
-    vLights.Direction[2] = dirZ;
-    vLights.Direction[3] = dirW;
-}
-
-void InitVertexLightData(float3 worldPos, float3 worldNormal, inout VertexLightInformation vLights)
-{
-    get4VertexLightsColFalloff(vLights, worldPos, worldNormal);
-    getVertexLightsDir(vLights, worldPos);
-}
-#endif
 
 
 // Original code by Xiexe
@@ -88,4 +69,5 @@ void InitVertexLightData(float3 worldPos, float3 worldNormal, inout VertexLightI
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+#endif
 #endif
