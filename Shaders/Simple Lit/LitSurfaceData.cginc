@@ -16,12 +16,6 @@ half4 SampleTexture(Texture2DArray t, SamplerState s, float2 uv)
     #define TEXARGS(tex) tex
 #endif
 
-#ifdef HEMIOCTAHEDRON_DECODING
-    #define UNPACK_NORMAL(tex, scale) UnpackScaleNormalHemiOctahedron(tex, scale);
-#else
-    #define UNPACK_NORMAL(tex, scale) UnpackScaleNormal(tex, scale);
-#endif
-
 void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 {
     arrayIndex = i.uv[3].z;
@@ -57,7 +51,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     half4 normalMap = float4(0.5, 0.5, 1.0, 1.0);
     #ifdef _NORMAL_MAP
         normalMap = SampleTexture(TEXARGS(_BumpMap), TEXARGS(sampler_BumpMap), mainUV);
-        surf.tangentNormal = UNPACK_NORMAL(normalMap, _BumpScale);
+        surf.tangentNormal = UnpackScaleNormal(normalMap, _BumpScale);
     #endif
 
 
@@ -85,7 +79,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
         #if defined(_DETAILNORMAL_MAP)
             float4 detailNormalMap = SampleTexture(_DetailNormalMap, sampler_DetailNormalMap, detailUV);
-            float3 detailNormal = UNPACK_NORMAL(detailNormalMap, _DetailNormalScale);
+            float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale);
             #if defined(_DETAILBLEND_LERP)
                 surf.tangentNormal = lerp(surf.tangentNormal, detailNormal, detailMask);
             #else

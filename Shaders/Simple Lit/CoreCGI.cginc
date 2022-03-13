@@ -35,6 +35,13 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     float3 worldNormal = i.worldNormal;
     float3 bitangent = i.bitangent;
     float3 tangent = i.tangent;
+    #if defined(NEED_CENTROID_NORMAL)
+        if (dot(i.centroidWorldNormal, worldNormal) >= 1.01)
+        {
+            worldNormal = i.centroidWorldNormal;
+        }
+    #endif
+
     FlipBTN(facing, worldNormal, bitangent, tangent);
 
     half3 indirectSpecular = 0.0;
