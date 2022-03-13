@@ -204,6 +204,15 @@ namespace z3y.Shaders
                 max.floatValue = currentMax;
             }
 
+            if (min.floatValue > max.floatValue)
+            {
+                min.floatValue = max.floatValue - 0.001f;
+                if (min.floatValue < minLimit)
+                {
+                    min.floatValue = minLimit;
+                }
+            }
+
             EditorGUILayout.EndHorizontal();
         }
 

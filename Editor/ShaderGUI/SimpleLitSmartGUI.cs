@@ -368,16 +368,6 @@ namespace z3y.Shaders
 
         public override void OnValidate(Material material)
         {
-            if (_Metallic.floatValue < _MetallicMin.floatValue)
-            {
-                _MetallicMin.floatValue = 0f;
-            }
-
-            if (_Metallic.floatValue < _GlossinessMin.floatValue)
-            {
-                _GlossinessMin.floatValue = 0f;
-            }
-
             ApplyChanges(material);
         }
 
