@@ -24,6 +24,7 @@ Shader "Simple Lit"
         [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
         _BumpMapArray ("Normal Map Array", 2DArray) = "" {}
         _BumpScale ("Scale", Float) = 1
+        [ToggleUI] _FlipNormal ("Flip", Int) = 0
 
         [ToggleOff(SPECULAR_HIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
         [ToggleOff(REFLECTIONS_OFF)] _GlossyReflections ("Reflection Probes", Float) = 1

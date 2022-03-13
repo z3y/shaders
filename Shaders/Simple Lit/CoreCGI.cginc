@@ -49,7 +49,6 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     half roughness = surf.perceptualRoughness * surf.perceptualRoughness;
     half clampedRoughness = max(roughness, 0.002);
 
-    surf.tangentNormal.g *= -1.0; // TODO: figure out why its inverted by default
     TangentToWorldNormal(surf.tangentNormal, worldNormal, tangent, bitangent);
 
     float3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));

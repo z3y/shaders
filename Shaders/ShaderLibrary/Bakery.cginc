@@ -5,6 +5,10 @@ Texture2D _RNM0, _RNM1, _RNM2;
 SamplerState sampler_RNM0, sampler_RNM1, sampler_RNM2;
 float4 _RNM0_TexelSize;
 
+#if defined(SHADER_API_MOBILE)
+    #undef BAKERY_SHNONLINEAR
+#endif
+
 void BakeryRNMLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout half3 directSpecular, float3 normalTS, float3 viewDirTS, float3 viewDir, half roughness, half3 f0)
 {
 #ifdef BAKERY_RNM

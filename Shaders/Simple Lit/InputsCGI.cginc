@@ -19,6 +19,7 @@ half _MetallicMin;
 half _Occlusion;
 
 half _BumpScale;
+half _FlipNormal;
 half _Reflectance;
 
 half4 _DetailAlbedoMap_ST;

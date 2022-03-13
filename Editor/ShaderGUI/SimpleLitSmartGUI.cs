@@ -29,6 +29,7 @@ namespace z3y.Shaders
 
         private MaterialProperty _BumpMap;
         private MaterialProperty _BumpScale;
+        private MaterialProperty _FlipNormal;
         private MaterialProperty _BumpMapArray;
 
         private MaterialProperty Foldout_EmissionInputs;
@@ -170,7 +171,7 @@ namespace z3y.Shaders
                 EditorGUI.indentLevel -= 2;
 
 
-                Draw(_BumpMap, _BumpScale);
+                Draw(_BumpMap, _FlipNormal, _BumpScale, "Normal Map (OpenGL)\nFlip (Direct Mode)" );
             }
 
             if (_ParallaxMap.textureValue)

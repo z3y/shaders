@@ -137,6 +137,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         #endif
     #endif
 
+    surf.tangentNormal.g *= _FlipNormal ? 1.0 : -1.0;
 
     surf.reflectance = _Reflectance;
 }
