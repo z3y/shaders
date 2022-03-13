@@ -158,7 +158,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
                 , ltcgiSpecular
     #endif
             );
-            otherSpecular += ltcgiSpecular;
+            indirectSpecular += ltcgiSpecular * F_Schlick(NoV, f0);
     #endif
 
   
