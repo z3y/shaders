@@ -184,7 +184,6 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         UNITY_INITIALIZE_OUTPUT(UnityMetaInput, metaInput);
         metaInput.Emission = surf.emission;
         metaInput.Albedo = surf.albedo.rgb;
-        metaInput.SpecularColor = f0;
         return float4(UnityMetaFragment(metaInput).rgb, surf.alpha);
     #endif
 
