@@ -49,7 +49,7 @@ namespace z3y.Shaders
             return mesh;
         }
     }
-
+#if UNITY_EDITOR
     [CustomEditor(typeof(TextureArraySelector))]
     public class TextureArraySelectorEditor : Editor
     {
@@ -78,5 +78,6 @@ namespace z3y.Shaders
 
         }
     }
+#endif
 }
 #endif

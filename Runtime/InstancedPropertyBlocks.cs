@@ -61,6 +61,7 @@ namespace z3y.Shaders
         }
     }
 
+#if UNITY_EDITOR
     [CustomEditor(typeof(InstancedPropertyBlocks)), CanEditMultipleObjects]
     public class InstancedPropertyBlocksEditor : Editor
     {
@@ -89,5 +90,6 @@ namespace z3y.Shaders
 
         }
     }
+#endif
 }
 #endif
