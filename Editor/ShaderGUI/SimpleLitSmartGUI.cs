@@ -171,7 +171,10 @@ namespace z3y.Shaders
                 EditorGUI.indentLevel -= 2;
 
 
-                Draw(_BumpMap, _FlipNormal, _BumpScale, "Normal Map (OpenGL)\nFlip (Direct Mode)" );
+                Draw(_BumpMap, _BumpScale, null, "Normal Map (OpenGL)" );
+                EditorGUI.indentLevel += 2;
+                Draw(_FlipNormal, "Flip (DirectX Mode)");
+                EditorGUI.indentLevel -= 2;
             }
 
             if (_ParallaxMap.textureValue)

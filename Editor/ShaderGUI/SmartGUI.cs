@@ -167,7 +167,7 @@ namespace z3y.Shaders
         {
             bool isOpen = foldout.floatValue == 1;
             DrawSplitter();
-            isOpen = DrawHeaderFoldout(foldout.displayName, isOpen);
+            isOpen = DrawHeaderFoldout( new GUIContent (foldout.displayName), isOpen);
             foldout.floatValue = isOpen ? 1 : 0;
             if (isOpen)
             {
@@ -434,10 +434,6 @@ namespace z3y.Shaders
         #region CoreEditorUtils.cs
         /// <summary>Draw a header</summary>
         /// <param name="title">Title of the header</param>
-        public static void DrawHeader(string title) => DrawHeader(EditorGUIUtility.TrTextContent(title));
-
-        /// <summary>Draw a header</summary>
-        /// <param name="title">Title of the header</param>
         public static void DrawHeader(GUIContent title)
         {
             var backgroundRect = GUILayoutUtility.GetRect(1f, 17f);
@@ -463,24 +459,7 @@ namespace z3y.Shaders
             EditorGUI.LabelField(labelRect, title, EditorStyles.boldLabel);
         }
 
-        /// <summary> Draw a foldout header </summary>
-        /// <param name="title"> The title of the header </param>
-        /// <param name="state"> The state of the header </param>
-        /// <param name="isBoxed"> [optional] is the eader contained in a box style ? </param>
-        /// <param name="hasMoreOptions"> [optional] Delegate used to draw the right state of the advanced button. If null, no button drawn. </param>
-        /// <param name="toggleMoreOption"> [optional] Callback call when advanced button clicked. Should be used to toggle its state. </param>
-        /// <returns>return the state of the foldout header</returns>
-        public static bool DrawHeaderFoldout(string title, bool state, bool isBoxed = false, Func<bool> hasMoreOptions = null, Action toggleMoreOption = null)
-            => DrawHeaderFoldout(EditorGUIUtility.TrTextContent(title), state, isBoxed, hasMoreOptions, toggleMoreOption);
-
-        /// <summary> Draw a foldout header </summary>
-        /// <param name="title"> The title of the header </param>
-        /// <param name="state"> The state of the header </param>
-        /// <param name="isBoxed"> [optional] is the eader contained in a box style ? </param>
-        /// <param name="hasMoreOptions"> [optional] Delegate used to draw the right state of the advanced button. If null, no button drawn. </param>
-        /// <param name="toggleMoreOptions"> [optional] Callback call when advanced button clicked. Should be used to toggle its state. </param>
-        /// <returns>return the state of the foldout header</returns>
-        public static bool DrawHeaderFoldout(GUIContent title, bool state, bool isBoxed = false, Func<bool> hasMoreOptions = null, Action toggleMoreOptions = null)
+        public static bool DrawHeaderFoldout(GUIContent title, bool state, bool isBoxed = false)
         {
             const float height = 17f;
             var backgroundRect = GUILayoutUtility.GetRect(1f, height);
@@ -496,42 +475,14 @@ namespace z3y.Shaders
             foldoutRect.height = 13f;
             foldoutRect.x = labelRect.xMin + 15 * (EditorGUI.indentLevel - 1); //fix for presset
 
-            // More options 1/2
-            var moreOptionsRect = new Rect();
-            if (hasMoreOptions != null)
-            {
-                moreOptionsRect = backgroundRect;
-                moreOptionsRect.x += moreOptionsRect.width - 16 - 1;
-                moreOptionsRect.height = 15;
-                moreOptionsRect.width = 16;
-            }
 
             // Background rect should be full-width
             backgroundRect.xMin = 0f;
             backgroundRect.width += 4f;
-
-            if (isBoxed)
-            {
-                labelRect.xMin += 5;
-                foldoutRect.xMin += 5;
-                backgroundRect.xMin = xMin == 7.0 ? 4.0f : EditorGUIUtility.singleLineHeight;
-                backgroundRect.width -= 1;
-            }
-
             // Background
             float backgroundTint = EditorGUIUtility.isProSkin ? 0.1f : 1f;
             EditorGUI.DrawRect(backgroundRect, new Color(backgroundTint, backgroundTint, backgroundTint, 0.2f));
 
-            // More options 2/2
-            if (hasMoreOptions != null)
-            {
-                EditorGUI.BeginChangeCheck();
-                Styles.DrawMoreOptions(moreOptionsRect, hasMoreOptions());
-                if (EditorGUI.EndChangeCheck() && toggleMoreOptions != null)
-                {
-                    toggleMoreOptions();
-                }
-            }
 
             // Title
             EditorGUI.LabelField(labelRect, title, EditorStyles.boldLabel);
@@ -540,106 +491,13 @@ namespace z3y.Shaders
             state = GUI.Toggle(foldoutRect, state, GUIContent.none, EditorStyles.foldout);
 
             var e = Event.current;
-            if (e.type == EventType.MouseDown && backgroundRect.Contains(e.mousePosition) && !moreOptionsRect.Contains(e.mousePosition) && e.button == 0)
+            if (e.type == EventType.MouseDown && backgroundRect.Contains(e.mousePosition) && e.button == 0)
             {
                 state = !state;
                 e.Use();
             }
 
             return state;
-        }
-        class Styles
-        {
-            static readonly Color k_Normal_AllTheme = new Color32(0, 0, 0, 0);
-            //static readonly Color k_Hover_Dark = new Color32(70, 70, 70, 255);
-            //static readonly Color k_Hover = new Color32(193, 193, 193, 255);
-            static readonly Color k_Active_Dark = new Color32(80, 80, 80, 255);
-            static readonly Color k_Active = new Color32(216, 216, 216, 255);
-
-            static readonly int s_MoreOptionsHash = "MoreOptions".GetHashCode();
-
-            static public GUIContent moreOptionsLabel { get; private set; }
-            static public GUIStyle moreOptionsStyle { get; private set; }
-            static public GUIStyle moreOptionsLabelStyle { get; private set; }
-
-            static Styles()
-            {
-                moreOptionsLabel = EditorGUIUtility.TrIconContent("MoreOptions", "More Options");
-
-                moreOptionsStyle = new GUIStyle(GUI.skin.toggle);
-                Texture2D normalColor = new Texture2D(1, 1);
-                normalColor.SetPixel(1, 1, k_Normal_AllTheme);
-                moreOptionsStyle.normal.background = normalColor;
-                moreOptionsStyle.onActive.background = normalColor;
-                moreOptionsStyle.onFocused.background = normalColor;
-                moreOptionsStyle.onNormal.background = normalColor;
-                moreOptionsStyle.onHover.background = normalColor;
-                moreOptionsStyle.active.background = normalColor;
-                moreOptionsStyle.focused.background = normalColor;
-                moreOptionsStyle.hover.background = normalColor;
-
-                moreOptionsLabelStyle = new GUIStyle(GUI.skin.label);
-                moreOptionsLabelStyle.padding = new RectOffset(0, 0, 0, -1);
-            }
-
-            //Note:
-            // - GUIStyle seams to be broken: all states have same state than normal light theme
-            // - Hover with event will not be updated right when we enter the rect
-            //-> Removing hover for now. Keep theme color for refactoring with UIElement later
-            static public bool DrawMoreOptions(Rect rect, bool active)
-            {
-                int id = GUIUtility.GetControlID(s_MoreOptionsHash, FocusType.Passive, rect);
-                var evt = Event.current;
-                switch (evt.type)
-                {
-                    case EventType.Repaint:
-                        Color background = k_Normal_AllTheme;
-                        if (active)
-                            background = EditorGUIUtility.isProSkin ? k_Active_Dark : k_Active;
-                        EditorGUI.DrawRect(rect, background);
-                        GUI.Label(rect, moreOptionsLabel, moreOptionsLabelStyle);
-                        break;
-                    case EventType.KeyDown:
-                        bool anyModifiers = (evt.alt || evt.shift || evt.command || evt.control);
-                        if ((evt.keyCode == KeyCode.Space || evt.keyCode == KeyCode.Return || evt.keyCode == KeyCode.KeypadEnter) && !anyModifiers && GUIUtility.keyboardControl == id)
-                        {
-                            evt.Use();
-                            GUI.changed = true;
-                            return !active;
-                        }
-                        break;
-                    case EventType.MouseDown:
-                        if (rect.Contains(evt.mousePosition))
-                        {
-                            GrabMouseControl(id);
-                            evt.Use();
-                        }
-                        break;
-                    case EventType.MouseUp:
-                        if (HasMouseControl(id))
-                        {
-                            ReleaseMouseControl();
-                            evt.Use();
-                            if (rect.Contains(evt.mousePosition))
-                            {
-                                GUI.changed = true;
-                                return !active;
-                            }
-                        }
-                        break;
-                    case EventType.MouseDrag:
-                        if (HasMouseControl(id))
-                            evt.Use();
-                        break;
-                }
-
-                return active;
-            }
-
-            static int s_GrabbedID = -1;
-            static void GrabMouseControl(int id) => s_GrabbedID = id;
-            static void ReleaseMouseControl() => s_GrabbedID = -1;
-            static bool HasMouseControl(int id) => s_GrabbedID == id;
         }
 
         /// <summary>Draw a splitter separator</summary>
