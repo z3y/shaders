@@ -132,7 +132,6 @@ RantEnd*/
 #define VERTEXLIGHT_PS
 
 
-
 #define BAKERY_SHNONLINEAR
 #define BICUBIC_LIGHTMAP
 #pragma skip_variants LOD_FADE_CROSSFADE

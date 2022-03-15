@@ -49,7 +49,6 @@ namespace z3y.Shaders
 
             EditorGUILayout.LabelField("Global Toggles", EditorStyles.boldLabel);
             DrawToggle(ref ShaderConfig.VERTEXLIGHT_PS, "Non-Important Lights per Pixel");
-            DrawToggle(ref ShaderConfig.NEED_CENTROID_NORMAL, "Centroid Normal Sampling");
             DrawToggle(ref ShaderConfig.BICUBIC_LIGHTMAP, "Bicubic Lightmap");
 
             EditorGUILayout.Space();
@@ -94,7 +93,6 @@ namespace z3y.Shaders
     {
         public static bool VERTEXLIGHT_ON = true;
         public static bool VERTEXLIGHT_PS = true;
-        public static bool NEED_CENTROID_NORMAL;
         public static bool NONLINEAR_LIGHTPROBESH;
         public static bool BAKERY_RNM;
         public static bool BAKERY_SH;
@@ -149,7 +147,6 @@ namespace z3y.Shaders
             sb.AppendLine(ShaderConfig.NONLINEAR_LIGHTPROBESH ? $"{Define}NONLINEAR_LIGHTPROBESH{NewLine}{SkipVariant}NONLINEAR_LIGHTPROBESH" : "");
             sb.AppendLine(ShaderConfig.VERTEXLIGHT_ON ? "" : SkipVariant + "VERTEXLIGHT_ON");
             sb.AppendLine(ShaderConfig.VERTEXLIGHT_PS ? Define + "VERTEXLIGHT_PS" : "");
-            sb.AppendLine(ShaderConfig.NEED_CENTROID_NORMAL ? Define + "NEED_CENTROID_NORMAL" : "");
             sb.AppendLine(ShaderConfig.BAKERY_RNM ? $"{Define}BAKERY_RNM{NewLine}{SkipVariant}BAKERY_RNM" : "");
             sb.AppendLine(ShaderConfig.BAKERY_SH ? $"{Define}BAKERY_SH{NewLine}{SkipVariant}BAKERY_SH" : "");
             sb.AppendLine(ShaderConfig.BAKERY_SHNONLINEAR ? $"{Define}BAKERY_SHNONLINEAR" : "");
