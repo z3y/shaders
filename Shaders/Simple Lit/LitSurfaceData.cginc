@@ -18,21 +18,23 @@ half4 SampleTexture(Texture2DArray t, SamplerState s, float2 uv)
 
 
 #pragma warning( disable : 1519 ) // macro redefinition
+
 #define LAYERALBEDOSAMPLER sampler_DetailAlbedoMap
-#if !defined(LAYER1ALBEDO)
+#if !defined(_LAYER1ALBEDO)
     #define LAYERALBEDOSAMPLER sampler_DetailAlbedoMap2
-#endif
-#if !defined(LAYER2ALBEDO)
-    #define LAYERALBEDOSAMPLER sampler_DetailAlbedoMap3
+    #if !defined(_LAYER2ALBEDO)
+        #define LAYERALBEDOSAMPLER sampler_DetailAlbedoMap3
+    #endif
 #endif
 
 #define LAYERNORMALSAMPLER sampler_DetailNormalMap
-#if !defined(LAYER1NORMAL)
+#if !defined(_LAYER1NORMAL)
     #define LAYERNORMALSAMPLER sampler_DetailNormalMap2
+    #if !defined(_LAYER2NORMAL)
+        #define LAYERNORMALSAMPLER sampler_DetailNormalMap3
+    #endif
 #endif
-#if !defined(LAYER2NORMAL)
-    #define LAYERNORMALSAMPLER sampler_DetailNormalMap3
-#endif
+
 void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 {
     arrayIndex = i.uv[3].z;
