@@ -6,6 +6,14 @@ Texture2D _DetailMask; SamplerState sampler_DetailMask;
 Texture2D _DetailNormalMap; SamplerState sampler_DetailNormalMap;
 Texture2D _DetailAlbedoMap; SamplerState sampler_DetailAlbedoMap;
 
+Texture2D _DetailMask2;
+Texture2D _DetailNormalMap2;
+Texture2D _DetailAlbedoMap2;
+
+Texture2D _DetailMask3;
+Texture2D _DetailNormalMap3;
+Texture2D _DetailAlbedoMap3;
+
 Texture2D _EmissionMap; SamplerState sampler_EmissionMap;
 
 Texture2DArray _MainTexArray; SamplerState sampler_MainTexArray;
@@ -22,17 +30,34 @@ half _BumpScale;
 half _FlipNormal;
 half _Reflectance;
 
-half4 _DetailAlbedoMap_ST;
 uint _DetailMaskUV;
 half4 _DetailMask_ST;
+
+half4 _DetailAlbedoMap_ST;
+half4 _DetailNormalMap_TexelSize;
 uint _DetailMapUV;
 half _DetailDepth;
 half _DetailAlbedoScale;
 half _DetailNormalScale;
 half _DetailSmoothnessScale;
 
+half4 _DetailAlbedoMap2_ST;
+half4 _DetailNormalMap2_TexelSize;
+uint _DetailMapUV2;
+half _DetailDepth2;
+half _DetailAlbedoScale2;
+half _DetailNormalScale2;
+half _DetailSmoothnessScale2;
+
+half4 _DetailAlbedoMap3_ST;
+half4 _DetailNormalMap3_TexelSize;
+uint _DetailMapUV3;
+half _DetailDepth3;
+half _DetailAlbedoScale3;
+half _DetailNormalScale3;
+half _DetailSmoothnessScale3;
+
 half _AlbedoSaturation;
-half _SpecularOcclusion;
 half _Cutoff;
 
 half _Texture;

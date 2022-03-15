@@ -9,8 +9,10 @@
     #undef BICUBIC_LIGHTMAP
     #undef BAKERY_BICUBIC
     #undef LTCGI
-    //#define SPECULAR_HIGHLIGHTS_OFF // TODO: fix precision issues on mobile
-    #undef _DETAILALBEDO_MAP
+
+    #undef _LAYER1
+    #undef _LAYER2
+    #undef _LAYER3
 #endif
 
 #ifdef UNITY_PASS_META
@@ -37,6 +39,16 @@
     #endif
 #include "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc"
 #endif
+
+
+#if defined(_LAYER3)
+#define _LAYER2
+#endif
+
+#if defined(_LAYER2)
+#define _LAYER1
+#endif
+
 
 
 #if defined(BAKERY_SH) || defined(BAKERY_RNM)

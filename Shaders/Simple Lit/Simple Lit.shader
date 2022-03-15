@@ -28,6 +28,7 @@ Shader "Simple Lit"
 
         [ToggleOff(SPECULAR_HIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
         [ToggleOff(REFLECTIONS_OFF)] _GlossyReflections ("Reflection Probes", Float) = 1
+        _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
 
         [Toggle(GEOMETRIC_SPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
         [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
@@ -44,19 +45,44 @@ Shader "Simple Lit"
         [Enum(Disabled, 1000, Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3, Autocorrelator, 27, Filtered Bass, 28)] _AudioLinkEmission ("Audio Link", Int) = 1000
         _EmissionGIMultiplier("GI Multiplier", Float) = 1
 
-        Foldout_DetailInputs("Detail Maps", Int) = 0
+        Foldout_DetailInputs("Layers", Int) = 0
         [Enum(Overlay, 0, Screen, 1, Multiply X2, 2, Replace, 3)] _DetailBlendMode ("Blend Mode", Int) = 0
         [Enum(Packed, 0, Mask Map, 1)] _DetailMaskSelect ("Mask", Int) = 0
         [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]  _DetailMaskUV ("UV", Int) = 0
-        _DetailMask ("Mask", 2D) = "white" {}
-        [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)]  _DetailMapUV ("UV", Int) = 0
-        _DetailAlbedoMap ("Albedo & Smoothness", 2D) = "linearGrey" {}
+        _DetailMask ("Mask RGB", 2D) = "white" {}
+        [IntRange] _Layers ("Layers", Range(0.0, 3.0)) = 0
 
+        //layer 1
+        [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _DetailMapUV ("UV", Int) = 0
+        _DetailAlbedoMap ("Albedo", 2D) = "white" {}
         [Normal] _DetailNormalMap ("Normal Map", 2D) = "bump" {}
         _DetailDepth("Depth", Float) = 0
+
         _DetailAlbedoScale ("Albedo Scale", Range(0.0, 1.0)) = 1
         _DetailNormalScale ("Scale", Float) = 1
         _DetailSmoothnessScale ("Smoothness", Range(0.0, 1.0)) = 0
+
+        // layer 2
+        [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _DetailMapUV2 ("UV", Int) = 0
+        _DetailAlbedoMap2 ("Albedo", 2D) = "white" {}
+        [Normal] _DetailNormalMap2 ("Normal Map", 2D) = "bump" {}
+        _DetailDepth2("Depth", Float) = 0
+
+        _DetailAlbedoScale2 ("Albedo Scale", Range(0.0, 1.0)) = 1
+        _DetailNormalScale2 ("Scale", Float) = 1
+        _DetailSmoothnessScale2 ("Smoothness", Range(0.0, 1.0)) = 0
+
+        // layer3
+        [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _DetailMapUV3 ("UV", Int) = 0
+        _DetailAlbedoMap3 ("Albedo", 2D) = "white" {}
+        [Normal] _DetailNormalMap3 ("Normal Map", 2D) = "bump" {}
+        _DetailDepth3 ("Depth", Float) = 0
+
+        _DetailAlbedoScale3 ("Albedo Scale", Range(0.0, 1.0)) = 1
+        _DetailNormalScale3 ("Scale", Float) = 1
+        _DetailSmoothnessScale3 ("Smoothness", Range(0.0, 1.0)) = 0
+
+
 
         _ParallaxMap ("Height Map", 2D) = "white" {}
         [PowerSlider(2)] _Parallax ("Scale", Range (0, 0.2)) = 0.02
@@ -79,7 +105,6 @@ Shader "Simple Lit"
 
         [Enum(Default, 0, Texture Array, 1, Texture Array Instanced, 2)] _Texture ("Sampling Mode", Int) = 0
         _TextureIndex("Array Index", Int) = 0
-
         _AudioTexture ("Audio Link Render Texture", 2D) = "_AudioTexture" {}
         [HideInInspector] [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
 
@@ -156,9 +181,8 @@ ENDCG
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP
-            #pragma shader_feature_local _DETAILALBEDO_MAP
-            #pragma shader_feature_local _DETAILNORMAL_MAP
-            #pragma shader_feature_local _DETAILMASK_MAP
+
+            #pragma shader_feature_local _ _LAYER1 _LAYER2 _LAYER3
             #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP
 
             #pragma shader_feature_local AUDIOLINK
@@ -196,9 +220,8 @@ ENDCG
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP
-            #pragma shader_feature_local _DETAILALBEDO_MAP
-            #pragma shader_feature_local _DETAILNORMAL_MAP
-            #pragma shader_feature_local _DETAILMASK_MAP
+
+            #pragma shader_feature_local _ _LAYER1 _LAYER2 _LAYER3
             #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP
             
 
@@ -246,8 +269,8 @@ ENDCG
 
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
-            #pragma shader_feature_local _DETAILALBEDO_MAP
-            #pragma shader_feature_local _DETAILMASK_MAP
+
+            #pragma shader_feature_local _ _LAYER1 _LAYER2 _LAYER3
             #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP    
 
             #include "PassCGI.cginc"

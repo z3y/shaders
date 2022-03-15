@@ -16,7 +16,7 @@ struct v2f
     float3 worldNormal : TEXCOORD6;
     float4 worldPos : TEXCOORD7;
 
-    #if defined(PARALLAX) || defined(BAKERY_RNM) || defined(EMISSION) || defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
+    #if defined(PARALLAX) || defined(BAKERY_RNM) || defined(EMISSION) || defined(_LAYER1)
         float3 viewDirTS : TEXCOORD8;
     #endif
 
@@ -99,7 +99,7 @@ v2f vert (appdata_all v)
         o.color = v.color;
     #endif
 
-    #if defined(PARALLAX) || defined(BAKERY_RNM) || defined(EMISSION) || defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
+    #if defined(PARALLAX) || defined(BAKERY_RNM) || defined(EMISSION) || defined(_LAYER1)
         TANGENT_SPACE_ROTATION;
         o.viewDirTS = mul (rotation, ObjSpaceViewDir(v.vertex));
     #endif

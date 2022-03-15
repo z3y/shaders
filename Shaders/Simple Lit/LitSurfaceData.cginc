@@ -55,39 +55,17 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     #endif
 
 
-    #if defined(_DETAILALBEDO_MAP) || defined(_DETAILNORMAL_MAP)
+    #if defined(_LAYER1)
 
-        float2 detailUV = i.uv[_DetailMapUV].xy;
-        float2 detailDepth = ParallaxOffsetUV(_DetailDepth, i.viewDirTS);
-        detailUV = (detailUV * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset + detailDepth;
-        float4 detailMap = 0.5;
-        float3 detailAlbedo = 0.0;
-        float detailSmoothness = 0.0;
-        
-        #if defined(_DETAILALBEDO_MAP)
+        float2 detailMaskUV = (i.uv[_DetailMaskUV].xy * _DetailMask_ST.xy) + _DetailMask_ST.zw + parallaxOffset;
+        float4 sampledMask = SampleTexture(_DetailMask, sampler_DetailMask, detailMaskUV);
+
+        // layer 1
+        #ifdef _LAYER1
+        {
+            float detailMask = sampledMask.r;
+            float2 detailUV = (i.uv[_DetailMapUV].xy * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset + ParallaxOffsetUV(_DetailDepth, i.viewDirTS);
             float4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap, sampler_DetailAlbedoMap, detailUV);
-        #else
-            float4 sampledDetailAlbedo = half4(1.0, 1.0, 1.0, 1.0);
-        #endif
-
-        #ifdef _DETAILMASK_MAP
-            float2 detailMaskUV = (i.uv[_DetailMaskUV].xy * _DetailMask_ST.xy) + _DetailMask_ST.zw + parallaxOffset ;
-            float detailMask = SampleTexture(_DetailMask, sampler_DetailMask, detailMaskUV).g;
-        #else
-            float detailMask = maskMap.b;
-        #endif
-
-        #if defined(_DETAILNORMAL_MAP)
-            float4 detailNormalMap = SampleTexture(_DetailNormalMap, sampler_DetailNormalMap, detailUV);
-            float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale);
-            #if defined(_DETAILBLEND_LERP)
-                surf.tangentNormal = lerp(surf.tangentNormal, detailNormal, detailMask);
-            #else
-                surf.tangentNormal = lerp(surf.tangentNormal, BlendNormals(surf.tangentNormal, detailNormal), detailMask);
-            #endif
-        #endif
-
-        #ifdef _DETAILALBEDO_MAP
             #if defined(_DETAILBLEND_SCREEN)
                 surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale);
                 surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Screen(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
@@ -101,7 +79,90 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
                 surf.albedo = lerp(surf.albedo, BlendMode_Overlay_sRGB(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale);
                 surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Overlay(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
             #endif
+
+            UNITY_BRANCH
+            if (_DetailNormalMap_TexelSize.w > 1.0)
+            {
+                float4 detailNormalMap = SampleTexture(_DetailNormalMap, sampler_DetailNormalMap, detailUV);
+                float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale);
+                #if defined(_DETAILBLEND_LERP)
+                    surf.tangentNormal = lerp(surf.tangentNormal, detailNormal, detailMask);
+                #else
+                    surf.tangentNormal = lerp(surf.tangentNormal, BlendNormals(surf.tangentNormal, detailNormal), detailMask);
+                #endif
+            }
+        }
         #endif
+
+        // layer 2
+        #ifdef _LAYER2
+        {
+            float detailMask = sampledMask.g;
+            float2 detailUV = (i.uv[_DetailMapUV2].xy * _DetailAlbedoMap2_ST.xy) + _DetailAlbedoMap2_ST.zw + parallaxOffset + ParallaxOffsetUV(_DetailDepth2, i.viewDirTS);
+            float4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap2, sampler_DetailAlbedoMap, detailUV);
+            #if defined(_DETAILBLEND_SCREEN)
+                surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale2);
+                surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Screen(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale2);
+            #elif defined(_DETAILBLEND_MULX2)
+                surf.albedo = lerp(surf.albedo, BlendMode_MultiplyX2(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale2);
+                surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_MultiplyX2(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale2);
+            #elif defined(_DETAILBLEND_LERP)
+                surf.albedo = lerp(surf.albedo, sampledDetailAlbedo.rgb, detailMask * _DetailAlbedoScale2);
+                surf.perceptualRoughness = lerp(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a, detailMask * _DetailSmoothnessScale2);
+            #else // default overlay
+                surf.albedo = lerp(surf.albedo, BlendMode_Overlay_sRGB(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale2);
+                surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Overlay(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale2);
+            #endif
+
+            UNITY_BRANCH
+            if (_DetailNormalMap2_TexelSize.w > 1.0)
+            {
+                float4 detailNormalMap = SampleTexture(_DetailNormalMap2, sampler_DetailNormalMap, detailUV);
+                float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale2);
+                #if defined(_DETAILBLEND_LERP)
+                    surf.tangentNormal = lerp(surf.tangentNormal, detailNormal, detailMask);
+                #else
+                    surf.tangentNormal = lerp(surf.tangentNormal, BlendNormals(surf.tangentNormal, detailNormal), detailMask);
+                #endif
+            }
+        }
+        #endif
+
+        // layer 3
+        #ifdef _LAYER3
+        {
+            float detailMask = sampledMask.b;
+            float2 detailUV = (i.uv[_DetailMapUV3].xy * _DetailAlbedoMap3_ST.xy) + _DetailAlbedoMap3_ST.zw + parallaxOffset + ParallaxOffsetUV(_DetailDepth3, i.viewDirTS);
+            float4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap3, sampler_DetailAlbedoMap, detailUV);
+            #if defined(_DETAILBLEND_SCREEN)
+                surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale3);
+                surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Screen(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale3);
+            #elif defined(_DETAILBLEND_MULX2)
+                surf.albedo = lerp(surf.albedo, BlendMode_MultiplyX2(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale3);
+                surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_MultiplyX2(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale3);
+            #elif defined(_DETAILBLEND_LERP)
+                surf.albedo = lerp(surf.albedo, sampledDetailAlbedo.rgb, detailMask * _DetailAlbedoScale3);
+                surf.perceptualRoughness = lerp(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a, detailMask * _DetailSmoothnessScale3);
+            #else // default overlay
+                surf.albedo = lerp(surf.albedo, BlendMode_Overlay_sRGB(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale3);
+                surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Overlay(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale3);
+            #endif
+
+            UNITY_BRANCH
+            if (_DetailNormalMap3_TexelSize.w > 1.0)
+            {
+                float4 detailNormalMap = SampleTexture(_DetailNormalMap3, sampler_DetailNormalMap, detailUV);
+                float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale3);
+                #if defined(_DETAILBLEND_LERP)
+                    surf.tangentNormal = lerp(surf.tangentNormal, detailNormal, detailMask);
+                #else
+                    surf.tangentNormal = lerp(surf.tangentNormal, BlendNormals(surf.tangentNormal, detailNormal), detailMask);
+                #endif
+            }
+        }
+        #endif
+
+
         
     #endif
 

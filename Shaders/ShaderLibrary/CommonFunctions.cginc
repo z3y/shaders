@@ -333,7 +333,7 @@ void InitializeLightData(inout LightData lightData, float3 normalWS, float3 view
     #endif
 }
 
-
+half _SpecularOcclusion;
 half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half roughness, half NoV, SurfaceData surf, half3 indirectDiffuse)
 {
     half3 indirectSpecular = 0;
@@ -362,7 +362,7 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
         float horizon = min(1.0 + dot(reflDir, normalWS), 1.0);
         float2 dfg = DFGLut;
         #ifdef LIGHTMAP_ANY
-            dfg.x *=  saturate(dot(indirectDiffuse, 1.0));
+            dfg.x *= lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
         #endif
         indirectSpecular = indirectSpecular * horizon * horizon * DFGEnergyCompensation * EnvBRDFMultiscatter(dfg, f0);
         indirectSpecular *= computeSpecularAO(NoV, surf.occlusion, surf.perceptualRoughness * surf.perceptualRoughness);

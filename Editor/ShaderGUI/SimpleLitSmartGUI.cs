@@ -59,6 +59,22 @@ namespace z3y.Shaders
         private MaterialProperty _DetailAlbedoScale;
         private MaterialProperty _DetailSmoothnessScale;
         private MaterialProperty _DetailBlendMode;
+        private MaterialProperty _Layers;
+
+        private MaterialProperty _DetailMapUV2;
+        private MaterialProperty _DetailAlbedoMap2;
+        private MaterialProperty _DetailNormalMap2;
+        private MaterialProperty _DetailDepth2;
+        private MaterialProperty _DetailAlbedoScale2;
+        private MaterialProperty _DetailNormalScale2;
+        private MaterialProperty _DetailSmoothnessScale2;
+        private MaterialProperty _DetailMapUV3;
+        private MaterialProperty _DetailAlbedoMap3;
+        private MaterialProperty _DetailNormalMap3;
+        private MaterialProperty _DetailDepth3;
+        private MaterialProperty _DetailAlbedoScale3;
+        private MaterialProperty _DetailNormalScale3;
+        private MaterialProperty _DetailSmoothnessScale3;
 
 
         private MaterialProperty Foldout_RenderingOptions;
@@ -129,7 +145,7 @@ namespace z3y.Shaders
             if (_Texture.floatValue == 1 || _Texture.floatValue == 2)
             {
                 Draw(_MainTexArray, _Color, _AlbedoSaturation);
-                Draw(_MetallicGlossMapArray, null, null, "R: Metallic\nG: Occlusion\nB: Detail Mask\nA: Smoothness");
+                Draw(_MetallicGlossMapArray, null, null, "R: Metallic\nG: Occlusion\nA: Smoothness");
 
                 EditorGUI.indentLevel += 2;
                 if (_MetallicGlossMapArray.textureValue == null)
@@ -149,7 +165,7 @@ namespace z3y.Shaders
             else
             {
                 Draw(_MainTex, _Color, _AlbedoSaturation);
-                Draw(_MetallicGlossMap, null, null, "R: Metallic\nG: Occlusion\nB: Detail Mask\nA: Smoothness");
+                Draw(_MetallicGlossMap, null, null, "R: Metallic\nG: Occlusion\nA: Smoothness");
                 sRGBWarning(_MetallicGlossMap);
 
                 DrawMaskMapPacking(material);
@@ -238,31 +254,69 @@ namespace z3y.Shaders
                 return;
             }
 
+            Draw(_Layers);
+            Draw(_DetailMask);
+            me.TextureScaleOffsetProperty(_DetailMask);
+            Draw(_DetailMaskUV);
             Draw(_DetailBlendMode);
-            
-
-            Draw(_DetailAlbedoMap, _DetailAlbedoScale, null, "RGB: Albedo\nA: Smoothness");
-            DrawDetailAlbedoPacking(material);
-
-            EditorGUI.indentLevel += 2;
-            Draw(_DetailSmoothnessScale);
-            EditorGUI.indentLevel -= 2;
-
-            Draw(_DetailNormalMap, _DetailNormalScale);
-            me.TextureScaleOffsetProperty(_DetailAlbedoMap);
-            Draw(_DetailMapUV);
-            Draw(_DetailDepth);
             EditorGUILayout.Space();
 
-            Draw(_DetailMaskSelect);
-            if (_DetailMaskSelect.floatValue == 1)
+            int layers = (int)_Layers.floatValue;
+            if (layers >= 1)
             {
-                Draw(_DetailMask);
-                me.TextureScaleOffsetProperty(_DetailMask);
-                Draw(_DetailMaskUV);
+                VerticalScopeBox(() => {
+                    EditorGUILayout.LabelField("Layer 1", EditorStyles.boldLabel);
+                    Draw(_DetailAlbedoMap, _DetailAlbedoScale, null, "RGB: Albedo\nA: Smoothness");
+                    DrawDetailAlbedoPacking(material);
+                    EditorGUI.indentLevel += 2;
+                    Draw(_DetailSmoothnessScale);
+                    EditorGUI.indentLevel -= 2;
 
+                    Draw(_DetailNormalMap, _DetailNormalScale);
+                    me.TextureScaleOffsetProperty(_DetailAlbedoMap);
+                    Draw(_DetailMapUV);
+                    Draw(_DetailDepth);
+                    EditorGUILayout.Space();
+                });
             }
-            EditorGUILayout.Space();
+
+            if (layers >= 2)
+            {
+                VerticalScopeBox(() => {
+                    EditorGUILayout.LabelField("Layer 2", EditorStyles.boldLabel);
+                    Draw(_DetailAlbedoMap2, _DetailAlbedoScale2, null, "RGB: Albedo\nA: Smoothness");
+                    DrawDetailAlbedoPacking(material);
+                    EditorGUI.indentLevel += 2;
+                    Draw(_DetailSmoothnessScale2);
+                    EditorGUI.indentLevel -= 2;
+
+                    Draw(_DetailNormalMap2, _DetailNormalScale2);
+                    me.TextureScaleOffsetProperty(_DetailAlbedoMap2);
+                    Draw(_DetailMapUV2);
+                    Draw(_DetailDepth2);
+                    EditorGUILayout.Space();
+                });
+            }
+
+            if (layers >= 3)
+            {
+                VerticalScopeBox(() => {
+                    EditorGUILayout.LabelField("Layer 3", EditorStyles.boldLabel);
+                    Draw(_DetailAlbedoMap3, _DetailAlbedoScale3, null, "RGB: Albedo\nA: Smoothness");
+                    DrawDetailAlbedoPacking(material);
+                    EditorGUI.indentLevel += 2;
+                    Draw(_DetailSmoothnessScale3);
+                    EditorGUI.indentLevel -= 2;
+
+                    Draw(_DetailNormalMap3, _DetailNormalScale3);
+                    me.TextureScaleOffsetProperty(_DetailAlbedoMap3);
+                    Draw(_DetailMapUV3);
+                    Draw(_DetailDepth3);
+                    EditorGUILayout.Space();
+                    });
+            }
+
+            
         }
 
         private void DrawRenderingOptions(Material material, MaterialEditor me)
@@ -316,7 +370,7 @@ namespace z3y.Shaders
             _maskPackingOcclusion.isWhite = true;
             _maskPackingSmoothness.isWhite = true;
             TexturePacking.TexturePackingField(ref _maskPackingMetallic, "Metallic");
-            TexturePacking.TexturePackingField(ref _maskPackingDetailMask, "Detail Mask");
+            //TexturePacking.TexturePackingField(ref _maskPackingDetailMask, "Detail Mask");
             TexturePacking.TexturePackingField(ref _maskPackingOcclusion, "Occlusion");
             TexturePacking.TexturePackingField(ref _maskPackingSmoothness, "Smoothness", "Roughness");
 
@@ -383,7 +437,6 @@ namespace z3y.Shaders
 
             m.ToggleKeyword("AUDIOLINK", m.GetFloat("_AudioLinkEmission") != 1000);
 
-            m.ToggleKeyword("_DETAILMASK_MAP", m.GetFloat("_DetailMaskSelect") == 1 && m.GetTexture("_DetailMask"));
 
             var samplingMode = (int)m.GetFloat("_Texture");
             m.ToggleKeyword("_TEXTURE_ARRAY", samplingMode == 1 || samplingMode == 2);
@@ -404,11 +457,15 @@ namespace z3y.Shaders
             m.ToggleKeyword("BAKERY_SH", bakeryMode == 1);
 
             var detailBlend = (int)m.GetFloat("_DetailBlendMode");
-            m.ToggleKeyword("_DETAILALBEDO_MAP", m.GetTexture("_DetailAlbedoMap"));
-            m.ToggleKeyword("_DETAILNORMAL_MAP", m.GetTexture("_DetailNormalMap"));
             m.ToggleKeyword("_DETAILBLEND_SCREEN", detailBlend == 1);
             m.ToggleKeyword("_DETAILBLEND_MULX2", detailBlend == 2);
             m.ToggleKeyword("_DETAILBLEND_LERP", detailBlend == 3);
+
+            var layers = m.GetFloat("_Layers");
+            m.ToggleKeyword("_LAYER1", layers == 1);
+            m.ToggleKeyword("_LAYER2", layers == 2);
+            m.ToggleKeyword("_LAYER3", layers == 3);
+
 
             m.ToggleKeyword("PARALLAX", m.GetTexture("_ParallaxMap"));
 
