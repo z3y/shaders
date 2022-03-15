@@ -57,15 +57,25 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
     #if defined(_LAYER1)
 
-        float2 detailMaskUV = (i.uv[_DetailMaskUV].xy * _DetailMask_ST.xy) + _DetailMask_ST.zw + parallaxOffset;
-        float4 sampledMask = SampleTexture(_DetailMask, sampler_DetailMask, detailMaskUV);
+        half4 sampledMask = 1.0;
+
+        #ifndef _LAYER2
+        UNITY_BRANCH
+        if (_DetailMask_TexelSize.w > 1.0)
+        {
+        #endif
+            float2 detailMaskUV = (i.uv[_DetailMaskUV].xy * _DetailMask_ST.xy) + _DetailMask_ST.zw + parallaxOffset;
+            sampledMask = SampleTexture(_DetailMask, sampler_DetailMask, detailMaskUV);
+        #ifndef _LAYER2
+        }
+        #endif
 
         // layer 1
         #ifdef _LAYER1
         {
-            float detailMask = sampledMask.r;
+            half detailMask = sampledMask.r;
             float2 detailUV = (i.uv[_DetailMapUV].xy * _DetailAlbedoMap_ST.xy) + _DetailAlbedoMap_ST.zw + parallaxOffset + ParallaxOffsetUV(_DetailDepth, i.viewDirTS);
-            float4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap, sampler_DetailAlbedoMap, detailUV);
+            half4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap, sampler_DetailAlbedoMap, detailUV);
             #if defined(_DETAILBLEND_SCREEN)
                 surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale);
                 surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Screen(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
@@ -97,9 +107,9 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         // layer 2
         #ifdef _LAYER2
         {
-            float detailMask = sampledMask.g;
+            half detailMask = sampledMask.g;
             float2 detailUV = (i.uv[_DetailMapUV2].xy * _DetailAlbedoMap2_ST.xy) + _DetailAlbedoMap2_ST.zw + parallaxOffset + ParallaxOffsetUV(_DetailDepth2, i.viewDirTS);
-            float4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap2, sampler_DetailAlbedoMap, detailUV);
+            half4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap2, sampler_DetailAlbedoMap, detailUV);
             #if defined(_DETAILBLEND_SCREEN)
                 surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale2);
                 surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Screen(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale2);
@@ -131,9 +141,9 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         // layer 3
         #ifdef _LAYER3
         {
-            float detailMask = sampledMask.b;
+            half detailMask = sampledMask.b;
             float2 detailUV = (i.uv[_DetailMapUV3].xy * _DetailAlbedoMap3_ST.xy) + _DetailAlbedoMap3_ST.zw + parallaxOffset + ParallaxOffsetUV(_DetailDepth3, i.viewDirTS);
-            float4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap3, sampler_DetailAlbedoMap, detailUV);
+            half4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap3, sampler_DetailAlbedoMap, detailUV);
             #if defined(_DETAILBLEND_SCREEN)
                 surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale3);
                 surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Screen(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale3);
@@ -169,7 +179,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     surf.albedo.rgb = lerp(dot(surf.albedo.rgb, GRAYSCALE), surf.albedo.rgb, _AlbedoSaturation);
     
     #if defined(EMISSION)
-        float3 emissionMap = 1.0;
+        half3 emissionMap = 1.0;
 
         UNITY_BRANCH
         if (_EmissionMap_TexelSize.w > 1.0)

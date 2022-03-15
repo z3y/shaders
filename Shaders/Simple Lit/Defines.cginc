@@ -9,10 +9,6 @@
     #undef BICUBIC_LIGHTMAP
     #undef BAKERY_BICUBIC
     #undef LTCGI
-
-    #undef _LAYER1
-    #undef _LAYER2
-    #undef _LAYER3
 #endif
 
 #ifdef UNITY_PASS_META

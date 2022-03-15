@@ -32,6 +32,7 @@ half _Reflectance;
 
 uint _DetailMaskUV;
 half4 _DetailMask_ST;
+half4 _DetailMask_TexelSize;
 
 half4 _DetailAlbedoMap_ST;
 half4 _DetailNormalMap_TexelSize;

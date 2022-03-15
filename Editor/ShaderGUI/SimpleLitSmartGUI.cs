@@ -108,9 +108,23 @@ namespace z3y.Shaders
         private static TexturePacking.FieldData _maskPackingOcclusion;
         private static TexturePacking.FieldData _maskPackingSmoothness;
 
+        private static bool _layerMaskPacking;
+        private static TexturePacking.FieldData _layerMaskPacking1;
+        private static TexturePacking.FieldData _layerMaskPacking2;
+        private static TexturePacking.FieldData _layerMaskPacking3;
+        private static TexturePacking.FieldData _layerMaskPacking4;
+
         private static bool _detailPacking;
         private static TexturePacking.FieldData _detailPackingAlbedo;
         private static TexturePacking.FieldData _detailPackingSmoothness;
+
+        private static bool _detailPacking2;
+        private static TexturePacking.FieldData _detailPackingAlbedo2;
+        private static TexturePacking.FieldData _detailPackingSmoothness2;
+
+        private static bool _detailPacking3;
+        private static TexturePacking.FieldData _detailPackingAlbedo3;
+        private static TexturePacking.FieldData _detailPackingSmoothness3;
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
@@ -255,7 +269,8 @@ namespace z3y.Shaders
             }
 
             Draw(_Layers);
-            Draw(_DetailMask);
+            Draw(_DetailMask, "R: Layer 1\nG: Layer 2\nB: Layer 3");
+            DrawLayerMaskMapPacking(material);
             me.TextureScaleOffsetProperty(_DetailMask);
             Draw(_DetailMaskUV);
             Draw(_DetailBlendMode);
@@ -285,7 +300,7 @@ namespace z3y.Shaders
                 VerticalScopeBox(() => {
                     EditorGUILayout.LabelField("Layer 2", EditorStyles.boldLabel);
                     Draw(_DetailAlbedoMap2, _DetailAlbedoScale2, null, "RGB: Albedo\nA: Smoothness");
-                    DrawDetailAlbedoPacking(material);
+                    DrawDetailAlbedoPacking2(material);
                     EditorGUI.indentLevel += 2;
                     Draw(_DetailSmoothnessScale2);
                     EditorGUI.indentLevel -= 2;
@@ -303,7 +318,7 @@ namespace z3y.Shaders
                 VerticalScopeBox(() => {
                     EditorGUILayout.LabelField("Layer 3", EditorStyles.boldLabel);
                     Draw(_DetailAlbedoMap3, _DetailAlbedoScale3, null, "RGB: Albedo\nA: Smoothness");
-                    DrawDetailAlbedoPacking(material);
+                    DrawDetailAlbedoPacking3(material);
                     EditorGUI.indentLevel += 2;
                     Draw(_DetailSmoothnessScale3);
                     EditorGUI.indentLevel -= 2;
@@ -381,6 +396,28 @@ namespace z3y.Shaders
             });
         }
 
+        private void DrawLayerMaskMapPacking(Material material)
+        {
+            if (!TextureFoldout(ref _layerMaskPacking))
+            {
+                return;
+            }
+
+            _layerMaskPacking1.isWhite = true;
+            _layerMaskPacking2.isWhite = true;
+            _layerMaskPacking3.isWhite = true;
+
+            TexturePacking.TexturePackingField(ref _layerMaskPacking1, "Layer 1");
+            TexturePacking.TexturePackingField(ref _layerMaskPacking2, "Layer 2");
+            TexturePacking.TexturePackingField(ref _layerMaskPacking3, "Layer 3");
+
+            TexturePacking.PackButton( ()=> {
+                TexturePacking.Pack(_DetailMask, _layerMaskPacking1, _layerMaskPacking2, _layerMaskPacking3, _layerMaskPacking4, true);
+            }, () => {
+                TexturePacking.ResetPackingField(ref _layerMaskPacking1,ref _layerMaskPacking2,ref _layerMaskPacking3,ref _layerMaskPacking4);
+            });
+        }
+
         private void DrawDetailAlbedoPacking(Material material)
         {
             if (!TextureFoldout(ref _detailPacking))
@@ -396,6 +433,42 @@ namespace z3y.Shaders
                 TexturePacking.Pack(_DetailAlbedoMap, _detailPackingAlbedo, _detailPackingSmoothness);
             }, () => {
                 TexturePacking.ResetPackingField(ref _detailPackingAlbedo,ref _detailPackingSmoothness);
+            });
+        }
+
+         private void DrawDetailAlbedoPacking2(Material material)
+        {
+            if (!TextureFoldout(ref _detailPacking2))
+            {
+                return;
+            }
+
+            _detailPackingAlbedo2.isWhite = true;
+            TexturePacking.TexturePackingField(ref _detailPackingAlbedo2, "Albedo", null, false);
+            TexturePacking.TexturePackingField(ref _detailPackingSmoothness2, "Smoothness", "Roughness");
+
+            TexturePacking.PackButton(() => {
+                TexturePacking.Pack(_DetailAlbedoMap2, _detailPackingAlbedo2, _detailPackingSmoothness2);
+            }, () => {
+                TexturePacking.ResetPackingField(ref _detailPackingAlbedo2,ref _detailPackingSmoothness2);
+            });
+        }
+
+        private void DrawDetailAlbedoPacking3(Material material)
+        {
+            if (!TextureFoldout(ref _detailPacking3))
+            {
+                return;
+            }
+
+            _detailPackingAlbedo3.isWhite = true;
+            TexturePacking.TexturePackingField(ref _detailPackingAlbedo3, "Albedo", null, false);
+            TexturePacking.TexturePackingField(ref _detailPackingSmoothness3, "Smoothness", "Roughness");
+
+            TexturePacking.PackButton(() => {
+                TexturePacking.Pack(_DetailAlbedoMap3, _detailPackingAlbedo3, _detailPackingSmoothness3);
+            }, () => {
+                TexturePacking.ResetPackingField(ref _detailPackingAlbedo3,ref _detailPackingSmoothness3);
             });
         }
 
