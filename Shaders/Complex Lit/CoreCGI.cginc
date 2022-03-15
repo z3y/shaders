@@ -1,15 +1,36 @@
-half4 frag (v2f i) : SV_Target
+half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 {
     UNITY_SETUP_INSTANCE_ID(i)
+
+    #if defined(LOD_FADE_CROSSFADE)
+		UnityApplyDitherCrossFade(i.pos);
+	#endif
 
     SurfaceData surf;
     InitializeDefaultSurfaceData(surf);
     InitializeLitSurfaceData(surf, i);
 
 #if defined(UNITY_PASS_SHADOWCASTER)
+
+    #if defined(_MODE_CUTOUT)
+        if (surf.alpha < _Cutoff) discard;
+    #endif
+
+    #ifdef _ALPHAPREMULTIPLY_ON
+        surf.alpha = lerp(surf.alpha, 1.0, surf.metallic);
+    #endif
+
+    #if defined(_ALPHAPREMULTIPLY_ON) || defined(_MODE_FADE)
+        half dither = Unity_Dither(surf.alpha, i.pos.xy);
+        if (dither < 0.0) discard;
+    #endif
+
     SHADOW_CASTER_FRAGMENT(i);
 #else
 
+    #if defined(_MODE_CUTOUT)
+        AACutout(surf.alpha, _Cutoff);
+    #endif
 
     float3 worldNormal = i.worldNormal;
     float3 bitangent = i.bitangent;
@@ -21,9 +42,12 @@ half4 frag (v2f i) : SV_Target
         }
     #endif
 
+    FlipBTN(facing, worldNormal, bitangent, tangent);
+
     half3 indirectSpecular = 0.0;
     half3 directSpecular = 0.0;
     half3 otherSpecular = 0.0;
+
 
     #ifdef GEOMETRIC_SPECULAR_AA
         surf.perceptualRoughness = GSAA_Filament(worldNormal, surf.perceptualRoughness);
@@ -52,6 +76,7 @@ half4 frag (v2f i) : SV_Target
         NonImportantLightsPerPixel(lightData.FinalColor, directSpecular, i.worldPos, worldNormal, viewDir, NoV, f0, clampedRoughness);
     #endif
 
+    
 
     half3 indirectDiffuse;
     #if defined(LIGHTMAP_ANY)
@@ -95,6 +120,9 @@ half4 frag (v2f i) : SV_Target
         directSpecular += lightData.Specular;
     #endif
 
+
+
+
     #if defined(BAKEDSPECULAR) && defined(UNITY_PASS_FORWARDBASE) && !defined(BAKERYLM_ENABLED)
     {
         float3 bakedDominantDirection = 1.0;
@@ -134,6 +162,15 @@ half4 frag (v2f i) : SV_Target
   
     #if !defined(REFLECTIONS_OFF)
         indirectSpecular += GetReflections(worldNormal, i.worldPos.xyz, viewDir, f0, roughness, NoV, surf, indirectDiffuse);
+    #endif
+
+    #if defined(_ALPHAPREMULTIPLY_ON)
+        surf.albedo.rgb *= surf.alpha;
+        surf.alpha = lerp(surf.alpha, 1.0, surf.metallic);
+    #endif
+
+    #if defined(_ALPHAMODULATE_ON)
+        surf.albedo.rgb = lerp(1.0, surf.albedo.rgb, surf.alpha);
     #endif
 
     otherSpecular *= EnvBRDFMultiscatter(DFGLut, f0) * DFGEnergyCompensation;

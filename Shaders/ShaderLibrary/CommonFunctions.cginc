@@ -342,7 +342,6 @@ void InitializeLightData(inout LightData lightData, float3 normalWS, float3 view
     #endif
 }
 
-half _SpecularOcclusion;
 half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half roughness, half NoV, SurfaceData surf, half3 indirectDiffuse)
 {
     half3 indirectSpecular = 0;

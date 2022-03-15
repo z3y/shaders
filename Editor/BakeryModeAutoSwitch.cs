@@ -30,7 +30,7 @@ namespace z3y.Shaders
                 for (var j = 0; j < renderers[i].sharedMaterials?.Length; j++)
                 {
                     var a = renderers[i].sharedMaterials[j]?.shader;
-                    if (a == null || !a.name.Equals(SimpleLitSmartGUI.ShaderName) ) continue;
+                    if (a == null || !a.name.Equals(ComplexLitSmartGUI.ShaderName) ) continue;
                     
                     var material = renderers[i].sharedMaterials[j];
 
@@ -49,7 +49,7 @@ namespace z3y.Shaders
                     
                     material.ToggleKeyword("BAKERY_RNM", bakeryMode == 2);
                     material.ToggleKeyword("BAKERY_SH", bakeryMode == 3);
-                    SimpleLitSmartGUI.ApplyChanges(material);
+                    ComplexLitSmartGUI.ApplyChanges(material);
                 }
             }
             

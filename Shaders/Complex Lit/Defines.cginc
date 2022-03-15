@@ -37,7 +37,10 @@
 #endif
 
 
-#define _SpecularOcclusion 1.0
+#if defined(_LAYER1ALBEDO) || defined (_LAYER2ALBEDO) || defined (_LAYER3ALBEDO) || defined (_LAYER1NORMAL) || defined (_LAYER2NORMAL) || defined (_LAYER3NORMAL)
+#define LAYERS
+#endif
+
 
 
 #if defined(BAKERY_SH) || defined(BAKERY_RNM)

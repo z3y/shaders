@@ -16,6 +16,14 @@ struct v2f
     float3 worldNormal : TEXCOORD6;
     float4 worldPos : TEXCOORD7;
 
+    #if defined(PARALLAX) || defined(BAKERY_RNM) || defined(EMISSION) || defined(LAYERS)
+        float3 viewDirTS : TEXCOORD8;
+    #endif
+
+    #ifdef NEED_VERTEX_COLOR
+        centroid half4 color : COLOR;
+    #endif
+
     #if defined(NEED_CENTROID_NORMAL)
         centroid float3 centroidWorldNormal : TEXCOORD10;
     #endif
@@ -37,6 +45,7 @@ struct v2f
 	UNITY_VERTEX_OUTPUT_STEREO
 };
 
+half _SpecularOcclusion;
 #include "../ShaderLibrary/CommonFunctions.cginc"
 
 #include "InputsCGI.cginc"
@@ -63,10 +72,14 @@ v2f vert (appdata_all v)
     o.uv[2].xy = v.uv2.xy;
     o.uv[3].xy = v.uv3.xy;
 
-    float4 mainST = _MainTex_ST;
+    float4 mainST = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _MainTex_ST);
     o.uv[0].zw = v.uv0.xy * mainST.xy + mainST.zw;
     o.uv[1].zw = v.uv1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
     o.uv[2].zw = v.uv2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+
+    #ifdef _TEXTURE_ARRAY
+        o.uv[3].z = _Texture == 2.0 ? UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _TextureIndex) : v.uv0.z;
+    #endif
 
     o.worldNormal = UnityObjectToWorldNormal(v.normal);
     o.tangent = UnityObjectToWorldDir(v.tangent.xyz);
@@ -82,6 +95,15 @@ v2f vert (appdata_all v)
 			unity_4LightAtten0, o.worldPos,  o.worldNormal
 		);
 	#endif
+
+    #ifdef NEED_VERTEX_COLOR
+        o.color = v.color;
+    #endif
+
+    #if defined(PARALLAX) || defined(BAKERY_RNM) || defined(EMISSION) || defined(LAYERS)
+        TANGENT_SPACE_ROTATION;
+        o.viewDirTS = mul (rotation, ObjSpaceViewDir(v.vertex));
+    #endif
 
     #ifdef UNITY_PASS_SHADOWCASTER
         o.pos = UnityClipSpaceShadowCasterPos(v.vertex, v.normal);
