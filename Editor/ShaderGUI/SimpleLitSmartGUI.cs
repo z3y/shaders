@@ -535,9 +535,14 @@ namespace z3y.Shaders
             m.ToggleKeyword("_DETAILBLEND_LERP", detailBlend == 3);
 
             var layers = m.GetFloat("_Layers");
-            m.ToggleKeyword("_LAYER1", layers == 1);
-            m.ToggleKeyword("_LAYER2", layers == 2);
-            m.ToggleKeyword("_LAYER3", layers == 3);
+
+            m.ToggleKeyword("_LAYER1ALBEDO", m.GetTexture("_DetailAlbedoMap") && layers >= 1);
+            m.ToggleKeyword("_LAYER2ALBEDO", m.GetTexture("_DetailAlbedoMap2") && layers >= 2);
+            m.ToggleKeyword("_LAYER3ALBEDO", m.GetTexture("_DetailAlbedoMap3") && layers >= 3);
+
+            m.ToggleKeyword("_LAYER1NORMAL", m.GetTexture("_DetailNormalMap") && layers >= 1);
+            m.ToggleKeyword("_LAYER2NORMAL", m.GetTexture("_DetailNormalMap2") && layers >= 2);
+            m.ToggleKeyword("_LAYER3NORMAL", m.GetTexture("_DetailNormalMap3") && layers >= 3);
 
 
             m.ToggleKeyword("PARALLAX", m.GetTexture("_ParallaxMap"));

@@ -35,7 +35,6 @@ half4 _DetailMask_ST;
 half4 _DetailMask_TexelSize;
 
 half4 _DetailAlbedoMap_ST;
-half4 _DetailNormalMap_TexelSize;
 uint _DetailMapUV;
 half _DetailDepth;
 half _DetailAlbedoScale;
@@ -43,7 +42,6 @@ half _DetailNormalScale;
 half _DetailSmoothnessScale;
 
 half4 _DetailAlbedoMap2_ST;
-half4 _DetailNormalMap2_TexelSize;
 uint _DetailMapUV2;
 half _DetailDepth2;
 half _DetailAlbedoScale2;
@@ -51,7 +49,6 @@ half _DetailNormalScale2;
 half _DetailSmoothnessScale2;
 
 half4 _DetailAlbedoMap3_ST;
-half4 _DetailNormalMap3_TexelSize;
 uint _DetailMapUV3;
 half _DetailDepth3;
 half _DetailAlbedoScale3;

@@ -182,7 +182,12 @@ ENDCG
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP
 
-            #pragma shader_feature_local _ _LAYER1 _LAYER2 _LAYER3
+            #pragma shader_feature_local _LAYER1ALBEDO
+            #pragma shader_feature_local _LAYER2ALBEDO
+            #pragma shader_feature_local _LAYER3ALBEDO
+            #pragma shader_feature_local _LAYER1NORMAL
+            #pragma shader_feature_local _LAYER2NORMAL
+            #pragma shader_feature_local _LAYER3NORMAL
             #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP
 
             #pragma shader_feature_local AUDIOLINK
@@ -221,7 +226,12 @@ ENDCG
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP
 
-            #pragma shader_feature_local _ _LAYER1 _LAYER2 _LAYER3
+            #pragma shader_feature_local _LAYER1ALBEDO
+            #pragma shader_feature_local _LAYER2ALBEDO
+            #pragma shader_feature_local _LAYER3ALBEDO
+            #pragma shader_feature_local _LAYER1NORMAL
+            #pragma shader_feature_local _LAYER2NORMAL
+            #pragma shader_feature_local _LAYER3NORMAL
             #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP
             
 
@@ -270,7 +280,12 @@ ENDCG
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
 
-            #pragma shader_feature_local _ _LAYER1 _LAYER2 _LAYER3
+            #pragma shader_feature_local _LAYER1ALBEDO
+            #pragma shader_feature_local _LAYER2ALBEDO
+            #pragma shader_feature_local _LAYER3ALBEDO
+            #pragma shader_feature_local _LAYER1NORMAL
+            #pragma shader_feature_local _LAYER2NORMAL
+            #pragma shader_feature_local _LAYER3NORMAL
             #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP    
 
             #include "PassCGI.cginc"

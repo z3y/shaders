@@ -37,12 +37,8 @@
 #endif
 
 
-#if defined(_LAYER3)
-#define _LAYER2
-#endif
-
-#if defined(_LAYER2)
-#define _LAYER1
+#if defined(_LAYER1ALBEDO) || defined (_LAYER2ALBEDO) || defined (_LAYER3ALBEDO) || defined (_LAYER1NORMAL) || defined (_LAYER2NORMAL) || defined (_LAYER3NORMAL)
+#define LAYERS
 #endif
 
 
