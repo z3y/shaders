@@ -105,6 +105,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
         #if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN)
             lightData.FinalColor = 0.0;
+            lightData.Specular = 0.0;
             lightMap = SubtractMainLightWithRealtimeAttenuationFromLightmap (lightMap, lightData.Attenuation, bakedColorTex, worldNormal);
         #endif
 
@@ -114,9 +115,6 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
     indirectDiffuse = max(0.0, indirectDiffuse);
 
-    #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
-        lightData.FinalColor *= UnityComputeForwardShadows(lightmapUV, i.worldPos, i.screenPos);
-    #endif
 
     #if !defined(SPECULAR_HIGHLIGHTS_OFF) && defined(USING_LIGHT_MULTI_COMPILE)
         directSpecular += lightData.Specular;

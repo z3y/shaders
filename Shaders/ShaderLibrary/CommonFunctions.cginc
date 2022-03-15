@@ -317,9 +317,18 @@ void InitializeLightData(inout LightData lightData, float3 normalWS, float3 view
             lightData.Attenuation = lightAttenuation;
             lightData.Color = lightAttenuation * _LightColor0.rgb;
             lightData.FinalColor = (lightData.NoL * lightData.Color);
+
+            
+
+
             #ifndef SHADER_API_MOBILE
                 lightData.FinalColor *= Fd_Burley(perceptualRoughness, NoV, lightData.NoL, lightData.LoH);
             #endif
+
+            #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
+                lightData.FinalColor *= UnityComputeForwardShadows(input.uv[1].zw, input.worldPos, input.screenPos);
+            #endif
+
             lightData.Specular = MainLightSpecular(lightData, NoV, clampedRoughness, f0);
         #ifdef UNITY_PASS_FORWARDBASE
         }
