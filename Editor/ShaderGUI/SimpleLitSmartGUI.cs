@@ -268,12 +268,14 @@ namespace z3y.Shaders
                 return;
             }
 
+            Draw(_DetailBlendMode);
             Draw(_Layers);
+            EditorGUILayout.Space();
+
             Draw(_DetailMask, "R: Layer 1\nG: Layer 2\nB: Layer 3");
             DrawLayerMaskMapPacking(material);
             me.TextureScaleOffsetProperty(_DetailMask);
             Draw(_DetailMaskUV);
-            Draw(_DetailBlendMode);
             EditorGUILayout.Space();
 
             int layers = (int)_Layers.floatValue;

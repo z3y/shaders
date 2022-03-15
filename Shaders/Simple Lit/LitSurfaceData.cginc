@@ -16,6 +16,23 @@ half4 SampleTexture(Texture2DArray t, SamplerState s, float2 uv)
     #define TEXARGS(tex) tex
 #endif
 
+
+#pragma warning( disable : 1519 ) // macro redefinition
+#define LAYERALBEDOSAMPLER sampler_DetailAlbedoMap
+#if !defined(LAYER1ALBEDO)
+    #define LAYERALBEDOSAMPLER sampler_DetailAlbedoMap2
+#endif
+#if !defined(LAYER2ALBEDO)
+    #define LAYERALBEDOSAMPLER sampler_DetailAlbedoMap3
+#endif
+
+#define LAYERNORMALSAMPLER sampler_DetailNormalMap
+#if !defined(LAYER1NORMAL)
+    #define LAYERNORMALSAMPLER sampler_DetailNormalMap2
+#endif
+#if !defined(LAYER2NORMAL)
+    #define LAYERNORMALSAMPLER sampler_DetailNormalMap3
+#endif
 void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 {
     arrayIndex = i.uv[3].z;
@@ -57,20 +74,15 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
     #if defined(LAYERS)
         half4 sampledMask = 1.0;
-
-        UNITY_BRANCH
-        if (_DetailMask_TexelSize.w > 1.0)
-        {
-            float2 detailMaskUV = (i.uv[_DetailMaskUV].xy * _DetailMask_ST.xy) + _DetailMask_ST.zw;
-            sampledMask = SampleTexture(_DetailMask, sampler_DetailMask, detailMaskUV);
-        }
+        float2 detailMaskUV = (i.uv[_DetailMaskUV].xy * _DetailMask_ST.xy) + _DetailMask_ST.zw;
+        sampledMask = SampleTexture(_DetailMask, sampler_DetailMask, detailMaskUV);
 
         // layer 1
         float2 detailUV1 = TRANSFORM_TEX(i.uv[_DetailMapUV].xy, _DetailAlbedoMap) + ParallaxOffsetUV(_DetailDepth, i.viewDirTS);
         #ifdef _LAYER1ALBEDO
         {
             half detailMask = sampledMask.r;
-            half4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap, sampler_DetailAlbedoMap, detailUV1);
+            half4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap, LAYERALBEDOSAMPLER, detailUV1);
             #if defined(_DETAILBLEND_SCREEN)
                 surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale);
                 surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Screen(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale);
@@ -90,7 +102,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         #ifdef _LAYER1NORMAL
         {
             half detailMask = sampledMask.r;
-            float4 detailNormalMap = SampleTexture(_DetailNormalMap, sampler_DetailNormalMap, detailUV1);
+            float4 detailNormalMap = SampleTexture(_DetailNormalMap, LAYERNORMALSAMPLER, detailUV1);
             float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale);
             #if defined(_DETAILBLEND_LERP)
                 surf.tangentNormal = lerp(surf.tangentNormal, detailNormal, detailMask);
@@ -106,7 +118,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         #ifdef _LAYER2ALBEDO
         {
             half detailMask = sampledMask.g;
-            half4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap2, sampler_DetailAlbedoMap, detailUV2);
+            half4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap2, LAYERALBEDOSAMPLER, detailUV2);
             #if defined(_DETAILBLEND_SCREEN)
                 surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale2);
                 surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Screen(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale2);
@@ -126,7 +138,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         #ifdef _LAYER2NORMAL
         {
             half detailMask = sampledMask.g;
-            float4 detailNormalMap = SampleTexture(_DetailNormalMap2, sampler_DetailNormalMap, detailUV2);
+            float4 detailNormalMap = SampleTexture(_DetailNormalMap2, LAYERNORMALSAMPLER, detailUV2);
             float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale2);
             #if defined(_DETAILBLEND_LERP)
                 surf.tangentNormal = lerp(surf.tangentNormal, detailNormal, detailMask);
@@ -143,7 +155,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         #ifdef _LAYER3ALBEDO
         {
             half detailMask = sampledMask.b;
-            half4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap3, sampler_DetailAlbedoMap, detailUV3);
+            half4 sampledDetailAlbedo = SampleTexture(_DetailAlbedoMap3, LAYERALBEDOSAMPLER, detailUV3);
             #if defined(_DETAILBLEND_SCREEN)
                 surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask * _DetailAlbedoScale3);
                 surf.perceptualRoughness = lerp(surf.perceptualRoughness, BlendMode_Screen(surf.perceptualRoughness, 1.0 - sampledDetailAlbedo.a), detailMask * _DetailSmoothnessScale3);
@@ -163,7 +175,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         #ifdef _LAYER3NORMAL
         {
             half detailMask = sampledMask.b;
-            float4 detailNormalMap = SampleTexture(_DetailNormalMap3, sampler_DetailNormalMap, detailUV3);
+            float4 detailNormalMap = SampleTexture(_DetailNormalMap3, LAYERNORMALSAMPLER, detailUV3);
             float3 detailNormal = UnpackScaleNormal(detailNormalMap, _DetailNormalScale3);
             #if defined(_DETAILBLEND_LERP)
                 surf.tangentNormal = lerp(surf.tangentNormal, detailNormal, detailMask);

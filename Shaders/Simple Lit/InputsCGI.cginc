@@ -3,16 +3,15 @@ Texture2D _MetallicGlossMap; SamplerState sampler_MetallicGlossMap;
 Texture2D _BumpMap; SamplerState sampler_BumpMap;
 
 Texture2D _DetailMask; SamplerState sampler_DetailMask;
+
 Texture2D _DetailNormalMap; SamplerState sampler_DetailNormalMap;
 Texture2D _DetailAlbedoMap; SamplerState sampler_DetailAlbedoMap;
 
-Texture2D _DetailMask2;
-Texture2D _DetailNormalMap2;
-Texture2D _DetailAlbedoMap2;
+Texture2D _DetailNormalMap2; SamplerState sampler_DetailNormalMap2;
+Texture2D _DetailAlbedoMap2; SamplerState sampler_DetailAlbedoMap2;
 
-Texture2D _DetailMask3;
-Texture2D _DetailNormalMap3;
-Texture2D _DetailAlbedoMap3;
+Texture2D _DetailNormalMap3; SamplerState sampler_DetailNormalMap3;
+Texture2D _DetailAlbedoMap3; SamplerState sampler_DetailAlbedoMap3;
 
 Texture2D _EmissionMap; SamplerState sampler_EmissionMap;
 
