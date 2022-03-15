@@ -1,5 +1,9 @@
 #ifndef BICUBIC_SAMPLING_INCLUDED
 #define BICUBIC_SAMPLING_INCLUDED
+#if defined(SHADER_API_MOBILE)
+    #undef BICUBIC_LIGHTMAP
+#endif
+
 // https://ndotl.wordpress.com/2018/08/29/baking-artifact-free-lightmaps
 // bicubicw0, bicubicw1, bicubicw2, and bicubicw3 are the four cubic B-spline basis functions
 float bicubicw0(float a)

@@ -25,7 +25,7 @@ void BakeryRNMLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout
                 + saturate(dot(rnmBasis1, normalTS)) * rnm1
                 + saturate(dot(rnmBasis2, normalTS)) * rnm2;
 
-    #ifdef BAKERY_LMSPEC
+    #ifdef BAKEDSPECULAR
         float3 viewDirT = -normalize(viewDirTS);
         float3 dominantDirT = rnmBasis0 * dot(rnm0, GRAYSCALE) +
                                 rnmBasis1 * dot(rnm1, GRAYSCALE) +
@@ -71,7 +71,7 @@ void BakerySHLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout 
             lightMap = L0 + normalWS.x * L1x + normalWS.y * L1y + normalWS.z * L1z;
         #endif
 
-        #ifdef BAKERY_LMSPEC
+        #ifdef BAKEDSPECULAR
             float3 dominantDir = float3(dot(nL1x, GRAYSCALE), dot(nL1y, GRAYSCALE), dot(nL1z, GRAYSCALE));
             float3 halfDir = Unity_SafeNormalize(normalize(dominantDir) + viewDir);
             half NoH = saturate(dot(normalWS, halfDir));

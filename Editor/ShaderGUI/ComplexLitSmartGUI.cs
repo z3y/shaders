@@ -477,7 +477,7 @@ namespace z3y.Shaders
 
         
 
-        public const string ShaderName = "Lit/Complex";
+        public const string ShaderName = "Complex Lit";
         public override void AssignNewShaderToMaterial(Material m, Shader oldShader, Shader newShader)
         {
             base.AssignNewShaderToMaterial(m, oldShader, newShader);

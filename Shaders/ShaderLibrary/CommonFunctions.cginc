@@ -36,6 +36,15 @@ struct appdata_all
     #define LIGHTMAP_ANY
 #endif
 
+#ifdef LIGHTMAP_ANY
+    #if defined(BAKERY_RNM) || defined(BAKERY_SH) || defined(BAKERY_VERTEXLM)
+        #define BAKERYLM_ENABLED
+        #undef DIRLIGHTMAP_COMBINED
+    #endif
+#else
+    #undef BAKERY_SH
+    #undef BAKERY_RNM
+#endif
 
 half RemapMinMax(half value, half remapMin, half remapMax)
 {

@@ -1,4 +1,4 @@
-Shader "Lit/Complex"
+Shader "Complex Lit"
 {
     Properties
     {

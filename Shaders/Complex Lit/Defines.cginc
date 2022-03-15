@@ -1,14 +1,12 @@
-
 #if defined(SHADER_API_MOBILE)
-    #undef _DETAILNORMAL_MAP
+    // stipped keywords
     #undef NONLINEAR_LIGHTPROBESH
     #undef PARALLAX
-    #undef NEED_CENTROID_NORMAL
-    #undef VERTEXLIGHT_PS
-    #undef HEMIOCTAHEDRON_DECODING
-    #undef BICUBIC_LIGHTMAP
-    #undef BAKERY_BICUBIC
     #undef LTCGI
+    #undef LTCGI_DIFFUSE_OFF
+    
+    // defines
+    #undef VERTEXLIGHT_PS
 #endif
 
 #ifdef UNITY_PASS_META
@@ -19,34 +17,14 @@
     #define NEED_SCREEN_POS
 #endif
 
-#ifdef LIGHTMAP_ON
-    #if defined(BAKERY_RNM) || defined(BAKERY_SH) || defined(BAKERY_VERTEXLM)
-        #define BAKERYLM_ENABLED
-        #undef DIRLIGHTMAP_COMBINED
-    #endif
-#else
-    #undef BAKERY_SH
-    #undef BAKERY_RNM
+#if defined(_LAYER1ALBEDO) || defined (_LAYER2ALBEDO) || defined (_LAYER3ALBEDO) || defined (_LAYER1NORMAL) || defined (_LAYER2NORMAL) || defined (_LAYER3NORMAL)
+#define LAYERS
 #endif
+
 
 #ifdef LTCGI
     #ifdef SPECULAR_HIGHLIGHTS_OFF
         #define LTCGI_SPECULAR_OFF
     #endif
 #include "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc"
-#endif
-
-
-#if defined(_LAYER1ALBEDO) || defined (_LAYER2ALBEDO) || defined (_LAYER3ALBEDO) || defined (_LAYER1NORMAL) || defined (_LAYER2NORMAL) || defined (_LAYER3NORMAL)
-#define LAYERS
-#endif
-
-
-
-#if defined(BAKERY_SH) || defined(BAKERY_RNM)
-    #define NEED_PARALLAX_DIR
-    
-    #ifdef BAKEDSPECULAR
-        #define BAKERY_LMSPEC
-    #endif
 #endif

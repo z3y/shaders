@@ -136,7 +136,6 @@ namespace z3y.Shaders
         }
 
         static readonly string ShaderPath = AssetDatabase.GetAssetPath(Shader.Find(ComplexLitSmartGUI.ShaderName));
-        static readonly string ShaderPath2 = AssetDatabase.GetAssetPath(Shader.Find(SimpleLitSmartGUI.ShaderName));
         private static readonly string NewLine = Environment.NewLine;
         private const string SkipVariant = "#pragma skip_variants ";
         private const string Define = "#define ";
@@ -146,7 +145,7 @@ namespace z3y.Shaders
         {
             var sb = new StringBuilder().AppendLine();
 
-    
+
             sb.AppendLine(ShaderConfig.NONLINEAR_LIGHTPROBESH ? $"{Define}NONLINEAR_LIGHTPROBESH{NewLine}{SkipVariant}NONLINEAR_LIGHTPROBESH" : "");
             sb.AppendLine(ShaderConfig.VERTEXLIGHT_ON ? "" : SkipVariant + "VERTEXLIGHT_ON");
             sb.AppendLine(ShaderConfig.VERTEXLIGHT_PS ? Define + "VERTEXLIGHT_PS" : "");
@@ -158,8 +157,14 @@ namespace z3y.Shaders
             sb.AppendLine(ShaderConfig.LOD_FADE_CROSSFADE ? "" : SkipVariant + "LOD_FADE_CROSSFADE");
             sb.AppendLine(ShaderConfig.UNITY_SPECCUBE_BLENDING ? "" : Undef + "UNITY_SPECCUBE_BLENDING");
             sb.AppendLine(ShaderConfig.UNITY_LIGHT_PROBE_PROXY_VOLUME ? "" : Define + "UNITY_LIGHT_PROBE_PROXY_VOLUME 0");
+            ApplyShaderConfig(sb, ShaderPath);
+            AssetDatabase.Refresh();
+            Debug.Log("Updated Shader File");
+        }
 
-            var lines = File.ReadAllLines(ShaderPath).ToList();
+        private static void ApplyShaderConfig(StringBuilder sb, string shaderPath)
+        {
+            var lines = File.ReadAllLines(shaderPath).ToList();
             var begin = lines.FindIndex(x => x.StartsWith("//ShaderConfigBegin", StringComparison.Ordinal)) + 1;
             var end = lines.FindIndex(x => x.StartsWith("//ShaderConfigEnd", StringComparison.Ordinal)) - 1;
             var count = end - begin;
@@ -168,8 +173,6 @@ namespace z3y.Shaders
 
 
             File.WriteAllLines(ShaderPath, lines);
-            AssetDatabase.Refresh();
-            Debug.Log("Updated Shader File");
         }
     }
 }
