@@ -26,7 +26,6 @@ half _MetallicMin;
 half _Occlusion;
 
 half _BumpScale;
-half _FlipNormal;
 half _Reflectance;
 
 uint _DetailMaskUV;
