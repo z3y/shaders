@@ -20,19 +20,34 @@ namespace z3y.Shaders
         private MaterialProperty[] _materialProperties;
         private int propertyCount = 0;
 
+        private static Type[] _editors = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => typeof(SmartGUI).IsAssignableFrom(x) && x.IsClass).ToArray();
+        public List<SmartGUI> _modulesInUse = new List<SmartGUI>();
+        private const string ModulePrefix = "CustomEditor_";
+
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] materialProperties)
         {
             var material = materialEditor.target as Material;
-            EditorGUIUtility.labelWidth = 0f;
-            EditorGUIUtility.fieldWidth = 48f;
+
             if (!_initialized || propertyCount != materialProperties.Length)
             {
+                if (GetType() == typeof(SmartGUI))
+                {
+                    ParseModules(materialProperties);
+                }
                 _materialEditor = materialEditor;
                 Initialize(materialProperties);
                 UpdateProperties(materialProperties);
                 propertyCount = materialProperties.Length;
                 OnValidate(material);
                 _initialized = true;
+            }
+
+            if (GetType() == typeof(SmartGUI))
+            {
+                for (int i = 0; i < _modulesInUse.Count; i++)
+                {
+                    _modulesInUse[i].OnGUI(materialEditor, materialProperties);
+                }
             }
 
             UpdateProperties(materialProperties);
@@ -45,6 +60,28 @@ namespace z3y.Shaders
             {
                 OnValidate(material);
             };
+        }
+
+        private void ParseModules(MaterialProperty[] materialProperties)
+        {
+            for (int i = 0; i < materialProperties.Length; i++)
+            {
+                if (materialProperties[i].name.StartsWith(ModulePrefix, StringComparison.Ordinal))
+                {
+                    var name = materialProperties[i].name.Remove(0, ModulePrefix.Length);
+                    int moduleIndex = Array.FindIndex(_editors, x => x.Name == name);
+                    if (moduleIndex == -1)
+                    {
+                        continue;
+                    }
+
+                    var module = (SmartGUI)Activator.CreateInstance(_editors[moduleIndex]);
+                    if (!_modulesInUse.Contains(module))
+                    {
+                        _modulesInUse.Add(module);
+                    }
+                }
+            }
         }
 
         public void Draw(MaterialProperty property, string onHover, string nameOverride = null)
@@ -66,7 +103,7 @@ namespace z3y.Shaders
             DrawRest(currentIndex);
         }
 
-        public virtual bool DrawAll() => true;
+        public virtual bool DrawAll() => false;
 
         private void DrawRest(int currentIndex)
         {
@@ -287,6 +324,7 @@ namespace z3y.Shaders
             return display;
         }
 
+
         // Mimics the normal map import warning - written by Orels1
         private static bool TextureImportWarningBox(string message)
         {
@@ -320,6 +358,7 @@ namespace z3y.Shaders
         private void Initialize(MaterialProperty[] materialProperties)
         {
             _fieldInfo = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance).Where(x => x.FieldType == typeof(MaterialProperty)).ToArray();
+
             _index = new int[_fieldInfo.Length];
             
             for (int i = 0; i < _fieldInfo.Length; i++)
@@ -358,10 +397,7 @@ namespace z3y.Shaders
 
         public virtual void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
-            for (int i = 0; i < materialProperties.Length; i++)
-            {
-                Draw(materialEditor, materialProperties[i]);
-            }
+
         }
 
         
