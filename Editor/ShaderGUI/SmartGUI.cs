@@ -64,6 +64,7 @@ namespace z3y.Shaders
 
         private void ParseModules(MaterialProperty[] materialProperties)
         {
+            _modulesInUse.Clear();
             for (int i = 0; i < materialProperties.Length; i++)
             {
                 if (materialProperties[i].name.StartsWith(ModulePrefix, StringComparison.Ordinal))
@@ -76,10 +77,7 @@ namespace z3y.Shaders
                     }
 
                     var module = (SmartGUI)Activator.CreateInstance(_editors[moduleIndex]);
-                    if (!_modulesInUse.Contains(module))
-                    {
-                        _modulesInUse.Add(module);
-                    }
+                    _modulesInUse.Add(module);
                 }
             }
         }
@@ -215,6 +213,7 @@ namespace z3y.Shaders
             return isOpen;
         }
 
+
         public void DrawMinMax(MaterialProperty min, MaterialProperty max, float minLimit = 0, float maxLimit = 1, MaterialProperty tex = null)
         {
             float currentMin = min.floatValue;
@@ -247,6 +246,43 @@ namespace z3y.Shaders
                 if (min.floatValue < minLimit)
                 {
                     min.floatValue = minLimit;
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        public void DrawMinMax(MaterialProperty minMax, float minLimit = 0, float maxLimit = 1, MaterialProperty tex = null)
+        {
+            float currentMin = minMax.vectorValue.x;
+            float currentMax = minMax.vectorValue.y;
+            EditorGUILayout.BeginHorizontal();
+
+            if (tex is null)
+                EditorGUILayout.LabelField(minMax.displayName);
+            else
+                _materialEditor.TexturePropertySingleLine(new GUIContent(tex.displayName), tex);
+
+
+            var rect = GUILayoutUtility.GetLastRect();
+            rect = MaterialEditor.GetRectAfterLabelWidth(rect);
+            float offset = 28f;
+            rect.width += offset;
+            rect.position = new Vector2(rect.x - offset, rect.y);
+
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.MinMaxSlider(rect, ref currentMin, ref currentMax, minLimit, maxLimit);
+            if (EditorGUI.EndChangeCheck())
+            {
+                minMax.vectorValue = new Vector2(currentMin, currentMax);
+            }
+
+            if (minMax.vectorValue.x > minMax.vectorValue.y)
+            {
+                minMax.vectorValue = new Vector2(minMax.vectorValue.y - 0.001f, minMax.vectorValue.y);
+                if (minMax.vectorValue.x < minLimit)
+                {
+                    minMax.vectorValue = new Vector2(minLimit, minMax.vectorValue.y);
                 }
             }
 
