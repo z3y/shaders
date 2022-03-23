@@ -308,13 +308,22 @@ half3 MainLightSpecular(LightData lightData, half NoV, half clampedRoughness, ha
     return max(0.0, (D * V) * F) * lightData.FinalColor;
 }
 
+#if defined(UNITY_PASS_FORWARDBASE) && defined(DIRECTIONAL) && !(defined(SHADOWS_SCREEN) || defined(SHADOWS_SHADOWMASK) || defined(LIGHTMAP_SHADOW_MIXING))
+    #define BRANCH_DIRECTIONAL
+
+    #ifdef SPECULAR_HIGHLIGHTS_OFF
+        #undef BRANCH_DIRECTIONAL
+    #endif
+#endif
+
 void InitializeLightData(inout LightData lightData, float3 normalWS, float3 viewDir, half NoV, half clampedRoughness, half perceptualRoughness, half3 f0, v2f input)
 {
     #ifdef USING_LIGHT_MULTI_COMPILE
-        #ifdef UNITY_PASS_FORWARDBASE
+        #ifdef BRANCH_DIRECTIONAL
         UNITY_BRANCH
         if (any(_WorldSpaceLightPos0.xyz))
         {
+        //printf("directional branch");
         #endif
             lightData.Direction = normalize(UnityWorldSpaceLightDir(input.worldPos));
             lightData.HalfVector = Unity_SafeNormalize(lightData.Direction + viewDir);
@@ -339,7 +348,7 @@ void InitializeLightData(inout LightData lightData, float3 normalWS, float3 view
             #endif
 
             lightData.Specular = MainLightSpecular(lightData, NoV, clampedRoughness, f0);
-        #ifdef UNITY_PASS_FORWARDBASE
+        #ifdef BRANCH_DIRECTIONAL
         }
         else
         {
