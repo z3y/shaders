@@ -321,7 +321,7 @@ void InitializeLightData(inout LightData lightData, float3 normalWS, float3 view
     #ifdef USING_LIGHT_MULTI_COMPILE
         #ifdef BRANCH_DIRECTIONAL
         UNITY_BRANCH
-        if (any(_WorldSpaceLightPos0.xyz))
+        if (any(_LightColor0))
         {
         //printf("directional branch");
         #endif
