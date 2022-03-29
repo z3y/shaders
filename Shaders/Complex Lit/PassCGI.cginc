@@ -130,8 +130,13 @@ v2f vert (appdata_all v)
 #include "../ShaderLibrary/NonImportantLights.cginc"
 #include "../ShaderLibrary/BlendModes.cginc"
 #ifdef AUDIOLINK
-#include "../ShaderLibrary/AudioLink.cginc"
+    #include "../ShaderLibrary/AudioLink.cginc"
 #endif
+
+#ifdef ACES_TONEMAPPING
+    #include "../ShaderLibrary/ACES.cginc"
+#endif
+
 
 #include "LitSurfaceData.cginc"
 #include "CoreCGI.cginc"

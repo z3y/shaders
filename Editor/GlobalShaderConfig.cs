@@ -50,6 +50,7 @@ namespace z3y.Shaders
             EditorGUILayout.LabelField("Global Toggles", EditorStyles.boldLabel);
             DrawToggle(ref ShaderConfig.VERTEXLIGHT_PS, "Non-Important Lights per Pixel");
             DrawToggle(ref ShaderConfig.BICUBIC_LIGHTMAP, "Bicubic Lightmap");
+            DrawToggle(ref ShaderConfig.ACES_TONEMAPPING, "ACES Tone Mapping");
 
             EditorGUILayout.Space();
             DrawToggle(ref ShaderConfig.BAKERY_RNM, "Bakery RNM");
@@ -101,6 +102,7 @@ namespace z3y.Shaders
         public static bool LOD_FADE_CROSSFADE;
         public static bool UNITY_SPECCUBE_BLENDING = true;
         public static bool UNITY_LIGHT_PROBE_PROXY_VOLUME;
+        public static bool ACES_TONEMAPPING;
     }
 
     internal static class ShaderConfigData
@@ -151,6 +153,7 @@ namespace z3y.Shaders
             sb.AppendLine(ShaderConfig.BAKERY_SH ? $"{Define}BAKERY_SH{NewLine}{SkipVariant}BAKERY_SH" : "");
             sb.AppendLine(ShaderConfig.BAKERY_SHNONLINEAR ? $"{Define}BAKERY_SHNONLINEAR" : "");
             sb.AppendLine(ShaderConfig.BICUBIC_LIGHTMAP ? Define + "BICUBIC_LIGHTMAP" : "");
+            sb.AppendLine(ShaderConfig.ACES_TONEMAPPING ? Define + "ACES_TONEMAPPING" : "");
             sb.AppendLine(ShaderConfig.LOD_FADE_CROSSFADE ? "" : SkipVariant + "LOD_FADE_CROSSFADE");
             sb.AppendLine(ShaderConfig.UNITY_SPECCUBE_BLENDING ? "" : Undef + "UNITY_SPECCUBE_BLENDING");
             sb.AppendLine(ShaderConfig.UNITY_LIGHT_PROBE_PROXY_VOLUME ? "" : Define + "UNITY_LIGHT_PROBE_PROXY_VOLUME 0");
