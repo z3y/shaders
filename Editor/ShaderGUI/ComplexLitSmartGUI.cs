@@ -548,6 +548,9 @@ namespace z3y.Shaders
             m.ToggleKeyword("_LAYER3NORMAL", m.GetTexture("_DetailNormalMap3") && layers >= 3);
 
 
+            m.ToggleKeyword("_LAYERMASK", m.GetTexture("_DetailMask"));
+
+
             m.ToggleKeyword("PARALLAX", m.GetTexture("_ParallaxMap"));
 
 #if !LTCGI_INCLUDED

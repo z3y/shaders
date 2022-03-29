@@ -76,8 +76,11 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
     #if defined(LAYERS)
         half4 sampledMask = 1.0;
-        float2 detailMaskUV = (i.uv[_DetailMaskUV].xy * _DetailMask_ST.xy) + _DetailMask_ST.zw;
-        sampledMask = SampleTexture(_DetailMask, sampler_DetailMask, detailMaskUV);
+
+        #ifdef _LAYERMASK
+            float2 detailMaskUV = (i.uv[_DetailMaskUV].xy * _DetailMask_ST.xy) + _DetailMask_ST.zw;
+            sampledMask = SampleTexture(_DetailMask, sampler_DetailMask, detailMaskUV);
+        #endif
 
         // layer 1
         float2 detailUV1 = TRANSFORM_TEX(i.uv[_DetailMapUV].xy, _DetailAlbedoMap) + ParallaxOffsetUV(_DetailDepth, i.viewDirTS);

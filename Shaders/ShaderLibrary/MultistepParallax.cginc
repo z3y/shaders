@@ -19,18 +19,19 @@ float2 ParallaxOffsetMultiStep(float surfaceHeight, float strength, float2 uv, f
     float3 uvDelta_stepSize = float3(tangentViewDir.xy * (stepSize * strength), stepSize);
     float3 uvOffset_stepHeight = float3(float2(0, 0), 1.0);
 
-    [unroll(ParallaxSteps)]
+    [loop]
     for (int j = 0; j < ParallaxSteps; j++)
     {
-        UNITY_BRANCH
-        if (uvOffset_stepHeight.z > surfaceHeight)
+        if (uvOffset_stepHeight.z < surfaceHeight)
         {
-            uvOffset_stepHeight -= uvDelta_stepSize;
-            surfaceHeight = _ParallaxMap.Sample(sampler_MainTex, (uv + uvOffset_stepHeight.xy)) + _ParallaxOffset;
+            break;
         }
+
+        uvOffset_stepHeight -= uvDelta_stepSize;
+        surfaceHeight = _ParallaxMap.Sample(sampler_MainTex, (uv + uvOffset_stepHeight.xy)) + _ParallaxOffset;
     }
 
-    [unroll(3)]
+    [unroll]
     for (int k = 0; k < 3; k++)
     {
         uvDelta_stepSize *= 0.5;

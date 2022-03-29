@@ -78,7 +78,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     
 
-    half3 indirectDiffuse;
+    half3 indirectDiffuse = 0;
+#ifdef UNITY_PASS_FORWARDBASE
     #if defined(LIGHTMAP_ANY)
 
         float2 lightmapUV = i.uv[1].zw;
@@ -114,6 +115,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
         indirectDiffuse = GetLightProbes(worldNormal, i.worldPos.xyz);
     #endif
     indirectDiffuse = max(0.0, indirectDiffuse);
+#endif
 
 
     #if !defined(SPECULAR_HIGHLIGHTS_OFF) && defined(USING_LIGHT_MULTI_COMPILE)
@@ -159,10 +161,11 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             indirectSpecular += ltcgiSpecular * F_Schlick(NoV, f0);
     #endif
 
-  
+#ifdef UNITY_PASS_FORWARDBASE
     #if !defined(REFLECTIONS_OFF)
         indirectSpecular += GetReflections(worldNormal, i.worldPos.xyz, viewDir, f0, roughness, NoV, surf, indirectDiffuse);
     #endif
+#endif
 
     #if defined(_ALPHAPREMULTIPLY_ON)
         surf.albedo.rgb *= surf.alpha;
