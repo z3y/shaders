@@ -69,7 +69,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     InitializeLightData(lightData, worldNormal, viewDir, NoV, clampedRoughness, surf.perceptualRoughness, f0, i);
 
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
-        vertexLight = i.vertexLight;
+        lightData.FinalColor += i.vertexLight;
     #endif
 
     #if defined(VERTEXLIGHT_PS) && defined(VERTEXLIGHT_ON)
