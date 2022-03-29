@@ -179,7 +179,8 @@ ENDCG
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
             #pragma shader_feature_local _NORMAL_MAP
-
+            
+            #pragma shader_feature_local _LAYERMASK
             #pragma shader_feature_local _LAYER1ALBEDO
             #pragma shader_feature_local _LAYER2ALBEDO
             #pragma shader_feature_local _LAYER3ALBEDO
