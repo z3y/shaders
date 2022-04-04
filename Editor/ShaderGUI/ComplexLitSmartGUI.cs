@@ -98,6 +98,8 @@ namespace z3y.Shaders
         private MaterialProperty _AudioLinkEmission;
         private MaterialProperty _AudioTexture;
 
+        private MaterialProperty Foldout_GlobalSettings;
+
         #endregion
 
 
@@ -132,6 +134,12 @@ namespace z3y.Shaders
             DrawSurfaceInputs(material, materialEditor);
             DrawEmissionMaps(material, materialEditor);
             DrawDetailInputs(material, materialEditor);
+
+            if (Foldout(Foldout_GlobalSettings))
+            {
+                ShaderConfigWindow.DrawGlobalConfig();
+            }
+            
             DrawRenderingOptions(material, materialEditor);
         }
 

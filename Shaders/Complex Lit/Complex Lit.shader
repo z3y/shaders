@@ -106,6 +106,8 @@ Shader "Complex Lit"
         _TextureIndex("Array Index", Int) = 0
         _AudioTexture ("Audio Link Render Texture", 2D) = "_AudioTexture" {}
         [HideInInspector] [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
+        Foldout_GlobalSettings("Global Settings", Int) = 0
+
 
     }
 
@@ -131,9 +133,10 @@ RantEnd*/
 #define VERTEXLIGHT_PS
 
 
+
 #define BAKERY_SHNONLINEAR
 #define BICUBIC_LIGHTMAP
-#define ACES_TONEMAPPING
+
 #pragma skip_variants LOD_FADE_CROSSFADE
 
 #define UNITY_LIGHT_PROBE_PROXY_VOLUME 0

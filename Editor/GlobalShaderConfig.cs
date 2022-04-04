@@ -11,19 +11,19 @@ using UnityEngine;
 namespace z3y.Shaders
 {
     
-    public class ShaderConfigWindow : EditorWindow
+    public class ShaderConfigWindow
     {
-        [MenuItem("z3y/Shader Config")]
-        public static void ShowWindow()
-        {
-            GetWindow<ShaderConfigWindow>("Shader Config");
-        }
+        // [MenuItem("z3y/Shader Config")]
+        // public static void ShowWindow()
+        // {
+        //     GetWindow<ShaderConfigWindow>("Shader Config");
+        // }
 
         private static readonly FieldInfo[] ConfigFields = typeof(ShaderConfig).GetFields(BindingFlags.Public | BindingFlags.Static);
         private static readonly ConstructorInfo ShaderConfigConsturctor = typeof(ShaderConfig).GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null);
 
-        static bool firstTime = true;
-        private void OnGUI()
+        private static bool firstTime = true;
+        public static void DrawGlobalConfig()
         {
             if (firstTime)
             {
@@ -53,6 +53,7 @@ namespace z3y.Shaders
             DrawToggle(ref ShaderConfig.ACES_TONEMAPPING, "ACES Tone Mapping");
 
             EditorGUILayout.Space();
+            DrawToggle(ref ShaderConfig.BAKERY_NONE, "Bakery Disabled");
             DrawToggle(ref ShaderConfig.BAKERY_RNM, "Bakery RNM");
             DrawToggle(ref ShaderConfig.BAKERY_SH, "Bakery SH");
             DrawToggle(ref ShaderConfig.BAKERY_SHNONLINEAR, "Bakery Lightmap SH Non-Linear ");
@@ -67,15 +68,11 @@ namespace z3y.Shaders
             DrawToggle(ref ShaderConfig.VERTEXLIGHT_ON, "Allow Non-Important Lights");
             DrawToggle(ref ShaderConfig.LOD_FADE_CROSSFADE, "Allow Dithered Lod Cross-Fade");
 
-            EditorGUILayout.Space();
-            EditorGUILayout.HelpBox("Changing settings above will cause the shader to recompile at build", MessageType.Info);
-
-
-
             if (EditorGUI.EndChangeCheck())
             {
                 ShaderConfigData.SaveAll();
             }
+            EditorGUILayout.Space();
         }
 
         internal static void HandleConfigFields(Action<bool, FieldInfo> action)
@@ -88,7 +85,7 @@ namespace z3y.Shaders
             }
         }
 
-        private void DrawToggle(ref bool toggle, string display) => toggle = GUILayout.Toggle(toggle, display);
+        private static void DrawToggle(ref bool toggle, string display) => toggle = GUILayout.Toggle(toggle, display);
     }
     internal static class ShaderConfig
     {
@@ -97,6 +94,7 @@ namespace z3y.Shaders
         public static bool NONLINEAR_LIGHTPROBESH;
         public static bool BAKERY_RNM;
         public static bool BAKERY_SH;
+        public static bool BAKERY_NONE;
         public static bool BAKERY_SHNONLINEAR = true;
         public static bool BICUBIC_LIGHTMAP = true;
         public static bool LOD_FADE_CROSSFADE;
@@ -149,6 +147,7 @@ namespace z3y.Shaders
             sb.AppendLine(ShaderConfig.NONLINEAR_LIGHTPROBESH ? $"{Define}NONLINEAR_LIGHTPROBESH{NewLine}{SkipVariant}NONLINEAR_LIGHTPROBESH" : "");
             sb.AppendLine(ShaderConfig.VERTEXLIGHT_ON ? "" : SkipVariant + "VERTEXLIGHT_ON");
             sb.AppendLine(ShaderConfig.VERTEXLIGHT_PS ? Define + "VERTEXLIGHT_PS" : "");
+            sb.AppendLine(ShaderConfig.BAKERY_NONE ? $"{SkipVariant}BAKERY_SH{NewLine}{SkipVariant}BAKERY_RNM" : "");
             sb.AppendLine(ShaderConfig.BAKERY_RNM ? $"{Define}BAKERY_RNM{NewLine}{SkipVariant}BAKERY_RNM" : "");
             sb.AppendLine(ShaderConfig.BAKERY_SH ? $"{Define}BAKERY_SH{NewLine}{SkipVariant}BAKERY_SH" : "");
             sb.AppendLine(ShaderConfig.BAKERY_SHNONLINEAR ? $"{Define}BAKERY_SHNONLINEAR" : "");
