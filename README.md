@@ -1,6 +1,6 @@
 Repository for my Unity shaders for VRChat.
 #
-### Simple Lit
+### Complex Lit
 [Unity Package](https://github.com/z3y/shaders/releases)
 
 - Accurate PBR Shading
@@ -12,11 +12,13 @@ Repository for my Unity shaders for VRChat.
 - Bicubic Lightmap Interpolation
 - Non-Linear Light Probe SH
 - Multistep Parallax
-- Packed Mask Map based on HDRP/Lit
-- Detail Blending: Overlay, Screen, Multiply X2, Replace
+- Packed Mask Map (Metallic (R), Smoothness (A), Occlusion(G))
+- Layers (Can be used as details)
+- Layer Blending: Overlay, Screen, Multiply X2, Replace
 - Transparency Modes: Cutout, Fade, Premultiply, Additive, Multiply
 - Smoothness and Metallic remapping
 - Emission multiply base
+- UV depth offset (layers and emission)
 - GPU Instanced Properties
 - Tex2DArray Workflow
 - Non-Important lights per pixel
@@ -24,15 +26,17 @@ Repository for my Unity shaders for VRChat.
 - LTCGI
 - Pulse emission
 
-And QoL editor tools like automatic bakery mode switching on all materials, texture packing in inspector, normal map orientation conversion, global toggles
+And QoL editor tools like automatic bakery mode switching on all materials, texture packing in inspector, normal map orientation conversion tool
 
 ### [Documentation](https://github.com/z3y/shaders/wiki/Features-Overview)
 
 
-![Inspector](https://user-images.githubusercontent.com/33181641/157121128-f1820571-d9d5-419a-9d5a-654039f92c89.png)
+![image](https://user-images.githubusercontent.com/33181641/161634291-e7c7d2fb-c227-4551-a8aa-6dceb8c06b09.png)
 
 
-![Texture Packing](https://user-images.githubusercontent.com/33181641/153789051-8c5f8b1f-a82e-4ee4-bc4b-0c54dc3091c9.png)
+
+![image](https://user-images.githubusercontent.com/33181641/161634313-4adc5875-d54e-4e63-8aa2-c2c5a97ec344.png)
+
 
 #
 If you want to ask something add me z3y#3214 or join https://discord.gg/bw46tKgRFT
