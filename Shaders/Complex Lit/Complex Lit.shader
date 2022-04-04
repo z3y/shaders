@@ -133,7 +133,7 @@ RantEnd*/
 
 #define BAKERY_SHNONLINEAR
 #define BICUBIC_LIGHTMAP
-
+#define ACES_TONEMAPPING
 #pragma skip_variants LOD_FADE_CROSSFADE
 
 #define UNITY_LIGHT_PROBE_PROXY_VOLUME 0

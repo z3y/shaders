@@ -281,6 +281,12 @@ half NormalDotViewDir(float3 normalWS, float3 viewDir)
     return abs(dot(normalWS, viewDir)) + 1e-5f;
 }
 
+bool isReflectionProbe()
+{
+    // thx 3
+    return unity_CameraProjection._m11 == 1 && UNITY_MATRIX_P[0][0] == 1;
+}
+
 half3 GetF0(half reflectance, half metallic, half3 albedo)
 {
     return 0.16 * reflectance * reflectance * (1.0 - metallic) + albedo * metallic;
