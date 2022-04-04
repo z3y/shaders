@@ -192,7 +192,11 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     UNITY_APPLY_FOG(i.fogCoord, finalColor);
     
     #ifdef ACES_TONEMAPPING
+        half3 above1 = 0;
+        //above1 = finalColor.rgb;
         finalColor.rgb = ACESFitted(finalColor.rgb);
+
+        //finalColor.rgb += above1;
     #endif
     
     return finalColor;
