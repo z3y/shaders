@@ -25,7 +25,7 @@ namespace z3y.Shaders
             {
                 return;
             }
-            
+
             for (int i = data.Count - 1; i >= 0; --i)
             {
                 bool directionalEnabled = data[i].shaderKeywordSet.IsEnabled(directional);
@@ -34,6 +34,7 @@ namespace z3y.Shaders
                     var shaderData = data[i];
                     var keywords = shaderData.shaderKeywordSet;
                     keywords.Disable(directional);
+                    shaderData.shaderKeywordSet = keywords;
                     data.Add(shaderData);
                 }
             }
