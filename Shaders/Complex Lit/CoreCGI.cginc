@@ -68,6 +68,10 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     LightData lightData;
     InitializeLightData(lightData, worldNormal, viewDir, NoV, clampedRoughness, surf.perceptualRoughness, f0, i);
 
+    #if !defined(SPECULAR_HIGHLIGHTS_OFF) && defined(USING_LIGHT_MULTI_COMPILE)
+        directSpecular += lightData.Specular;
+    #endif
+
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
         lightData.FinalColor += i.vertexLight;
     #endif
@@ -83,7 +87,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #if defined(LIGHTMAP_ANY)
 
         float2 lightmapUV = i.uv[1].zw;
-        half4 bakedColorTex = SampleBicubic(unity_Lightmap, samplerunity_Lightmap, lightmapUV);
+        half4 bakedColorTex = SampleBicubic(unity_Lightmap, custom_bilinear_clamp_sampler, lightmapUV);
         half3 lightMap = DecodeLightmap(bakedColorTex);
 
         #ifdef BAKERY_RNM
@@ -112,15 +116,18 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
         indirectDiffuse = lightMap;
     #else
-        indirectDiffuse = GetLightProbes(worldNormal, i.worldPos.xyz);
+        #ifdef LIGHTPROBE_VERTEX
+            indirectDiffuse = ShadeSHPerPixel(worldNormal, i.lightProbe, i.worldPos.xyz);
+        #else
+            indirectDiffuse = GetLightProbes(worldNormal, i.worldPos.xyz);
+        #endif
     #endif
+
     indirectDiffuse = max(0.0, indirectDiffuse);
 #endif
 
 
-    #if !defined(SPECULAR_HIGHLIGHTS_OFF) && defined(USING_LIGHT_MULTI_COMPILE)
-        directSpecular += lightData.Specular;
-    #endif
+    
 
 
 
@@ -145,25 +152,26 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     }
     #endif
 
-    #ifdef LTCGI
-            float2 ltcgi_lmuv;
+#ifdef LTCGI
+    float2 ltcgi_lmuv;
     #if defined(LIGHTMAP_ON)
-            ltcgi_lmuv = i.uv[1].xy;
+        ltcgi_lmuv = i.uv[1].xy;
     #else
-            ltcgi_lmuv = float2(0, 0);
+        ltcgi_lmuv = float2(0, 0);
     #endif
-            float3 ltcgiSpecular = 0;
-            LTCGI_Contribution(i.worldPos, worldNormal, viewDir, surf.perceptualRoughness, ltcgi_lmuv, indirectDiffuse
-    #ifndef SPECULAR_HIGHLIGHTS_OFF
+
+    float3 ltcgiSpecular = 0;
+    LTCGI_Contribution(i.worldPos, worldNormal, viewDir, surf.perceptualRoughness, ltcgi_lmuv, indirectDiffuse
+        #ifndef SPECULAR_HIGHLIGHTS_OFF
                 , ltcgiSpecular
-    #endif
-            );
-            indirectSpecular += ltcgiSpecular * F_Schlick(NoV, f0);
-    #endif
+        #endif
+    );
+    indirectSpecular += ltcgiSpecular * F_Schlick(NoV, f0);
+#endif
 
 #ifdef UNITY_PASS_FORWARDBASE
     #if !defined(REFLECTIONS_OFF)
-        indirectSpecular += GetReflections(worldNormal, i.worldPos.xyz, viewDir, f0, roughness, NoV, surf, indirectDiffuse);
+            indirectSpecular += GetReflections(worldNormal, i.worldPos.xyz, viewDir, f0, roughness, NoV, surf, indirectDiffuse);
     #endif
 #endif
 
@@ -198,6 +206,8 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             finalColor.rgb = ACESFitted(finalColor.rgb);
         }
     #endif
+
+
     
     return finalColor;
 #endif

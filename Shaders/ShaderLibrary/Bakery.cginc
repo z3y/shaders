@@ -2,7 +2,6 @@
 #define BAKERY_INCLUDED
 
 Texture2D _RNM0, _RNM1, _RNM2;
-SamplerState sampler_RNM0, sampler_RNM1, sampler_RNM2;
 float4 _RNM0_TexelSize;
 
 #if defined(SHADER_API_MOBILE)
@@ -13,9 +12,9 @@ void BakeryRNMLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout
 {
 #ifdef BAKERY_RNM
     normalTS.g *= -1;
-    float3 rnm0 = DecodeLightmap(_RNM0.Sample(sampler_RNM0, lightmapUV));
-    float3 rnm1 = DecodeLightmap(_RNM1.Sample(sampler_RNM1, lightmapUV));
-    float3 rnm2 = DecodeLightmap(_RNM2.Sample(sampler_RNM2, lightmapUV));
+    float3 rnm0 = DecodeLightmap(_RNM0.Sample(custom_bilinear_clamp_sampler, lightmapUV));
+    float3 rnm1 = DecodeLightmap(_RNM1.Sample(custom_bilinear_clamp_sampler, lightmapUV));
+    float3 rnm2 = DecodeLightmap(_RNM2.Sample(custom_bilinear_clamp_sampler, lightmapUV));
 
     const float3 rnmBasis0 = float3(0.816496580927726f, 0.0f, 0.5773502691896258f);
     const float3 rnmBasis1 = float3(-0.4082482904638631f, 0.7071067811865475f, 0.5773502691896258f);
@@ -50,9 +49,9 @@ void BakerySHLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout 
     #ifdef BAKERY_SH
 
         half3 L0 = lightMap;
-        float3 nL1x = _RNM0.Sample(sampler_RNM0, lightmapUV) * 2.0 - 1.0;
-        float3 nL1y = _RNM1.Sample(sampler_RNM1, lightmapUV) * 2.0 - 1.0;
-        float3 nL1z = _RNM2.Sample(sampler_RNM2, lightmapUV) * 2.0 - 1.0;
+        float3 nL1x = _RNM0.Sample(custom_bilinear_clamp_sampler, lightmapUV) * 2.0 - 1.0;
+        float3 nL1y = _RNM1.Sample(custom_bilinear_clamp_sampler, lightmapUV) * 2.0 - 1.0;
+        float3 nL1z = _RNM2.Sample(custom_bilinear_clamp_sampler, lightmapUV) * 2.0 - 1.0;
         float3 L1x = nL1x * L0 * 2.0;
         float3 L1y = nL1y * L0 * 2.0;
         float3 L1z = nL1z * L0 * 2.0;

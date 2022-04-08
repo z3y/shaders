@@ -26,7 +26,7 @@ Shader "Complex Lit"
         _BumpScale ("Scale", Float) = 1
 
         [ToggleOff(SPECULAR_HIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
-        [ToggleOff(REFLECTIONS_OFF)] _GlossyReflections ("Reflection Probes", Float) = 1
+        [ToggleOff(REFLECTIONS_OFF)] _GlossyReflections ("Reflections", Float) = 1
         _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
 
         [Toggle(GEOMETRIC_SPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
@@ -112,20 +112,6 @@ Shader "Complex Lit"
     }
 
 CGINCLUDE
-#ifndef UNITY_PBS_USE_BRDF1
-    #ifndef SHADER_API_MOBILE
-        #define SHADER_API_MOBILE
-    #endif
-#endif
-#pragma vertex vert
-#pragma fragment frag
-#pragma fragmentoption ARB_precision_hint_fastest // probably doesnt do anything
-
-/*RantBegin
-It really sucks that this Unity version doesn't let us use pragmas in cgincs and I have to edit the shader
-It also sucks that I cant use an #ifdef with #pragma skip_variants
-RantEnd*/
-
 //ShaderConfigBegin
 
 
@@ -137,6 +123,7 @@ RantEnd*/
 #define BAKERY_SHNONLINEAR
 #define BICUBIC_LIGHTMAP
 
+
 #pragma skip_variants LOD_FADE_CROSSFADE
 
 #define UNITY_LIGHT_PROBE_PROXY_VOLUME 0
@@ -145,12 +132,9 @@ RantEnd*/
 //ShaderConfigEnd
 ENDCG
 
+    // pc shader
     SubShader
     {
-        CGINCLUDE
-        #pragma target 4.5
-        ENDCG
-
         Tags { "RenderType"="Opaque" "Queue"="Geometry" "LTCGI" = "_LTCGI" }
 
         Pass
@@ -163,12 +147,29 @@ ENDCG
             Blend [_SrcBlend] [_DstBlend]
 
             CGPROGRAM
+            #pragma target 4.5
+            #pragma exclude_renderers gles3
+            #pragma vertex vert
+            #pragma fragment frag
+
             #pragma multi_compile_fwdbase
+            #pragma skip_variants LIGHTPROBE_SH
+
+            //  #pragma multi_compile _ DIRECTIONAL
+            // //  #pragma multi_compile _ LIGHTPROBE_SH
+            //  #pragma multi_compile _ SHADOWS_SHADOWMASK
+            //  #pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            //  #pragma multi_compile _ LIGHTMAP_ON
+            //  #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            //  #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            //  #pragma multi_compile _ SHADOWS_SCREEN
+            //  #pragma multi_compile _ VERTEXLIGHT_ON
+
+            
             #pragma multi_compile_instancing
             #pragma multi_compile_fog
-            #pragma multi_compile_fragment _ VERTEXLIGHT_ON // already defined in vertex by multi_compile_fwdbase
-            #pragma multi_compile _ LOD_FADE_CROSSFADE
-            
+            #pragma multi_compile _ LOD_FADE_CROSSFADE            
+            // #pragma multi_compile _ VERTEXLIGHT_ON
 
             #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
             #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM
@@ -213,6 +214,12 @@ ENDCG
             AlphaToMask [_AlphaToMask]
 
             CGPROGRAM
+            #pragma target 4.5
+            #pragma exclude_renderers gles3
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma exclude_renderers gles3
+
             #pragma multi_compile_fwdadd_fullshadows
             #pragma multi_compile_instancing
             #pragma multi_compile_fog
@@ -254,14 +261,15 @@ ENDCG
             ZTest LEqual
 
             CGPROGRAM
+            #pragma target 4.5
+            #pragma exclude_renderers gles3
+            #pragma vertex vert
+            #pragma fragment frag
             #pragma multi_compile_shadowcaster
             #pragma multi_compile_instancing
             #pragma multi_compile _ LOD_FADE_CROSSFADE
-            
-            #pragma skip_variants FOG_LINEAR FOG_EXP FOG_EXP2
 
             #pragma shader_feature_local _TEXTURE_ARRAY
-            #pragma shader_feature_local _MASK_MAP
 
             #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _MODE_FADE
 
@@ -276,22 +284,115 @@ ENDCG
             Cull Off
 
             CGPROGRAM
-
+            #pragma target 4.5
+            #pragma exclude_renderers gles3
+            #pragma vertex vert
+            #pragma fragment frag
             #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
             #pragma shader_feature_local EMISSION
             #pragma shader_feature_local AUDIOLINK
 
             #pragma shader_feature_local _TEXTURE_ARRAY
-            #pragma shader_feature_local _MASK_MAP
             
             #pragma shader_feature_local _LAYERMASK
             #pragma shader_feature_local _LAYER1ALBEDO
             #pragma shader_feature_local _LAYER2ALBEDO
             #pragma shader_feature_local _LAYER3ALBEDO
-            #pragma shader_feature_local _LAYER1NORMAL
-            #pragma shader_feature_local _LAYER2NORMAL
-            #pragma shader_feature_local _LAYER3NORMAL
             #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP    
+
+            #include "PassCGI.cginc"
+            ENDCG
+        }
+    }
+
+    // quest shader 
+    SubShader
+    {
+        Tags { "RenderType"="Opaque" "Queue"="Geometry" }
+
+        Pass
+        {
+            Name "FORWARDBASE"
+            Tags { "LightMode"="ForwardBase" }
+            ZWrite [_ZWrite]
+            Cull [_Cull]
+            AlphaToMask [_AlphaToMask]
+            Blend [_SrcBlend] [_DstBlend]
+
+            CGPROGRAM
+            #pragma target 4.5
+            #pragma only_renderers gles3
+            #define SHADER_API_MOBILE
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #pragma multi_compile_fwdbase
+            #pragma skip_variants LIGHTPROBE_SH
+            #pragma skip_variants DIRLIGHTMAP_COMBINED
+            #pragma skip_variants SHADOWS_SCREEN
+            #pragma skip_variants DYNAMICLIGHTMAP_ON
+
+            
+            #pragma multi_compile_instancing
+            #pragma multi_compile_fog
+            // #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile _ VERTEXLIGHT_ON
+
+            #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
+            // #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM
+            #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
+            #pragma shader_feature_local EMISSION
+            // #pragma shader_feature_local BAKEDSPECULAR
+            // #pragma shader_feature_local PARALLAX
+            #pragma shader_feature_local GEOMETRIC_SPECULAR_AA
+            // #pragma shader_feature_local NONLINEAR_LIGHTPROBESH
+
+            #pragma shader_feature_local _TEXTURE_ARRAY
+            #pragma shader_feature_local _MASK_MAP
+            #pragma shader_feature_local _NORMAL_MAP
+            
+            #pragma shader_feature_local _LAYERMASK
+            #pragma shader_feature_local _LAYER1ALBEDO
+            #pragma shader_feature_local _LAYER2ALBEDO
+            #pragma shader_feature_local _LAYER3ALBEDO
+            // #pragma shader_feature_local _LAYER1NORMAL
+            // #pragma shader_feature_local _LAYER2NORMAL
+            // #pragma shader_feature_local _LAYER3NORMAL
+            #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP
+
+            // #pragma shader_feature_local AUDIOLINK
+            // #pragma shader_feature_local LTCGI
+            // #pragma shader_feature_local LTCGI_DIFFUSE_OFF
+
+            #include "PassCGI.cginc"
+            ENDCG
+        }
+
+
+        Pass
+        {
+            Name "SHADOWCASTER"
+            Tags { "LightMode"="ShadowCaster" }
+            ZWrite On
+            Cull [_Cull]
+            ZTest LEqual
+
+            CGPROGRAM
+            #pragma target 4.5
+            #pragma only_renderers gles3
+            #define SHADER_API_MOBILE
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_shadowcaster
+            #pragma multi_compile_instancing
+            // #pragma multi_compile _ LOD_FADE_CROSSFADE
+            
+            #pragma skip_variants SHADOWS_CUBE
+
+
+            #pragma shader_feature_local _TEXTURE_ARRAY
+
+            #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _MODE_FADE
 
             #include "PassCGI.cginc"
             ENDCG

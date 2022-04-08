@@ -1,4 +1,8 @@
 // #pragma warning (default : 3206)
+#pragma warning( disable : 1519 ) // macro redefinition
+#ifndef UNITY_PBS_USE_BRDF1
+    #define SHADER_API_MOBILE
+#endif
 
 #include "UnityCG.cginc"
 #include "AutoLight.cginc"
@@ -15,6 +19,7 @@ struct v2f
     float3 tangent : TEXCOORD5;
     float3 worldNormal : TEXCOORD6;
     float4 worldPos : TEXCOORD7;
+
 
     #if defined(PARALLAX) || defined(BAKERY_RNM) || defined(EMISSION) || defined(LAYERS)
         float3 viewDirTS : TEXCOORD8;
@@ -40,6 +45,9 @@ struct v2f
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
         half3 vertexLight : TEXCOORD14;
     #endif
+
+    half3 lightProbe : TEXCOORD15;
+
 
     UNITY_VERTEX_INPUT_INSTANCE_ID
 	UNITY_VERTEX_OUTPUT_STEREO
@@ -116,6 +124,10 @@ v2f vert (appdata_all v)
 
     #ifdef NEED_SCREEN_POS
         o.screenPos = ComputeScreenPos(o.pos);
+    #endif
+
+    #ifdef LIGHTPROBE_VERTEX
+        o.lightProbe = ShadeSHPerVertex(o.worldNormal, 0.0f);
     #endif
 
 

@@ -6,11 +6,39 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
+using UnityEditor.Build;
+using UnityEditor.Rendering;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace z3y.Shaders
 {
-    
+    public class OnBuildShaderPreprocessor : IPreprocessShaders
+    {
+        public int callbackOrder => 512;
+
+        private readonly ShaderKeyword directional = new ShaderKeyword("DIRECTIONAL");
+
+        public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data)
+        {
+            if (shader.name != ComplexLitSmartGUI.ShaderName)
+            {
+                return;
+            }
+            
+            for (int i = data.Count - 1; i >= 0; --i)
+            {
+                bool directionalEnabled = data[i].shaderKeywordSet.IsEnabled(directional);
+                if (directionalEnabled)
+                {
+                    var shaderData = data[i];
+                    var keywords = shaderData.shaderKeywordSet;
+                    keywords.Disable(directional);
+                    data.Add(shaderData);
+                }
+            }
+        }
+    }
     public class ShaderConfigWindow
     {
         // [MenuItem("z3y/Shader Config")]
@@ -60,6 +88,7 @@ namespace z3y.Shaders
             DrawToggle(ref ShaderConfig.NONLINEAR_LIGHTPROBESH, "Non-Linear Light Probe SH");
 
             EditorGUILayout.Space();
+            DrawToggle(ref ShaderConfig.ALLOW_LTCGI, "Allow LTCGI");
             DrawToggle(ref ShaderConfig.UNITY_SPECCUBE_BLENDING, "Allow Reflection Probe Blending");
             DrawToggle(ref ShaderConfig.UNITY_LIGHT_PROBE_PROXY_VOLUME, "Allow Light Probe Proxy Volumes");
 
@@ -67,6 +96,7 @@ namespace z3y.Shaders
             EditorGUILayout.LabelField("Multi Compiles", EditorStyles.boldLabel);
             DrawToggle(ref ShaderConfig.VERTEXLIGHT_ON, "Allow Non-Important Lights");
             DrawToggle(ref ShaderConfig.LOD_FADE_CROSSFADE, "Allow Dithered Lod Cross-Fade");
+            //DrawToggle(ref ShaderConfig.INJECT_DISABLED_DIRECTIONAL, "Inject Disabled Directional variants");
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -101,6 +131,8 @@ namespace z3y.Shaders
         public static bool UNITY_SPECCUBE_BLENDING = true;
         public static bool UNITY_LIGHT_PROBE_PROXY_VOLUME;
         public static bool ACES_TONEMAPPING;
+        public static bool ALLOW_LTCGI;
+        public static bool INJECT_DISABLED_DIRECTIONAL = true;
     }
 
     internal static class ShaderConfigData
@@ -153,6 +185,7 @@ namespace z3y.Shaders
             sb.AppendLine(ShaderConfig.BAKERY_SHNONLINEAR ? $"{Define}BAKERY_SHNONLINEAR" : "");
             sb.AppendLine(ShaderConfig.BICUBIC_LIGHTMAP ? Define + "BICUBIC_LIGHTMAP" : "");
             sb.AppendLine(ShaderConfig.ACES_TONEMAPPING ? Define + "ACES_TONEMAPPING" : "");
+            sb.AppendLine(ShaderConfig.ALLOW_LTCGI ? Define + "ALLOW_LTCGI" : "");
             sb.AppendLine(ShaderConfig.LOD_FADE_CROSSFADE ? "" : SkipVariant + "LOD_FADE_CROSSFADE");
             sb.AppendLine(ShaderConfig.UNITY_SPECCUBE_BLENDING ? "" : Undef + "UNITY_SPECCUBE_BLENDING");
             sb.AppendLine(ShaderConfig.UNITY_LIGHT_PROBE_PROXY_VOLUME ? "" : Define + "UNITY_LIGHT_PROBE_PROXY_VOLUME 0");

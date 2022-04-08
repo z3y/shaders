@@ -47,8 +47,8 @@ half3 ACESFitted(half3 color)
 
     color = mul(ACESOutputMat, color);
 
-    // Clamp to [0, 1]
-    //color = saturate(color);
+    // Clamp
+    color = max(color, 0.0f);
 
     return color;
 }

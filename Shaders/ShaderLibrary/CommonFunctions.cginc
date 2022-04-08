@@ -29,6 +29,8 @@ struct appdata_all
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
+SamplerState custom_bilinear_clamp_sampler;
+
 #include "EnvironmentBRDF.cginc"
 
 
@@ -314,53 +316,30 @@ half3 MainLightSpecular(LightData lightData, half NoV, half clampedRoughness, ha
     return max(0.0, (D * V) * F) * lightData.FinalColor;
 }
 
-#if defined(UNITY_PASS_FORWARDBASE) && defined(DIRECTIONAL) && !(defined(SHADOWS_SCREEN) || defined(SHADOWS_SHADOWMASK) || defined(LIGHTMAP_SHADOW_MIXING))
-    #define BRANCH_DIRECTIONAL
-
-    #ifdef SPECULAR_HIGHLIGHTS_OFF
-        #undef BRANCH_DIRECTIONAL
-    #endif
-#endif
-
 void InitializeLightData(inout LightData lightData, float3 normalWS, float3 viewDir, half NoV, half clampedRoughness, half perceptualRoughness, half3 f0, v2f input)
 {
     #ifdef USING_LIGHT_MULTI_COMPILE
-        #ifdef BRANCH_DIRECTIONAL
-        UNITY_BRANCH
-        if (any(_LightColor0))
-        {
-        //printf("directional branch");
+        lightData.Direction = normalize(UnityWorldSpaceLightDir(input.worldPos));
+        lightData.HalfVector = Unity_SafeNormalize(lightData.Direction + viewDir);
+        lightData.NoL = saturate(dot(normalWS, lightData.Direction));
+        lightData.LoH = saturate(dot(lightData.Direction, lightData.HalfVector));
+        lightData.NoH = saturate(dot(normalWS, lightData.HalfVector));
+        
+        UNITY_LIGHT_ATTENUATION(lightAttenuation, input, input.worldPos.xyz);
+        lightData.Attenuation = lightAttenuation;
+        lightData.Color = lightAttenuation * _LightColor0.rgb;
+        lightData.FinalColor = (lightData.NoL * lightData.Color);
+
+
+        #ifndef SHADER_API_MOBILE
+            lightData.FinalColor *= Fd_Burley(perceptualRoughness, NoV, lightData.NoL, lightData.LoH);
         #endif
-            lightData.Direction = normalize(UnityWorldSpaceLightDir(input.worldPos));
-            lightData.HalfVector = Unity_SafeNormalize(lightData.Direction + viewDir);
-            lightData.NoL = saturate(dot(normalWS, lightData.Direction));
-            lightData.LoH = saturate(dot(lightData.Direction, lightData.HalfVector));
-            lightData.NoH = saturate(dot(normalWS, lightData.HalfVector));
-            
-            UNITY_LIGHT_ATTENUATION(lightAttenuation, input, input.worldPos.xyz);
-            lightData.Attenuation = lightAttenuation;
-            lightData.Color = lightAttenuation * _LightColor0.rgb;
-            lightData.FinalColor = (lightData.NoL * lightData.Color);
 
-            
-
-
-            #ifndef SHADER_API_MOBILE
-                lightData.FinalColor *= Fd_Burley(perceptualRoughness, NoV, lightData.NoL, lightData.LoH);
-            #endif
-
-            #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
-                lightData.FinalColor *= UnityComputeForwardShadows(input.uv[1].zw, input.worldPos, input.screenPos);
-            #endif
-
-            lightData.Specular = MainLightSpecular(lightData, NoV, clampedRoughness, f0);
-        #ifdef BRANCH_DIRECTIONAL
-        }
-        else
-        {
-            lightData = (LightData)0;
-        }
+        #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
+            lightData.FinalColor *= UnityComputeForwardShadows(input.uv[1].zw, input.worldPos, input.screenPos);
         #endif
+
+        lightData.Specular = MainLightSpecular(lightData, NoV, clampedRoughness, f0);
     #else
         lightData = (LightData)0;
     #endif
@@ -372,7 +351,9 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
     #if defined(UNITY_PASS_FORWARDBASE)
 
         float3 reflDir = reflect(-viewDir, normalWS);
+        #ifndef SHADER_API_MOBILE
         reflDir = lerp(reflDir, normalWS, roughness * roughness);
+        #endif
 
         Unity_GlossyEnvironmentData envData;
         envData.roughness = surf.perceptualRoughness;
@@ -392,11 +373,19 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
         #endif
 
         float horizon = min(1.0 + dot(reflDir, normalWS), 1.0);
-        float2 dfg = DFGLut;
-        #ifdef LIGHTMAP_ANY
-            dfg.x *= lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
+        
+        half lightmapOcclusion = lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
+
+        #ifdef SHADER_API_MOBILE
+            indirectSpecular = indirectSpecular * horizon * horizon * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0, lightmapOcclusion);
+        #else
+            float2 dfg = DFGLut;
+            #ifdef LIGHTMAP_ANY
+                dfg.x *= lightmapOcclusion;
+            #endif
+            indirectSpecular = indirectSpecular * horizon * horizon * DFGEnergyCompensation * EnvBRDFMultiscatter(dfg, f0);
         #endif
-        indirectSpecular = indirectSpecular * horizon * horizon * DFGEnergyCompensation * EnvBRDFMultiscatter(dfg, f0);
+
         indirectSpecular *= computeSpecularAO(NoV, surf.occlusion, surf.perceptualRoughness * surf.perceptualRoughness);
 
     #endif
@@ -423,7 +412,9 @@ half3 GetLightProbes(float3 normalWS, float3 positionWS)
                     indirectDiffuse.g = shEvaluateDiffuseL1Geomerics_local(L0.g, unity_SHAg.xyz, normalWS);
                     indirectDiffuse.b = shEvaluateDiffuseL1Geomerics_local(L0.b, unity_SHAb.xyz, normalWS);
                 #else
-                    indirectDiffuse = ShadeSH9(float4(normalWS, 1.0));
+                indirectDiffuse = ShadeSH9(float4(normalWS, 1.0));
+                // indirectDiffuse = ShadeSHPerVertex (normalWS, indirectDiffuse);
+                // indirectDiffuse = ShadeSHPerPixel (normalWS, indirectDiffuse, positionWS);
                 #endif
         #if UNITY_LIGHT_PROBE_PROXY_VOLUME
             }

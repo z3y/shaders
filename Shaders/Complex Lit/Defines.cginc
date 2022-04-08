@@ -1,12 +1,28 @@
 #if defined(SHADER_API_MOBILE)
-    // stipped keywords
-    #undef NONLINEAR_LIGHTPROBESH
+    // keywords
+    #undef BAKERY_SH
+    #undef BAKERY_RNM
+    #undef BAKEDSPECULAR
     #undef PARALLAX
+    #undef NONLINEAR_LIGHTPROBESH
+    #undef _LAYER1NORMAL
+    #undef _LAYER2NORMAL
+    #undef _LAYER3NORMAL
+    #undef AUDIOLINK
     #undef LTCGI
     #undef LTCGI_DIFFUSE_OFF
-    
-    // defines
+
+    // multicompiles
     #undef VERTEXLIGHT_PS
+    #undef DIRLIGHTMAP_COMBINED
+    #undef SHADOWS_SCREEN
+    #undef DYNAMICLIGHTMAP_ON
+    #undef LOD_FADE_CROSSFADE
+
+#ifndef LIGHTMAP_ON
+    #define LIGHTPROBE_VERTEX
+#endif
+
 #endif
 
 #ifdef UNITY_PASS_META
@@ -22,7 +38,7 @@
 #endif
 
 
-#ifdef LTCGI
+#if defined(LTCGI) && defined(ALLOW_LTCGI)
     #ifdef SPECULAR_HIGHLIGHTS_OFF
         #define LTCGI_SPECULAR_OFF
     #endif

@@ -17,7 +17,6 @@ half4 SampleTexture(Texture2DArray t, SamplerState s, float2 uv)
 #endif
 
 
-#pragma warning( disable : 1519 ) // macro redefinition
 
 #define LAYERALBEDOSAMPLER sampler_DetailAlbedoMap
 #if !defined(_LAYER1ALBEDO)
@@ -210,11 +209,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     #if defined(EMISSION)
         half3 emissionMap = 1.0;
 
-        UNITY_BRANCH
-        if (_EmissionMap_TexelSize.w > 1.0)
-        {
-            emissionMap = SampleTexture(_EmissionMap, sampler_EmissionMap, mainUV + ParallaxOffsetUV(_EmissionDepth, i.viewDirTS)).rgb;
-        }
+        emissionMap = SampleTexture(_EmissionMap, sampler_EmissionMap, mainUV + ParallaxOffsetUV(_EmissionDepth, i.viewDirTS)).rgb;
 
         emissionMap = lerp(emissionMap, emissionMap * surf.albedo.rgb, _EmissionMultBase);
     
@@ -223,7 +218,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
             surf.emission *= AudioLinkLerp(uint2(1, _AudioLinkEmission)).r;
         #endif
 
-        half3 emissionPulse = sin(_Time.y * _EmissionPulseSpeed) + 1;
+        half3 emissionPulse = (sin(_Time.y * _EmissionPulseSpeed) + 1) / 2.0;
         surf.emission = lerp(surf.emission, surf.emission * emissionPulse, _EmissionPulseIntensity);
 
         #ifdef UNITY_PASS_META

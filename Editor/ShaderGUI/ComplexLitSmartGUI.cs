@@ -401,9 +401,9 @@ namespace z3y.Shaders
             TexturePacking.TexturePackingField(ref _maskPackingSmoothness, "Smoothness", "Roughness");
 
             TexturePacking.PackButton( ()=> {
-                TexturePacking.Pack(_MetallicGlossMap, _maskPackingMetallic, _maskPackingDetailMask, _maskPackingOcclusion, _maskPackingSmoothness, true);
+                TexturePacking.Pack(_MetallicGlossMap, _maskPackingMetallic, _maskPackingOcclusion, _maskPackingDetailMask, _maskPackingSmoothness, true);
             }, () => {
-                TexturePacking.ResetPackingField(ref _maskPackingMetallic,ref _maskPackingDetailMask,ref _maskPackingOcclusion,ref _maskPackingSmoothness);
+                TexturePacking.ResetPackingField(ref _maskPackingMetallic,ref _maskPackingOcclusion, ref _maskPackingDetailMask,ref _maskPackingSmoothness);
             });
         }
 
