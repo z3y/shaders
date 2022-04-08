@@ -154,22 +154,11 @@ ENDCG
 
             #pragma multi_compile_fwdbase
             #pragma skip_variants LIGHTPROBE_SH
-
-            //  #pragma multi_compile _ DIRECTIONAL
-            // //  #pragma multi_compile _ LIGHTPROBE_SH
-            //  #pragma multi_compile _ SHADOWS_SHADOWMASK
-            //  #pragma multi_compile _ DYNAMICLIGHTMAP_ON
-            //  #pragma multi_compile _ LIGHTMAP_ON
-            //  #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            //  #pragma multi_compile _ DIRLIGHTMAP_COMBINED
-            //  #pragma multi_compile _ SHADOWS_SCREEN
-            //  #pragma multi_compile _ VERTEXLIGHT_ON
-
             
             #pragma multi_compile_instancing
             #pragma multi_compile_fog
             #pragma multi_compile _ LOD_FADE_CROSSFADE            
-            // #pragma multi_compile _ VERTEXLIGHT_ON
+            #pragma multi_compile _ VERTEXLIGHT_ON
 
             #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
             #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM
@@ -218,7 +207,6 @@ ENDCG
             #pragma exclude_renderers gles3
             #pragma vertex vert
             #pragma fragment frag
-            #pragma exclude_renderers gles3
 
             #pragma multi_compile_fwdadd_fullshadows
             #pragma multi_compile_instancing

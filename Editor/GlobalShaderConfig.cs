@@ -17,7 +17,20 @@ namespace z3y.Shaders
     {
         public int callbackOrder => 512;
 
-        private readonly ShaderKeyword directional = new ShaderKeyword("DIRECTIONAL");
+        private readonly ShaderKeyword _directional;
+        private readonly ShaderKeyword _lightmapOn;
+        private readonly ShaderKeyword _shadowsScreen;
+        private readonly ShaderKeyword _shadowMask;
+        private readonly ShaderKeyword _shadowMixing;
+
+        public OnBuildShaderPreprocessor()
+        {
+            _directional = new ShaderKeyword("DIRECTIONAL");
+            _lightmapOn = new ShaderKeyword("LIGHTMAP_ON");
+            _shadowsScreen = new ShaderKeyword("SHADOWS_SCREEN");
+            _shadowMask = new ShaderKeyword("SHADOWS_SHADOWMASK");
+            _shadowMixing = new ShaderKeyword("LIGHTMAP_SHADOW_MIXING");
+        }
 
         public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data)
         {
@@ -28,14 +41,17 @@ namespace z3y.Shaders
 
             for (int i = data.Count - 1; i >= 0; --i)
             {
-                bool directionalEnabled = data[i].shaderKeywordSet.IsEnabled(directional);
-                if (directionalEnabled)
+                bool directionalEnabled = data[i].shaderKeywordSet.IsEnabled(_directional);
+                bool _shadowsScreenEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowsScreen);
+                bool _shadowMaskEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMask);
+                bool _shadowMixingEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMixing);
+
+                if (directionalEnabled && !_shadowsScreenEnabled && !_shadowMaskEnabled && !_shadowMixingEnabled)
                 {
                     var shaderData = data[i];
-                    var keywords = shaderData.shaderKeywordSet;
-                    keywords.Disable(directional);
-                    shaderData.shaderKeywordSet = keywords;
+                    shaderData.shaderKeywordSet.Disable(_directional);
                     data.Add(shaderData);
+
                 }
             }
         }
