@@ -1,10 +1,9 @@
 #ifndef MULTISTEPPARALLAX_INCLUDED
 #define MULTISTEPPARALLAX_INCLUDED
 
-#define ParallaxSteps 20
 float _ParallaxOffset;
 float _Parallax;
-float _MaxSteps;
+float _ParallaxSteps;
 Texture2D _ParallaxMap;
 float4 _ParallaxMap_TexelSize;
 
@@ -18,32 +17,50 @@ float3 CalculateTangentViewDir(float3 tangentViewDir)
 
 float2 ParallaxOffsetMultiStep(float surfaceHeight, float strength, float2 uv, float3 tangentViewDir)
 {
-	float stepSize = 1.0 / _MaxSteps;
+	float stepSize = 1.0 / _ParallaxSteps;
     float3 uvDelta_stepSize = float3(tangentViewDir.xy * (stepSize * strength), stepSize);
     float3 uvOffset_stepHeight = float3(float2(0, 0), 1.0);
     
     float2 minUvSize = GetMinUvSize(uv, _ParallaxMap_TexelSize);
     float lod = ComputeTextureLOD(minUvSize);
 
+    //float prevSurfaceHeight = surfaceHeight;
+
+    float previousStepHeight = 0;
+    float previousSurfaceHeight = 0;
+    float2 previousUVOffset = 0;
+
     [loop]
-    for (int j = 0; j < _MaxSteps; j++)
+    for (int j = 0; j < _ParallaxSteps; j++)
     {
         if (uvOffset_stepHeight.z < surfaceHeight)
         {
             break;
         }
 
+        previousStepHeight = uvOffset_stepHeight.z;
+        previousSurfaceHeight = surfaceHeight;
+        previousUVOffset = uvOffset_stepHeight.xy;
+
+
         uvOffset_stepHeight -= uvDelta_stepSize;
         surfaceHeight = _ParallaxMap.SampleLevel(sampler_MainTex, (uv + uvOffset_stepHeight.xy), lod) + _ParallaxOffset;
     }
 
-    [unroll]
-    for (int k = 0; k < 3; k++)
-    {
-        uvDelta_stepSize *= 0.5;
-        uvOffset_stepHeight += uvDelta_stepSize * ((uvOffset_stepHeight.z < surfaceHeight) * 2.0 - 1.0);
-        surfaceHeight = _ParallaxMap.Sample(sampler_MainTex, (uv + uvOffset_stepHeight.xy)) + _ParallaxOffset;
-    }
+    // taken from filamented cause it looks better https://gitlab.com/s-ilent/filamented
+    float previousDifference = previousStepHeight - previousSurfaceHeight;
+    float delta = surfaceHeight - uvOffset_stepHeight.z;
+    uvOffset_stepHeight.xy = previousUVOffset - uvDelta_stepSize.xy * previousDifference / (previousDifference + delta);
+
+    // [unroll]
+    // for (int k = 0; k < 3; k++)
+    // {
+    //     uvDelta_stepSize *= 0.5;
+        
+    //     uvOffset_stepHeight += uvDelta_stepSize * ((uvOffset_stepHeight.z < surfaceHeight) * 2.0 - 1.0);
+    //     surfaceHeight = _ParallaxMap.Sample(sampler_MainTex, (uv + uvOffset_stepHeight.xy)) + _ParallaxOffset;
+    // }
+
 
     return uvOffset_stepHeight.xy;
 }

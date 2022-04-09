@@ -12,8 +12,8 @@ Shader "Complex Lit"
         _Color ("Base Color", Color) = (1,1,1,1)
         _AlbedoSaturation ("Saturation", Float) = 1
 
-        _MetallicGlossMap("Packed Mask", 2D) = "white" {}
-        _MetallicGlossMapArray("Packed Mask Array", 2DArray) = "" {}
+        _MetallicGlossMap("Mask Map", 2D) = "white" {}
+        _MetallicGlossMapArray("Mask Map Array", 2DArray) = "" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _GlossinessMin ("Smoothness Min", Range(0,1)) = 0
         _Metallic ("Metallic", Range(0,1)) = 0
@@ -38,11 +38,6 @@ Shader "Complex Lit"
         _EmissionMap ("Emission Map", 2D) = "white" {}
         [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _EmissionMapUV ("UV", Int) = 0
         [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (1,1,1)
-
-        _EmissionMap2 ("Emission Map 2", 2D) = "white" {}
-        [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _EmissionMap2UV ("UV", Int) = 0
-        [Gamma][HDR] _Emission2Color ("Emission Color", Color) = (1,1,1)
-
         _EmissionDepth("Depth", Float) = 0
         _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
 
@@ -91,10 +86,8 @@ Shader "Complex Lit"
         _ParallaxMap ("Height Map", 2D) = "white" {}
         [PowerSlider(2)] _Parallax ("Scale", Range (0, 0.2)) = 0.02
         _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
+        [IntRange] _ParallaxSteps ("Steps", Range(1, 32)) = 16
 
-        [IntRange] _MinSteps ("MinSteps", Range(0, 64)) = 5
-        [IntRange] _MaxSteps ("MaxSteps", Range(0, 64)) = 15
-        [IntRange] _ParallaxFadingMip ("MaxSteps", Range(0, 16)) = 5
 
 
         Foldout_RenderingOptions("Rendering Options", Int) = 0
@@ -175,7 +168,6 @@ ENDCG
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local REFLECTIONS_OFF
             #pragma shader_feature_local EMISSION
-            #pragma shader_feature_local _EMISSION2
             #pragma shader_feature_local BAKEDSPECULAR
             #pragma shader_feature_local PARALLAX
             #pragma shader_feature_local GEOMETRIC_SPECULAR_AA

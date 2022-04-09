@@ -39,7 +39,6 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     float2 parallaxOffset = 0.0;
     #if defined(PARALLAX)
         float2 parallaxUV = i.uv[0].zw;
-        // parallaxOffset = ParallaxOcclusionMappingUVOffset(parallaxUV, _Parallax, i.viewDirTS, _ParallaxMap, sampler_MainTex, _ParallaxMap_TexelSize);
         parallaxOffset = ParallaxOffset(i.viewDirTS, parallaxUV);
     #endif
 
@@ -216,17 +215,6 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         surf.emission = emissionMap * UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _EmissionColor);
         #if defined(AUDIOLINK)
             surf.emission *= AudioLinkLerp(uint2(1, _AudioLinkEmission)).r;
-        #endif
-
-        #if defined(_EMISSION2)
-        half3 emission2 = 0;
-        float2 emission2UV = TRANSFORM_TEX(i.uv[_EmissionMap2_UV].zw, _EmissionMap2);
-        
-        emission2 = SampleTexture(_EmissionMap2, sampler_EmissionMap, emission2UV - (_EmissionDepth2 * i.viewDirTS.xy / i.viewDirTS.z)).rgb;
-
-        emission2 *= _Emission2Color;
-
-        surf.emission *= emission2;
         #endif
 
         #ifdef UNITY_PASS_META
