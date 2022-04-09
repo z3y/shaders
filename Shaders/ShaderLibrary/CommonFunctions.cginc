@@ -11,6 +11,11 @@
 #define TAU float(6.28318530718)
 #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y))))
 
+#define FLT_EPSILON     1.192092896e-07 // Smallest positive number, such that 1.0 + FLT_EPSILON != 1.0
+#define FLT_MIN         1.175494351e-38 // Minimum representable positive floating-point number
+#define FLT_MAX         3.402823466e+38 // Maximum representable floating-point number
+#define INV_HALF_PI     0.636619772367
+
 #include "SurfaceData.cginc"
 #include "BicubicSampling.cginc"
 
@@ -96,6 +101,44 @@ float3 UnpackScaleNormalHemiOctahedron(float4 normalMap, float bumpScale)
     normalMap.xy *= bumpScale;
     return normalize(normalMap);
 }
+
+// Input [0, 1] and output [0, PI/2]
+// 9 VALU
+float FastACosPos(float inX)
+{
+    float x = abs(inX);
+    float res = (0.0468878 * x + -0.203471) * x + 1.570796; // p(x)
+    res *= sqrt(1.0 - x);
+ 
+    return res;
+}
+
+float ComputeTextureLOD(float2 uvdx, float2 uvdy, float2 scale, float bias)
+{
+    float2 ddx_ = scale * uvdx;
+    float2 ddy_ = scale * uvdy;
+    float  d    = max(dot(ddx_, ddx_), dot(ddy_, ddy_));
+
+    return max(0.5 * log2(d) - bias, 0.0);
+}
+
+float ComputeTextureLOD(float2 uv)
+{
+    float2 ddx_ = ddx(uv);
+    float2 ddy_ = ddy(uv);
+
+    return ComputeTextureLOD(ddx_, ddy_, 1.0, 0.0);
+}
+
+float2 GetMinUvSize(float2 baseUV, float4 texelSize)
+{
+    float2 minUvSize = float2(FLT_MAX, FLT_MAX);
+
+    minUvSize = min(baseUV * texelSize.zw, minUvSize);
+
+    return minUvSize;
+}
+
 
 
 float3 getBoxProjection (float3 direction, float3 position, float4 cubemapPosition, float3 boxMin, float3 boxMax)

@@ -160,7 +160,7 @@ namespace z3y.Shaders
         public static bool UNITY_LIGHT_PROBE_PROXY_VOLUME;
         public static bool ACES_TONEMAPPING;
         public static bool ALLOW_LTCGI;
-        public static bool INJECT_DISABLED_DIRECTIONAL = true;
+        public static bool INJECT_DISABLED_DIRECTIONAL = false;
     }
 
     internal static class ShaderConfigData

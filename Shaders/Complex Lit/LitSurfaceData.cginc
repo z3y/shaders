@@ -17,7 +17,6 @@ half4 SampleTexture(Texture2DArray t, SamplerState s, float2 uv)
 #endif
 
 
-
 #define LAYERALBEDOSAMPLER sampler_DetailAlbedoMap
 #if !defined(_LAYER1ALBEDO)
     #define LAYERALBEDOSAMPLER sampler_DetailAlbedoMap2
@@ -40,6 +39,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     float2 parallaxOffset = 0.0;
     #if defined(PARALLAX)
         float2 parallaxUV = i.uv[0].zw;
+        // parallaxOffset = ParallaxOcclusionMappingUVOffset(parallaxUV, _Parallax, i.viewDirTS, _ParallaxMap, sampler_MainTex, _ParallaxMap_TexelSize);
         parallaxOffset = ParallaxOffset(i.viewDirTS, parallaxUV);
     #endif
 
@@ -63,8 +63,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         surf.metallic = _Metallic;
         surf.occlusion = 1.0;
     #endif
-
-    
+  
 
     half4 normalMap = float4(0.5, 0.5, 1.0, 1.0);
     #ifdef _NORMAL_MAP
@@ -84,7 +83,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         // this line has nothing to do with the normal map sampler
 
         // layer 1
-        float2 detailUV1 = TRANSFORM_TEX(i.uv[_DetailMapUV].xy, _DetailAlbedoMap) + ParallaxOffsetUV(_DetailDepth, i.viewDirTS);
+        float2 detailUV1 = TRANSFORM_TEX(i.uv[_DetailMapUV].xy, _DetailAlbedoMap) - (_DetailDepth * i.viewDirTS.xy / i.viewDirTS.z);
         #ifdef _LAYER1ALBEDO
         {
             half detailMask = sampledMask.r;
@@ -120,7 +119,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
 
         // layer 2
-        float2 detailUV2 = TRANSFORM_TEX(i.uv[_DetailMapUV2].xy, _DetailAlbedoMap2) + ParallaxOffsetUV(_DetailDepth, i.viewDirTS);
+        float2 detailUV2 = TRANSFORM_TEX(i.uv[_DetailMapUV2].xy, _DetailAlbedoMap2) - (_DetailDepth2 * i.viewDirTS.xy / i.viewDirTS.z);
         #ifdef _LAYER2ALBEDO
         {
             half detailMask = sampledMask.g;
@@ -157,7 +156,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
 
 
         // layer 3
-        float2 detailUV3 = TRANSFORM_TEX(i.uv[_DetailMapUV3].xy, _DetailAlbedoMap3) + ParallaxOffsetUV(_DetailDepth, i.viewDirTS);
+        float2 detailUV3 = TRANSFORM_TEX(i.uv[_DetailMapUV3].xy, _DetailAlbedoMap3) - (_DetailDepth3 * i.viewDirTS.xy / i.viewDirTS.z);
         #ifdef _LAYER3ALBEDO
         {
             half detailMask = sampledMask.b;
@@ -208,14 +207,26 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     
     #if defined(EMISSION)
         half3 emissionMap = 1.0;
+        float2 emissionUV = TRANSFORM_TEX(i.uv[_EmissionMap_UV].zw, _EmissionMap);
 
-        emissionMap = SampleTexture(_EmissionMap, sampler_EmissionMap, mainUV + ParallaxOffsetUV(_EmissionDepth, i.viewDirTS)).rgb;
+        emissionMap = SampleTexture(_EmissionMap, sampler_EmissionMap, emissionUV - (_EmissionDepth * i.viewDirTS.xy / i.viewDirTS.z)).rgb;
 
         emissionMap = lerp(emissionMap, emissionMap * surf.albedo.rgb, _EmissionMultBase);
     
         surf.emission = emissionMap * UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _EmissionColor);
         #if defined(AUDIOLINK)
             surf.emission *= AudioLinkLerp(uint2(1, _AudioLinkEmission)).r;
+        #endif
+
+        #if defined(_EMISSION2)
+        half3 emission2 = 0;
+        float2 emission2UV = TRANSFORM_TEX(i.uv[_EmissionMap2_UV].zw, _EmissionMap2);
+        
+        emission2 = SampleTexture(_EmissionMap2, sampler_EmissionMap, emission2UV - (_EmissionDepth2 * i.viewDirTS.xy / i.viewDirTS.z)).rgb;
+
+        emission2 *= _Emission2Color;
+
+        surf.emission *= emission2;
         #endif
 
         #ifdef UNITY_PASS_META

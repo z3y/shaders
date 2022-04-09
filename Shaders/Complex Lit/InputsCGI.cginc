@@ -60,11 +60,17 @@ half _Texture;
 half _AudioLinkEmission;
 half _DetailAlbedoAlpha;
 
-half4 _EmissionMap_TexelSize;
 half _EmissionMultBase;
 half _EmissionDepth;
-half _EmissionPulseIntensity;
-half _EmissionPulseSpeed;
+uint _EmissionMap_UV;
+
+Texture2D _EmissionMap2;
+uint _EmissionMap2_UV;
+float4 _EmissionMap_ST;
+float4 _EmissionMap2_ST;
+half3 _Emission2Color;
+half _EmissionDepth2;
+
 half _EmissionGIMultiplier;
 
 

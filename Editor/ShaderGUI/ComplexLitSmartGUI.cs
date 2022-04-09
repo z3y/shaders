@@ -39,11 +39,21 @@ namespace z3y.Shaders
         private MaterialProperty _EmissionDepth;
         private MaterialProperty _EmissionMultBase;
         private MaterialProperty _EmissionGIMultiplier;
+        private MaterialProperty _EmissionMap2;
+        private MaterialProperty _EmissionMap2UV;
+        private MaterialProperty _EmissionMapUV;
+        
+        
+        private MaterialProperty _Emission2Blend;
+        private MaterialProperty _Emission2Color;
 
         private MaterialProperty _Parallax;
         private MaterialProperty _ParallaxMap;
         private MaterialProperty _ParallaxOffset;
         private MaterialProperty _ParallaxSteps;
+        private MaterialProperty _MinSteps;
+        private MaterialProperty _MaxSteps;
+        private MaterialProperty _ParallaxFadingMip;
 
         private MaterialProperty _TextureIndex;
 
@@ -220,8 +230,10 @@ namespace z3y.Shaders
                 Draw(_ParallaxMap, _Parallax);
                 EditorGUI.indentLevel += 2;
                 Draw(_ParallaxOffset);
-                Draw(_ParallaxSteps);
-                EditorGUI.indentLevel -= 2; ;
+                Draw(_MinSteps);
+                Draw(_MaxSteps);
+                Draw(_ParallaxFadingMip);
+                EditorGUI.indentLevel -= 2;
             }
             else
             {
@@ -250,13 +262,20 @@ namespace z3y.Shaders
             Draw(_EnableEmission);
             EditorGUILayout.Space();
             Draw(_EmissionMap, _EmissionColor, _EmissionDepth);
+            me.TextureScaleOffsetProperty(_EmissionMap);
+            Draw(_EmissionMapUV);
             Draw(_EmissionMultBase);
+            EditorGUILayout.Space();
             me.LightmapEmissionProperty();
             Draw(_EmissionGIMultiplier, "Multiplies baked and realtime emission");
             EditorGUILayout.Space();
 
-            Draw(_EmissionPulseIntensity);
-            Draw(_EmissionPulseSpeed);
+            Draw(_EmissionMap2, _Emission2Color);
+            if (_EmissionMap2.textureValue != null)
+            {
+                me.TextureScaleOffsetProperty(_EmissionMap2);
+                Draw(_EmissionMap2UV);
+            }
             EditorGUILayout.Space();
             Draw(_AudioLinkEmission);
             if (_AudioLinkEmission.floatValue != 1000)
@@ -557,6 +576,7 @@ namespace z3y.Shaders
 
 
             m.ToggleKeyword("_LAYERMASK", m.GetTexture("_DetailMask"));
+            m.ToggleKeyword("_EMISSION2", m.GetTexture("_EmissionMap2"));
 
 
             m.ToggleKeyword("PARALLAX", m.GetTexture("_ParallaxMap"));
