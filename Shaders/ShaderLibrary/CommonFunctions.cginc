@@ -17,7 +17,6 @@
 #define INV_HALF_PI     0.636619772367
 
 #include "SurfaceData.cginc"
-#include "BicubicSampling.cginc"
 
 struct appdata_all
 {
@@ -139,6 +138,7 @@ float2 GetMinUvSize(float2 baseUV, float4 texelSize)
     return minUvSize;
 }
 
+#include "BicubicSampling.cginc"
 
 
 float3 getBoxProjection (float3 direction, float3 position, float4 cubemapPosition, float3 boxMin, float3 boxMax)
