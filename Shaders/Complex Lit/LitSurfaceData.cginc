@@ -218,9 +218,6 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
             surf.emission *= AudioLinkLerp(uint2(1, _AudioLinkEmission)).r;
         #endif
 
-        half3 emissionPulse = (sin(_Time.y * _EmissionPulseSpeed) + 1) / 2.0;
-        surf.emission = lerp(surf.emission, surf.emission * emissionPulse, _EmissionPulseIntensity);
-
         #ifdef UNITY_PASS_META
             surf.emission *= _EmissionGIMultiplier;
         #endif

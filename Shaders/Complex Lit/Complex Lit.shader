@@ -39,8 +39,7 @@ Shader "Complex Lit"
         [Gamma][HDR] _EmissionColor ("Emission Color", Color) = (1,1,1)
         _EmissionDepth("Depth", Float) = 0
         _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
-        [Space(10)]_EmissionPulseIntensity ("Pulse Intensity", Range(0,1)) = 0
-        _EmissionPulseSpeed ("Pulse Speed", Float) = 1
+
         [Enum(Disabled, 1000, Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3, Autocorrelator, 27, Filtered Bass, 28)] _AudioLinkEmission ("Audio Link", Int) = 1000
         _EmissionGIMultiplier("GI Multiplier", Float) = 1
 
