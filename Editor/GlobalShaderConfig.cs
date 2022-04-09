@@ -23,6 +23,8 @@ namespace z3y.Shaders
         private readonly ShaderKeyword _shadowMask;
         private readonly ShaderKeyword _shadowMixing;
 
+        private static bool configLoaded = false;
+
         public OnBuildShaderPreprocessor()
         {
             _directional = new ShaderKeyword("DIRECTIONAL");
@@ -39,19 +41,28 @@ namespace z3y.Shaders
                 return;
             }
 
+            if (!configLoaded)
+            {
+                ShaderConfigData.LoadAll();
+                configLoaded = true;
+            }
+
             for (int i = data.Count - 1; i >= 0; --i)
             {
-                bool directionalEnabled = data[i].shaderKeywordSet.IsEnabled(_directional);
-                bool _shadowsScreenEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowsScreen);
-                bool _shadowMaskEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMask);
-                bool _shadowMixingEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMixing);
-
-                if (directionalEnabled && !_shadowsScreenEnabled && !_shadowMaskEnabled && !_shadowMixingEnabled)
+                if (ShaderConfig.INJECT_DISABLED_DIRECTIONAL)
                 {
-                    var shaderData = data[i];
-                    shaderData.shaderKeywordSet.Disable(_directional);
-                    data.Add(shaderData);
+                    bool directionalEnabled = data[i].shaderKeywordSet.IsEnabled(_directional);
+                    bool _shadowsScreenEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowsScreen);
+                    bool _shadowMaskEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMask);
+                    bool _shadowMixingEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMixing);
+                    
+                    if (directionalEnabled && !_shadowsScreenEnabled && !_shadowMaskEnabled && !_shadowMixingEnabled)
+                    {
+                        var shaderData = data[i];
+                        shaderData.shaderKeywordSet.Disable(_directional);
+                        data.Add(shaderData);
 
+                    }
                 }
             }
         }
@@ -113,7 +124,7 @@ namespace z3y.Shaders
             EditorGUILayout.LabelField("Multi Compiles", EditorStyles.boldLabel);
             DrawToggle(ref ShaderConfig.VERTEXLIGHT_ON, "Allow Non-Important Lights");
             DrawToggle(ref ShaderConfig.LOD_FADE_CROSSFADE, "Allow Dithered Lod Cross-Fade");
-            //DrawToggle(ref ShaderConfig.INJECT_DISABLED_DIRECTIONAL, "Inject Disabled Directional variants");
+            DrawToggle(ref ShaderConfig.INJECT_DISABLED_DIRECTIONAL, "Inject Disabled Directional Variants");
 
             if (EditorGUI.EndChangeCheck())
             {
