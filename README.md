@@ -3,32 +3,23 @@ Repository for my Unity shaders for VRChat.
 ### Complex Lit
 [Unity Package](https://github.com/z3y/shaders/releases)
 
+
 - Accurate PBR Shading
-- Bakery SH and RNM
+- Bakery Features
 - Geometric Specular AA
 - Antialiased Cutout (A2C)
-- Light Probe and Lightmapped Specular
 - Lightmap Specular Occlusion
-- Bicubic Lightmap Interpolation
-- Non-Linear Light Probe SH
-- Multistep Parallax
-- Packed Mask Map (Metallic (R), Smoothness (A), Occlusion(G))
+- Bicubic Lightmap
+- Improved Parallax
 - Layers (Can be used as details)
 - Layer Blending: Overlay, Screen, Multiply X2, Replace
 - Transparency Modes: Cutout, Fade, Premultiply, Additive, Multiply
-- Smoothness and Metallic remapping
-- Emission multiply base
-- UV depth offset (layers and emission)
 - GPU Instanced Properties
 - Tex2DArray Workflow
 - Non-Important lights per pixel
 - Lod Crossfade
-- LTCGI
-- Pulse emission
 
 And QoL editor tools like automatic bakery mode switching on all materials, texture packing in inspector, normal map orientation conversion tool
-
-### [Documentation](https://github.com/z3y/shaders/wiki/Features-Overview)
 
 
 ![image](https://user-images.githubusercontent.com/33181641/161634291-e7c7d2fb-c227-4551-a8aa-6dceb8c06b09.png)
