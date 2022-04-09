@@ -214,14 +214,14 @@ namespace z3y.Shaders
         }
 
 
-        public void DrawMinMax(MaterialProperty min, MaterialProperty max, float minLimit = 0, float maxLimit = 1, MaterialProperty tex = null)
+        public void DrawMinMax(MaterialProperty min, MaterialProperty max, float minLimit = 0, float maxLimit = 1, MaterialProperty tex = null, string tooltip = null)
         {
             float currentMin = min.floatValue;
             float currentMax = max.floatValue;
             EditorGUILayout.BeginHorizontal();
 
             if (tex is null)
-                EditorGUILayout.LabelField(max.displayName);
+                EditorGUILayout.LabelField(new GUIContent(min.displayName, tooltip));
             else
                 _materialEditor.TexturePropertySingleLine(new GUIContent(tex.displayName), tex);
 
@@ -252,14 +252,14 @@ namespace z3y.Shaders
             EditorGUILayout.EndHorizontal();
         }
 
-        public void DrawMinMax(MaterialProperty minMax, float minLimit = 0, float maxLimit = 1, MaterialProperty tex = null)
+        public void DrawMinMax(MaterialProperty minMax, float minLimit = 0, float maxLimit = 1, MaterialProperty tex = null, string tooltip = null)
         {
             float currentMin = minMax.vectorValue.x;
             float currentMax = minMax.vectorValue.y;
             EditorGUILayout.BeginHorizontal();
 
             if (tex is null)
-                EditorGUILayout.LabelField(minMax.displayName);
+                EditorGUILayout.LabelField(new GUIContent(minMax.displayName, tooltip));
             else
                 _materialEditor.TexturePropertySingleLine(new GUIContent(tex.displayName), tex);
 

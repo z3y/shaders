@@ -55,6 +55,7 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
     #ifdef _MASK_MAP
         maskMap = SampleTexture(TEXARGS(_MetallicGlossMap), TEXARGS(sampler_MetallicGlossMap), mainUV);
         surf.perceptualRoughness = 1.0 - (RemapMinMax(maskMap.a, _GlossinessMin, _Glossiness));
+        surf.perceptualRoughness = RemapInverseLerp(surf.perceptualRoughness, _GlossinessRemapping.x, _GlossinessRemapping.y);
         surf.metallic = RemapMinMax(maskMap.r, _MetallicMin, _Metallic);
         surf.occlusion = lerp(1.0, maskMap.g, _Occlusion);
     #else

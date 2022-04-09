@@ -15,9 +15,10 @@ Shader "Complex Lit"
         _MetallicGlossMap("Mask Map", 2D) = "white" {}
         _MetallicGlossMapArray("Mask Map Array", 2DArray) = "" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
-        _GlossinessMin ("Smoothness Min", Range(0,1)) = 0
+        _GlossinessMin ("Smoothness Range", Range(0,1)) = 0
+        _GlossinessRemapping ("Smoothness Remap", Vector) = (0,1,0)
         _Metallic ("Metallic", Range(0,1)) = 0
-        _MetallicMin ("Metallic Min", Range(0,1)) = 0
+        _MetallicMin ("Metallic Range", Range(0,1)) = 0
         _Occlusion ("Occlusion", Range(0,1)) = 0
         _Reflectance ("Reflectance", Range(0.0, 1.0)) = 0.5
 
@@ -319,7 +320,7 @@ ENDCG
 
             #pragma multi_compile_fwdbase
             #pragma skip_variants LIGHTPROBE_SH
-            #pragma skip_variants DIRLIGHTMAP_COMBINED
+            // #pragma skip_variants DIRLIGHTMAP_COMBINED
             #pragma skip_variants SHADOWS_SCREEN
             #pragma skip_variants DYNAMICLIGHTMAP_ON
 
@@ -330,11 +331,10 @@ ENDCG
             #pragma multi_compile _ VERTEXLIGHT_ON
 
             #pragma shader_feature_local _ _MODE_CUTOUT _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
-            // #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM
+            #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local EMISSION
-            #pragma shader_feature_local _EMISSION2
-            // #pragma shader_feature_local BAKEDSPECULAR
+            #pragma shader_feature_local BAKEDSPECULAR
             // #pragma shader_feature_local PARALLAX
             #pragma shader_feature_local GEOMETRIC_SPECULAR_AA
             // #pragma shader_feature_local NONLINEAR_LIGHTPROBESH

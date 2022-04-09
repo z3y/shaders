@@ -21,6 +21,7 @@ namespace z3y.Shaders
         private MaterialProperty _MetallicGlossMapArray;
         private MaterialProperty _Metallic;
         private MaterialProperty _Glossiness;
+        private MaterialProperty _GlossinessRemapping;
         private MaterialProperty _MetallicMin;
         private MaterialProperty _GlossinessMin;
         private MaterialProperty _Occlusion;
@@ -187,6 +188,7 @@ namespace z3y.Shaders
                 {
                     DrawMinMax(_MetallicMin, _Metallic);
                     DrawMinMax(_GlossinessMin, _Glossiness);
+                    DrawMinMax(_GlossinessRemapping, 0, 1, null, "");
                     Draw(_Occlusion);
                 }
                 EditorGUI.indentLevel -= 2;
@@ -212,6 +214,7 @@ namespace z3y.Shaders
                 {
                     DrawMinMax(_MetallicMin, _Metallic);
                     DrawMinMax(_GlossinessMin, _Glossiness);
+                    DrawMinMax(_GlossinessRemapping);
                     Draw(_Occlusion);
                 }
                 EditorGUI.indentLevel -= 2;

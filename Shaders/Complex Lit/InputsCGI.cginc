@@ -39,6 +39,8 @@ half _DetailAlbedoScale;
 half _DetailNormalScale;
 half _DetailSmoothnessScale;
 
+half2 _GlossinessRemapping;
+
 half4 _DetailAlbedoMap2_ST;
 uint _DetailMapUV2;
 half _DetailDepth2;

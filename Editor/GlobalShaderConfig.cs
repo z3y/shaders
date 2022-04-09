@@ -124,7 +124,7 @@ namespace z3y.Shaders
             EditorGUILayout.LabelField("Multi Compiles", EditorStyles.boldLabel);
             DrawToggle(ref ShaderConfig.VERTEXLIGHT_ON, "Allow Non-Important Lights");
             DrawToggle(ref ShaderConfig.LOD_FADE_CROSSFADE, "Allow Dithered Lod Cross-Fade");
-            DrawToggle(ref ShaderConfig.INJECT_DISABLED_DIRECTIONAL, "Inject Disabled Directional Variants");
+            DrawToggle(ref ShaderConfig.INJECT_DISABLED_DIRECTIONAL, "Compile Disabled Directional Variants");
 
             if (EditorGUI.EndChangeCheck())
             {

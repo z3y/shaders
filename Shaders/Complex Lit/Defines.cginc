@@ -1,8 +1,8 @@
 #if defined(SHADER_API_MOBILE)
     // keywords
-    #undef BAKERY_SH
-    #undef BAKERY_RNM
-    #undef BAKEDSPECULAR
+    // #undef BAKERY_SH
+    // #undef BAKERY_RNM
+    // #undef BAKEDSPECULAR
     #undef PARALLAX
     #undef NONLINEAR_LIGHTPROBESH
     #undef _LAYER1NORMAL
@@ -14,7 +14,7 @@
 
     // multicompiles
     #undef VERTEXLIGHT_PS
-    #undef DIRLIGHTMAP_COMBINED
+    // #undef DIRLIGHTMAP_COMBINED
     #undef SHADOWS_SCREEN
     #undef DYNAMICLIGHTMAP_ON
     #undef LOD_FADE_CROSSFADE

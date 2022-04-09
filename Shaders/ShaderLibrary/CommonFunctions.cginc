@@ -57,6 +57,27 @@ half RemapMinMax(half value, half remapMin, half remapMax)
     return value * (remapMax - remapMin) + remapMin;
 }
 
+
+
+half InverseLerp(half a, half b, half value)
+{
+    return (value - a) / (b - a);
+}
+
+half RemapInverseLerp(half inMin, half inMax, half outMin, half outMax, half v)
+{
+    half t = InverseLerp(inMin, inMax, v);
+    t = saturate(t);
+    return lerp(outMin, outMax, t);
+}
+
+half RemapInverseLerp(half value, half remapMin, half remapMax)
+{
+    return RemapInverseLerp(remapMin, remapMax, 0, 1, value);
+}
+
+
+
 float pow5(float x)
 {
     float x2 = x * x;
