@@ -84,7 +84,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     half3 indirectDiffuse = 0;
 #ifdef UNITY_PASS_FORWARDBASE
-    #if defined(LIGHTMAP_ANY)
+    #if defined(LIGHTMAP_ON)
 
         float2 lightmapUV = i.uv[1].zw;
         half4 bakedColorTex = SampleBicubic(unity_Lightmap, custom_bilinear_clamp_sampler, lightmapUV);
@@ -103,31 +103,44 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, worldNormal);
         #endif
 
+        indirectDiffuse = lightMap;
+
+    #endif
+
         #if defined(DYNAMICLIGHTMAP_ON)
             float3 realtimeLightMap = getRealtimeLightmap(i.uv[2].zw, worldNormal);
-            lightMap += realtimeLightMap; 
+            indirectDiffuse += realtimeLightMap; 
         #endif
 
         #if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN)
             lightData.FinalColor = 0.0;
             lightData.Specular = 0.0;
-            lightMap = SubtractMainLightWithRealtimeAttenuationFromLightmap (lightMap, lightData.Attenuation, bakedColorTex, worldNormal);
+            indirectDiffuse = SubtractMainLightWithRealtimeAttenuationFromLightmap (indirectDiffuse, lightData.Attenuation, bakedColorTex, worldNormal);
         #endif
 
-        indirectDiffuse = lightMap;
-    #else
+    half3 lightProbes = 0;
+    #if !defined(LIGHTMAP_ON)
+        
         #ifdef LIGHTPROBE_VERTEX
-            indirectDiffuse = ShadeSHPerPixel(worldNormal, i.lightProbe, i.worldPos.xyz);
+            lightProbes = ShadeSHPerPixel(worldNormal, i.lightProbe, i.worldPos.xyz);
         #else
-            indirectDiffuse = GetLightProbes(worldNormal, i.worldPos.xyz);
+            lightProbes = GetLightProbes(worldNormal, i.worldPos.xyz);
         #endif
+
+
+        #if defined(SHADOWS_SCREEN) && !defined(DYNAMICLIGHTMAP_ON)
+            lightProbes *= lerp(1.0, lightData.Attenuation, _SpecularOcclusion);
+        #endif
+        
     #endif
+
+    
+
+    indirectDiffuse += lightProbes;
 
     indirectDiffuse = max(0.0, indirectDiffuse);
 
-    #ifdef SHADOWS_SCREEN
-        indirectDiffuse *= lerp(1.0, lightData.Attenuation, _SpecularOcclusion);
-    #endif
+    
 #endif
 
 
