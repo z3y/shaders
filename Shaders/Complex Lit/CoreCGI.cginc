@@ -124,6 +124,10 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
     #endif
 
     indirectDiffuse = max(0.0, indirectDiffuse);
+
+    #ifdef SHADOWS_SCREEN
+        indirectDiffuse *= lerp(1.0, lightData.Attenuation, _SpecularOcclusion);
+    #endif
 #endif
 
 
@@ -172,6 +176,9 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 #ifdef UNITY_PASS_FORWARDBASE
     #if !defined(REFLECTIONS_OFF)
             indirectSpecular += GetReflections(worldNormal, i.worldPos.xyz, viewDir, f0, roughness, NoV, surf, indirectDiffuse);
+            #ifdef SHADOWS_SCREEN
+            indirectSpecular *= lerp(1.0, lightData.Attenuation, _SpecularOcclusion);
+            #endif
     #endif
 #endif
 
@@ -206,7 +213,6 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
             finalColor.rgb = ACESFitted(finalColor.rgb);
         }
     #endif
-
 
     
     return finalColor;

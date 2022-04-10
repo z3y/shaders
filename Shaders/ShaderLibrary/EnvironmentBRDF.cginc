@@ -35,6 +35,6 @@ half3 EnvBRDFApprox(half perceptualRoughness, half NoV, half3 f0, half specOcclu
     t += half4(0.0, 0.0, (0.015 - 0.75 * 0.04) / 0.96, 0.75);
     half a0 = t.x * min(t.y, exp2(-9.28 * NoV)) + t.z;
     half a1 = t.w;
-    return saturate(lerp(a0*specOcclusion, a1, f0));
+    return saturate(lerp(a0 * specOcclusion, a1 * specOcclusion, f0));
 }
 #endif
