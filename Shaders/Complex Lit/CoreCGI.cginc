@@ -82,65 +82,58 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
     
 
-    half3 indirectDiffuse = 0;
+half3 indirectDiffuse = 0;
 #ifdef UNITY_PASS_FORWARDBASE
     #if defined(LIGHTMAP_ON)
 
-        float2 lightmapUV = i.uv[1].zw;
-        half4 bakedColorTex = SampleBicubic(unity_Lightmap, custom_bilinear_clamp_sampler, lightmapUV);
-        half3 lightMap = DecodeLightmap(bakedColorTex);
+    float2 lightmapUV = i.uv[1].zw;
+    half4 bakedColorTex = SampleBicubic(unity_Lightmap, custom_bilinear_clamp_sampler, lightmapUV);
+    half3 lightMap = DecodeLightmap(bakedColorTex);
 
-        #ifdef BAKERY_RNM
-            BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, otherSpecular, surf.tangentNormal, i.viewDirTS, viewDir, clampedRoughness, f0);
-        #endif
-
-        #ifdef BAKERY_SH
-            BakerySHLightmapAndSpecular(lightMap, lightmapUV, otherSpecular, worldNormal, viewDir, clampedRoughness, f0);
-        #endif
-
-        #if defined(DIRLIGHTMAP_COMBINED)
-            float4 lightMapDirection = UNITY_SAMPLE_TEX2D_SAMPLER (unity_LightmapInd, unity_Lightmap, lightmapUV);
-            lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, worldNormal);
-        #endif
-
-        indirectDiffuse = lightMap;
-
+    #ifdef BAKERY_RNM
+        BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, otherSpecular, surf.tangentNormal, i.viewDirTS, viewDir, clampedRoughness, f0);
     #endif
 
-        #if defined(DYNAMICLIGHTMAP_ON)
-            float3 realtimeLightMap = getRealtimeLightmap(i.uv[2].zw, worldNormal);
-            indirectDiffuse += realtimeLightMap; 
-        #endif
+    #ifdef BAKERY_SH
+        BakerySHLightmapAndSpecular(lightMap, lightmapUV, otherSpecular, worldNormal, viewDir, clampedRoughness, f0);
+    #endif
 
-        #if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN)
-            lightData.FinalColor = 0.0;
-            lightData.Specular = 0.0;
-            indirectDiffuse = SubtractMainLightWithRealtimeAttenuationFromLightmap (indirectDiffuse, lightData.Attenuation, bakedColorTex, worldNormal);
-        #endif
+    #if defined(DIRLIGHTMAP_COMBINED)
+        float4 lightMapDirection = UNITY_SAMPLE_TEX2D_SAMPLER (unity_LightmapInd, unity_Lightmap, lightmapUV);
+        lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, worldNormal);
+    #endif
 
-    half3 lightProbes = 0;
-    #if !defined(LIGHTMAP_ON)
+    indirectDiffuse = lightMap;
+#endif
+
+#if defined(DYNAMICLIGHTMAP_ON)
+    float3 realtimeLightMap = getRealtimeLightmap(i.uv[2].zw, worldNormal);
+    indirectDiffuse += realtimeLightMap; 
+#endif
+
+#if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN)
+    lightData.FinalColor = 0.0;
+    lightData.Specular = 0.0;
+    indirectDiffuse = SubtractMainLightWithRealtimeAttenuationFromLightmap (indirectDiffuse, lightData.Attenuation, bakedColorTex, worldNormal);
+#endif
+
+
+#if !defined(LIGHTMAP_ANY) 
         
         #ifdef LIGHTPROBE_VERTEX
-            lightProbes = ShadeSHPerPixel(worldNormal, i.lightProbe, i.worldPos.xyz);
+            indirectDiffuse = ShadeSHPerPixel(worldNormal, i.lightProbe, i.worldPos.xyz);
         #else
-            lightProbes = GetLightProbes(worldNormal, i.worldPos.xyz);
+            indirectDiffuse = GetLightProbes(worldNormal, i.worldPos.xyz);
         #endif
 
 
         #if defined(SHADOWS_SCREEN) && !defined(DYNAMICLIGHTMAP_ON)
-            lightProbes *= lerp(1.0, lightData.Attenuation, _SpecularOcclusion);
+          //  indirectDiffuse *= lerp(1.0, lightData.Attenuation, _SpecularOcclusion);
         #endif
         
     #endif
 
-    
-
-    indirectDiffuse += lightProbes;
-
     indirectDiffuse = max(0.0, indirectDiffuse);
-
-    
 #endif
 
 
@@ -188,10 +181,7 @@ half4 frag (v2f i, uint facing : SV_IsFrontFace) : SV_Target
 
 #ifdef UNITY_PASS_FORWARDBASE
     #if !defined(REFLECTIONS_OFF)
-            indirectSpecular += GetReflections(worldNormal, i.worldPos.xyz, viewDir, f0, roughness, NoV, surf, indirectDiffuse);
-            #ifdef SHADOWS_SCREEN
-            indirectSpecular *= lerp(1.0, lightData.Attenuation, _SpecularOcclusion);
-            #endif
+        indirectSpecular += GetReflections(worldNormal, i.worldPos.xyz, viewDir, f0, roughness, NoV, surf, indirectDiffuse);
     #endif
 #endif
 

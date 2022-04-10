@@ -440,15 +440,15 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
         float horizon = min(1.0 + dot(reflDir, normalWS), 1.0);
         
         half lightmapOcclusion = lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
-        #define SHADER_API_MOBILE
+
+        #ifdef LIGHTMAP_ANY
+            surf.occlusion *= lightmapOcclusion;
+        #endif
+
         #ifdef SHADER_API_MOBILE
-            indirectSpecular = indirectSpecular * horizon * horizon * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0, lightmapOcclusion);
+            indirectSpecular = indirectSpecular * horizon * horizon * EnvBRDFApprox(surf.perceptualRoughness, NoV, f0);
         #else
-            float2 dfg = DFGLut;
-            #ifdef LIGHTMAP_ANY
-                dfg *= lightmapOcclusion;
-            #endif
-            indirectSpecular = indirectSpecular * horizon * horizon * DFGEnergyCompensation * EnvBRDFMultiscatter(dfg, f0);
+            indirectSpecular = indirectSpecular * horizon * horizon * DFGEnergyCompensation * EnvBRDFMultiscatter(DFGLut, f0);
         #endif
 
         indirectSpecular *= computeSpecularAO(NoV, surf.occlusion, surf.perceptualRoughness * surf.perceptualRoughness);
