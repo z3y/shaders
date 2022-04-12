@@ -383,7 +383,7 @@ namespace z3y.Shaders
         {
             if (!tex?.textureValue) return;
             var texPath = AssetDatabase.GetAssetPath(tex.textureValue);
-            var importer = (TextureImporter)AssetImporter.GetAtPath(texPath);
+            var importer = AssetImporter.GetAtPath(texPath) as TextureImporter;
             if (importer == null) return;
             const string text = "This texture is marked as sRGB, but should be linear.";
             if (!importer.sRGBTexture || !TextureImportWarningBox(text)) return;
