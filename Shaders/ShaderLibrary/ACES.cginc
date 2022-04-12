@@ -31,10 +31,10 @@ half3 RRTAndODTFit(half3 v)
 {
     half3 a = v * (v + 0.0245786f) - 0.000090537f;
     half3 b = v * (0.983729f * v + 0.4329510f) + 0.238081f;
-    #ifdef EMISSION
-        // doesnt really work with bloom because aces should come after it but at least doesnt completely remove values above 1
-        b = min(b, 20);
-    #endif
+
+    // doesnt really work with bloom because aces should come after it but at least doesnt completely remove values above 1
+    b = min(b, 20);
+
     return a / b;
 }
 

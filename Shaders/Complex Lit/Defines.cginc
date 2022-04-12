@@ -12,11 +12,9 @@
     #undef LTCGI
     #undef LTCGI_DIFFUSE_OFF
 
-    // multicompiles
     #undef VERTEXLIGHT_PS
-    // #undef DIRLIGHTMAP_COMBINED
+    // multicompiles
     #undef SHADOWS_SCREEN
-    #undef DYNAMICLIGHTMAP_ON
     #undef LOD_FADE_CROSSFADE
 
 #ifndef LIGHTMAP_ON

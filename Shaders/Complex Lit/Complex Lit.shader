@@ -320,9 +320,7 @@ ENDCG
 
             #pragma multi_compile_fwdbase
             #pragma skip_variants LIGHTPROBE_SH
-            // #pragma skip_variants DIRLIGHTMAP_COMBINED
             #pragma skip_variants SHADOWS_SCREEN
-            #pragma skip_variants DYNAMICLIGHTMAP_ON
 
             
             #pragma multi_compile_instancing
