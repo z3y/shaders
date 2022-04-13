@@ -137,6 +137,10 @@ namespace z3y.Shaders
         private static TexturePacking.FieldData _detailPackingAlbedo3;
         private static TexturePacking.FieldData _detailPackingSmoothness3;
 
+        private static bool _basePacking;
+        private static TexturePacking.FieldData _basePackingAlbedo;
+        private static TexturePacking.FieldData _basePackingOpacity;
+
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
             
@@ -196,7 +200,9 @@ namespace z3y.Shaders
             }
             else
             {
-                Draw(_MainTex, _Color, _AlbedoSaturation);
+                Draw(_MainTex, _Color, _AlbedoSaturation, "RGB: Albedo\nA: Opacity");
+                if (_Mode.floatValue >= 1) DrawBaseMapPacking(material);
+                
                 Draw(_MetallicGlossMap, null, null, "R: Metallic\nG: Occlusion\nA: Smoothness");
                 sRGBWarning(_MetallicGlossMap);
 
@@ -414,6 +420,24 @@ namespace z3y.Shaders
                 TexturePacking.Pack(_MetallicGlossMap, _maskPackingMetallic, _maskPackingOcclusion, _maskPackingDetailMask, _maskPackingSmoothness, true);
             }, () => {
                 TexturePacking.ResetPackingField(ref _maskPackingMetallic,ref _maskPackingOcclusion, ref _maskPackingDetailMask,ref _maskPackingSmoothness);
+            });
+        }
+
+        private void DrawBaseMapPacking(Material material)
+        {
+            if (!TextureFoldout(ref _basePacking))
+            {
+                return;
+            }
+
+            _basePackingAlbedo.isWhite = true;
+            TexturePacking.TexturePackingField(ref _basePackingAlbedo, "Albedo", null, false);
+            TexturePacking.TexturePackingField(ref _basePackingOpacity, "Opacity");
+
+            TexturePacking.PackButton(() => {
+                TexturePacking.Pack(_MainTex, _basePackingAlbedo, _basePackingOpacity);
+            }, () => {
+                TexturePacking.ResetPackingField(ref _basePackingAlbedo,ref _basePackingOpacity);
             });
         }
 
