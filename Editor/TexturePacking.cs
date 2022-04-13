@@ -34,11 +34,7 @@ namespace z3y.Shaders
             {
                 if (channels[i].Tex != null)
                 {
-                    var texturePath = AssetDatabase.GetAssetPath(channels[i].Tex);
-                    byte[] textureData = File.ReadAllBytes(texturePath);
-                    Texture2D texture = new Texture2D(0, 0, TextureFormat.RGBA32, 0, true);
-                    texture.LoadImage(textureData);
-                    textures[i] = texture;
+                    textures[i] = GetTempUncompressedTexture(channels[i].Tex);
                 }
                 else
                 {
@@ -72,6 +68,8 @@ namespace z3y.Shaders
 
             File.WriteAllBytes(newTexturePath + ".tga", bytes);
             AssetDatabase.ImportAsset(newTexturePath + ".tga");
+
+            ClearTempTextures();
         }
 
         public static void DisableSrgb(Texture tex)
@@ -92,6 +90,33 @@ namespace z3y.Shaders
 
 
         public static Texture2D GetPackedTexture(string path) => (Texture2D)AssetDatabase.LoadAssetAtPath(path + ".tga", typeof(Texture2D));
+        
+        private const string TempTextureFolder = "Assets/_TexturePackingUncompressedTemp/";
+        private static Texture2D GetTempUncompressedTexture(Texture2D tex)
+        {
+            var path = AssetDatabase.GetAssetPath(tex);
+            var guid = AssetDatabase.AssetPathToGUID(path);
+            var fileName = Path.GetFileName(path);
+
+            var tempFolder = Path.Combine(TempTextureFolder, guid);
+            Directory.CreateDirectory(tempFolder);
+            var tempPath = Path.Combine(tempFolder, fileName);
+                    
+            if (!File.Exists(tempPath))
+            {
+                File.Copy(path, tempPath);
+            }
+            AssetDatabase.ImportAsset(tempPath);
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(tempPath);
+        }
+
+        private static void ClearTempTextures()
+        {
+            if (!Directory.Exists(TempTextureFolder)) return;
+            Directory.Delete(TempTextureFolder, true);
+            File.Delete(TempTextureFolder.Remove(TempTextureFolder.Length-1) + ".meta");
+            AssetDatabase.Refresh();
+        }
 
         public enum ChannelSelect
         {
@@ -100,6 +125,8 @@ namespace z3y.Shaders
             Blue,
             Alpha
         }
+
+        
 
         public static void PackButton(Action onPack, Action onReset)
         {
@@ -259,6 +286,23 @@ namespace z3y.Shaders
             public bool invert;
             public bool isWhite;
             public ChannelSelect channelSelect;
+        }
+
+        public class FixImportSettings : AssetPostprocessor
+        {
+            private void OnPreprocessTexture()
+            {
+                var importer = assetImporter as TextureImporter;
+                if (importer == null || !importer.assetPath.StartsWith(TempTextureFolder, StringComparison.Ordinal)) return;
+                
+
+                importer.filterMode = FilterMode.Bilinear;
+                importer.wrapMode = TextureWrapMode.Clamp;
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
+                importer.anisoLevel = 0;
+                importer.sRGBTexture = false;
+                importer.mipmapEnabled = false;
+            }
         }
     }
 }
