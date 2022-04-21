@@ -28,6 +28,8 @@ Shader "Complex Lit"
 
         [ToggleOff(SPECULAR_HIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
         [ToggleOff(REFLECTIONS_OFF)] _GlossyReflections ("Reflections", Float) = 1
+        [Toggle(FORCE_SPECCUBE_BOX_PROJECTION)] _ForceBoxProjection ("Force Box Projection", Int) = 0
+
         _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
 
         [Toggle(GEOMETRIC_SPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
@@ -168,6 +170,7 @@ ENDCG
             #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM
             #pragma shader_feature_local SPECULAR_HIGHLIGHTS_OFF
             #pragma shader_feature_local REFLECTIONS_OFF
+            #pragma shader_feature_local FORCE_SPECCUBE_BOX_PROJECTION
             #pragma shader_feature_local EMISSION
             #pragma shader_feature_local BAKEDSPECULAR
             #pragma shader_feature_local PARALLAX

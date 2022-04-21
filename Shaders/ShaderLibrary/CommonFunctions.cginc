@@ -164,7 +164,8 @@ float2 GetMinUvSize(float2 baseUV, float4 texelSize)
 
 float3 getBoxProjection (float3 direction, float3 position, float4 cubemapPosition, float3 boxMin, float3 boxMax)
 {
-    #if defined(UNITY_SPECCUBE_BOX_PROJECTION)
+    #if defined(UNITY_SPECCUBE_BOX_PROJECTION) || defined(FORCE_SPECCUBE_BOX_PROJECTION)
+        UNITY_FLATTEN
         if (cubemapPosition.w > 0.0)
         {
             float3 factors = ((direction > 0.0 ? boxMax : boxMin) - position) / direction;

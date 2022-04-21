@@ -106,6 +106,7 @@ namespace z3y.Shaders
         private MaterialProperty _EmissionPulseSpeed;
         private MaterialProperty _AudioLinkEmission;
         private MaterialProperty _AudioTexture;
+        private MaterialProperty _ForceBoxProjection;
 
         private MaterialProperty Foldout_GlobalSettings;
 
@@ -369,6 +370,7 @@ namespace z3y.Shaders
             }
             Draw(_GlossyReflections);
             Draw(_SpecularHighlights);
+            Draw(_ForceBoxProjection);
             Draw(_GSAA, "Reduces specular shimmering");
             if (_GSAA.floatValue == 1)
             {
