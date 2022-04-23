@@ -91,11 +91,11 @@ half3 indirectDiffuse = 0;
     half3 lightMap = DecodeLightmap(bakedColorTex);
 
     #ifdef BAKERY_RNM
-        BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, otherSpecular, surf.tangentNormal, i.viewDirTS, viewDir, clampedRoughness, f0);
+        BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, otherSpecular, surf.tangentNormal, i.viewDirTS, viewDir, lerp(1.0f, clampedRoughness, _SpecularRoughnessMultiplier), f0);
     #endif
 
     #ifdef BAKERY_SH
-        BakerySHLightmapAndSpecular(lightMap, lightmapUV, otherSpecular, worldNormal, viewDir, clampedRoughness, f0);
+        BakerySHLightmapAndSpecular(lightMap, lightmapUV, otherSpecular, worldNormal, viewDir,lerp(1.0f, clampedRoughness, _SpecularRoughnessMultiplier), f0);
     #endif
 
     #if defined(DIRLIGHTMAP_COMBINED)
@@ -158,7 +158,7 @@ half3 indirectDiffuse = 0;
         #endif
 
         bakedDominantDirection = normalize(bakedDominantDirection);
-        directSpecular += GetSpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, clampedRoughness, NoV, DFGEnergyCompensation);
+        directSpecular += GetSpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, lerp(1.0f, clampedRoughness, _SpecularRoughnessMultiplier), NoV, DFGEnergyCompensation);
     }
     #endif
 

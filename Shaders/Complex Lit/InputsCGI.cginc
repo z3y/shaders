@@ -74,6 +74,7 @@ half3 _Emission2Color;
 half _EmissionDepth2;
 
 half _EmissionGIMultiplier;
+half _SpecularRoughnessMultiplier;
 
 
 UNITY_INSTANCING_BUFFER_START(InstancedProps)

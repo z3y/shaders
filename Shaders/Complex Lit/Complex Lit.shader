@@ -31,6 +31,7 @@ Shader "Complex Lit"
         [Toggle(FORCE_SPECCUBE_BOX_PROJECTION)] _ForceBoxProjection ("Force Box Projection", Int) = 0
 
         _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
+        _SpecularRoughnessMultiplier ("Smoothness Remap", Range(0,1)) = 1
 
         [Toggle(GEOMETRIC_SPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
         [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15

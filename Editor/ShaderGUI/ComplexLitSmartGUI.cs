@@ -86,6 +86,7 @@ namespace z3y.Shaders
         private MaterialProperty _DetailSmoothnessScale3;
 
 
+        private MaterialProperty _SpecularRoughnessMultiplier;
         private MaterialProperty Foldout_RenderingOptions;
         private MaterialProperty _Cull;
         private MaterialProperty _SpecularOcclusion;
@@ -393,8 +394,14 @@ namespace z3y.Shaders
 
 
             Draw(Bakery);
-            Draw(_BakedSpecular, "Specular Highlights from Directional, SH or RNM Lightmaps or Light Probes");
             Draw(_NonLinearLightProbeSH, "Reduces ringing on Light Probes. Recommended to use with Bakery L1");
+            Draw(_BakedSpecular, "Specular Highlights from Directional, SH or RNM Lightmaps or Light Probes");
+            if (_BakedSpecular.floatValue == 1)
+            {
+                EditorGUI.indentLevel += 1;
+                Draw(_SpecularRoughnessMultiplier);
+                EditorGUI.indentLevel -= 1;
+            }
             EditorGUILayout.Space();
 
             Draw(_Cull);
