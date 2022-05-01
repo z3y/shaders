@@ -20,6 +20,7 @@ namespace z3y.Shaders
         private MaterialProperty[] _materialProperties;
         private int propertyCount = 0;
 
+
         private static Type[] _editors = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => typeof(SmartGUI).IsAssignableFrom(x) && x.IsClass).ToArray();
         public List<SmartGUI> _modulesInUse = new List<SmartGUI>();
         private const string ModulePrefix = "CustomEditor_";
@@ -608,7 +609,7 @@ namespace z3y.Shaders
         #endregion
 
     }
-    public static class SmartGUIExtensions
+    internal static class SmartGUIExtensions
     {
         public static void ToggleKeyword(this Material material, string keyword, bool enabled)
         {
