@@ -2,6 +2,7 @@ Shader "Complex Lit"
 {
     Properties
     {
+        
         [Enum(Opaque, 0, Cutout, 1, Fade, 2, Transparent, 3, Additive, 4, Multiply, 5)] _Mode ("Rendering Mode", Int) = 0
 
         Foldout_SurfaceInputs("Main Maps", Int) = 1
