@@ -116,7 +116,6 @@ namespace z3y.Shaders
             DrawToggle(ref ShaderConfig.NONLINEAR_LIGHTPROBESH, "Non-Linear Light Probe SH");
 
             EditorGUILayout.Space();
-            DrawToggle(ref ShaderConfig.ALLOW_LTCGI, "Allow LTCGI");
             DrawToggle(ref ShaderConfig.UNITY_SPECCUBE_BLENDING, "Allow Reflection Probe Blending");
             DrawToggle(ref ShaderConfig.UNITY_LIGHT_PROBE_PROXY_VOLUME, "Allow Light Probe Proxy Volumes");
 

@@ -36,7 +36,7 @@
 #endif
 
 
-#if defined(LTCGI) && defined(ALLOW_LTCGI)
+#if defined(LTCGI)
     #ifdef SPECULAR_HIGHLIGHTS_OFF
         #define LTCGI_SPECULAR_OFF
     #endif
