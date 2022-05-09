@@ -1,4 +1,4 @@
-Repository for my Unity shaders for VRChat.
+Repository for my Unity shaders for VRChat. Most features now also available in shader graph: https://github.com/z3y/ShaderGraph-BuiltIn
 #
 ### Complex Lit
 [Unity Package](https://github.com/z3y/shaders/releases)
@@ -20,8 +20,6 @@ Repository for my Unity shaders for VRChat.
 - Lod Crossfade
 
 And QoL editor tools like automatic bakery mode switching on all materials, texture packing in inspector, normal map orientation conversion tool
-
-Most features now also available in shader graph: https://github.com/z3y/ShaderGraph-BuiltIn
 
 ![image](https://user-images.githubusercontent.com/33181641/161634291-e7c7d2fb-c227-4551-a8aa-6dceb8c06b09.png)
 
