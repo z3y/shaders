@@ -111,6 +111,8 @@ namespace z3y.Shaders
 
         private MaterialProperty Foldout_GlobalSettings;
 
+        private MaterialProperty _SmoothnessAlbedoAlpha;
+
         #endregion
 
 
@@ -203,9 +205,9 @@ namespace z3y.Shaders
             else
             {
                 Draw(_MainTex, _Color, _AlbedoSaturation, "RGB: Albedo\nA: Opacity");
-                if (_Mode.floatValue >= 1) DrawBaseMapPacking(material);
-                
-                Draw(_MetallicGlossMap, null, null, "R: Metallic\nG: Occlusion\nA: Smoothness");
+                if (_Mode.floatValue >= 1 || _SmoothnessAlbedoAlpha.floatValue == 1) DrawBaseMapPacking(material);
+
+                Draw(_MetallicGlossMap, _SmoothnessAlbedoAlpha, null, "R: Metallic\nG: Occlusion\nA: Smoothness");
                 sRGBWarning(_MetallicGlossMap);
 
                 DrawMaskMapPacking(material);
@@ -216,17 +218,16 @@ namespace z3y.Shaders
                 if (_MetallicGlossMap.textureValue == null)
                 {
                     Draw(_Metallic);
-                    Draw(_Glossiness);
+                    if (_SmoothnessAlbedoAlpha.floatValue != 1) Draw(_Glossiness);
                 }
-                else
+                if (_MetallicGlossMap.textureValue != null || _SmoothnessAlbedoAlpha.floatValue == 1)
                 {
-                    DrawMinMax(_MetallicMin, _Metallic);
+                    if (_MetallicGlossMap.textureValue != null) DrawMinMax(_MetallicMin, _Metallic);
                     DrawMinMax(_GlossinessMin, _Glossiness);
                     DrawMinMax(_GlossinessRemapping);
-                    Draw(_Occlusion);
+                    if (_MetallicGlossMap.textureValue != null) Draw(_Occlusion);
                 }
                 EditorGUI.indentLevel -= 2;
-
 
                 Draw(_BumpMap, _BumpScale, null, "Normal Map (OpenGL)" );
                 EditorGUI.indentLevel += 2;
@@ -441,7 +442,7 @@ namespace z3y.Shaders
 
             _basePackingAlbedo.isWhite = true;
             TexturePacking.TexturePackingField(ref _basePackingAlbedo, "Albedo", null, false);
-            TexturePacking.TexturePackingField(ref _basePackingOpacity, "Opacity");
+            TexturePacking.TexturePackingField(ref _basePackingOpacity, _SmoothnessAlbedoAlpha.floatValue == 0 ? "Opacity" : "Smoothness");
 
             TexturePacking.PackButton(() => {
                 TexturePacking.Pack(_MainTex, _basePackingAlbedo, _basePackingOpacity);

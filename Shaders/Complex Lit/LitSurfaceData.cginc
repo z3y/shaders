@@ -63,6 +63,11 @@ void InitializeLitSurfaceData(inout SurfaceData surf, v2f i)
         surf.metallic = _Metallic;
         surf.occlusion = 1.0;
     #endif
+
+    #ifdef _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+        surf.perceptualRoughness = 1.0 - (RemapMinMax(mainTexture.a, _GlossinessMin, _Glossiness));
+        surf.perceptualRoughness = RemapInverseLerp(surf.perceptualRoughness, _GlossinessRemapping.x, _GlossinessRemapping.y);
+    #endif
   
 
     half4 normalMap = float4(0.5, 0.5, 1.0, 1.0);

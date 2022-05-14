@@ -23,6 +23,8 @@ Shader "Complex Lit"
         _Occlusion ("Occlusion", Range(0,1)) = 0
         _Reflectance ("Reflectance", Range(0.0, 1.0)) = 0.5
 
+        [Toggle(_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A)] _SmoothnessAlbedoAlpha ("Smoothness Albedo Alpha", Int) = 0
+
         [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
         _BumpMapArray ("Normal Map Array", 2DArray) = "" {}
         _BumpScale ("Scale", Float) = 1
@@ -180,7 +182,8 @@ ENDCG
             #pragma shader_feature_local NONLINEAR_LIGHTPROBESH
 
             #pragma shader_feature_local _TEXTURE_ARRAY
-            #pragma shader_feature_local _MASK_MAP
+            #pragma shader_feature_local_fragment _MASK_MAP
+            #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
             #pragma shader_feature_local _NORMAL_MAP
             
             #pragma shader_feature_local _LAYERMASK
@@ -231,6 +234,7 @@ ENDCG
 
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
+            #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
             #pragma shader_feature_local _NORMAL_MAP
 
             #pragma shader_feature_local _LAYERMASK
@@ -344,6 +348,7 @@ ENDCG
 
             #pragma shader_feature_local _TEXTURE_ARRAY
             #pragma shader_feature_local _MASK_MAP
+            #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
             #pragma shader_feature_local _NORMAL_MAP
             
             #pragma shader_feature_local _LAYERMASK
