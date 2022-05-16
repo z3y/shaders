@@ -76,7 +76,26 @@ half RemapInverseLerp(half value, half remapMin, half remapMax)
     return RemapInverseLerp(remapMin, remapMax, 0, 1, value);
 }
 
-
+float2 Rotate_Degrees(float2 UV, float2 Center, float Rotation)
+{
+    //rotation matrix
+    Rotation = Rotation * (3.1415926f/180.0f);
+    UV -= Center;
+    float s = sin(Rotation);
+    float c = cos(Rotation);
+        
+    //center rotation matrix
+    float2x2 rMatrix = float2x2(c, -s, s, c);
+    rMatrix *= 0.5;
+    rMatrix += 0.5;
+    rMatrix = rMatrix*2 - 1;
+        
+    //multiply the UVs by the rotation matrix
+    UV.xy = mul(UV.xy, rMatrix);
+    UV += Center;
+        
+    return UV;
+}
 
 float pow5(float x)
 {
@@ -106,20 +125,6 @@ half Fd_Burley(half roughness, half NoV, half NoL, half LoH)
     float lightScatter = F_Schlick(1.0, f90, NoL);
     float viewScatter  = F_Schlick(1.0, f90, NoV);
     return lightScatter * viewScatter;
-}
-
-float3 UnpackScaleNormalHemiOctahedron(float4 normalMap, float bumpScale)
-{
-    #if defined(SHADER_API_MOBILE)
-        return UnpackScaleNormal(normalMap, bumpScale).xyz;
-    #endif
-    // https://twitter.com/Stubbesaurus/status/937994790553227264
-    half2 f = normalMap.ag * 2.0 - 1.0;
-    normalMap.xyz = float3(f.x, f.y, 1 - abs(f.x) - abs(f.y));
-    float t = saturate(-normalMap.z);
-    normalMap.xy += normalMap.xy >= 0.0 ? -t : t;
-    normalMap.xy *= bumpScale;
-    return normalize(normalMap);
 }
 
 // Input [0, 1] and output [0, PI/2]

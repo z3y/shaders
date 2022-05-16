@@ -144,6 +144,7 @@ namespace z3y.Shaders
         private static bool _basePacking;
         private static TexturePacking.FieldData _basePackingAlbedo;
         private static TexturePacking.FieldData _basePackingOpacity;
+        private MaterialProperty _RotateUV;
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
@@ -251,6 +252,7 @@ namespace z3y.Shaders
 
             EditorGUILayout.Space();
             me.TextureScaleOffsetProperty(_MainTex);
+            Draw(_RotateUV);
             Draw(_Texture);
             if (_Texture.floatValue == 2)
             {

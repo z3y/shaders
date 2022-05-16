@@ -58,7 +58,7 @@ half _SpecularOcclusion;
 
 #include "InputsCGI.cginc"
 
-
+half _RotateUV;
 v2f vert (appdata_all v)
 {
     v2f o;
@@ -81,9 +81,12 @@ v2f vert (appdata_all v)
     o.uv[3].xy = v.uv3.xy;
 
     float4 mainST = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _MainTex_ST);
+
     o.uv[0].zw = v.uv0.xy * mainST.xy + mainST.zw;
     o.uv[1].zw = v.uv1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
     o.uv[2].zw = v.uv2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+
+    o.uv[0].zw = Rotate_Degrees(o.uv[0].zw, float2(0.5,0.5) * mainST.xy + mainST.zw, _RotateUV);
 
     #ifdef _TEXTURE_ARRAY
         o.uv[3].z = _Texture == 2.0 ? UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _TextureIndex) : v.uv0.z;
