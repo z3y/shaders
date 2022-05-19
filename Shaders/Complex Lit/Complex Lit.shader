@@ -13,8 +13,6 @@ Shader "Complex Lit"
         _Color ("Base Color", Color) = (1,1,1,1)
         _AlbedoSaturation ("Saturation", Float) = 1
 
-        _RotateUV ("UV Rotation", Range(0,360)) = 0
-
         _MetallicGlossMap("Mask Map", 2D) = "white" {}
         _MetallicGlossMapArray("Mask Map Array", 2DArray) = "" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
