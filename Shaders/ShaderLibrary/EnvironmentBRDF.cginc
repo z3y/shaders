@@ -8,7 +8,7 @@ static half3 DFGEnergyCompensation;
 
 half4 SampleDFG(half NoV, half perceptualRoughness)
 {
-    return _DFG.Sample(sampler_DFG, float3(NoV, perceptualRoughness, 0));
+    return _DFG.SampleLevel(sampler_DFG, float2(NoV, perceptualRoughness), 0);
 }
 
 half3 EnvBRDF(half2 dfg, half3 f0)
