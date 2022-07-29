@@ -1,8 +1,7 @@
 Repository for my Unity shaders for VRChat. Most features now also available in shader graph: https://github.com/z3y/ShaderGraph-BuiltIn
 #
-### Complex Lit
-[Unity Package](https://github.com/z3y/shaders/releases)
-
+### Lit Shader
+An optimized Standard shader replacement for VRChat Worlds
 
 - Accurate PBR Shading
 - Bakery Features
@@ -11,24 +10,34 @@ Repository for my Unity shaders for VRChat. Most features now also available in 
 - Lightmap Specular Occlusion
 - Bicubic Lightmap
 - Improved Parallax
-- Layers (Can be used as details)
-- Layer Blending: Overlay, Screen, Multiply X2, Replace
+- Emission Multiply Base
+- Emission GI Multiplier
+- Detail Blending: Overlay, Screen, Multiply X2, Replace
+- Detail Height Blending
+- Decal
 - Transparency Modes: Cutout, Fade, Premultiply, Additive, Multiply
 - GPU Instanced Properties
-- Tex2DArray Workflow
 - Non-Important lights per pixel
-- Lod Crossfade
+- ACES
+- [LTCGI](https://github.com/PiMaker/ltcgi)
+- Simple Wind
+- Texture Packing
+- Box Projection on Quest
 
-And QoL editor tools like automatic bakery mode switching on all materials, texture packing in inspector, normal map orientation conversion tool
+### Instalation
+- Add the git url `https://github.com/z3y/shaders.git` with the package manager
+- Or Clone the repository and import into Unity Assets folder
 
-![image](https://user-images.githubusercontent.com/33181641/161634291-e7c7d2fb-c227-4551-a8aa-6dceb8c06b09.png)
-
-
-
-![image](https://user-images.githubusercontent.com/33181641/161634313-4adc5875-d54e-4e63-8aa2-c2c5a97ec344.png)
-
-
+If you want to ask something add me z3y#3214 or join the [Discord](https://discord.gg/bw46tKgRFT). Please report bugs if you find them https://github.com/z3y/shaders/issues
 #
-If you want to ask something add me z3y#3214 or join https://discord.gg/bw46tKgRFT
 
-Please report bugs if you find them https://github.com/z3y/shaders/issues
+![image](https://user-images.githubusercontent.com/33181641/181753409-d71e3702-cb96-425b-bb74-015d75d91316.png)
+
+![image](https://user-images.githubusercontent.com/33181641/181753445-afcf4f1f-aa4e-46fe-b5eb-2100540b8665.png)
+
+![image](https://user-images.githubusercontent.com/33181641/181753462-6c609fa6-8cc6-466f-b911-c29a52447714.png)
+
+![image](https://user-images.githubusercontent.com/33181641/181753478-d2297ffa-3082-47fa-9ce0-b553d5581484.png)
+
+![image](https://user-images.githubusercontent.com/33181641/181753499-c3da4465-c02d-4ed8-80f1-1a1c1f9bbab3.png)
+

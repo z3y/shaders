@@ -1,4 +1,4 @@
-﻿Shader "Hidden/z3y/TextureUtility"
+﻿Shader "Hidden/MarkupEditor/TextureUtility"
 {
     Properties
     {
@@ -26,7 +26,7 @@
             CGPROGRAM
             #pragma vertex vert_img
             #pragma fragment frag
-            #pragma target 5.0
+            #pragma target 3.0
             #include "UnityCG.cginc"
 
             SamplerState inlineSampler_bilinear_clamp_sampler;

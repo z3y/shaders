@@ -1,12 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
 
-namespace z3y.Shaders
+namespace MarkupEditor
 {
     public static class TexturePacking
     {
@@ -18,7 +16,7 @@ namespace z3y.Shaders
             public bool DefaultWhite = true;
         }
 
-        private static readonly Shader TextureUtilityShader = Shader.Find("Hidden/z3y/TextureUtility");
+        private static readonly Shader TextureUtilityShader = Shader.Find("Hidden/MarkupEditor/TextureUtility");
 
         public static void Pack(Channel[] channels, string newTexturePath, int newWidth, int newHeight = 0)
         {
