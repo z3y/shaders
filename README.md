@@ -26,7 +26,7 @@ An optimized Standard shader replacement for VRChat Worlds
 
 ### Instalation
 - Add the git url `https://github.com/z3y/shaders.git` with the package manager
-- Or Clone the repository and import into Unity Assets folder
+- Or [Clone](https://github.com/z3y/shaders/archive/refs/heads/main.zip) the repository and import into Unity Assets folder
 
 If you want to ask something add me z3y#3214 or join the [Discord](https://discord.gg/bw46tKgRFT). Please report bugs if you find them https://github.com/z3y/shaders/issues
 #
