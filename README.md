@@ -24,7 +24,7 @@ An optimized Standard shader replacement for VRChat Worlds
 - Texture Packing
 - Box Projection on Quest
 
-### Instalation
+### Installation
 - Add the git url `https://github.com/z3y/shaders.git` with the package manager
 - Or [Clone](https://github.com/z3y/shaders/archive/refs/heads/main.zip) the repository and import into Unity Assets folder
 
