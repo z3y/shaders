@@ -164,7 +164,7 @@ Properties
 
     [Space(10)]
 
-    [AdvancedKeywordEnum(_, 0, BAKERY_SH, 1, BAKERY_RNM, 2)] [Enum(None, 0, SH, 1, RNM, 2)] Bakery ("Bakery Mode", Int) = 0
+    [AdvancedKeywordEnum(_, 0, BAKERY_SH, 1, BAKERY_RNM, 2, BAKERY_MONOSH, 3)] [Enum(None, 0, SH, 1, RNM, 2, MONOSH, 3)] Bakery ("Bakery Mode", Int) = 0
     [Toggle(NONLINEAR_LIGHTPROBESH)] _NonLinearLightProbeSH ("Non-linear Light Probe SH", Int) = 0
 
 
@@ -214,6 +214,7 @@ SubShader
 
         #pragma shader_feature_local BAKERY_RNM
         #pragma shader_feature_local BAKERY_SH
+        #pragma shader_feature_local BAKERY_MONOSH
         #pragma shader_feature_local_fragment NONLINEAR_LIGHTPROBESH
 
         #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON

@@ -480,9 +480,17 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
                 BakerySHLightmapAndSpecular(lightMap, lightmapUV, lightmappedSpecular, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), f0);
             #endif
 
+            
+
             #if defined(DIRLIGHTMAP_COMBINED)
                 float4 lightMapDirection = unity_LightmapInd.Sample(custom_bilinear_clamp_sampler, lightmapUV);
-                lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, worldNormal);
+                #ifndef BAKERY_MONOSH
+                    lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, worldNormal);
+                #endif
+            #endif
+
+            #if defined(BAKERY_MONOSH) && defined(DIRLIGHTMAP_COMBINED)
+                BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), f0);
             #endif
 
             indirectDiffuse = lightMap;
@@ -518,7 +526,7 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
             float3 bakedDominantDirection = 1.0;
             half3 bakedSpecularColor = 0.0;
 
-            #if defined(DIRLIGHTMAP_COMBINED) && defined(LIGHTMAP_ON) && !defined(BAKERY_SH) && !defined(BAKERY_RNM)
+            #if defined(DIRLIGHTMAP_COMBINED) && defined(LIGHTMAP_ON) && !defined(BAKERY_SH) && !defined(BAKERY_RNM) && !defined(BAKERY_MONOSH)
                 bakedDominantDirection = (lightMapDirection.xyz) * 2.0 - 1.0;
                 bakedSpecularColor = indirectDiffuse;
             #endif
@@ -529,7 +537,7 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
             #endif
 
             bakedDominantDirection = normalize(bakedDominantDirection);
-            lightmappedSpecular += SpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), NoV, DFGEnergyCompensation);
+           lightmappedSpecular += SpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), NoV, DFGEnergyCompensation);
         }
         #endif
 
