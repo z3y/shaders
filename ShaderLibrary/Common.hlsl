@@ -489,7 +489,7 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
                 #endif
             #endif
 
-            #if defined(BAKERY_MONOSH) && defined(DIRLIGHTMAP_COMBINED)
+            #if defined(BAKERY_MONOSH)
                 BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), f0);
             #endif
 
