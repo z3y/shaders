@@ -150,16 +150,20 @@ void InitializeSurfaceData(inout SurfaceData surf, v2f i, uint facing)
     #ifdef _DETAIL_ALBEDOMAP
 
         half4 sampledDetailAlbedo = _DetailAlbedoMap.SampleGrad(sampler_DetailAlbedoMap, detailUV, detaildx, detaildy) * _DetailColor;
+
+        detailMask *= sampledDetailAlbedo.a;
             
         #if defined(_DETAILBLEND_SCREEN)
-            surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask * sampledDetailAlbedo.a);
+            surf.albedo = lerp(surf.albedo, BlendMode_Screen(surf.albedo, sampledDetailAlbedo.rgb), detailMask);
         #elif defined(_DETAILBLEND_MULX2)
-            surf.albedo = lerp(surf.albedo, BlendMode_MultiplyX2(surf.albedo, sampledDetailAlbedo.rgb), detailMask * sampledDetailAlbedo.a);
+            surf.albedo = lerp(surf.albedo, BlendMode_MultiplyX2(surf.albedo, sampledDetailAlbedo.rgb), detailMask);
         #elif defined(_DETAILBLEND_LERP)
-            surf.albedo = lerp(surf.albedo, sampledDetailAlbedo.rgb, detailMask * sampledDetailAlbedo.a);
+            surf.albedo = lerp(surf.albedo, sampledDetailAlbedo.rgb, detailMask);
         #else // default overlay
-            surf.albedo = lerp(surf.albedo, BlendMode_Overlay_sRGB(surf.albedo, sampledDetailAlbedo.rgb), detailMask * sampledDetailAlbedo.a);
+            surf.albedo = lerp(surf.albedo, BlendMode_Overlay_sRGB(surf.albedo, sampledDetailAlbedo.rgb), detailMask);
         #endif
+
+        
     #endif
 
     #ifdef _DETAIL_NORMALMAP
@@ -177,10 +181,6 @@ void InitializeSurfaceData(inout SurfaceData surf, v2f i, uint facing)
         half detailRoughness = 1.0f - _DetailGlossiness;
         half detailMetallic = _DetailMetallic;
         half detailOcclusion = 1.0f;
-
-        #ifdef _DETAIL_ALBEDOMAP
-            detailMask *= sampledDetailAlbedo.a;
-        #endif
 
         surf.perceptualRoughness = lerp(surf.perceptualRoughness, detailRoughness, detailMask);
         surf.metallic = lerp(surf.metallic, detailMetallic, detailMask);
