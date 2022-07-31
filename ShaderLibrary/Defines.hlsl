@@ -5,7 +5,6 @@
 #if defined(SHADER_API_MOBILE)
     // #undef BAKERY_RNM
     // #undef BAKERY_SH
-    #undef _DETAIL_NORMALMAP
     #undef _PARALLAXMAP
     #undef NONLINEAR_LIGHTPROBESH
     #undef _BICUBICLIGHTMAP
