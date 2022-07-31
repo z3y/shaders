@@ -89,13 +89,12 @@ void BakerySHLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout 
 #ifdef BAKERY_MONOSH
 void BakeryMonoSH(inout float3 diffuseColor, inout float3 specularColor, float2 lmUV, float3 normalWorld, float3 viewDir, half roughness, half3 f0)
 {
+    float3 L0 = diffuseColor;
 
 #if UNITY_VERSION >= 201740
     float3 dominantDir = unity_LightmapInd.Sample(custom_bilinear_clamp_sampler, lmUV).xyz;
-    float3 L0 = DecodeLightmap(unity_Lightmap.Sample(custom_bilinear_clamp_sampler, lmUV));
 #else
     float3 dominantDir = UNITY_SAMPLE_TEX2D_SAMPLER(unity_LightmapInd, unity_Lightmap, lmUV).xyz;
-    float3 L0 = DecodeLightmap(UNITY_SAMPLE_TEX2D_SAMPLER(unity_Lightmap, unity_Lightmap, lmUV));
 #endif
 
     float3 nL1 = dominantDir * 2 - 1;
