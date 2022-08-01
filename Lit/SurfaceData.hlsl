@@ -62,15 +62,10 @@ void InitializeSurfaceData(inout SurfaceData surf, v2f i, uint facing)
     float4 mainTextureST = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _MainTex_ST);
     float2 mainUV = i.uv01.xy * mainTextureST.xy + mainTextureST.zw;
 
-    float2 uvs[4];
-    uvs[0] = i.uv01.xy;
-    uvs[1] = i.uv01.zw;
-    uvs[2] = i.uv23.xy;
-    uvs[3] = i.uv23.zw;
+    float2 uvs[] = { i.uv01.xy, i.uv01.zw, i.uv23.xy, i.uv23.zw };
 
-    float2 parallaxOffset = 0;
     #ifdef _PARALLAXMAP
-        parallaxOffset = ParallaxOcclusionMapping(_Parallax, mainUV, i.viewDirTS, _ParallaxMap, sampler_ParallaxMap, _ParallaxMap_TexelSize, _ParallaxSteps, _ParallaxOffset);
+        float2 parallaxOffset = ParallaxOcclusionMapping(_Parallax, mainUV, i.viewDirTS, _ParallaxMap, sampler_ParallaxMap, _ParallaxMap_TexelSize, _ParallaxSteps, _ParallaxOffset);
         mainUV += parallaxOffset;
     #endif
 

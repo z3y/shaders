@@ -212,9 +212,7 @@ SubShader
         #pragma multi_compile_fog
         #pragma multi_compile_fragment _ VERTEXLIGHT_ON
 
-        #pragma shader_feature_local BAKERY_RNM
-        #pragma shader_feature_local BAKERY_SH
-        #pragma shader_feature_local BAKERY_MONOSH
+        #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM BAKERY_MONOSH
         #pragma shader_feature_local_fragment NONLINEAR_LIGHTPROBESH
 
         #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
