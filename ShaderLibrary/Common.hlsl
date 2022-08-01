@@ -468,7 +468,7 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
     #ifdef UNITY_PASS_FORWARDBASE
         #if defined(LIGHTMAP_ON)
 
-            float2 lightmapUV = i.uv[1].xy * unity_LightmapST.xy + unity_LightmapST.zw;
+            float2 lightmapUV = i.uv01.zw * unity_LightmapST.xy + unity_LightmapST.zw;
             half4 bakedColorTex = SampleBicubic(unity_Lightmap, custom_bilinear_clamp_sampler, lightmapUV, GetTexelSize(unity_Lightmap));
             half3 lightMap = DecodeLightmap(bakedColorTex);
 
@@ -489,7 +489,7 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
                 #endif
             #endif
 
-            #if defined(BAKERY_MONOSH) && defined(DIRLIGHTMAP_COMBINED)
+            #if defined(BAKERY_MONOSH)
                 BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), f0);
             #endif
 
@@ -497,7 +497,7 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
         #endif
 
         #if defined(DYNAMICLIGHTMAP_ON)
-            float2 realtimeUV = i.uv[2] * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw
+            float2 realtimeUV = i.uv23.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw
             float3 realtimeLightMap = getRealtimeLightmap(realtimeUV, worldNormal);
             indirectDiffuse += realtimeLightMap; 
         #endif

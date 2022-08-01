@@ -3,23 +3,24 @@
 struct v2f
 {
     float4 pos : SV_POSITION;
-    float2 uv[4] : TEXCOORD0;
-    float3 bitangent : TEXCOORD4;
-    float3 tangent : TEXCOORD5;
-    float3 worldNormal : TEXCOORD6;
-    float4 worldPos : TEXCOORD7;
+    float4 uv01 : TEXCOORD0;
+    float4 uv23 : TEXCOORD1;
+    float3 bitangent : TEXCOORD3;
+    float3 tangent : TEXCOORD4;
+    float3 worldNormal : TEXCOORD5;
+    float4 worldPos : TEXCOORD6;
 
     #if defined(REQUIRE_VIEWDIRTS)
-        float3 viewDirTS : TEXCOORD8;
+        float3 viewDirTS : TEXCOORD7;
     #endif
 
     #if !defined(UNITY_PASS_SHADOWCASTER)
-        UNITY_FOG_COORDS(12)
-        UNITY_SHADOW_COORDS(13)
+        UNITY_FOG_COORDS(8)
+        UNITY_SHADOW_COORDS(9)
     #endif
 
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
-        half3 vertexLight : TEXCOORD14;
+        half3 vertexLight : TEXCOORD10;
     #endif
 
     UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -36,10 +37,8 @@ v2f vert (appdata_all v)
     UNITY_TRANSFER_INSTANCE_ID(v, o);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-    o.uv[0] = v.uv0.xy;
-    o.uv[1] = v.uv1.xy;
-    o.uv[2] = v.uv2.xy;
-    o.uv[3] = v.uv3.xy;
+    o.uv01 = float4(v.uv0.xy, v.uv1.xy);
+    o.uv23 = float4(v.uv2.xy, v.uv3.xy);
 
     #ifdef _WIND
         v.vertex.xyz += GetWindOffset(v.vertex.xyz, v.color);
@@ -74,13 +73,13 @@ v2f vert (appdata_all v)
         o.pos = UnityApplyLinearShadowBias(o.pos);
         TRANSFER_SHADOW_CASTER_NOPOS(o, o.pos);
     #else
-        UNITY_TRANSFER_SHADOW(o, o.uv[1]);
-        UNITY_TRANSFER_FOG(o,o.pos);
+        UNITY_TRANSFER_SHADOW(o, o.uv01.zw);
+        UNITY_TRANSFER_FOG(o, o.pos);
     #endif
 
     #if defined(REQUIRE_VIEWDIRTS)
         TANGENT_SPACE_ROTATION;
-        o.viewDirTS = mul (rotation, ObjSpaceViewDir(v.vertex));
+        o.viewDirTS = mul(rotation, ObjSpaceViewDir(v.vertex));
     #endif
 
     return o;

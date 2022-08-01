@@ -60,11 +60,12 @@ void InitializeSurfaceData(inout SurfaceData surf, v2f i, uint facing)
 {
     float4 mainColor = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _Color);
     float4 mainTextureST = UNITY_ACCESS_INSTANCED_PROP(InstancedProps, _MainTex_ST);
-    float2 mainUV = i.uv[0] * mainTextureST.xy + mainTextureST.zw;
+    float2 mainUV = i.uv01.xy * mainTextureST.xy + mainTextureST.zw;
 
-    float2 parallaxOffset = 0;
+    float2 uvs[] = { i.uv01.xy, i.uv01.zw, i.uv23.xy, i.uv23.zw };
+
     #ifdef _PARALLAXMAP
-        parallaxOffset = ParallaxOcclusionMapping(_Parallax, mainUV, i.viewDirTS, _ParallaxMap, sampler_ParallaxMap, _ParallaxMap_TexelSize, _ParallaxSteps, _ParallaxOffset);
+        float2 parallaxOffset = ParallaxOcclusionMapping(_Parallax, mainUV, i.viewDirTS, _ParallaxMap, sampler_ParallaxMap, _ParallaxMap_TexelSize, _ParallaxSteps, _ParallaxOffset);
         mainUV += parallaxOffset;
     #endif
 
@@ -108,7 +109,7 @@ void InitializeSurfaceData(inout SurfaceData surf, v2f i, uint facing)
         surf.emission = emissionColor;
         surf.emission = lerp(surf.emission, surf.emission * surf.albedo, _EmissionMultBase);
 
-        float2 emissionTileOffset = i.uv[_EmissionMap_UV] * _EmissionMap_ST.xy + _EmissionMap_ST.zw;
+        float2 emissionTileOffset = uvs[_EmissionMap_UV] * _EmissionMap_ST.xy + _EmissionMap_ST.zw;
         surf.emission *= _EmissionMap.Sample(sampler_EmissionMap, emissionTileOffset);
 
             
@@ -123,13 +124,13 @@ void InitializeSurfaceData(inout SurfaceData surf, v2f i, uint facing)
     #endif
 
 
-    float2 detailUV = i.uv[_DetailMap_UV].xy * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw;
+    float2 detailUV = uvs[_DetailMap_UV].xy * _DetailAlbedoMap_ST.xy + _DetailAlbedoMap_ST.zw;
     float2 detaildx = ddx(detailUV);
     float2 detaildy = ddy(detailUV);
     
     half detailMask = 1;
     #ifdef _DETAIL_BLENDMASK
-        float2 detailMaskUV = i.uv[_DetailMask_UV].xy * _DetailMask_ST.xy + _DetailMask_ST.zw;
+        float2 detailMaskUV = uvs[_DetailMask_UV].xy * _DetailMask_ST.xy + _DetailMask_ST.zw;
         detailMask = _DetailMask.Sample(sampler_DetailMask, detailMaskUV);
     #endif
 
