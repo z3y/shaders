@@ -1,7 +1,7 @@
-Repository for my Unity shaders for VRChat. Most features now also available in shader graph: https://github.com/z3y/ShaderGraph-BuiltIn
+Repository for my Unity shaders. Most features now also available in shader graph: https://github.com/z3y/ShaderGraph-BuiltIn
 #
 ### Lit Shader
-An optimized Standard shader replacement for VRChat Worlds
+An optimized Standard shader replacement for Unity
 
 - Accurate PBR Shading
 - Bakery Features
