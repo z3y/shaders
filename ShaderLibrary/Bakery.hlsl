@@ -10,6 +10,10 @@ float4 _RNM0_TexelSize;
     #define BAKERY_SHNONLINEAR
 #endif
 
+#ifdef BAKERY_SHNONLINEAR_OFF
+    #undef BAKERY_SHNONLINEAR
+#endif
+
 void BakeryRNMLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout half3 directSpecular, float3 normalTS, float3 viewDirTS, float3 viewDir, half roughness, half3 f0)
 {
 #ifdef BAKERY_RNM
