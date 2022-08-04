@@ -6,25 +6,27 @@ using UnityEditor;
 using UnityEngine;
 
 
-// A script for toggling local keywords globally because of the issues with Unity global keywords limit and VRChat
-public class GlobalKeywords : EditorWindow
+namespace z3y
 {
-    [MenuItem("Window/z3y/Global Keywords")]
-    private static void Init()
+    // A script for toggling local keywords globally because of the issues with Unity global keywords limit and VRChat
+    public class GlobalKeywords : EditorWindow
     {
-        var window = (GlobalKeywords)GetWindow(typeof(GlobalKeywords));
-        window.Show();
-    }
+        [MenuItem("Window/z3y/Global Keywords")]
+        private static void Init()
+        {
+            var window = (GlobalKeywords)GetWindow(typeof(GlobalKeywords));
+            window.Show();
+        }
 
-    private static MethodInfo _getShaderGlobalKeywords = typeof(ShaderUtil).GetMethod("GetShaderGlobalKeywords", BindingFlags.Static | BindingFlags.NonPublic);
-    private static MethodInfo _getShaderLocalKeywords = typeof(ShaderUtil).GetMethod("GetShaderLocalKeywords", BindingFlags.Static | BindingFlags.NonPublic);
+        private static MethodInfo _getShaderGlobalKeywords = typeof(ShaderUtil).GetMethod("GetShaderGlobalKeywords", BindingFlags.Static | BindingFlags.NonPublic);
+        private static MethodInfo _getShaderLocalKeywords = typeof(ShaderUtil).GetMethod("GetShaderLocalKeywords", BindingFlags.Static | BindingFlags.NonPublic);
 
-    private static Shader shader;
-    private static string[] keywords;
-    private static int keywordIndex;
+        private static Shader shader;
+        private static string[] keywords;
+        private static int keywordIndex;
 
-    private static string[] unityKeywords =
-    {
+        private static string[] unityKeywords =
+        {
         "SPOT",
         "DIRECTIONAL",
         "DIRECTIONAL_COOKIE",
@@ -50,63 +52,64 @@ public class GlobalKeywords : EditorWindow
         "LOD_FADE_CROSSFADE"
     };
 
-    private void OnGUI()
-    {
-        EditorGUI.BeginChangeCheck();
-        shader = EditorGUILayout.ObjectField(shader, typeof(Shader), true) as Shader;
-
-        if (EditorGUI.EndChangeCheck())
+        private void OnGUI()
         {
+            EditorGUI.BeginChangeCheck();
+            shader = EditorGUILayout.ObjectField(shader, typeof(Shader), true) as Shader;
 
-            var globalKeywords = (string[])_getShaderGlobalKeywords.Invoke(null, new object[] { shader });
-            var localKeywords = (string[])_getShaderLocalKeywords.Invoke(null, new object[] { shader });
+            if (EditorGUI.EndChangeCheck())
+            {
 
-            keywords = globalKeywords.Concat(localKeywords).Where(x => !unityKeywords.Contains(x)).ToArray();
+                var globalKeywords = (string[])_getShaderGlobalKeywords.Invoke(null, new object[] { shader });
+                var localKeywords = (string[])_getShaderLocalKeywords.Invoke(null, new object[] { shader });
+
+                keywords = globalKeywords.Concat(localKeywords).Where(x => !unityKeywords.Contains(x)).ToArray();
+            }
+
+
+
+            if (shader is null || keywords.Length < 1)
+            {
+                //  EditorGUILayout.HelpBox("Select a shader", MessageType.Info);
+                return;
+            }
+
+
+            keywordIndex = EditorGUILayout.Popup("Keyword", keywordIndex, keywords);
+
+
+
+            if (GUILayout.Button("Enable"))
+            {
+                ToggleKeyword(keywords[keywordIndex], true);
+            }
+            if (GUILayout.Button("Disable"))
+            {
+                ToggleKeyword(keywords[keywordIndex], false);
+            }
+
+            EditorGUILayout.HelpBox("Currently not possible to revert back to different per material values after enabling or disabling keywords. Only use with keywords that can be global", MessageType.Warning);
         }
 
-        
-
-        if (shader is null || keywords.Length < 1)
+        private static void ToggleKeyword(string keyword, bool enabled)
         {
-            //  EditorGUILayout.HelpBox("Select a shader", MessageType.Info);
-            return;
+
+            var renderers = FindObjectsOfType<Renderer>().ToList();
+            var materials = renderers.SelectMany(x => x.sharedMaterials).Distinct().Where(x => x?.shader == shader).ToArray();
+
+            Undo.RecordObjects(materials, "GlobalKeywordToggle");
+            for (int i = 0; i < materials.Length && enabled; i++)
+            {
+                materials[i].EnableKeyword(keyword);
+            }
+
+            for (int i = 0; i < materials.Length && !enabled; i++)
+            {
+                materials[i].DisableKeyword(keyword);
+            }
+
+
+
         }
-
-
-        keywordIndex = EditorGUILayout.Popup("Keyword", keywordIndex, keywords);
-
-
-
-        if (GUILayout.Button("Enable"))
-        {
-            ToggleKeyword(keywords[keywordIndex], true);
-        }
-        if (GUILayout.Button("Disable"))
-        {
-            ToggleKeyword(keywords[keywordIndex], false);
-        }
-
-        EditorGUILayout.HelpBox("Currently not possible to revert back to different per material values after enabling or disabling keywords. Only use with keywords that can be global", MessageType.Warning);
-    }
-
-    private static void ToggleKeyword(string keyword, bool enabled)
-    {
-
-        var renderers = FindObjectsOfType<Renderer>().ToList();
-        var materials = renderers.SelectMany(x => x.sharedMaterials).Distinct().Where(x => x?.shader == shader).ToArray();
-
-        Undo.RecordObjects(materials, "GlobalKeywordToggle");
-        for (int i = 0; i < materials.Length && enabled; i++)
-        {
-            materials[i].EnableKeyword(keyword);
-        }
-
-        for (int i = 0; i < materials.Length && !enabled; i++)
-        {
-            materials[i].DisableKeyword(keyword);
-        }
-
-
-
     }
 }
