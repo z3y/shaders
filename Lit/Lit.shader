@@ -207,10 +207,10 @@ SubShader
 
         CGPROGRAM
         #pragma multi_compile_fwdbase
-        #pragma skip_variants LIGHTPROBE_SH
-        
         #pragma multi_compile_instancing
         #pragma multi_compile_fog
+        #pragma skip_variants LIGHTPROBE_SH
+        
         #pragma multi_compile_fragment _ VERTEXLIGHT_ON
 
         #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM BAKERY_MONOSH

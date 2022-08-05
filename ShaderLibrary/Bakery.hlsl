@@ -14,7 +14,7 @@ float4 _RNM0_TexelSize;
     #undef BAKERY_SHNONLINEAR
 #endif
 
-void BakeryRNMLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout half3 directSpecular, float3 normalTS, float3 viewDirTS, float3 viewDir, half roughness, half3 f0)
+void BakeryRNMLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout half3 directSpecular, float3 normalTS, float3 viewDirTS, float3 viewDir, half roughness)
 {
 #ifdef BAKERY_RNM
     normalTS.g *= -1;
@@ -50,7 +50,7 @@ void BakeryRNMLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout
 #endif
 }
 
-void BakerySHLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout half3 directSpecular, float3 normalWS, float3 viewDir, half roughness, half3 f0)
+void BakerySHLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout half3 directSpecular, float3 normalWS, float3 viewDir, half roughness)
 {
     #ifdef BAKERY_SH
 
@@ -91,7 +91,7 @@ void BakerySHLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout 
 }
 
 #ifdef BAKERY_MONOSH
-void BakeryMonoSH(inout float3 diffuseColor, inout float3 specularColor, float2 lmUV, float3 normalWorld, float3 viewDir, half roughness, half3 f0)
+void BakeryMonoSH(inout float3 diffuseColor, inout float3 specularColor, float2 lmUV, float3 normalWorld, float3 viewDir, half roughness)
 {
     float3 L0 = diffuseColor;
 

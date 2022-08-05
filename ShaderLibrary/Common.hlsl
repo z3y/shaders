@@ -473,11 +473,11 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
             half3 lightMap = DecodeLightmap(bakedColorTex);
 
             #ifdef BAKERY_RNM
-                BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, lightmappedSpecular, surf.tangentNormal, i.viewDirTS, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), f0);
+                BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, lightmappedSpecular, surf.tangentNormal, i.viewDirTS, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness));
             #endif
 
             #ifdef BAKERY_SH
-                BakerySHLightmapAndSpecular(lightMap, lightmapUV, lightmappedSpecular, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), f0);
+                BakerySHLightmapAndSpecular(lightMap, lightmapUV, lightmappedSpecular, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness));
             #endif
 
             
@@ -490,7 +490,7 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
             #endif
 
             #if defined(BAKERY_MONOSH)
-                BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), f0);
+                BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness));
             #endif
 
             indirectDiffuse = lightMap;
