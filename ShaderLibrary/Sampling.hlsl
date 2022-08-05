@@ -83,7 +83,7 @@ float bicubich1(float a)
 half4 SampleBicubic(Texture2D t, SamplerState s, float2 uv, float4 texelSize, float lod = 0)
 {
     #if defined(SHADER_API_MOBILE) || !defined(_BICUBICLIGHTMAP)
-        return t.Sample(s, uv);
+        return t.SampleLevel(s, uv, lod);
     #else
         float2 xy = uv * texelSize.xy - 0.5;
         float2 pxy = floor(xy);
