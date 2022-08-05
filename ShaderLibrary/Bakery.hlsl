@@ -18,9 +18,9 @@ void BakeryRNMLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout
 {
 #ifdef BAKERY_RNM
     normalTS.g *= -1;
-    float3 rnm0 = DecodeLightmap(_RNM0.Sample(custom_bilinear_clamp_sampler, lightmapUV));
-    float3 rnm1 = DecodeLightmap(_RNM1.Sample(custom_bilinear_clamp_sampler, lightmapUV));
-    float3 rnm2 = DecodeLightmap(_RNM2.Sample(custom_bilinear_clamp_sampler, lightmapUV));
+    float3 rnm0 = DecodeLightmap(_RNM0.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0));
+    float3 rnm1 = DecodeLightmap(_RNM1.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0));
+    float3 rnm2 = DecodeLightmap(_RNM2.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0));
 
     const float3 rnmBasis0 = float3(0.816496580927726f, 0.0f, 0.5773502691896258f);
     const float3 rnmBasis1 = float3(-0.4082482904638631f, 0.7071067811865475f, 0.5773502691896258f);
@@ -44,7 +44,7 @@ void BakeryRNMLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout
         half3 halfDir = Unity_SafeNormalize(dominantDirTN - viewDirT);
         half NoH = saturate(dot(normalTS, halfDir));
         half spec = D_GGX(NoH, roughness);
-        directSpecular += spec * specColor * EnvBRDFMultiscatter(DFGLut, f0) * DFGEnergyCompensation;
+        directSpecular += spec * specColor;
     #endif
 
 #endif
@@ -55,9 +55,9 @@ void BakerySHLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout 
     #ifdef BAKERY_SH
 
         half3 L0 = lightMap;
-        float3 nL1x = _RNM0.Sample(custom_bilinear_clamp_sampler, lightmapUV) * 2.0 - 1.0;
-        float3 nL1y = _RNM1.Sample(custom_bilinear_clamp_sampler, lightmapUV) * 2.0 - 1.0;
-        float3 nL1z = _RNM2.Sample(custom_bilinear_clamp_sampler, lightmapUV) * 2.0 - 1.0;
+        float3 nL1x = _RNM0.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0) * 2.0 - 1.0;
+        float3 nL1y = _RNM1.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0) * 2.0 - 1.0;
+        float3 nL1z = _RNM2.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0) * 2.0 - 1.0;
         float3 L1x = nL1x * L0 * 2.0;
         float3 L1y = nL1y * L0 * 2.0;
         float3 L1z = nL1z * L0 * 2.0;
@@ -84,7 +84,7 @@ void BakerySHLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout 
             half3 sh = L0 + dominantDir.x * L1x + dominantDir.y * L1y + dominantDir.z * L1z;
             dominantDir = normalize(dominantDir);
 
-            directSpecular += max(spec * sh, 0.0) * EnvBRDFMultiscatter(DFGLut, f0) * DFGEnergyCompensation;
+            directSpecular += max(spec * sh, 0.0);
         #endif
         
     #endif
@@ -95,11 +95,9 @@ void BakeryMonoSH(inout float3 diffuseColor, inout float3 specularColor, float2 
 {
     float3 L0 = diffuseColor;
 
-#if UNITY_VERSION >= 201740
-    float3 dominantDir = unity_LightmapInd.Sample(custom_bilinear_clamp_sampler, lmUV).xyz;
-#else
-    float3 dominantDir = UNITY_SAMPLE_TEX2D_SAMPLER(unity_LightmapInd, unity_Lightmap, lmUV).xyz;
-#endif
+    //float3 dominantDir = unity_LightmapInd.SampleLevel(custom_bilinear_clamp_sampler, lmUV, 0).xyz;
+    float3 dominantDir = SampleBicubic(unity_LightmapInd, custom_bilinear_clamp_sampler, lmUV, GetTexelSize(unity_LightmapInd)).xyz;
+    
 
     float3 nL1 = dominantDir * 2 - 1;
     float3 L1x = nL1.x * L0 * 2;
@@ -138,7 +136,7 @@ void BakeryMonoSH(inout float3 diffuseColor, inout float3 specularColor, float2 
 
         sh = L0 + dominantDir.x * L1x + dominantDir.y * L1y + dominantDir.z * L1z;
 
-        specularColor = max(spec * sh, 0.0) * EnvBRDFMultiscatter(DFGLut, f0) * DFGEnergyCompensation;
+        specularColor = max(spec * sh, 0.0);
     #endif
 }
 #endif

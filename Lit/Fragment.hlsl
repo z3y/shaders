@@ -46,7 +46,11 @@ half4 frag (v2f input, uint facing : SV_IsFrontFace) : SV_Target
 
     half3 f0 = GetF0(surf);
     DFGLut = SampleDFG(NoV, surf.perceptualRoughness).rg;
-    DFGEnergyCompensation = EnvBRDFEnergyCompensation(DFGLut, f0);
+    #ifdef SHADER_API_MOBILE
+        DFGEnergyCompensation = 1.0f;
+    #else
+        DFGEnergyCompensation = EnvBRDFEnergyCompensation(DFGLut, f0);
+    #endif
 
     LightData lightData;
     InitializeMainLightData(lightData, input.worldNormal, viewDir, NoV, surf.perceptualRoughness, f0, input);
@@ -63,7 +67,7 @@ half4 frag (v2f input, uint facing : SV_IsFrontFace) : SV_Target
         NonImportantLightsPerPixel(lightData.FinalColor, directSpecular, input.worldPos, input.worldNormal, viewDir, NoV, f0, surf.perceptualRoughness);
     #endif
 
-    indirectDiffuse = GetIndirectDiffuseAndSpecular(input, surf, directSpecular, f0, input.worldNormal, viewDir, NoV, lightData);
+    indirectDiffuse = GetIndirectDiffuseAndSpecular(input, surf, indirectSpecular, f0, input.worldNormal, viewDir, NoV, lightData);
 
     #if !defined(_GLOSSYREFLECTIONS_OFF)
         indirectSpecular += GetReflections(input.worldNormal, input.worldPos.xyz, viewDir, f0, NoV, surf, indirectDiffuse);

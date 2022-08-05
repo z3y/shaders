@@ -377,7 +377,7 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
         #endif
 
         #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
-            lightData.FinalColor *= UnityComputeForwardShadows(input.uv[1] * unity_LightmapST.xy + unity_LightmapST.zw, input.worldPos, input._ShadowCoord);
+            lightData.FinalColor *= UnityComputeForwardShadows(input.uv01.zw * unity_LightmapST.xy + unity_LightmapST.zw, input.worldPos, input._ShadowCoord);
         #endif
 
         lightData.Specular = MainLightSpecular(lightData, NoV, perceptualRoughness, f0);
@@ -483,7 +483,7 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
             
 
             #if defined(DIRLIGHTMAP_COMBINED)
-                float4 lightMapDirection = unity_LightmapInd.Sample(custom_bilinear_clamp_sampler, lightmapUV);
+                float4 lightMapDirection = unity_LightmapInd.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0);
                 #ifndef BAKERY_MONOSH
                     lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, worldNormal);
                 #endif
