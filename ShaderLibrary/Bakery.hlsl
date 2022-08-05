@@ -91,9 +91,9 @@ void BakerySHLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout 
 }
 
 #ifdef BAKERY_MONOSH
-void BakeryMonoSH(inout float3 diffuseColor, inout float3 specularColor, float2 lmUV, float3 normalWorld, float3 viewDir, half roughness)
+void BakeryMonoSH(inout half3 diffuseColor, inout half3 specularColor, float2 lmUV, float3 normalWorld, float3 viewDir, half roughness)
 {
-    float3 L0 = diffuseColor;
+    half3 L0 = diffuseColor;
 
     //float3 dominantDir = unity_LightmapInd.SampleLevel(custom_bilinear_clamp_sampler, lmUV, 0).xyz;
     float3 dominantDir = SampleBicubic(unity_LightmapInd, custom_bilinear_clamp_sampler, lmUV, GetTexelSize(unity_LightmapInd)).xyz;
@@ -103,7 +103,7 @@ void BakeryMonoSH(inout float3 diffuseColor, inout float3 specularColor, float2 
     float3 L1x = nL1.x * L0 * 2;
     float3 L1y = nL1.y * L0 * 2;
     float3 L1z = nL1.z * L0 * 2;
-    float3 sh;
+    half3 sh;
 #ifdef BAKERY_SHNONLINEAR
     float lumaL0 = dot(L0, 1);
     float lumaL1x = dot(L1x, 1);
