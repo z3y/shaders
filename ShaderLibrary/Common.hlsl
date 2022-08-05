@@ -230,13 +230,15 @@ bool isReflectionProbe()
 
 
 #ifdef DYNAMICLIGHTMAP_ON
-float3 RealtimeLightmap(float2 uv, float3 worldNormal)
+half3 RealtimeLightmap(float2 uv, float3 worldNormal)
 {   
-    half4 bakedCol = SampleBicubic(unity_DynamicLightmap, custom_bilinear_clamp_sampler, uv);
-    float3 realtimeLightmap = DecodeRealtimeLightmap(bakedCol);
+    //half4 bakedCol = SampleBicubic(unity_DynamicLightmap, custom_bilinear_clamp_sampler, uv);
+    half4 bakedCol = SampleBicubic(unity_DynamicLightmap, custom_bilinear_clamp_sampler, uv, GetTexelSize(unity_DynamicLightmap));
+    
+    half3 realtimeLightmap = DecodeRealtimeLightmap(bakedCol);
     #ifdef DIRLIGHTMAP_COMBINED
-        half4 realtimeDirTex = UNITY_SAMPLE_TEX2D_SAMPLER(unity_DynamicDirectionality, unity_DynamicLightmap, uv);
-        realtimeLightmap += DecodeDirectionalLightmap (realtimeLightmap, realtimeDirTex, worldNormal);
+        float4 realtimeDirTex = UNITY_SAMPLE_TEX2D_SAMPLER(unity_DynamicDirectionality, unity_DynamicLightmap, uv);
+        realtimeLightmap += DecodeDirectionalLightmap(realtimeLightmap, realtimeDirTex, worldNormal);
     #endif
     return realtimeLightmap;
 }
@@ -377,7 +379,7 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
         #endif
 
         #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
-            lightData.FinalColor *= UnityComputeForwardShadows(input.uv[1] * unity_LightmapST.xy + unity_LightmapST.zw, input.worldPos, input._ShadowCoord);
+            lightData.FinalColor *= UnityComputeForwardShadows(input.uv01.zw * unity_LightmapST.xy + unity_LightmapST.zw, input.worldPos, input._ShadowCoord);
         #endif
 
         lightData.Specular = MainLightSpecular(lightData, NoV, perceptualRoughness, f0);
@@ -473,42 +475,42 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
             half3 lightMap = DecodeLightmap(bakedColorTex);
 
             #ifdef BAKERY_RNM
-                BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, lightmappedSpecular, surf.tangentNormal, i.viewDirTS, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), f0);
+                BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, lightmappedSpecular, surf.tangentNormal, i.viewDirTS, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness));
             #endif
 
             #ifdef BAKERY_SH
-                BakerySHLightmapAndSpecular(lightMap, lightmapUV, lightmappedSpecular, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), f0);
+                BakerySHLightmapAndSpecular(lightMap, lightmapUV, lightmappedSpecular, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness));
             #endif
 
             
 
             #if defined(DIRLIGHTMAP_COMBINED)
-                float4 lightMapDirection = unity_LightmapInd.Sample(custom_bilinear_clamp_sampler, lightmapUV);
+                float4 lightMapDirection = unity_LightmapInd.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0);
                 #ifndef BAKERY_MONOSH
                     lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, worldNormal);
                 #endif
             #endif
 
-            #if defined(BAKERY_MONOSH) && defined(DIRLIGHTMAP_COMBINED)
-                BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), f0);
+            #if defined(BAKERY_MONOSH)
+                BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness));
             #endif
 
             indirectDiffuse = lightMap;
         #endif
 
         #if defined(DYNAMICLIGHTMAP_ON)
-            float2 realtimeUV = i.uv23.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw
-            float3 realtimeLightMap = getRealtimeLightmap(realtimeUV, worldNormal);
-            indirectDiffuse += realtimeLightMap; 
+            float2 realtimeUV = i.uv23.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+            //float3 realtimeLightMap = RealtimeLightmap(realtimeUV, worldNormal);
+            indirectDiffuse += RealtimeLightmap(realtimeUV, worldNormal);
         #endif
         
-#ifdef LIGHTMAP_ON
-        #if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN)
-            lightData.FinalColor = 0.0;
-            lightData.Specular = 0.0;
-            indirectDiffuse = SubtractMainLightWithRealtimeAttenuationFromLightmap (indirectDiffuse, lightData.Attenuation, bakedColorTex, worldNormal);
+        #ifdef LIGHTMAP_ON
+            #if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN)
+                lightData.FinalColor = 0.0;
+                lightData.Specular = 0.0;
+                indirectDiffuse = SubtractMainLightWithRealtimeAttenuationFromLightmap (indirectDiffuse, lightData.Attenuation, bakedColorTex, worldNormal);
+            #endif
         #endif
-#endif
 
         #if !defined(DYNAMICLIGHTMAP_ON) && !defined(LIGHTMAP_ON)
             #ifdef LIGHTPROBE_VERTEX
