@@ -146,6 +146,7 @@ Properties
     [ToggleOff(_GLOSSYREFLECTIONS_OFF)] _GlossyReflections ("Reflections", Float) = 1
     [Toggle(FORCE_SPECCUBE_BOX_PROJECTION)] [Tooltip(Force Box Projection on Quest)] _ForceBoxProjection ("Force Box Projection", Float) = 0
     [ToggleOff(_BLENDREFLECTIONPROBES_OFF)] _BlendReflectionProbes ("Blend Reflection Probes", Float) = 1
+    [Tooltip(Allow Lightprobe Proxy Volumes)] [Toggle(_ALLOW_LPPV)] _Allow_LPPV_Toggle ("Allow LPPV", Float) = 0
 
     [Toggle(_GEOMETRICSPECULAR_AA)] [Tooltip(Reduce specular shimmering)] _GSAA ("Geometric Specular AA", Int) = 0
     [ShowIf(_GSAA is 1)] [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
@@ -230,6 +231,7 @@ SubShader
         #pragma shader_feature_local _GEOMETRICSPECULAR_AA
         #pragma shader_feature_local _LIGHTMAPPED_SPECULAR
         #pragma shader_feature_local _EMISSION
+        #pragma shader_feature_local _ALLOW_LPPV
 
         #pragma shader_feature_local_fragment LTCGI
         #pragma shader_feature_local_fragment LTCGI_DIFFUSE_OFF
