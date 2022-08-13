@@ -135,6 +135,10 @@ Properties
     [Label(helpBox)]_WindInfo ("Vertex Colors RGB for XYZ Intensity Mask", Float) = 0
 
 
+    // [Foldout] _SSSFoldout ("Subsurface Scattering", Float) = 0
+
+    // [Toggle(_SSS)] _SSSToggle ("Enable Subsurface Scattering", Int) = 0
+
 
     [Foldout] _AvancedSettings ("Additional Settings", Float) = 1
 
@@ -243,6 +247,7 @@ SubShader
         #pragma shader_feature_local _AUDIOLINK_EMISSION
 
         #pragma shader_feature_local _WIND
+        #pragma shader_feature_local _SSS
 
         // "Global Keywords"
         #pragma shader_feature_local_fragment DITHERING
@@ -283,6 +288,7 @@ SubShader
         #pragma shader_feature_local _DECAL
 
         #pragma shader_feature_local _WIND
+        #pragma shader_feature_local _SSS
 
         // "Global Keywords"
         #pragma shader_feature_local ACES_TONEMAPPING

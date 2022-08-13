@@ -19,6 +19,8 @@
 #include "EnvironmentBRDF.hlsl"
 #include "Sampling.hlsl"
 
+
+
 half _SpecularOcclusion;
 half _specularAntiAliasingVariance;
 half _specularAntiAliasingThreshold;
@@ -359,6 +361,10 @@ half3 MainLightSpecular(LightData lightData, half NoV, half perceptualRoughness,
     return max(0.0, (D * V) * F) * lightData.FinalColor * UNITY_PI;
 }
 
+#ifdef _SSS
+    #include "../ShaderLibrary/SSS.hlsl"
+#endif
+
 void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 viewDir, half NoV, half perceptualRoughness, half3 f0, v2f input)
 {
     #ifdef USING_LIGHT_MULTI_COMPILE
@@ -383,6 +389,10 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
         #endif
 
         lightData.Specular = MainLightSpecular(lightData, NoV, perceptualRoughness, f0);
+
+        #ifdef _SSS
+            ApplySSS(lightData, normalWS, viewDir);
+        #endif
     #else
         lightData = (LightData)0;
     #endif
