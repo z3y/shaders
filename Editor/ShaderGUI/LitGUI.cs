@@ -58,12 +58,22 @@ namespace z3y.Shaders
         private MaterialProperty _HeightBlend;
         private MaterialProperty _HeightBlendInvert;
 
+        private MaterialProperty Foldout_WindFoldout;
+        private MaterialProperty _WindNoise;
+        private MaterialProperty _WindScale;
+        private MaterialProperty _WindSpeed;
+        private MaterialProperty _WindIntensity;
+
         #endregion
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
             if (ResetFix.floatValue == 0f)
             {
+                foreach (var keyword in material.shaderKeywords)
+                {
+                    material.DisableKeyword(keyword);
+                }
                 OnValidate(material);
                 ResetFix.floatValue = 1f;
             }
@@ -104,6 +114,11 @@ namespace z3y.Shaders
                 DrawDetail(materialEditor, materialProperties, material);
             }
 
+            if (Foldout(Foldout_WindFoldout))
+            {
+                DrawWind(materialEditor, materialProperties, material);
+            }
+
 
             /*        GUILayout.BeginVertical("Box");
                     EditorGUILayout.LabelField("Keywords");
@@ -114,6 +129,17 @@ namespace z3y.Shaders
                     }
                     GUILayout.EndVertical();*/
 
+        }
+
+        private void DrawWind(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
+        {
+            KeywordToggle("_WIND", material, new GUIContent("Enable Wind"));
+            Draw(_WindNoise);
+            Draw(_WindScale);
+            Draw(_WindSpeed);
+            Draw(_WindIntensity);
+
+            Space();
         }
 
         private void DrawDetail(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
@@ -233,7 +259,6 @@ namespace z3y.Shaders
 
         public override void OnValidate(Material material)
         {
-            Debug.Log("rest");
             ApplyChanges(material);
         }
 

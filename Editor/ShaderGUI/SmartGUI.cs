@@ -14,7 +14,6 @@ namespace z3y.Shaders
         private bool _initialized = false;
         private FieldInfo[] _fieldInfo;
         private int[] _index;
-        private bool[] _isDrawn;
 
         private MaterialEditor _materialEditor;
         private MaterialProperty[] _materialProperties;
@@ -134,6 +133,12 @@ namespace z3y.Shaders
                 TexturePropertySingleLine(materialEditor, new GUIContent(nameOverride ?? property.displayName, onHover), property, extraProperty, extraProperty2);
 
                 return property.textureValue != null;
+            }
+            else if (property.type == MaterialProperty.PropType.Vector)
+            {
+                var vectorRect = EditorGUILayout.GetControlRect(true, MaterialEditor.GetDefaultPropertyHeight(property) / 2, EditorStyles.layerMaskField);
+                materialEditor.VectorProperty(vectorRect, property, property.displayName);
+                return false;
             }
             else
             {

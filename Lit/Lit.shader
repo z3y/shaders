@@ -116,13 +116,13 @@ Properties
 
 
 
-    [Foldout] _WindFoldout ("Wind", Float) = 0
-    [Toggle(_WIND)] _WindToggle ("Enable Wind", Float) = 0
+    Foldout_WindFoldout ("Wind", Float) = 0
+    //[Toggle(_WIND)] _WindToggle ("Enable Wind", Float) = 0
     _WindNoise ("Noise RGB", 2D) = "black" {}
     _WindScale ("Noise Scale", Float) = 0.02
     [PowerSlider(2)] _WindSpeed ("Speed", Range(0,5)) = 0.05
     _WindIntensity ("Intensity XYZ", Vector) = (0.1,0.1,0.1,0)
-    [Label(helpBox)]_WindInfo ("Vertex Colors RGB for XYZ Intensity Mask", Float) = 0
+    //[Label(helpBox)]_WindInfo ("Vertex Colors RGB for XYZ Intensity Mask", Float) = 0
 
 
     // [Foldout] _SSSFoldout ("Subsurface Scattering", Float) = 0
