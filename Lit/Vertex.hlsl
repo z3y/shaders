@@ -1,5 +1,9 @@
 #include "Wind.hlsl"
 
+#ifdef _DETAIL_ALBEDOMAP
+    #define REQUIRE_COLOR
+#endif
+
 struct v2f
 {
     float4 pos : SV_POSITION;
@@ -21,6 +25,10 @@ struct v2f
 
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
         half3 vertexLight : TEXCOORD10;
+    #endif
+
+    #if defined(REQUIRE_COLOR)
+        half4 vertexColor : TEXCOORD11;
     #endif
 
     UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -50,6 +58,10 @@ v2f vert (appdata_all v)
         #if !defined(UNITY_PASS_SHADOWCASTER)
             o.pos = UnityObjectToClipPos(v.vertex);
         #endif
+    #endif
+
+    #ifdef REQUIRE_COLOR
+    o.vertexColor = v.color;
     #endif
     
 

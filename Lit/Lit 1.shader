@@ -1,16 +1,23 @@
-﻿Shader "Lit"
+﻿Shader "Lit1"
 {
 
 Properties
 {
-    ResetFix ("", Float) = 0
-    [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
-    Foldout_RenderingOptions ("Rendering Options", Float) = 0
+
+    [HideInInspector] [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
+    [Foldout] _RenderingOptions ("Rendering Options", Float) = 0
         
+    [SetValue(_SrcBlend, 1, 1, 5, 1, 5, 2)]
+    [SetValue(_DstBlend, 0, 0, 10, 10, 1, 0)]
+    [SetValue(_ZWrite, 1, 1, 0, 0, 0, 0)]
+    [SetValue(_AlphaToMask, 0, 1, 0, 0, 0,0)]
+    [SetValue(renderQueue, 2000, 2450, 3000, 3000, 3000, 3000)]
+    [SetTag(RenderType, , TransparentCutout, Transparent, Transparent, Transparent, Transparent)]
+    [AdvancedKeywordEnum(_, 0, _ALPHATEST_ON, 1, _ALPHAFADE_ON, 2, _ALPHAPREMULTIPLY_ON, 3, _, 4, _ALPHAMODULATE_ON, 5)]
     [Enum(Opaque, 0, Cutout, 1, Fade, 2, Transparent, 3, Additive, 4, Multiply, 5)] _Mode ("Rendering Mode", Int) = 0
 
 
-    _Cutoff ("Alpha Cuttoff", Range(0.001, 1)) = 0.5
+    [ShowIf(_Mode is 1)] _Cutoff ("Alpha Cuttoff", Range(0.001, 1)) = 0.5
     [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Source Blend", Int) = 1
     [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Destination Blend", Int) = 0
     [Enum(Off, 0, On, 1)] _ZWrite ("ZWrite", Int) = 1
@@ -18,14 +25,17 @@ Properties
     [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Int) = 2
         
 
-    Foldout_SurfaceInputs ("Surface Inputs", Float) = 1
-    _MainTex ("Albedo", 2D) = "white" {}
+    [Foldout] _SurfaceInputs ("Surface Inputs", Float) = 1
+
+    [TexturePacking(Albedo#White, Albedo#White, Albedo#White, Alpha#Black)]
+    [Tooltip(Albedo RGB, Transparency A)] [ExtraProperty(_Color, _AlbedoSaturation)] _MainTex ("Albedo", 2D) = "white" {}
     _Color ("Color", Color) = (1,1,1,1)
     _AlbedoSaturation ("Saturation", Float) = 1
 
 
 
-    _MetallicGlossMap("Mask Map", 2D) = "white" {}
+    [TexturePacking(Metallic#Black, Occlusion#White, none#black, Smoothness#White)]
+    [Toggle(_MASKMAP)] [Linear] [Tooltip(Metallic R, Occlusion G, Smoothness A)] [ExtraProperty(_SmoothnessAlbedoAlpha)] _MetallicGlossMap("Mask Map", 2D) = "white" {}
     [HideIf(_MetallicGlossMap)] [Indent(2)] _Metallic ("Metallic", Range(0,1)) = 0
     [HideIf(_MetallicGlossMap)] [HideIf(_SmoothnessAlbedoAlpha is 1)] [Indent(2)] _Glossiness ("Smoothness", Range(0,1)) = 0.5
     [ShowIf(_MetallicGlossMap)] [Indent(2)] [MinMax] _MetallicRemapping ("Metallic Remap", Vector) = (0,1,0,1)
@@ -51,9 +61,9 @@ Properties
     [Tooltip(Removes reflections based on lightmap or lightprobe intensity)] _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
 
 
-    Foldout_Emission ("Emission", Float) = 0
+    [Foldout] _EmissionFoldout ("Emission", Float) = 0
 
-    //[Toggle(_EMISSION)] _EmissionToggle ("Enable Emission", Int) = 0
+    [Toggle(_EMISSION)] _EmissionToggle ("Enable Emission", Int) = 0
 
     [ExtraProperty(_EmissionColor)] _EmissionMap ("Emission Map", 2D) = "white" {}
     [HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
@@ -63,13 +73,13 @@ Properties
     _EmissionGIMultiplier ("GI Multiplier", Float) = 1
 
     [MarkupSpace(10)]
-    //[Toggle(_AUDIOLINK_EMISSION)] _AudioLinkEmissionToggle ("Audio Link", Float) = 0
+    [Toggle(_AUDIOLINK_EMISSION)] _AudioLinkEmissionToggle ("Audio Link", Float) = 0
     [ShowIf(_AudioLinkEmissionToggle is 1)] [Enum(Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3)] _AudioLinkEmissionBand ("Band", Int) = 0
     [HideInInspector] _AudioTexture ("Audio Link Render Texture", 2D) = "_AudioTexture" {}
 
 
 
-    Foldout_DetailFoldout ("Detail Inputs", Float) = 0
+    [Foldout] _DetailFoldout ("Detail Inputs", Float) = 0
     [AdvancedKeywordEnum(_, 0, _DETAILBLEND_SCREEN, 1, _DETAILBLEND_MULX2, 2, _DETAILBLEND_LERP, 3)]
     [Enum(Overlay, 0, Screen, 1, Multiply X2, 2, Replace, 3)] _DetailBlendMode ("Blend Mode", Int) = 0
 
@@ -324,6 +334,6 @@ SubShader
         ENDCG
     }
 }
-CustomEditor "z3y.Shaders.LitGUI"
+CustomEditor "MarkupEditor.MarkupShaderGUI"
 Fallback "Mobile/Quest Lite"
 }
