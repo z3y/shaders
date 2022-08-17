@@ -74,7 +74,7 @@ Properties
     [Enum(Overlay, 0, Screen, 1, Multiply X2, 2, Replace, 3)] _DetailBlendMode ("Blend Mode", Int) = 0
 
     [Toggle(_DETAIL_BLENDMASK)] _DetailMask ("Blend Mask", 2D) = "white" {}
-    [TilingOffset] _DetailMaskTileOffset ("_DetailMask", Float) = 0
+    //[TilingOffset] _DetailMaskTileOffset ("_DetailMask", Float) = 0
     [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _DetailMask_UV ("UV", Int) = 0
 
 
@@ -89,8 +89,8 @@ Properties
 
     [TilingOffset] _DetailMapTileOffset ("_DetailAlbedoMap", Float) = 0
     [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _DetailMap_UV ("UV", Int) = 0
-    [Tooltip(Use the Detail textures as Decal, only sampling within the UV range)]
-    [Toggle(_DECAL)] _IsDecal ("Use as Decal", Float) = 0
+    //[Tooltip(Use the Detail textures as Decal, only sampling within the UV range)]
+    //[Toggle(_DECAL)] _IsDecal ("Use as Decal", Float) = 0
 
 
     [MarkupSpace(10)]

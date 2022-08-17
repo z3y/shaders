@@ -42,6 +42,22 @@ namespace z3y.Shaders
         private MaterialProperty _EmissionMultBase;
         private MaterialProperty _EmissionGIMultiplier;
         private MaterialProperty _AudioLinkEmissionBand;
+
+        private MaterialProperty Foldout_DetailFoldout;
+        private MaterialProperty _DetailAlbedoMap;
+        private MaterialProperty _DetailMask;
+        private MaterialProperty _DetailBlendMode;
+        private MaterialProperty _DetailMask_UV;
+        private MaterialProperty _DetailNormalMap;
+        private MaterialProperty _DetailColor;
+        private MaterialProperty _DetailNormalScale;
+        private MaterialProperty _DetailMetallic;
+        private MaterialProperty _DetailGlossiness;
+        private MaterialProperty _DetailMap_UV;
+        private MaterialProperty _DetailHeightBlend;
+        private MaterialProperty _HeightBlend;
+        private MaterialProperty _HeightBlendInvert;
+
         #endregion
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
@@ -83,6 +99,11 @@ namespace z3y.Shaders
                 DrawEmission(materialEditor, materialProperties, material);
             }
 
+            if (Foldout(Foldout_DetailFoldout))
+            {
+                DrawDetail(materialEditor, materialProperties, material);
+            }
+
 
             /*        GUILayout.BeginVertical("Box");
                     EditorGUILayout.LabelField("Keywords");
@@ -94,6 +115,34 @@ namespace z3y.Shaders
                     GUILayout.EndVertical();*/
 
         }
+
+        private void DrawDetail(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
+        {
+            Draw(_DetailBlendMode);
+            Draw(_DetailMask);
+            materialEditor.TextureScaleOffsetProperty(_DetailBlendMode);
+            Draw(_DetailMask_UV);
+
+            Space();
+
+
+            Draw(_DetailAlbedoMap, _DetailColor);
+            Draw(_DetailNormalMap, _DetailNormalScale);
+
+            if (_DetailBlendMode.floatValue == 3)
+            {
+                Draw(_DetailMetallic);
+                Draw(_DetailGlossiness);
+            }
+            materialEditor.TextureScaleOffsetProperty(_DetailAlbedoMap);
+            Draw(_DetailMap_UV);
+            KeywordToggle("_DECAL", material, new GUIContent("Use as Decal", "Use the Detail textures as Decal, only sampling within the UV range"));
+
+            Space();
+            Draw(_DetailHeightBlend, _HeightBlend);
+            Draw(_HeightBlendInvert);
+        }
+
         private void DrawEmission(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
             KeywordToggle("_EMISSION", material, new GUIContent("Enable Emission"));
@@ -200,6 +249,15 @@ namespace z3y.Shaders
 
             m.ToggleKeyword("_MASKMAP", m.GetTexture("_MetallicGlossMap"));
             m.ToggleKeyword("_NORMALMAP", m.GetTexture("_BumpMap"));
+
+            int detailBlend = (int)m.GetFloat("_DetailBlendMode");
+            m.ToggleKeyword("_DETAILBLEND_SCREEN", detailBlend == 1);
+            m.ToggleKeyword("_DETAILBLEND_MULX2", detailBlend == 2);
+            m.ToggleKeyword("_DETAILBLEND_LERP", detailBlend == 3);
+            m.ToggleKeyword("_DETAIL_BLENDMASK", m.GetTexture("_DetailMask"));
+            m.ToggleKeyword("_DETAIL_ALBEDOMAP", m.GetTexture("_DetailAlbedoMap"));
+            m.ToggleKeyword("_DETAIL_NORMALMAP", m.GetTexture("_DetailNormalMap"));
+            m.ToggleKeyword("_DETAIL_HEIGHTBLEND", m.GetTexture("_DetailHeightBlend"));
 
 
         }
