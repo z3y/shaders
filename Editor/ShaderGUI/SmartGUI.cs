@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 
@@ -156,8 +157,17 @@ namespace z3y.Shaders
             return enabled;
         }
 
-        public void Space() => EditorGUILayout.Space();
-        public void Space(float width) => EditorGUILayout.Space(width);
+        public bool KeywordToggleOff(string keyword, Material material, GUIContent display)
+        {
+            bool enabled = !material.IsKeywordEnabled(keyword);
+            enabled = EditorGUILayout.Toggle(display, enabled);
+            material.ToggleKeyword(keyword, !enabled);
+
+            return enabled;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public void Space() => EditorGUILayout.Space();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public void Space(float width) => EditorGUILayout.Space(width);
 
         /// <summary> Draws a foldout and saves the state in the material property</summary>
         public bool Foldout(MaterialProperty foldout)

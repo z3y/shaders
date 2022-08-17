@@ -64,6 +64,10 @@ namespace z3y.Shaders
         private MaterialProperty _WindSpeed;
         private MaterialProperty _WindIntensity;
 
+        private MaterialProperty Foldout_AvancedSettings;
+        private MaterialProperty _specularAntiAliasingVariance;
+        private MaterialProperty _specularAntiAliasingThreshold;
+        private MaterialProperty Bakery;
         #endregion
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
@@ -119,16 +123,65 @@ namespace z3y.Shaders
                 DrawWind(materialEditor, materialProperties, material);
             }
 
+            if (Foldout(Foldout_AvancedSettings))
+            {
+                DrawAvancedSettings(materialEditor, materialProperties, material);
+            }
 
-            /*        GUILayout.BeginVertical("Box");
-                    EditorGUILayout.LabelField("Keywords");
-                    if (material.shaderKeywords.Length > 0) Space();
-                    foreach (var keyword in material.shaderKeywords)
-                    {
-                        EditorGUILayout.LabelField(keyword);
-                    }
-                    GUILayout.EndVertical();*/
+            Space();
+            DrawSplitter();
+            Space();
+            materialEditor.RenderQueueField();
+            materialEditor.EnableInstancingField();
+            materialEditor.DoubleSidedGIField();
 
+            Space();
+            GUILayout.BeginVertical("Box");
+            EditorGUILayout.LabelField("Keywords");
+            if (material.shaderKeywords.Length > 0) Space();
+            foreach (var keyword in material.shaderKeywords)
+            {
+                EditorGUILayout.LabelField(keyword);
+            }
+            GUILayout.EndVertical();
+
+        }
+
+        private void DrawAvancedSettings(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
+        {
+            KeywordToggleOff("_SPECULARHIGHLIGHTS_OFF", material, new GUIContent("Specular Highlights"));
+            KeywordToggleOff("_GLOSSYREFLECTIONS_OFF", material, new GUIContent("Reflections"));
+            KeywordToggle("FORCE_SPECCUBE_BOX_PROJECTION", material, new GUIContent("Force Box Projection", "Force Box Projection on Quest"));
+            KeywordToggleOff("_BLENDREFLECTIONPROBES_OFF", material, new GUIContent("Blend Reflection Probes"));
+            KeywordToggle("_ALLOW_LPPV", material, new GUIContent("Allow LPPV", "Allow Lightprobe Proxy Volumes"));
+
+            if (KeywordToggle("_GEOMETRICSPECULAR_AA", material, new GUIContent("Geometric Specular AA")))
+            {
+                Draw(_specularAntiAliasingVariance);
+                Draw(_specularAntiAliasingThreshold);
+            }
+
+#if LTCGI_INCLUDED
+            Space();
+            KeywordToggle("LTCGI", material, new GUIContent("LTCGI"));
+            KeywordToggle("LTCGI_DIFFUSE_OFF", material, new GUIContent("LTCGI Disable Diffuse"));
+#else
+            material.ToggleKeyword("LTCGI", false);
+            material.ToggleKeyword("LTCGI_DIFFUSE_OFF", false);
+#endif
+
+            Space();
+            KeywordToggle("_LIGHTMAPPED_SPECULAR", material, new GUIContent("Lightmapped Specular"));
+            KeywordToggle("_BICUBICLIGHTMAP", material, new GUIContent("Bicubic Lightmap"));
+            KeywordToggle("DITHERING", material, new GUIContent("Dithering")); // TODO: make them predefined
+            KeywordToggle("ACES_TONEMAPPING", material, new GUIContent("ACES"));
+
+            Space();
+            Draw(Bakery);
+            KeywordToggleOff("BAKERY_SHNONLINEAR_OFF", material, new GUIContent("Non-linear Lightmap SH"));
+            KeywordToggle("NONLINEAR_LIGHTPROBESH", material, new GUIContent("Non-linear Light Probe SH", "Use with L1 probes"));
+
+            Space();
         }
 
         private void DrawWind(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
@@ -174,14 +227,16 @@ namespace z3y.Shaders
             KeywordToggle("_EMISSION", material, new GUIContent("Enable Emission"));
             Space();
 
+
             Draw(_EmissionMap, _EmissionColor);
             materialEditor.TextureScaleOffsetProperty(_EmissionMap);
             Draw(_EmissionMap_UV);
+            materialEditor.LightmapEmissionProperty();
 
             Space();
 
-            Draw(_EmissionMultBase);
-            Draw(_EmissionGIMultiplier);
+            Draw(_EmissionMultBase, "Multiply emission with base color");
+            Draw(_EmissionGIMultiplier, "Emission multiplier for the Meta Pass, used for realtime or baked GI");
 
             Space();
 
@@ -215,9 +270,9 @@ namespace z3y.Shaders
             }
             EditorGUI.indentLevel -= 2;
             Space();
-            //Draw(_Reflectance);
             materialEditor.TextureScaleOffsetProperty(_MainTex);
-            Draw(_SpecularOcclusion, "Removes reflections based on lightmap or lightprobe intensity");
+            Draw(_Reflectance);
+            Draw(_SpecularOcclusion, "Use lightmap or lightprobe intensity for occlusion");
 
             Space();
         }
