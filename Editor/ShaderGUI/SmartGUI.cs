@@ -148,24 +148,6 @@ namespace z3y.Shaders
             }
         }
 
-        public bool KeywordToggle(string keyword, Material material, GUIContent display)
-        {
-            bool enabled = material.IsKeywordEnabled(keyword);
-            enabled = EditorGUILayout.Toggle(display, enabled);
-            material.ToggleKeyword(keyword, enabled);
-
-            return enabled;
-        }
-
-        public bool KeywordToggleOff(string keyword, Material material, GUIContent display)
-        {
-            bool enabled = !material.IsKeywordEnabled(keyword);
-            enabled = EditorGUILayout.Toggle(display, enabled);
-            material.ToggleKeyword(keyword, !enabled);
-
-            return enabled;
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public void Space() => EditorGUILayout.Space();
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public void Space(float width) => EditorGUILayout.Space(width);
 

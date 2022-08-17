@@ -68,6 +68,24 @@ namespace z3y.Shaders
         private MaterialProperty _specularAntiAliasingVariance;
         private MaterialProperty _specularAntiAliasingThreshold;
         private MaterialProperty Bakery;
+        private MaterialProperty _AudioLinkEmissionToggle;
+        private MaterialProperty _EmissionToggle;
+        private MaterialProperty _IsDecal;
+        private MaterialProperty _WindToggle;
+        private MaterialProperty _BAKERY_SHNONLINEAR;
+        private MaterialProperty _NonLinearLightProbeSH;
+        private MaterialProperty _LightmappedSpecular;
+        private MaterialProperty _BicubicLightmap;
+        private MaterialProperty _Dithering;
+        private MaterialProperty _ACES;
+        private MaterialProperty _LTCGI;
+        private MaterialProperty _LTCGI_DIFFUSE_OFF;
+        private MaterialProperty _SpecularHighlights;
+        private MaterialProperty _GlossyReflections;
+        private MaterialProperty _ForceBoxProjection;
+        private MaterialProperty _BlendReflectionProbes;
+        private MaterialProperty _Allow_LPPV_Toggle;
+        private MaterialProperty _GSAA;
         #endregion
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
@@ -149,13 +167,14 @@ namespace z3y.Shaders
 
         private void DrawAvancedSettings(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
-            KeywordToggleOff("_SPECULARHIGHLIGHTS_OFF", material, new GUIContent("Specular Highlights"));
-            KeywordToggleOff("_GLOSSYREFLECTIONS_OFF", material, new GUIContent("Reflections"));
-            KeywordToggle("FORCE_SPECCUBE_BOX_PROJECTION", material, new GUIContent("Force Box Projection", "Force Box Projection on Quest"));
-            KeywordToggleOff("_BLENDREFLECTIONPROBES_OFF", material, new GUIContent("Blend Reflection Probes"));
-            KeywordToggle("_ALLOW_LPPV", material, new GUIContent("Allow LPPV", "Allow Lightprobe Proxy Volumes"));
+            Draw(_SpecularHighlights);
+            Draw(_GlossyReflections);
+            Draw(_ForceBoxProjection, "Force Box Projection on Quest");
+            Draw(_BlendReflectionProbes);
+            Draw(_Allow_LPPV_Toggle, "Allow Lightprobe Proxy Volumes");
 
-            if (KeywordToggle("_GEOMETRICSPECULAR_AA", material, new GUIContent("Geometric Specular AA")))
+            Draw(_GSAA);
+            if (_GSAA.floatValue == 1)
             {
                 Draw(_specularAntiAliasingVariance);
                 Draw(_specularAntiAliasingThreshold);
@@ -163,30 +182,29 @@ namespace z3y.Shaders
 
 #if LTCGI_INCLUDED
             Space();
-            KeywordToggle("LTCGI", material, new GUIContent("LTCGI"));
-            KeywordToggle("LTCGI_DIFFUSE_OFF", material, new GUIContent("LTCGI Disable Diffuse"));
+            Draw(_LTCGI);
+            Draw(_LTCGI_DIFFUSE_OFF);
 #else
             material.ToggleKeyword("LTCGI", false);
-            material.ToggleKeyword("LTCGI_DIFFUSE_OFF", false);
+            _LTCGI.floatValue = 0;
 #endif
 
             Space();
-            KeywordToggle("_LIGHTMAPPED_SPECULAR", material, new GUIContent("Lightmapped Specular"));
-            KeywordToggle("_BICUBICLIGHTMAP", material, new GUIContent("Bicubic Lightmap"));
-            KeywordToggle("DITHERING", material, new GUIContent("Dithering")); // TODO: make them predefined
-            KeywordToggle("ACES_TONEMAPPING", material, new GUIContent("ACES"));
+            Draw(_LightmappedSpecular);
+            Draw(_BicubicLightmap);
+            Draw(_Dithering);
+            Draw(_ACES);
 
             Space();
             Draw(Bakery);
-            KeywordToggleOff("BAKERY_SHNONLINEAR_OFF", material, new GUIContent("Non-linear Lightmap SH"));
-            KeywordToggle("NONLINEAR_LIGHTPROBESH", material, new GUIContent("Non-linear Light Probe SH", "Use with L1 probes"));
-
+            Draw(_BAKERY_SHNONLINEAR);
+            Draw(_NonLinearLightProbeSH);
             Space();
         }
 
         private void DrawWind(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
-            KeywordToggle("_WIND", material, new GUIContent("Enable Wind"));
+            Draw(_WindToggle);
             Draw(_WindNoise);
             Draw(_WindScale);
             Draw(_WindSpeed);
@@ -215,7 +233,7 @@ namespace z3y.Shaders
             }
             materialEditor.TextureScaleOffsetProperty(_DetailAlbedoMap);
             Draw(_DetailMap_UV);
-            KeywordToggle("_DECAL", material, new GUIContent("Use as Decal", "Use the Detail textures as Decal, only sampling within the UV range"));
+            Draw(_IsDecal, "Use the Detail textures as Decal, only sampling within the UV range");
 
             Space();
             Draw(_DetailHeightBlend, _HeightBlend);
@@ -224,7 +242,7 @@ namespace z3y.Shaders
 
         private void DrawEmission(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
-            KeywordToggle("_EMISSION", material, new GUIContent("Enable Emission"));
+            Draw(_EmissionToggle);
             Space();
 
 
@@ -239,8 +257,8 @@ namespace z3y.Shaders
             Draw(_EmissionGIMultiplier, "Emission multiplier for the Meta Pass, used for realtime or baked GI");
 
             Space();
-
-            if (KeywordToggle("_AUDIOLINK_EMISSION", material, new GUIContent("Audio Link")))
+            Draw(_AudioLinkEmissionToggle);
+            if (_AudioLinkEmissionToggle.floatValue == 1)
             {
                 Draw(_AudioLinkEmissionBand);
             }
@@ -339,6 +357,10 @@ namespace z3y.Shaders
             m.ToggleKeyword("_DETAIL_NORMALMAP", m.GetTexture("_DetailNormalMap"));
             m.ToggleKeyword("_DETAIL_HEIGHTBLEND", m.GetTexture("_DetailHeightBlend"));
 
+            int bakeryMode = (int)m.GetFloat("Bakery");
+            m.ToggleKeyword("BAKERY_MONOSH", bakeryMode == 3);
+            m.ToggleKeyword("BAKERY_RNM", bakeryMode == 2);
+            m.ToggleKeyword("BAKERY_SH", bakeryMode == 1);
 
         }
     }

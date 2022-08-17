@@ -53,7 +53,7 @@ Properties
 
     Foldout_Emission ("Emission", Float) = 0
 
-    //[Toggle(_EMISSION)] _EmissionToggle ("Enable Emission", Int) = 0
+    [Toggle(_EMISSION)] _EmissionToggle ("Enable Emission", Int) = 0
 
     [ExtraProperty(_EmissionColor)] _EmissionMap ("Emission Map", 2D) = "white" {}
     [HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
@@ -63,7 +63,7 @@ Properties
     _EmissionGIMultiplier ("GI Multiplier", Float) = 1
 
     [MarkupSpace(10)]
-    //[Toggle(_AUDIOLINK_EMISSION)] _AudioLinkEmissionToggle ("Audio Link", Float) = 0
+    [Toggle(_AUDIOLINK_EMISSION)] _AudioLinkEmissionToggle ("Audio Link", Float) = 0
     [ShowIf(_AudioLinkEmissionToggle is 1)] [Enum(Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3)] _AudioLinkEmissionBand ("Band", Int) = 0
     [HideInInspector] _AudioTexture ("Audio Link Render Texture", 2D) = "_AudioTexture" {}
 
@@ -90,7 +90,7 @@ Properties
     [TilingOffset] _DetailMapTileOffset ("_DetailAlbedoMap", Float) = 0
     [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _DetailMap_UV ("UV", Int) = 0
     //[Tooltip(Use the Detail textures as Decal, only sampling within the UV range)]
-    //[Toggle(_DECAL)] _IsDecal ("Use as Decal", Float) = 0
+    [Toggle(_DECAL)] _IsDecal ("Use as Decal", Float) = 0
 
 
     [MarkupSpace(10)]
@@ -117,7 +117,7 @@ Properties
 
 
     Foldout_WindFoldout ("Wind", Float) = 0
-    //[Toggle(_WIND)] _WindToggle ("Enable Wind", Float) = 0
+    [Toggle(_WIND)] _WindToggle ("Enable Wind", Float) = 0
     _WindNoise ("Noise RGB", 2D) = "black" {}
     _WindScale ("Noise Scale", Float) = 0.02
     [PowerSlider(2)] _WindSpeed ("Speed", Range(0,5)) = 0.05
@@ -131,36 +131,27 @@ Properties
 
     Foldout_AvancedSettings ("Additional Settings", Float) = 0
 
-    //[ToggleOff(_SPECULARHIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
-    //[ToggleOff(_GLOSSYREFLECTIONS_OFF)] _GlossyReflections ("Reflections", Float) = 1
-    //[Toggle(FORCE_SPECCUBE_BOX_PROJECTION)] [Tooltip(Force Box Projection on Quest)] _ForceBoxProjection ("Force Box Projection", Float) = 0
-    //[ToggleOff(_BLENDREFLECTIONPROBES_OFF)] _BlendReflectionProbes ("Blend Reflection Probes", Float) = 1
-    //[Tooltip(Allow Lightprobe Proxy Volumes)] [Toggle(_ALLOW_LPPV)] _Allow_LPPV_Toggle ("Allow LPPV", Float) = 0
+    [ToggleOff(_SPECULARHIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
+    [ToggleOff(_GLOSSYREFLECTIONS_OFF)] _GlossyReflections ("Reflections", Float) = 1
+    [Toggle(FORCE_SPECCUBE_BOX_PROJECTION)] _ForceBoxProjection ("Force Box Projection", Float) = 0
+    [ToggleOff(_BLENDREFLECTIONPROBES_OFF)] _BlendReflectionProbes ("Blend Reflection Probes", Float) = 1
+    [Toggle(_ALLOW_LPPV)] _Allow_LPPV_Toggle ("Allow LPPV", Float) = 0
 
-    //[Toggle(_GEOMETRICSPECULAR_AA)] [Tooltip(Reduce specular shimmering)] _GSAA ("Geometric Specular AA", Int) = 0
-    [ShowIf(_GSAA is 1)] [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
-    [ShowIf(_GSAA is 1)] [PowerSlider(2)] _specularAntiAliasingThreshold ("Threshold", Range(0.0, 1.0)) = 0.1
+    [Toggle(_GEOMETRICSPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
+    [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
+    [PowerSlider(2)] _specularAntiAliasingThreshold ("Threshold", Range(0.0, 1.0)) = 0.1
 
+    [Toggle(LTCGI)] _LTCGI("LTCGI", Int) = 0
+    [Toggle(LTCGI_DIFFUSE_OFF)] _LTCGI_DIFFUSE_OFF("LTCGI Disable Diffuse", Int) = 0
+    [Toggle(_LIGHTMAPPED_SPECULAR)] [Tooltip(Specular Highlights from Directional Lightmaps or dominant light probe direction)] _LightmappedSpecular ("Lightmapped Specular ", Int) = 0
+    [Toggle(_BICUBICLIGHTMAP)] [Tooltip(Smoother lightmap)] _BicubicLightmap ("Bicubic Lightmap", Float) = 0
 
-    //[MarkupSpace(10)]
-    //[Toggle(LTCGI)] _LTCGI("LTCGI", Int) = 0
-    //[Toggle(LTCGI_DIFFUSE_OFF)] _LTCGI_DIFFUSE_OFF("LTCGI Disable Diffuse", Int) = 0
-
-    //[Space(10)]
-
-    
-
-    //[Toggle(_LIGHTMAPPED_SPECULAR)] [Tooltip(Specular Highlights from Directional Lightmaps or dominant light probe direction)] _LightmappedSpecular ("Lightmapped Specular ", Int) = 0
-    //[Toggle(_BICUBICLIGHTMAP)] [Tooltip(Smoother lightmap)] _BicubicLightmap ("Bicubic Lightmap", Float) = 0
-
-    //[Tooltip(Removes banding. Not needed if Post Processing is used)] [Toggle(DITHERING)] _Dithering ("Dithering", Float) = 0
-    //[Toggle(ACES_TONEMAPPING)] _ACES ("ACES", Float) = 0
-
-    //[Space(10)]
+    [Toggle(DITHERING)] _Dithering ("Dithering", Float) = 0
+    [Toggle(ACES_TONEMAPPING)] _ACES ("ACES", Float) = 0
 
     [AdvancedKeywordEnum(_, 0, BAKERY_SH, 1, BAKERY_RNM, 2, BAKERY_MONOSH, 3)] [Enum(None, 0, SH, 1, RNM, 2, MONOSH, 3)] Bakery ("Bakery Mode", Int) = 0
-    //[ToggleOff(BAKERY_SHNONLINEAR_OFF)] _BAKERY_SHNONLINEAR ("Non-linear Lightmap SH", Float) = 1
-    //[Toggle(NONLINEAR_LIGHTPROBESH)] _NonLinearLightProbeSH ("Non-linear Light Probe SH", Int) = 0
+    [ToggleOff(BAKERY_SHNONLINEAR_OFF)] _BAKERY_SHNONLINEAR ("Non-linear Lightmap SH", Float) = 1
+    [Toggle(NONLINEAR_LIGHTPROBESH)] _NonLinearLightProbeSH ("Non-linear Light Probe SH", Int) = 0
 
 
 }
