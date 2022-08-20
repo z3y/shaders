@@ -56,11 +56,6 @@ namespace z3y.Shaders
             if (property is null) return;
 
             Draw(_materialEditor, property, extraProperty, extraProperty2, onHover, nameOverride);
-
-            int currentIndex = Array.IndexOf(_materialProperties, property);
-            currentIndex++;
-            if (extraProperty != null) currentIndex++;
-            if (extraProperty2 != null) currentIndex++;
         }
         
 
@@ -124,6 +119,22 @@ namespace z3y.Shaders
 
             EditorGUI.indentLevel = indentLevel;
             return controlRectForSingleLine;
+        }
+
+        public bool TexturePackingButton()
+        {
+            var lastRect = GUILayoutUtility.GetLastRect();
+
+            var buttonRect = new Rect(lastRect.x - 16f, lastRect.y +1.5f, 14f, 14f);
+            var textRect = new Rect(lastRect.x - 14f, lastRect.y + 0.5f, 17f, 17f);
+
+            if (GUI.Button(buttonRect, new GUIContent("", "Texture Packing")))
+            {
+                return true;
+            }
+            EditorGUI.LabelField(textRect, "P");
+
+            return false;
         }
 
 

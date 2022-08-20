@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 
 
-namespace MarkupEditor
+namespace z3y
 {
     public class MarkupShaderGUI : ShaderGUI
     {

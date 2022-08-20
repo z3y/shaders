@@ -334,6 +334,6 @@ SubShader
         ENDCG
     }
 }
-CustomEditor "MarkupEditor.MarkupShaderGUI"
+CustomEditor "z3y.MarkupShaderGUI"
 Fallback "Mobile/Quest Lite"
 }

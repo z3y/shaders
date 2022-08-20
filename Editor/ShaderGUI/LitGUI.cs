@@ -153,7 +153,7 @@ namespace z3y.Shaders
             materialEditor.EnableInstancingField();
             materialEditor.DoubleSidedGIField();
 
-            Space();
+/*            Space();
             GUILayout.BeginVertical("Box");
             EditorGUILayout.LabelField("Keywords");
             if (material.shaderKeywords.Length > 0) Space();
@@ -161,7 +161,7 @@ namespace z3y.Shaders
             {
                 EditorGUILayout.LabelField(keyword);
             }
-            GUILayout.EndVertical();
+            GUILayout.EndVertical();*/
 
         }
 
@@ -269,9 +269,24 @@ namespace z3y.Shaders
         private void DrawSurfaceInputs(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
             Draw(_MainTex, _Color, _AlbedoSaturation);
+            if (TexturePackingButton())
+            {
+                TexturePacking window = GetPackingWindow(material);
+                window.packingProperty = _MainTex;
+            }
 
             Draw(_BumpMap, _BumpScale);
             Draw(_MetallicGlossMap, _SmoothnessAlbedoAlpha);
+            if (TexturePackingButton())
+            {
+                TexturePacking window = GetPackingWindow(material);
+                window.packingProperty = _MetallicGlossMap;
+                window.dataR.displayName = "Metallic";
+                window.dataG.displayName = "Occlusion";
+                window.dataB.displayName = "";
+                window.dataA.displayName = "Smoothness";
+                window.disableSrgb = true;
+            }
             sRGBWarning(_MetallicGlossMap);
             EditorGUI.indentLevel+=2;
             if (_MetallicGlossMap.textureValue || _SmoothnessAlbedoAlpha.floatValue == 1)
@@ -294,7 +309,18 @@ namespace z3y.Shaders
 
             Space();
         }
-        
+
+        private static TexturePacking GetPackingWindow(Material material)
+        {
+            TexturePacking.Init();
+            TexturePacking window = (TexturePacking)EditorWindow.GetWindow(typeof(TexturePacking));
+            window.Close();
+            TexturePacking.Init();
+            window = (TexturePacking)EditorWindow.GetWindow(typeof(TexturePacking));
+            window.packingMaterial = material;
+            return window;
+        }
+
         private void DrawRenderingOptions(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
             

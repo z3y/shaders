@@ -4,9 +4,9 @@ using UnityEditor;
 using UnityEngine;
 
 
-namespace MarkupEditor
+namespace z3y
 {
-    public static class TexturePacking
+    public class TexturePacking : EditorWindow
     {
         public class Channel
         {
@@ -16,10 +16,67 @@ namespace MarkupEditor
             public bool DefaultWhite = true;
         }
 
-        private static readonly Shader TextureUtilityShader = Shader.Find("Hidden/MarkupEditor/TextureUtility");
+        [MenuItem("z3y/test")]
+        public static void Init()
+        {
+            TexturePacking window = (TexturePacking)GetWindow(typeof(TexturePacking));
+            window.Show();
+        }
+
+        private void OnEnable()
+        {
+            //titleContent = new GUIContent("Texture Packing");
+        }
+
+
+        public FieldData dataR = new FieldData {displayName = "Red" };
+        public FieldData dataG = new FieldData { displayName = "Green", channelSelect = ChannelSelect.Green };
+        public FieldData dataB = new FieldData { displayName = "Blue", channelSelect = ChannelSelect.Blue };
+        public FieldData dataA = new FieldData { displayName = "Alpha" };
+
+        public Material packingMaterial = null;
+        public MaterialProperty packingProperty = null;
+        public bool disableSrgb = false;
+
+        void OnGUI()
+        {
+            if (packingMaterial != null && packingProperty != null)
+            {
+                EditorGUILayout.Space();
+
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label("Material: ", EditorStyles.boldLabel);
+                GUILayout.Label(packingMaterial.name);
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label("Texture: ", EditorStyles.boldLabel);
+                GUILayout.Label(packingProperty.displayName);
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.Space();
+            }
+            TexturePackingField(ref dataR, dataR.displayName, null, true);
+            TexturePackingField(ref dataG, dataG.displayName, null, true);
+            TexturePackingField(ref dataB, dataB.displayName, null, true);
+            TexturePackingField(ref dataA, dataA.displayName, null, true);
+
+            disableSrgb = GUILayout.Toggle(disableSrgb, "Disable sRGB");
+
+            GUILayout.Space(10);
+
+            if (GUILayout.Button("Pack"))
+            {
+                Pack(packingProperty, dataR, dataG, dataB, dataA, disableSrgb);
+            }
+
+        }
+
 
         public static void Pack(Channel[] channels, string newTexturePath, int newWidth, int newHeight = 0)
         {
+            Shader TextureUtilityShader = Shader.Find("Hidden/MarkupEditor/TextureUtility");
+
             if (newHeight == 0)
             {
                 newHeight = newWidth;
@@ -264,6 +321,7 @@ namespace MarkupEditor
                 if (showOptions)
                 {
                     GUILayout.BeginHorizontal();
+                    GUILayout.Label("Source: ", GUILayout.Width(50));
                     channelSelect = (ChannelSelect)EditorGUILayout.EnumPopup(channelSelect, GUILayout.Width(70));
                     GUILayout.Space(20);
                     invert = GUILayout.Toggle(invert, "Invert", GUILayout.Width(70));
@@ -283,6 +341,7 @@ namespace MarkupEditor
             public Texture2D texture;
             public bool invert;
             public bool isWhite;
+            public string displayName;
             public ChannelSelect channelSelect;
         }
 
