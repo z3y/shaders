@@ -96,6 +96,7 @@ namespace z3y.Shaders
                 {
                     material.DisableKeyword(keyword);
                 }
+                MaterialEditor.ApplyMaterialPropertyDrawers(material);
                 OnValidate(material);
                 ResetFix.floatValue = 1f;
             }
@@ -351,7 +352,7 @@ namespace z3y.Shaders
                 }
             }
 
-            //MaterialEditor.ApplyMaterialPropertyDrawers(m);
+            MaterialEditor.ApplyMaterialPropertyDrawers(m);
             SetupMaterialWithBlendMode(m, (int)m.GetFloat("_Mode"));
             ApplyChanges(m);
         }
