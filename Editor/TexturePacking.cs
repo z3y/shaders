@@ -68,6 +68,10 @@ namespace z3y
             if (GUILayout.Button("Pack"))
             {
                 Pack(packingProperty, dataR, dataG, dataB, dataA, disableSrgb);
+                if (packingMaterial != null)
+                {
+                    Shaders.LitGUI.ApplyChanges(packingMaterial); // incase the shader gui loses focus
+                }
             }
 
         }

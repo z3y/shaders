@@ -362,7 +362,7 @@ namespace z3y.Shaders
             ApplyChanges(material);
         }
 
-        private static void ApplyChanges(Material m)
+        public static void ApplyChanges(Material m)
         {
             //SetupGIFlags(m.GetFloat("_EmissionToggle"), m);
 
