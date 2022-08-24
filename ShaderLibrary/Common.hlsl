@@ -16,7 +16,7 @@
 #define FLT_MAX         3.402823466e+38 // Maximum representable floating-point number
 
 // Global Properties
-uniform half4 _UdonLightmapTint;
+// uniform half4 _UdonLightmapTint;
 
 
 #include "SurfaceData.hlsl"
@@ -476,8 +476,8 @@ half3 GetLightProbes(float3 normalWS, float3 positionWS)
             }
         #endif
     #endif
-    half3 lightmapTint = lerp(1.0f, _UdonLightmapTint.rgb, _UdonLightmapTint.a);
-    indirectDiffuse *= lightmapTint;
+    // half3 lightmapTint = lerp(1.0f, _UdonLightmapTint.rgb, _UdonLightmapTint.a);
+    // indirectDiffuse *= lightmapTint;
     return indirectDiffuse;
 }
 
@@ -564,9 +564,9 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
 
     #endif
 
-    half3 lightmapTint = lerp(1.0f, _UdonLightmapTint.rgb, _UdonLightmapTint.a);
-    indirectDiffuse *= lightmapTint;
-    lightmappedSpecular *= lightmapTint;
+    // half3 lightmapTint = lerp(1.0f, _UdonLightmapTint.rgb, _UdonLightmapTint.a);
+    // indirectDiffuse *= lightmapTint;
+    // lightmappedSpecular *= lightmapTint;
    
 
     directSpecular += lightmappedSpecular;
