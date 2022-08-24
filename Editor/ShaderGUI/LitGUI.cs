@@ -35,6 +35,11 @@ namespace z3y.Shaders
         private MaterialProperty _SpecularOcclusion;
         private MaterialProperty _SmoothnessAlbedoAlpha;
 
+        private MaterialProperty _ParallaxMap;
+        private MaterialProperty _Parallax;
+        private MaterialProperty _ParallaxOffset;
+        private MaterialProperty _ParallaxSteps;
+
         private MaterialProperty Foldout_Emission;
         private MaterialProperty _EmissionMap;
         private MaterialProperty _EmissionColor;
@@ -224,7 +229,12 @@ namespace z3y.Shaders
             Space();
 
 
-            Draw(_DetailAlbedoMap, _DetailColor);
+            Draw(_DetailAlbedoMap, _DetailColor, null, "RGB: Albedo\nA: Blend Mask");
+            if (TexturePackingButton())
+            {
+                TexturePacking window = GetPackingWindow(material);
+                window.packingProperty = _DetailAlbedoMap;
+            }
             Draw(_DetailNormalMap, _DetailNormalScale);
 
             if (_DetailBlendMode.floatValue == 3)
@@ -277,7 +287,7 @@ namespace z3y.Shaders
             }
 
             Draw(_BumpMap, _BumpScale);
-            Draw(_MetallicGlossMap, _SmoothnessAlbedoAlpha);
+            Draw(_MetallicGlossMap, _SmoothnessAlbedoAlpha, null, "R: Metallic\nG: Occlusion\nA: Smoothness");
             if (TexturePackingButton())
             {
                 TexturePacking window = GetPackingWindow(material);
@@ -303,6 +313,18 @@ namespace z3y.Shaders
                 Draw(_Glossiness);
             }
             EditorGUI.indentLevel -= 2;
+
+            if (_ParallaxMap.textureValue)
+            {
+                Draw(_ParallaxMap, _Parallax);
+                Draw(_ParallaxOffset);
+                Draw(_ParallaxSteps);
+            }
+            else
+            {
+                Draw(_ParallaxMap);
+            }
+            sRGBWarning(_ParallaxMap);
             Space();
             materialEditor.TextureScaleOffsetProperty(_MainTex);
             Draw(_Reflectance);
@@ -364,7 +386,7 @@ namespace z3y.Shaders
 
         public static void ApplyChanges(Material m)
         {
-            //SetupGIFlags(m.GetFloat("_EmissionToggle"), m);
+            SetupGIFlags(m.GetFloat("_EmissionToggle"), m);
 
             int mode = (int)m.GetFloat("_Mode");
             m.ToggleKeyword("_ALPHATEST_ON", mode == 1);
@@ -374,6 +396,7 @@ namespace z3y.Shaders
 
             m.ToggleKeyword("_MASKMAP", m.GetTexture("_MetallicGlossMap"));
             m.ToggleKeyword("_NORMALMAP", m.GetTexture("_BumpMap"));
+            m.ToggleKeyword("_PARALLAXMAP", m.GetTexture("_ParallaxMap"));
 
             int detailBlend = (int)m.GetFloat("_DetailBlendMode");
             m.ToggleKeyword("_DETAILBLEND_SCREEN", detailBlend == 1);

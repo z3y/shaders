@@ -25,96 +25,69 @@ Properties
 
 
 
-    _MetallicGlossMap("Mask Map", 2D) = "white" {}
-    [HideIf(_MetallicGlossMap)] [Indent(2)] _Metallic ("Metallic", Range(0,1)) = 0
-    [HideIf(_MetallicGlossMap)] [HideIf(_SmoothnessAlbedoAlpha is 1)] [Indent(2)] _Glossiness ("Smoothness", Range(0,1)) = 0.5
-    [ShowIf(_MetallicGlossMap)] [Indent(2)] [MinMax] _MetallicRemapping ("Metallic Remap", Vector) = (0,1,0,1)
-    [ShowIf(_MetallicGlossMap)] [HideIf(_SmoothnessAlbedoAlpha is 1)] [Indent(2)] [MinMax] _GlossinessRange ("Smoothness Range", Vector) = (0,1,0,1)
-    [ShowIf(_MetallicGlossMap)] [HideIf(_SmoothnessAlbedoAlpha is 1)] [Indent(2)] [MinMax] _GlossinessRemapping ("Smoothness Remap", Vector) = (0,1,0,1)
-    [ShowIf(_SmoothnessAlbedoAlpha is 1)] [Indent(2)] [MinMax] _GlossinessRange ("Smoothness Range", Vector) = (0,1,0,1)
-    [ShowIf(_SmoothnessAlbedoAlpha is 1)] [Indent(2)] [MinMax] _GlossinessRemapping ("Smoothness Remap", Vector) = (0,1,0,1)
-    [ShowIf(_MetallicGlossMap)] [Indent(2)] _OcclusionStrength ("Occlusion", Range(0,1)) = 1
-    [Indent(2)] _Reflectance ("Reflectance", Range(0.0, 1.0)) = 0.5
+    _Metallic ("Metallic", Range(0,1)) = 0
+    _Glossiness ("Smoothness", Range(0,1)) = 0.5
+    _Reflectance ("Reflectance", Range(0.0, 1.0)) = 0.5
 
-    [ExtraProperty(_BumpScale)]
-    [Toggle(_NORMALMAP)] [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
+    _MetallicGlossMap("Mask Map", 2D) = "white" {}
+    _MetallicRemapping ("Metallic Remap", Vector) = (0,1,0,1)
+    _GlossinessRange ("Smoothness Range", Vector) = (0,1,0,1)
+    _GlossinessRemapping ("Smoothness Remap", Vector) = (0,1,0,1)
+    _OcclusionStrength ("Occlusion", Range(0,1)) = 1
+
+
+
+    [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
     _BumpScale ("Scale", Float) = 1
     
 	[Toggle(_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A)] _SmoothnessAlbedoAlpha ("Smoothness Albedo Alpha", Int) = 0
-	[Toggle(_PARALLAXMAP)] [Linear] [ExtraProperty(_Parallax)] _ParallaxMap ("Height Map", 2D) = "white" {}
-    [PowerSlider(2)] _Parallax ("Scale", Range (0, 0.2)) = 0.02
-    [Indent(2)] [ShowIf(_ParallaxMap)] _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
-    [Indent(2)] [ShowIf(_ParallaxMap)] [IntRange] _ParallaxSteps ("Steps", Range(1, 32)) = 16
+	_ParallaxMap ("Height Map", 2D) = "white" {}
+    _Parallax ("Scale", Range (0, 0.2)) = 0.02
+    _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
+    [IntRange] _ParallaxSteps ("Steps", Range(1, 32)) = 16
 
 
-    [TilingOffset] _MainTexTileOffset ("_MainTex", Float) = 0
-    [Tooltip(Removes reflections based on lightmap or lightprobe intensity)] _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
+    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
 
 
     Foldout_Emission ("Emission", Float) = 0
 
     [Toggle(_EMISSION)] _EmissionToggle ("Enable Emission", Int) = 0
 
-    [ExtraProperty(_EmissionColor)] _EmissionMap ("Emission Map", 2D) = "white" {}
+    _EmissionMap ("Emission Map", 2D) = "white" {}
     [HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
-    [TilingOffset] _EmissionMapTilingOffset ("_EmissionMap", Float) = 0
     [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _EmissionMap_UV ("UV", Int) = 0
     _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
     _EmissionGIMultiplier ("GI Multiplier", Float) = 1
 
-    [MarkupSpace(10)]
     [Toggle(_AUDIOLINK_EMISSION)] _AudioLinkEmissionToggle ("Audio Link", Float) = 0
-    [ShowIf(_AudioLinkEmissionToggle is 1)] [Enum(Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3)] _AudioLinkEmissionBand ("Band", Int) = 0
+    [Enum(Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3)] _AudioLinkEmissionBand ("Band", Int) = 0
     [HideInInspector] _AudioTexture ("Audio Link Render Texture", 2D) = "_AudioTexture" {}
 
 
 
     Foldout_DetailFoldout ("Detail Inputs", Float) = 0
-    [AdvancedKeywordEnum(_, 0, _DETAILBLEND_SCREEN, 1, _DETAILBLEND_MULX2, 2, _DETAILBLEND_LERP, 3)]
     [Enum(Overlay, 0, Screen, 1, Multiply X2, 2, Replace, 3)] _DetailBlendMode ("Blend Mode", Int) = 0
 
-    [Toggle(_DETAIL_BLENDMASK)] _DetailMask ("Blend Mask", 2D) = "white" {}
-    //[TilingOffset] _DetailMaskTileOffset ("_DetailMask", Float) = 0
+    _DetailMask ("Blend Mask", 2D) = "white" {}
     [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _DetailMask_UV ("UV", Int) = 0
 
 
-    [MarkupSpace(10)]
-    [Toggle(_DETAIL_ALBEDOMAP)] [ExtraProperty(_DetailColor)] _DetailAlbedoMap ("Albedo", 2D) = "white" {}
+    _DetailAlbedoMap ("Albedo", 2D) = "white" {}
     _DetailColor ("Color", Color) = (1,1,1,1)
-    [Toggle(_DETAIL_NORMALMAP)] [Normal] [ExtraProperty(_DetailNormalScale)] _DetailNormalMap ("Normal Map", 2D) = "bump" {}
+    [Normal]_DetailNormalMap ("Normal Map", 2D) = "bump" {}
     _DetailNormalScale ("Scale", Float) = 1
 
-    [ShowIf(_DetailBlendMode is 3)] _DetailMetallic ("Metallic", Range(0,1)) = 0
-    [ShowIf(_DetailBlendMode is 3)] _DetailGlossiness ("Smoothness", Range(0,1)) = 0.5
+    _DetailMetallic ("Metallic", Range(0,1)) = 0
+    _DetailGlossiness ("Smoothness", Range(0,1)) = 0.5
 
-    [TilingOffset] _DetailMapTileOffset ("_DetailAlbedoMap", Float) = 0
     [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _DetailMap_UV ("UV", Int) = 0
-    //[Tooltip(Use the Detail textures as Decal, only sampling within the UV range)]
     [Toggle(_DECAL)] _IsDecal ("Use as Decal", Float) = 0
 
 
-    [MarkupSpace(10)]
-    [Tooltip(Height Map for the Main Texture)]
-    [ExtraProperty(_HeightBlend)] [Toggle(_DETAIL_HEIGHTBLEND)] _DetailHeightBlend ("Height Blend", 2D) = "white" {}
+    _DetailHeightBlend ("Height Blend", 2D) = "white" {}
     _HeightBlend ("Blend", Float) = 5
     [Toggle] _HeightBlendInvert ("Blend Invert", Float) = 0
-
-    // [Foldout] _DecalFoldout ("Decals", Float) = 0
-
-    // [VerticalScopeBegin(box)]
-    // [Toggle(_DECAL0)] _Decal0 ("Decal 0", Int) = 0
-    // [AdvancedKeywordEnum(_, 0, _DECAL0BLEND_SCREEN, 1, _DECAL0BLEND_MULX2, 2, _DECAL0BLEND_LERP, 3)]
-    // [Enum(Overlay, 0, Screen, 1, Multiply X2, 2, Replace, 3)] _DECAL0BlendMode ("Blend Mode", Int) = 0
-    // [ExtraProperty(_Decal0AlbedoColor)] _Decal0Albedo ("Albedo (RGB) Mask (A)", 2D) = "white" {}
-    // _Decal0AlbedoColor ("Color", Color) = (1,1,1,1)
-    // [ExtraProperty(_Decal0NormalScale)] _Decal0NormalMap ("Normal Map", 2D) = "bump" {}
-    // _Decal0NormalScale ("Scale", Float) = 1
-    // [TilingOffset] _Decal0AlbedoTileOffset ("_Decal0Albedo", Float) = 0
-    // [VerticalScopeEnd]
-    // [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _Decal0_UV ("UV", Int) = 0
-
-
-
 
     Foldout_WindFoldout ("Wind", Float) = 0
     [Toggle(_WIND)] _WindToggle ("Enable Wind", Float) = 0
@@ -125,9 +98,9 @@ Properties
     //[Label(helpBox)]_WindInfo ("Vertex Colors RGB for XYZ Intensity Mask", Float) = 0
 
 
-    // [Foldout] _SSSFoldout ("Subsurface Scattering", Float) = 0
+    SSS_Foldout ("Subsurface Scattering", Float) = 0
+    [Toggle(_SSS)] _SSSToggle ("Enable Subsurface Scattering", Int) = 0
 
-    // [Toggle(_SSS)] _SSSToggle ("Enable Subsurface Scattering", Int) = 0
 
     Foldout_AvancedSettings ("Additional Settings", Float) = 0
 
@@ -149,10 +122,9 @@ Properties
     [Toggle(DITHERING)] _Dithering ("Dithering", Float) = 0
     [Toggle(ACES_TONEMAPPING)] _ACES ("ACES", Float) = 0
 
-    [AdvancedKeywordEnum(_, 0, BAKERY_SH, 1, BAKERY_RNM, 2, BAKERY_MONOSH, 3)] [Enum(None, 0, SH, 1, RNM, 2, MONOSH, 3)] Bakery ("Bakery Mode", Int) = 0
+    [Enum(None, 0, SH, 1, RNM, 2, MONOSH, 3)] Bakery ("Bakery Mode", Int) = 0
     [ToggleOff(BAKERY_SHNONLINEAR_OFF)] _BAKERY_SHNONLINEAR ("Non-linear Lightmap SH", Float) = 1
     [Toggle(NONLINEAR_LIGHTPROBESH)] _NonLinearLightProbeSH ("Non-linear Light Probe SH", Int) = 0
-
 
 }
 
