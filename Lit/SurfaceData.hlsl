@@ -134,6 +134,10 @@ void InitializeSurfaceData(inout SurfaceData surf, v2f i, uint facing)
         detailMask = _DetailMask.Sample(sampler_DetailMask, detailMaskUV);
     #endif
 
+    #ifdef REQUIRE_COLOR
+        detailMask *= i.vertexColor.r;
+    #endif
+
 
     #ifdef _DETAIL_HEIGHTBLEND
         half heightBlend = _DetailHeightBlend.Sample(sampler_MainTex, mainUV);

@@ -15,13 +15,19 @@
 #define FLT_MIN         1.175494351e-38 // Minimum representable positive floating-point number
 #define FLT_MAX         3.402823466e+38 // Maximum representable floating-point number
 
+// Global Properties
+// uniform half4 _UdonLightmapTint;
+
+
 #include "SurfaceData.hlsl"
 #include "EnvironmentBRDF.hlsl"
 #include "Sampling.hlsl"
 
+
 half _SpecularOcclusion;
 half _specularAntiAliasingVariance;
 half _specularAntiAliasingThreshold;
+
 
 struct appdata_all
 {
@@ -359,6 +365,10 @@ half3 MainLightSpecular(LightData lightData, half NoV, half perceptualRoughness,
     return max(0.0, (D * V) * F) * lightData.FinalColor * UNITY_PI;
 }
 
+#ifdef _SSS
+    #include "../ShaderLibrary/SSS.hlsl"
+#endif
+
 void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 viewDir, half NoV, half perceptualRoughness, half3 f0, v2f input)
 {
     #ifdef USING_LIGHT_MULTI_COMPILE
@@ -383,6 +393,10 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
         #endif
 
         lightData.Specular = MainLightSpecular(lightData, NoV, perceptualRoughness, f0);
+
+        #ifdef _SSS
+            ApplySSS(lightData, normalWS, viewDir);
+        #endif
     #else
         lightData = (LightData)0;
     #endif
@@ -433,6 +447,10 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
     return indirectSpecular;
 }
 
+#ifndef _ALLOW_LPPV
+    #define UNITY_LIGHT_PROBE_PROXY_VOLUME 0
+#endif
+
 half3 GetLightProbes(float3 normalWS, float3 positionWS)
 {
     half3 indirectDiffuse = 0;
@@ -458,6 +476,8 @@ half3 GetLightProbes(float3 normalWS, float3 positionWS)
             }
         #endif
     #endif
+    // half3 lightmapTint = lerp(1.0f, _UdonLightmapTint.rgb, _UdonLightmapTint.a);
+    // indirectDiffuse *= lightmapTint;
     return indirectDiffuse;
 }
 
@@ -522,7 +542,6 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
 
         indirectDiffuse = max(0.0, indirectDiffuse);
 
-
         #if defined(_LIGHTMAPPED_SPECULAR)
         {
             float3 bakedDominantDirection = 1.0;
@@ -545,6 +564,9 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
 
     #endif
 
+    // half3 lightmapTint = lerp(1.0f, _UdonLightmapTint.rgb, _UdonLightmapTint.a);
+    // indirectDiffuse *= lightmapTint;
+    // lightmappedSpecular *= lightmapTint;
    
 
     directSpecular += lightmappedSpecular;
