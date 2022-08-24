@@ -16,7 +16,7 @@ namespace z3y
             public bool DefaultWhite = true;
         }
 
-        [MenuItem("z3y/test")]
+        [MenuItem("Window/z3y/Texture Packing")]
         public static void Init()
         {
             TexturePacking window = (TexturePacking)GetWindow(typeof(TexturePacking));
