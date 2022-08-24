@@ -28,11 +28,6 @@ An optimized Standard shader replacement for Unity
 - Add the git url `https://github.com/z3y/shaders.git` with the package manager
 - Or [Clone](https://github.com/z3y/shaders/archive/refs/heads/main.zip) the repository and import into Unity Assets folder
 
-
-### Global Keywords
-An editor unity for toggling local keywords globally `Window > z3y > Global Keywords`. It can be used for any shader or keyword where it makes sense
-
-
 If you want to ask something add me z3y#3214 or join the [Discord](https://discord.gg/bw46tKgRFT). Please report bugs if you find them https://github.com/z3y/shaders/issues
 #
 
