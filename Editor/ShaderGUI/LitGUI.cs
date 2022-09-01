@@ -216,6 +216,7 @@ namespace z3y.Shaders
             Draw(_WindSpeed);
             Draw(_WindIntensity);
 
+            EditorGUILayout.HelpBox("Vertex Colors RGB used for wind intensity XYZ mask", MessageType.Info);
             Space();
         }
 
