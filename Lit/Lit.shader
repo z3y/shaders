@@ -56,6 +56,10 @@ Properties
 
     _EmissionMap ("Emission Map", 2D) = "white" {}
     [HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
+    [HideInInspector] _EmissionColorLDR ("Emission Color", Color) = (0,0,0)
+    [ToggleUI] _UseEmissionIntensity ("Use Emission Intensity", Int) = 0
+    _EmissionIntensity ("Intensity", Float) = 1
+
     [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _EmissionMap_UV ("UV", Int) = 0
     _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
     _EmissionGIMultiplier ("GI Multiplier", Float) = 1

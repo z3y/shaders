@@ -21,6 +21,7 @@ namespace z3y
         {
             TexturePacking window = (TexturePacking)GetWindow(typeof(TexturePacking));
             window.Show();
+            window.minSize = new Vector2(400, 300);
         }
 
         private void OnEnable()
