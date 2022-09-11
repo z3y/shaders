@@ -402,7 +402,7 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
     #endif
 }
 
-
+bool _BlendReflectionProbes;
 
 half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half NoV, SurfaceData surf, half3 indirectDiffuse)
 {
@@ -422,16 +422,14 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
         half3 probe0 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE(unity_SpecCube0), unity_SpecCube0_HDR, envData);
         indirectSpecular = probe0;
 
-        #ifndef _BLENDREFLECTIONPROBES_OFF
         #if defined(UNITY_SPECCUBE_BLENDING)
             UNITY_BRANCH
-            if (unity_SpecCube0_BoxMin.w < 0.99999)
+            if (unity_SpecCube0_BoxMin.w < 0.99999 && _BlendReflectionProbes)
             {
                 envData.reflUVW = BoxProjection(reflDir, positionWS, unity_SpecCube1_ProbePosition, unity_SpecCube1_BoxMin.xyz, unity_SpecCube1_BoxMax.xyz);
                 float3 probe1 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE_SAMPLER(unity_SpecCube1, unity_SpecCube0), unity_SpecCube1_HDR, envData);
                 indirectSpecular = lerp(probe1, probe0, unity_SpecCube0_BoxMin.w);
             }
-        #endif
         #endif
 
         float horizon = min(1.0 + dot(reflDir, normalWS), 1.0);

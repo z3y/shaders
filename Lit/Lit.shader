@@ -111,7 +111,7 @@ Properties
     [ToggleOff(_SPECULARHIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
     [ToggleOff(_GLOSSYREFLECTIONS_OFF)] _GlossyReflections ("Reflections", Float) = 1
     [Toggle(FORCE_SPECCUBE_BOX_PROJECTION)] _ForceBoxProjection ("Force Box Projection", Float) = 0
-    [ToggleOff(_BLENDREFLECTIONPROBES_OFF)] _BlendReflectionProbes ("Blend Reflection Probes", Float) = 1
+    [ToggleUI] _BlendReflectionProbes ("Blend Reflection Probes", Float) = 1
     [Toggle(_ALLOW_LPPV)] _Allow_LPPV_Toggle ("Allow LPPV", Float) = 0
 
     [Toggle(_GEOMETRICSPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
@@ -183,7 +183,6 @@ SubShader
         #pragma shader_feature_local FORCE_SPECCUBE_BOX_PROJECTION
         #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
         #pragma shader_feature_local _GLOSSYREFLECTIONS_OFF
-        #pragma shader_feature_local_fragment _BLENDREFLECTIONPROBES_OFF
         #pragma shader_feature_local_fragment _BICUBICLIGHTMAP
         #pragma shader_feature_local _GEOMETRICSPECULAR_AA
         #pragma shader_feature_local _LIGHTMAPPED_SPECULAR
