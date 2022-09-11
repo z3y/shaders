@@ -99,7 +99,6 @@ Properties
     _WindScale ("Noise Scale", Float) = 0.02
     [PowerSlider(2)] _WindSpeed ("Speed", Range(0,5)) = 0.05
     _WindIntensity ("Intensity XYZ", Vector) = (0.1,0.1,0.1,0)
-    //[Label(helpBox)]_WindInfo ("Vertex Colors RGB for XYZ Intensity Mask", Float) = 0
 
 
     SSS_Foldout ("Subsurface Scattering", Float) = 0
@@ -120,8 +119,8 @@ Properties
 
     [Toggle(LTCGI)] _LTCGI("LTCGI", Int) = 0
     [Toggle(LTCGI_DIFFUSE_OFF)] _LTCGI_DIFFUSE_OFF("LTCGI Disable Diffuse", Int) = 0
-    [Toggle(_LIGHTMAPPED_SPECULAR)] [Tooltip(Specular Highlights from Directional Lightmaps or dominant light probe direction)] _LightmappedSpecular ("Lightmapped Specular ", Int) = 0
-    [Toggle(_BICUBICLIGHTMAP)] [Tooltip(Smoother lightmap)] _BicubicLightmap ("Bicubic Lightmap", Float) = 0
+    [Toggle(_LIGHTMAPPED_SPECULAR)] _LightmappedSpecular ("Lightmapped Specular ", Int) = 0
+    [Toggle(_BICUBICLIGHTMAP)] _BicubicLightmap ("Bicubic Lightmap", Float) = 0
 
     [Toggle(DITHERING)] _Dithering ("Dithering", Float) = 0
     [Toggle(ACES_TONEMAPPING)] _ACES ("ACES", Float) = 0
