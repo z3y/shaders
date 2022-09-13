@@ -56,6 +56,10 @@ Properties
 
     _EmissionMap ("Emission Map", 2D) = "white" {}
     [HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
+    [HideInInspector] _EmissionColorLDR ("Emission Color", Color) = (0,0,0)
+    [ToggleUI] _UseEmissionIntensity ("Use Emission Intensity", Int) = 0
+    _EmissionIntensity ("Intensity", Float) = 1
+
     [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _EmissionMap_UV ("UV", Int) = 0
     _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
     _EmissionGIMultiplier ("GI Multiplier", Float) = 1
@@ -95,7 +99,6 @@ Properties
     _WindScale ("Noise Scale", Float) = 0.02
     [PowerSlider(2)] _WindSpeed ("Speed", Range(0,5)) = 0.05
     _WindIntensity ("Intensity XYZ", Vector) = (0.1,0.1,0.1,0)
-    //[Label(helpBox)]_WindInfo ("Vertex Colors RGB for XYZ Intensity Mask", Float) = 0
 
 
     SSS_Foldout ("Subsurface Scattering", Float) = 0
@@ -107,7 +110,7 @@ Properties
     [ToggleOff(_SPECULARHIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
     [ToggleOff(_GLOSSYREFLECTIONS_OFF)] _GlossyReflections ("Reflections", Float) = 1
     [Toggle(FORCE_SPECCUBE_BOX_PROJECTION)] _ForceBoxProjection ("Force Box Projection", Float) = 0
-    [ToggleOff(_BLENDREFLECTIONPROBES_OFF)] _BlendReflectionProbes ("Blend Reflection Probes", Float) = 1
+    [ToggleUI] _BlendReflectionProbes ("Blend Reflection Probes", Float) = 1
     [Toggle(_ALLOW_LPPV)] _Allow_LPPV_Toggle ("Allow LPPV", Float) = 0
 
     [Toggle(_GEOMETRICSPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
@@ -116,8 +119,8 @@ Properties
 
     [Toggle(LTCGI)] _LTCGI("LTCGI", Int) = 0
     [Toggle(LTCGI_DIFFUSE_OFF)] _LTCGI_DIFFUSE_OFF("LTCGI Disable Diffuse", Int) = 0
-    [Toggle(_LIGHTMAPPED_SPECULAR)] [Tooltip(Specular Highlights from Directional Lightmaps or dominant light probe direction)] _LightmappedSpecular ("Lightmapped Specular ", Int) = 0
-    [Toggle(_BICUBICLIGHTMAP)] [Tooltip(Smoother lightmap)] _BicubicLightmap ("Bicubic Lightmap", Float) = 0
+    [Toggle(_LIGHTMAPPED_SPECULAR)] _LightmappedSpecular ("Lightmapped Specular ", Int) = 0
+    [Toggle(_BICUBICLIGHTMAP)] _BicubicLightmap ("Bicubic Lightmap", Float) = 0
 
     [Toggle(DITHERING)] _Dithering ("Dithering", Float) = 0
     [Toggle(ACES_TONEMAPPING)] _ACES ("ACES", Float) = 0
@@ -179,7 +182,6 @@ SubShader
         #pragma shader_feature_local FORCE_SPECCUBE_BOX_PROJECTION
         #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
         #pragma shader_feature_local _GLOSSYREFLECTIONS_OFF
-        #pragma shader_feature_local_fragment _BLENDREFLECTIONPROBES_OFF
         #pragma shader_feature_local_fragment _BICUBICLIGHTMAP
         #pragma shader_feature_local _GEOMETRICSPECULAR_AA
         #pragma shader_feature_local _LIGHTMAPPED_SPECULAR

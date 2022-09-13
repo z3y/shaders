@@ -47,6 +47,9 @@ namespace z3y.Shaders
         private MaterialProperty _EmissionMultBase;
         private MaterialProperty _EmissionGIMultiplier;
         private MaterialProperty _AudioLinkEmissionBand;
+        private MaterialProperty _EmissionIntensity;
+        private MaterialProperty _EmissionColorLDR;
+        private MaterialProperty _UseEmissionIntensity;
 
         private MaterialProperty Foldout_DetailFoldout;
         private MaterialProperty _DetailAlbedoMap;
@@ -258,7 +261,19 @@ namespace z3y.Shaders
             Space();
 
 
-            Draw(_EmissionMap, _EmissionColor);
+            Draw(_UseEmissionIntensity);
+            if (_UseEmissionIntensity.floatValue == 1)
+            {
+                Draw(_EmissionMap, _EmissionColorLDR, _EmissionIntensity);
+                _EmissionIntensity.floatValue = Mathf.Clamp(_EmissionIntensity.floatValue, 0, float.MaxValue);
+                _EmissionColor.colorValue = _EmissionColorLDR.colorValue * _EmissionIntensity.floatValue;
+            }
+            else
+            {
+                Draw(_EmissionMap, _EmissionColor);
+            }
+
+
             materialEditor.TextureScaleOffsetProperty(_EmissionMap);
             Draw(_EmissionMap_UV);
             materialEditor.LightmapEmissionProperty();
@@ -295,6 +310,7 @@ namespace z3y.Shaders
                 window.packingProperty = _MetallicGlossMap;
                 window.dataR.displayName = "Metallic";
                 window.dataG.displayName = "Occlusion";
+                window.dataG.isWhite = true;
                 window.dataB.displayName = "";
                 window.dataA.displayName = "Smoothness";
                 window.disableSrgb = true;
@@ -342,6 +358,7 @@ namespace z3y.Shaders
             TexturePacking.Init();
             window = (TexturePacking)EditorWindow.GetWindow(typeof(TexturePacking));
             window.packingMaterial = material;
+            window.minSize = new Vector2(450, 350);
             return window;
         }
 

@@ -11,7 +11,7 @@ namespace z3y
     // A script for toggling local keywords globally because of the issues with Unity global keywords limit and VRChat
     public class GlobalKeywords : EditorWindow
     {
-        [MenuItem("Window/z3y/Global Keywords")]
+        //[MenuItem("Window/z3y/Global Keywords")]
         private static void Init()
         {
             var window = (GlobalKeywords)GetWindow(typeof(GlobalKeywords));

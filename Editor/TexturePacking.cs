@@ -21,6 +21,7 @@ namespace z3y
         {
             TexturePacking window = (TexturePacking)GetWindow(typeof(TexturePacking));
             window.Show();
+            window.minSize = new Vector2(400, 300);
         }
 
         private void OnEnable()
@@ -28,6 +29,18 @@ namespace z3y
             //titleContent = new GUIContent("Texture Packing");
         }
 
+        public enum TextureSize
+        {
+            Default = 0,
+            _32 = 32,
+            _64 = 64,
+            _128 = 128,
+            _256 = 256,
+            _512 = 512,
+            _1024 = 1024,
+            _2048 = 2048,
+            _4096 = 4096,
+        }
 
         public FieldData dataR = new FieldData {displayName = "Red" };
         public FieldData dataG = new FieldData { displayName = "Green", channelSelect = ChannelSelect.Green };
@@ -37,6 +50,7 @@ namespace z3y
         public Material packingMaterial = null;
         public MaterialProperty packingProperty = null;
         public bool disableSrgb = false;
+        public TextureSize textureSize = TextureSize.Default;
 
         void OnGUI()
         {
@@ -62,18 +76,30 @@ namespace z3y
             TexturePackingField(ref dataA, dataA.displayName, null, true);
 
             disableSrgb = GUILayout.Toggle(disableSrgb, "Disable sRGB");
+            textureSize = (TextureSize)EditorGUILayout.EnumPopup("Texture Size", textureSize);
 
             GUILayout.Space(10);
 
             if (GUILayout.Button("Pack"))
             {
-                Pack(packingProperty, dataR, dataG, dataB, dataA, disableSrgb);
+                Pack(packingProperty, dataR, dataG, dataB, dataA, disableSrgb, (int)textureSize);
                 if (packingMaterial != null)
                 {
                     Shaders.LitGUI.ApplyChanges(packingMaterial); // incase the shader gui loses focus
                 }
             }
 
+            if (packingMaterial != null && packingProperty != null && packingProperty.textureValue != null)
+            {
+                if (GUILayout.Button("Modify"))
+                {
+                    dataR.texture = (Texture2D)packingProperty.textureValue;
+                    dataG.texture = (Texture2D)packingProperty.textureValue;
+                    dataB.texture = (Texture2D)packingProperty.textureValue;
+                    dataA.texture = (Texture2D)packingProperty.textureValue;
+                    dataA.channelSelect = ChannelSelect.Alpha;
+                }
+            }
         }
 
 
@@ -235,7 +261,7 @@ namespace z3y
             return Pack(setTexture, r,g,b, alpha, disableSrgb);
         }
 
-        public static bool Pack(MaterialProperty setTexture, FieldData red, FieldData green, FieldData blue, FieldData alpha, bool disableSrgb = false)
+        public static bool Pack(MaterialProperty setTexture, FieldData red, FieldData green, FieldData blue, FieldData alpha, bool disableSrgb = false, int sizeOverride = 0)
         {
             var reference = green.texture ?? red.texture ?? alpha.texture ?? blue.texture;
             if (reference == null)
@@ -278,7 +304,17 @@ namespace z3y
             var path = AssetDatabase.GetAssetPath(reference);
             var newPath = Path.GetDirectoryName(path) + "/" + Path.GetFileNameWithoutExtension(path) + "_Packed";
 
-            Pack(new[] { rChannel, gChannel, bChannel, aChannel }, newPath, reference.width, reference.height);
+            Vector2Int textureSize;
+            if (sizeOverride > 0)
+            {
+                textureSize = new Vector2Int(sizeOverride, sizeOverride);
+            }
+            else
+            {
+                textureSize = new Vector2Int(reference.width, reference.height);
+            }
+
+            Pack(new[] { rChannel, gChannel, bChannel, aChannel }, newPath, textureSize.x, textureSize.y);
             var packedTexture = GetPackedTexture(newPath);
             if (disableSrgb)
             {
