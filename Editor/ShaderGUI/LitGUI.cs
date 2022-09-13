@@ -310,6 +310,7 @@ namespace z3y.Shaders
                 window.packingProperty = _MetallicGlossMap;
                 window.dataR.displayName = "Metallic";
                 window.dataG.displayName = "Occlusion";
+                window.dataG.isWhite = true;
                 window.dataB.displayName = "";
                 window.dataA.displayName = "Smoothness";
                 window.disableSrgb = true;
@@ -357,6 +358,7 @@ namespace z3y.Shaders
             TexturePacking.Init();
             window = (TexturePacking)EditorWindow.GetWindow(typeof(TexturePacking));
             window.packingMaterial = material;
+            window.minSize = new Vector2(450, 350);
             return window;
         }
 
