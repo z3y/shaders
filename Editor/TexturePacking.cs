@@ -75,6 +75,17 @@ namespace z3y
                 }
             }
 
+            if (packingMaterial != null && packingProperty != null && packingProperty.textureValue != null)
+            {
+                if (GUILayout.Button("Modify"))
+                {
+                    dataR.texture = (Texture2D)packingProperty.textureValue;
+                    dataG.texture = (Texture2D)packingProperty.textureValue;
+                    dataB.texture = (Texture2D)packingProperty.textureValue;
+                    dataA.texture = (Texture2D)packingProperty.textureValue;
+                    dataA.channelSelect = ChannelSelect.Alpha;
+                }
+            }
         }
 
 
