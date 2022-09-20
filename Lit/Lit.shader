@@ -56,7 +56,7 @@ Properties
 
     _EmissionMap ("Emission Map", 2D) = "white" {}
     [HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
-    [HideInInspector] _EmissionColorLDR ("Emission Color", Color) = (0,0,0)
+    [HideInInspector] _EmissionColorLDR ("Emission Color", Color) = (1,1,1)
     [ToggleUI] _UseEmissionIntensity ("Use Emission Intensity", Int) = 0
     _EmissionIntensity ("Intensity", Float) = 1
 
