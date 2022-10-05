@@ -12,6 +12,7 @@ namespace z3y.Shaders
         private MaterialProperty Foldout_RenderingOptions;
         private MaterialProperty _Mode;
         private MaterialProperty _Cutoff;
+        private MaterialProperty _CutoutSharpness;
         private MaterialProperty ResetFix;
         private MaterialProperty _ZWrite;
         private MaterialProperty _DstBlend;
@@ -121,6 +122,7 @@ namespace z3y.Shaders
             if (_Mode.floatValue == 1)
             {
                 Draw(_Cutoff);
+                Draw(_CutoutSharpness);
             }
 
             Space();

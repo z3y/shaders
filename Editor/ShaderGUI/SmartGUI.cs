@@ -450,7 +450,7 @@ namespace z3y.Shaders
                     material.SetInt("_AlphaToMask", 0);
                     material.renderQueue = -1;
                     break;
-                case 1: // cutout
+                case 1: // cutout a2c
                     material.SetOverrideTag("RenderType", "TransparentCutout");
                     material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
                     material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);

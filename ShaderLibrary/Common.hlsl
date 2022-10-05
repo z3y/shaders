@@ -319,10 +319,10 @@ float3 ditherNoiseFuncHigh(float2 p)
 // SOFTWARE.
 
 
-
+uniform half _CutoutSharpness;
 void AACutout(inout half alpha, half cutoff)
 {
-    alpha = (alpha - cutoff) / max(fwidth(alpha), 0.0001) + 0.5;
+    alpha = (alpha - cutoff) / max(fwidth(alpha), _CutoutSharpness) + 0.5;
 }
 
 void FlipBTN(uint facing, inout float3 worldNormal, inout float3 bitangent, inout float3 tangent)
