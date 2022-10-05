@@ -12,6 +12,7 @@ namespace z3y.Shaders
         private MaterialProperty Foldout_RenderingOptions;
         private MaterialProperty _Mode;
         private MaterialProperty _Cutoff;
+        private MaterialProperty _CutoutSharpness;
         private MaterialProperty ResetFix;
         private MaterialProperty _ZWrite;
         private MaterialProperty _DstBlend;
@@ -121,6 +122,7 @@ namespace z3y.Shaders
             if (_Mode.floatValue == 1)
             {
                 Draw(_Cutoff);
+                Draw(_CutoutSharpness);
             }
 
             Space();
@@ -374,6 +376,7 @@ namespace z3y.Shaders
             Space();
         }
 
+        private Color defaultEmission = new Color(0f, 0f, 0f, 1f);
         public override void AssignNewShaderToMaterial(Material m, Shader oldShader, Shader newShader)
         {
             base.AssignNewShaderToMaterial(m, oldShader, newShader);
@@ -394,6 +397,14 @@ namespace z3y.Shaders
 
             MaterialEditor.ApplyMaterialPropertyDrawers(m);
             SetupMaterialWithBlendMode(m, (int)m.GetFloat("_Mode"));
+            if (m.GetColor("_EmissionColor") != defaultEmission || m.GetTexture("_EmissionMap") != null)
+            {
+                m.SetFloat("_EmissionToggle", 1f);
+                m.EnableKeyword("_EMISSION");
+                m.SetFloat("Foldout_Emission", 1f);
+            }
+
+
             ApplyChanges(m);
         }
 

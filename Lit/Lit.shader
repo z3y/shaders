@@ -7,10 +7,11 @@ Properties
     [NonModifiableTextureData] _DFG ("DFG Lut", 2D) = "black" {}
     Foldout_RenderingOptions ("Rendering Options", Float) = 0
         
-    [Enum(Opaque, 0, Cutout, 1, Fade, 2, Transparent, 3, Additive, 4, Multiply, 5)] _Mode ("Rendering Mode", Int) = 0
+    [Enum(Opaque, 0, Cutout A2C, 1, Fade, 2, Transparent, 3, Additive, 4, Multiply, 5)] _Mode ("Rendering Mode", Int) = 0
 
 
     _Cutoff ("Alpha Cuttoff", Range(0.001, 1)) = 0.5
+    _CutoutSharpness ("Sharpness", Range(1, 0.0001)) = 0.0001
     [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Source Blend", Int) = 1
     [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Destination Blend", Int) = 0
     [Enum(Off, 0, On, 1)] _ZWrite ("ZWrite", Int) = 1
@@ -56,7 +57,7 @@ Properties
 
     _EmissionMap ("Emission Map", 2D) = "white" {}
     [HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
-    [HideInInspector] _EmissionColorLDR ("Emission Color", Color) = (0,0,0)
+    [HideInInspector] _EmissionColorLDR ("Emission Color", Color) = (1,1,1)
     [ToggleUI] _UseEmissionIntensity ("Use Emission Intensity", Int) = 0
     _EmissionIntensity ("Intensity", Float) = 1
 
@@ -133,7 +134,6 @@ Properties
 
 
 CGINCLUDE
-#pragma target 4.5
 #pragma vertex vert
 #pragma fragment frag
 #include "UnityCG.cginc"
@@ -167,6 +167,8 @@ SubShader
         Blend [_SrcBlend] [_DstBlend]
 
         CGPROGRAM
+        #pragma target 4.5
+
         #pragma multi_compile_fwdbase
         #pragma multi_compile_instancing
         #pragma multi_compile_fog
@@ -225,6 +227,9 @@ SubShader
         AlphaToMask [_AlphaToMask]
 
         CGPROGRAM
+        #pragma target 5.0
+        #pragma exclude_renderers gles3 gles
+
         #pragma multi_compile_fwdadd_fullshadows
         #pragma multi_compile_instancing
         #pragma multi_compile_fog
@@ -262,6 +267,9 @@ SubShader
         ZTest LEqual
 
         CGPROGRAM
+        #pragma target 5.0
+        #pragma exclude_renderers gles3 gles
+
         #pragma multi_compile_shadowcaster
         #pragma multi_compile_instancing
 
@@ -278,6 +286,9 @@ SubShader
         Cull Off
 
         CGPROGRAM
+        #pragma target 5.0
+        #pragma exclude_renderers gles3 gles
+
         #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
         #pragma shader_feature_local _EMISSION
         #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP

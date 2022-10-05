@@ -20,7 +20,7 @@
             #pragma fragment frag
             #pragma multi_compile_instancing
             #pragma multi_compile_fog
-            #pragma target 4.5
+            #pragma target 3.0
 
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ DIRECTIONAL
