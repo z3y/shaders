@@ -31,13 +31,7 @@ An optimized Standard shader replacement for Unity
 If you want to ask something add me z3y#3214 or join the [Discord](https://discord.gg/bw46tKgRFT). Please report bugs if you find them https://github.com/z3y/shaders/issues
 #
 
-![image](https://user-images.githubusercontent.com/33181641/181753409-d71e3702-cb96-425b-bb74-015d75d91316.png)
+![Unity_eZEBLyHWuP](https://user-images.githubusercontent.com/33181641/195345116-f24babd0-add7-4427-bc7f-c17e3068a351.png)
 
-![image](https://user-images.githubusercontent.com/33181641/181753445-afcf4f1f-aa4e-46fe-b5eb-2100540b8665.png)
-
-![image](https://user-images.githubusercontent.com/33181641/181753462-6c609fa6-8cc6-466f-b911-c29a52447714.png)
-
-![image](https://user-images.githubusercontent.com/33181641/181753478-d2297ffa-3082-47fa-9ce0-b553d5581484.png)
-
-![image](https://user-images.githubusercontent.com/33181641/181753499-c3da4465-c02d-4ed8-80f1-1a1c1f9bbab3.png)
+![image](https://user-images.githubusercontent.com/33181641/195345438-3c23bfa2-22d3-4a8b-bffb-533cc1ba3178.png)
 
