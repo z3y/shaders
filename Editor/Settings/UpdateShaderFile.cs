@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEditor;
@@ -19,7 +16,7 @@ namespace z3y.Shaders
 
         public static void UpdateConfig()
         {
-            if (_lit == null)
+            if (_lit is null)
             {
                 Debug.Log($"Shader {shaderName} not found");
                 return;
@@ -30,24 +27,26 @@ namespace z3y.Shaders
             #endif
 
             var path = AssetDatabase.GetAssetPath(_lit);
-            var lines = File.ReadAllLines(path);
+            var lines = File.ReadAllLines(path).ToList();
 
-            for (int i = 0; i < lines.Length; i++)
+            for (int i = 0; i < lines.Count; i++)
             {
-                if (lines[i].Equals("//ConfigStart"))
+                if (lines[i].StartsWith("//ConfigStart", System.StringComparison.Ordinal))
                 {
-                    for (int j = i; j < lines.Length; j++)
+                    lines[i] += "\n";
+                    lines[i] += GetConfig();
+
+                    for (int j = i+1; j < lines.Count; j++)
                     {
-                        if (lines[j].Equals("//ConfigEnd"))
+                        if (lines[j].StartsWith("//ConfigEnd", System.StringComparison.Ordinal))
                         {
                             break;
                         }
 
-                        lines[j] = string.Empty;
+                        lines.RemoveAt(j);
+                        j--;
                     }
 
-                    lines[i] += Environment.NewLine;
-                    lines[i] += GetConfig();
                     break;
                 }
             }
