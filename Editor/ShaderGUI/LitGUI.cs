@@ -85,15 +85,12 @@ namespace z3y.Shaders
         private MaterialProperty _NonLinearLightProbeSH;
         private MaterialProperty _LightmappedSpecular;
         private MaterialProperty _BicubicLightmap;
-        private MaterialProperty _Dithering;
-        private MaterialProperty _ACES;
         private MaterialProperty _LTCGI;
         private MaterialProperty _LTCGI_DIFFUSE_OFF;
         private MaterialProperty _SpecularHighlights;
         private MaterialProperty _GlossyReflections;
         private MaterialProperty _ForceBoxProjection;
         private MaterialProperty _BlendReflectionProbes;
-        private MaterialProperty _Allow_LPPV_Toggle;
         private MaterialProperty _GSAA;
         #endregion
 
@@ -182,7 +179,6 @@ namespace z3y.Shaders
             Draw(_GlossyReflections);
             Draw(_ForceBoxProjection, "Force Box Projection on Quest");
             Draw(_BlendReflectionProbes);
-            Draw(_Allow_LPPV_Toggle, "Allow Lightprobe Proxy Volumes");
 
             Draw(_GSAA);
             if (_GSAA.floatValue == 1)
@@ -202,14 +198,25 @@ namespace z3y.Shaders
 
             Space();
             Draw(_LightmappedSpecular);
-            Draw(_BicubicLightmap);
-            Draw(_Dithering);
-            Draw(_ACES);
+            if (ProjectSettings.litShaderSettings.bicubicLightmap == LitShaderSettings.BicubicLightmap.PerMaterial)
+            {
+                Draw(_BicubicLightmap);
+            }
 
             Space();
-            Draw(Bakery);
-            Draw(_BAKERY_SHNONLINEAR);
-            Draw(_NonLinearLightProbeSH);
+            if (ProjectSettings.litShaderSettings.bakeryMode == LitShaderSettings.BakeryMode.PerMaterial)
+            {
+                Draw(Bakery);
+            }
+
+            if (ProjectSettings.litShaderSettings.nonLinearLightmapSH == LitShaderSettings.NonLinearLightmapSH.PerMaterial)
+            {
+                Draw(_BAKERY_SHNONLINEAR);
+            }
+            if (ProjectSettings.litShaderSettings.nonLinearLightprobeSH == LitShaderSettings.NonLinearLightprobeSH.PerMaterial)
+            {
+                Draw(_NonLinearLightProbeSH);
+            }
             Space();
         }
 

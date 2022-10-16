@@ -8,6 +8,8 @@ namespace z3y.Shaders
 {
     public class ProjectSettings
     {
+
+
         [SettingsProvider]
         public static SettingsProvider CreateProvider()
         {
@@ -17,24 +19,37 @@ namespace z3y.Shaders
                 guiHandler = (searchContext) =>
                 {
 
+
                     EditorGUI.BeginChangeCheck();
+                    EditorGUILayout.Space();
                     EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.defaultShader)), new GUIContent("Default Shader", "Use this shader on new materials as default instead of Standard"));
 
                     EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Lightmap", EditorStyles.boldLabel);
                     EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.bakeryMode)), new GUIContent("Bakery Mode"));
+                    EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.nonLinearLightmapSH)), new GUIContent("Non Linear Lightmap SH"));
                     EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.bicubicLightmap)), new GUIContent("Bicubic Lightmap"));
 
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Lightprobes", EditorStyles.boldLabel);
                     EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.allowLPPV)), new GUIContent("Allow Lightprobe Proxy Volumes"));
-                    EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.allowLTCGI)), new GUIContent("Allow LTCGI"));
-
+                    EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.nonLinearLightprobeSH)), new GUIContent("Non Linear Lightprobe SH"));
+                    EditorGUILayout.Space();
                     EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.dithering)), new GUIContent("Dithering"));
-                    EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.aces)), new GUIContent("Aces"));
+                    EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.aces)), new GUIContent("ACES"));
 
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Compile Variants", EditorStyles.boldLabel);
                     EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.compileVariantsWithoutDirectionalLight)), new GUIContent("Directional Light Off"));
                     EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.compileVertexLights)), new GUIContent("Vertex Lights"));
                     EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.compileLODCrossfade)), new GUIContent("LOD Crossfade"));
+
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Third Party", EditorStyles.boldLabel);
+
+                    EditorGUI.BeginDisabledGroup(!ltcgiIncluded);
+                    EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.allowLTCGI)), new GUIContent("Allow LTCGI"));
+                    EditorGUI.EndDisabledGroup();
 
                     if (EditorGUI.EndChangeCheck())
                     {
@@ -47,6 +62,11 @@ namespace z3y.Shaders
             return provider;
         }
 
+#if LTCGI_INCLUDED
+        const bool ltcgiIncluded = true;
+#else
+        const bool ltcgiIncluded = false;
+#endif
 
         const string SettingsPath = "Assets/Settings/LitShaderSettings.asset";
         private static LitShaderSettings _litShaderSettings;
