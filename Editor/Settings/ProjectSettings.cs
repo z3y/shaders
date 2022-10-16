@@ -54,6 +54,7 @@ namespace z3y.Shaders
                     if (EditorGUI.EndChangeCheck())
                     {
                         settingsObject.ApplyModifiedProperties();
+                        UpdateLitShaderFile.UpdateConfig();
 
                     }
                 },

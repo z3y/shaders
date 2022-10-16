@@ -123,8 +123,8 @@ Properties
     [Toggle(_LIGHTMAPPED_SPECULAR)] _LightmappedSpecular ("Lightmapped Specular ", Int) = 0
     [Toggle(_BICUBICLIGHTMAP)] _BicubicLightmap ("Bicubic Lightmap", Float) = 0
 
-    [Toggle(DITHERING)] _Dithering ("Dithering", Float) = 0
-    [Toggle(ACES_TONEMAPPING)] _ACES ("ACES", Float) = 0
+    // [Toggle(DITHERING)] _Dithering ("Dithering", Float) = 0
+    // [Toggle(ACES_TONEMAPPING)] _ACES ("ACES", Float) = 0
 
     [Enum(None, 0, SH, 1, RNM, 2, MONOSH, 3)] Bakery ("Bakery Mode", Int) = 0
     [ToggleOff(BAKERY_SHNONLINEAR_OFF)] _BAKERY_SHNONLINEAR ("Non-linear Lightmap SH", Float) = 1

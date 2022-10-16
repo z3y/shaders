@@ -187,14 +187,12 @@ namespace z3y.Shaders
                 Draw(_specularAntiAliasingThreshold);
             }
 
-#if LTCGI_INCLUDED
-            Space();
-            Draw(_LTCGI);
-            Draw(_LTCGI_DIFFUSE_OFF);
-#else
-            material.ToggleKeyword("LTCGI", false);
-            _LTCGI.floatValue = 0;
-#endif
+            if (ProjectSettings.litShaderSettings.allowLTCGI)
+            {
+                Space();
+                Draw(_LTCGI);
+                Draw(_LTCGI_DIFFUSE_OFF);
+            }
 
             Space();
             Draw(_LightmappedSpecular);
