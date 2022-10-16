@@ -159,6 +159,10 @@ namespace z3y.Shaders
                 sb.AppendLine("#pragma skip_variants LTCGI");
                 sb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");
             }
+            else
+            {
+                sb.AppendLine("#include \"Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc\"");
+            }
 
 
 

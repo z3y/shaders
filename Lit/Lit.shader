@@ -135,13 +135,6 @@ Properties
 
 CGINCLUDE
 
-//ConfigStart
-#pragma skip_variants LOD_FADE_CROSSFADE
-#pragma skip_variants LTCGI
-#pragma skip_variants LTCGI_DIFFUSE_OFF
-
-//ConfigEnd
-
 #pragma vertex vert
 #pragma fragment frag
 #include "UnityCG.cginc"
@@ -151,13 +144,20 @@ CGINCLUDE
     #include "UnityMetaPass.cginc"
 #endif
 
+#ifdef _SPECULARHIGHLIGHTS_OFF
+    #define LTCGI_SPECULAR_OFF
+#endif
+
+//ConfigStart
+#pragma skip_variants LOD_FADE_CROSSFADE
+#pragma skip_variants LTCGI
+#pragma skip_variants LTCGI_DIFFUSE_OFF
+
+//ConfigEnd
 
 #include "../ShaderLibrary/Defines.hlsl"
 #include "Vertex.hlsl"
 #include "Fragment.hlsl"
-
-
-
 
 ENDCG
 

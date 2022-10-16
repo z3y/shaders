@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework.Internal;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -71,6 +72,7 @@ namespace z3y.Shaders
 #endif
 
         const string SettingsPath = "Assets/Settings/LitShaderSettings.asset";
+
         private static LitShaderSettings _litShaderSettings;
         public static LitShaderSettings litShaderSettings
         {
@@ -106,6 +108,7 @@ namespace z3y.Shaders
         private static LitShaderSettings CreateDefaultSettingsAsset()
         {
             var settingsAsset = ScriptableObject.CreateInstance<LitShaderSettings>();
+            if (!Directory.Exists("Assets/Settings")) AssetDatabase.CreateFolder("Assets", "Settings");
             AssetDatabase.CreateAsset(settingsAsset, SettingsPath);
             AssetDatabase.Refresh();
 
