@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace z3y.Shaders
 {
+    // TODO: update the config less often 
     [InitializeOnLoad]
     public static class UpdateLitShaderFile
     {
