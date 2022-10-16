@@ -134,6 +134,10 @@ Properties
 
 
 CGINCLUDE
+
+//ConfigStart
+//ConfigEnd
+
 #pragma vertex vert
 #pragma fragment frag
 #include "UnityCG.cginc"
@@ -174,6 +178,7 @@ SubShader
         #pragma multi_compile_fog
         #pragma skip_variants LIGHTPROBE_SH
         
+        #pragma multi_compile _ LOD_FADE_CROSSFADE
         #pragma multi_compile_fragment _ VERTEXLIGHT_ON
 
         #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM BAKERY_MONOSH

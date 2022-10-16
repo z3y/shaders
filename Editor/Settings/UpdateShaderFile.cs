@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -30,7 +32,29 @@ namespace z3y.Shaders
             var path = AssetDatabase.GetAssetPath(_lit);
             var lines = File.ReadAllLines(path);
 
-            Debug.Log(GetConfig());
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].Equals("//ConfigStart"))
+                {
+                    for (int j = i; j < lines.Length; j++)
+                    {
+                        if (lines[j].Equals("//ConfigEnd"))
+                        {
+                            break;
+                        }
+
+                        lines[j] = string.Empty;
+                    }
+
+                    lines[i] += Environment.NewLine;
+                    lines[i] += GetConfig();
+                    break;
+                }
+            }
+
+            File.WriteAllLines(path, lines);
+
+            AssetDatabase.ImportAsset(path);
         }
 
         private static string GetConfig()
@@ -126,11 +150,19 @@ namespace z3y.Shaders
                 sb.AppendLine("#pragma skip_variants VERTEXLIGHT_ON");
             }
 
+            // compileLODCrossfade
+            if (!ProjectSettings.litShaderSettings.compileLODCrossfade)
+            {
+                sb.AppendLine("#pragma skip_variants LOD_FADE_CROSSFADE");
+            }
+
+            // allowLTCGI
             if (!ProjectSettings.litShaderSettings.allowLTCGI)
             {
                 sb.AppendLine("#pragma skip_variants LTCGI");
                 sb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");
             }
+
 
 
             return sb.ToString();

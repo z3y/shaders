@@ -4,6 +4,7 @@ using UnityEditor.Build;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Rendering;
+using z3y.Shaders;
 
 namespace z3y
 {
@@ -28,6 +29,11 @@ namespace z3y
 
         public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data)
         {
+            if (!ProjectSettings.litShaderSettings.compileVariantsWithoutDirectionalLight)
+            {
+                return;
+            }
+
             if (shader.name != ShaderName)
             {
                 return;
