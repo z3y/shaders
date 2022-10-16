@@ -8,7 +8,8 @@ namespace z3y.Shaders
 {
     public class ProjectSettings
     {
-
+        public const string shaderName = "Lit";
+        internal static Shader lit = Shader.Find(shaderName);
 
         [SettingsProvider]
         public static SettingsProvider CreateProvider()
@@ -22,7 +23,7 @@ namespace z3y.Shaders
 
                     EditorGUI.BeginChangeCheck();
                     EditorGUILayout.Space();
-                    EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.defaultShader)), new GUIContent("Default Shader", "Use this shader on new materials as default instead of Standard"));
+                    EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.defaultShader)), new GUIContent("Default Shader", "Use this shader on materials as default instead of Standard. Only affects the Model Importer materials"));
 
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Lightmap", EditorStyles.boldLabel);

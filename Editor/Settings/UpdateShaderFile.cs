@@ -9,16 +9,14 @@ namespace z3y.Shaders
     [InitializeOnLoad]
     public static class UpdateLitShaderFile
     {
-        const string shaderName = "Lit";
-        private static Shader _lit = Shader.Find(shaderName);
 
         static UpdateLitShaderFile() => UpdateConfig();
 
         public static void UpdateConfig()
         {
-            if (_lit is null)
+            if (ProjectSettings.lit is null)
             {
-                Debug.Log($"Shader {shaderName} not found");
+                Debug.Log($"Shader {ProjectSettings.shaderName} not found");
                 return;
             }
 
@@ -26,7 +24,7 @@ namespace z3y.Shaders
             ProjectSettings.litShaderSettings.allowLTCGI = false;
             #endif
 
-            var path = AssetDatabase.GetAssetPath(_lit);
+            var path = AssetDatabase.GetAssetPath(ProjectSettings.lit);
             var lines = File.ReadAllLines(path).ToList();
 
             for (int i = 0; i < lines.Count; i++)
