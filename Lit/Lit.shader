@@ -227,8 +227,7 @@ SubShader
         AlphaToMask [_AlphaToMask]
 
         CGPROGRAM
-        #pragma target 5.0
-        #pragma exclude_renderers gles3 gles
+        #pragma target 4.5
 
         #pragma multi_compile_fwdadd_fullshadows
         #pragma multi_compile_instancing
@@ -267,8 +266,7 @@ SubShader
         ZTest LEqual
 
         CGPROGRAM
-        #pragma target 5.0
-        #pragma exclude_renderers gles3 gles
+        #pragma target 4.5
 
         #pragma multi_compile_shadowcaster
         #pragma multi_compile_instancing
@@ -286,8 +284,7 @@ SubShader
         Cull Off
 
         CGPROGRAM
-        #pragma target 5.0
-        #pragma exclude_renderers gles3 gles
+        #pragma target 4.5
 
         #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
         #pragma shader_feature_local _EMISSION
