@@ -1,4 +1,4 @@
-Shader "Lit"
+﻿Shader "Lit"
 {
 
 Properties
@@ -135,6 +135,7 @@ Properties
 
 CGINCLUDE
 
+#pragma target 4.5
 #pragma vertex vert
 #pragma fragment frag
 #include "UnityCG.cginc"
@@ -149,6 +150,7 @@ CGINCLUDE
 #endif
 
 //ConfigStart
+#pragma skip_variants VERTEXLIGHT_ON
 #pragma skip_variants LOD_FADE_CROSSFADE
 #pragma skip_variants LTCGI
 #pragma skip_variants LTCGI_DIFFUSE_OFF
@@ -175,8 +177,6 @@ SubShader
         Blend [_SrcBlend] [_DstBlend]
 
         CGPROGRAM
-        #pragma target 4.5
-
         #pragma multi_compile_fwdbase
         #pragma multi_compile_instancing
         #pragma multi_compile_fog
@@ -236,9 +236,6 @@ SubShader
         AlphaToMask [_AlphaToMask]
 
         CGPROGRAM
-        #pragma target 5.0
-        #pragma exclude_renderers gles3 gles
-
         #pragma multi_compile_fwdadd_fullshadows
         #pragma multi_compile_instancing
         #pragma multi_compile_fog
@@ -276,9 +273,6 @@ SubShader
         ZTest LEqual
 
         CGPROGRAM
-        #pragma target 5.0
-        #pragma exclude_renderers gles3 gles
-
         #pragma multi_compile_shadowcaster
         #pragma multi_compile_instancing
 
@@ -295,9 +289,6 @@ SubShader
         Cull Off
 
         CGPROGRAM
-        #pragma target 5.0
-        #pragma exclude_renderers gles3 gles
-
         #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
         #pragma shader_feature_local _EMISSION
         #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP
