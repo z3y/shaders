@@ -15,6 +15,7 @@ namespace z3y.Shaders
         }
 
         public const string ShaderVersion = "v2.2.0";
+        public const string ShaderName = "Lit";
 
         [SettingsProvider]
         public static SettingsProvider CreateProvider()
@@ -71,20 +72,20 @@ namespace z3y.Shaders
 
         const string SettingsPath = "Assets/Settings/LitShaderSettings.asset";
 
-        private static LitShaderSettings _litShaderSettings;
-        public static LitShaderSettings LitShaderSettings
+        private static LitShaderSettings _shaderSettings;
+        public static LitShaderSettings ShaderSettings
         {
             get
             {   
-                if (_litShaderSettings is null)
+                if (_shaderSettings is null)
                 {
-                    _litShaderSettings = AssetDatabase.LoadAssetAtPath<LitShaderSettings>(SettingsPath);
+                    _shaderSettings = AssetDatabase.LoadAssetAtPath<LitShaderSettings>(SettingsPath);
                 }
-                if (_litShaderSettings is null)
+                if (_shaderSettings is null)
                 {
-                    _litShaderSettings = CreateDefaultSettingsAsset();
+                    _shaderSettings = CreateDefaultSettingsAsset();
                 }
-                return _litShaderSettings;
+                return _shaderSettings;
             }
 
         }
@@ -96,7 +97,7 @@ namespace z3y.Shaders
             {
                 if (_settingsObject is null)
                 {
-                    _settingsObject = new SerializedObject(LitShaderSettings);
+                    _settingsObject = new SerializedObject(ShaderSettings);
                 }
                 return _settingsObject;
             }

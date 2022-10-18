@@ -29,7 +29,7 @@ namespace z3y
 
         public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data)
         {
-            if (!ProjectSettings.LitShaderSettings.compileVariantsWithoutDirectionalLight)
+            if (!ProjectSettings.ShaderSettings.compileVariantsWithoutDirectionalLight)
             {
                 return;
             }

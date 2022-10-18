@@ -51,7 +51,7 @@ namespace z3y.Shaders
             }
 
             #if !LTCGI_INCLUDED
-            ProjectSettings.LitShaderSettings.allowLTCGI = false;
+            ProjectSettings.ShaderSettings.allowLTCGI = false;
             #endif
 
             var path = AssetDatabase.GetAssetPath(ProjectSettings.lit);
@@ -89,13 +89,13 @@ namespace z3y.Shaders
             var sb = new StringBuilder();
 
             // bakeryMode
-            if (ProjectSettings.LitShaderSettings.bakeryMode != LitShaderSettings.BakeryMode.PerMaterial)
+            if (ProjectSettings.ShaderSettings.bakeryMode != LitShaderSettings.BakeryMode.PerMaterial)
             {
                 sb.AppendLine("#pragma skip_variants BAKERY_SH");
                 sb.AppendLine("#pragma skip_variants BAKERY_RNM");
                 sb.AppendLine("#pragma skip_variants BAKERY_MONOSH");
             }
-            switch (ProjectSettings.LitShaderSettings.bakeryMode)
+            switch (ProjectSettings.ShaderSettings.bakeryMode)
             {
                 case LitShaderSettings.BakeryMode.ForceRNM:
                     sb.AppendLine("#define BAKERY_RNM");
@@ -109,11 +109,11 @@ namespace z3y.Shaders
             }
 
             // nonLinearLightmapSH
-            if (ProjectSettings.LitShaderSettings.nonLinearLightmapSH != LitShaderSettings.NonLinearLightmapSH.PerMaterial)
+            if (ProjectSettings.ShaderSettings.nonLinearLightmapSH != LitShaderSettings.NonLinearLightmapSH.PerMaterial)
             {
                 sb.AppendLine("#pragma skip_variants BAKERY_SHNONLINEAR_OFF");
             }
-            switch (ProjectSettings.LitShaderSettings.nonLinearLightmapSH)
+            switch (ProjectSettings.ShaderSettings.nonLinearLightmapSH)
             {
                 case LitShaderSettings.NonLinearLightmapSH.ForceDisabled:
                     sb.AppendLine("#define BAKERY_SHNONLINEAR_OFF");
@@ -124,11 +124,11 @@ namespace z3y.Shaders
             }
 
             // bicubicLightmap
-            if (ProjectSettings.LitShaderSettings.bicubicLightmap != LitShaderSettings.BicubicLightmap.PerMaterial)
+            if (ProjectSettings.ShaderSettings.bicubicLightmap != LitShaderSettings.BicubicLightmap.PerMaterial)
             {
                 sb.AppendLine("#pragma skip_variants _BICUBICLIGHTMAP");
             }
-            switch (ProjectSettings.LitShaderSettings.bicubicLightmap)
+            switch (ProjectSettings.ShaderSettings.bicubicLightmap)
             {
                 case LitShaderSettings.BicubicLightmap.ForceDisabled:
                     // default
@@ -139,17 +139,17 @@ namespace z3y.Shaders
             }
 
             // allowLPPV
-            if (ProjectSettings.LitShaderSettings.allowLPPV)
+            if (ProjectSettings.ShaderSettings.allowLPPV)
             {
                 sb.AppendLine("#define _ALLOW_LPPV");
             }
 
             // nonLinearLightprobeSH
-            if (ProjectSettings.LitShaderSettings.nonLinearLightprobeSH != LitShaderSettings.NonLinearLightprobeSH.PerMaterial)
+            if (ProjectSettings.ShaderSettings.nonLinearLightprobeSH != LitShaderSettings.NonLinearLightprobeSH.PerMaterial)
             {
                 sb.AppendLine("#pragma skip_variants NONLINEAR_LIGHTPROBESH");
             }
-            switch (ProjectSettings.LitShaderSettings.nonLinearLightprobeSH)
+            switch (ProjectSettings.ShaderSettings.nonLinearLightprobeSH)
             {
                 case LitShaderSettings.NonLinearLightprobeSH.ForceDisabled:
                     // default
@@ -160,31 +160,31 @@ namespace z3y.Shaders
             }
 
             // dithering
-            if (ProjectSettings.LitShaderSettings.dithering)
+            if (ProjectSettings.ShaderSettings.dithering)
             {
                 sb.AppendLine("#define DITHERING");
             }
 
             // aces
-            if (ProjectSettings.LitShaderSettings.aces)
+            if (ProjectSettings.ShaderSettings.aces)
             {
                 sb.AppendLine("#define ACES_TONEMAPPING");
             }
 
             // compileVertexLights
-            if (!ProjectSettings.LitShaderSettings.compileVertexLights)
+            if (!ProjectSettings.ShaderSettings.compileVertexLights)
             {
                 sb.AppendLine("#pragma skip_variants VERTEXLIGHT_ON");
             }
 
             // compileLODCrossfade
-            if (!ProjectSettings.LitShaderSettings.compileLODCrossfade)
+            if (!ProjectSettings.ShaderSettings.compileLODCrossfade)
             {
                 sb.AppendLine("#pragma skip_variants LOD_FADE_CROSSFADE");
             }
 
             // allowLTCGI
-            if (!ProjectSettings.LitShaderSettings.allowLTCGI)
+            if (!ProjectSettings.ShaderSettings.allowLTCGI)
             {
                 sb.AppendLine("#pragma skip_variants LTCGI");
                 sb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");

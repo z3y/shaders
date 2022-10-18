@@ -9,7 +9,7 @@ namespace z3y.Shaders
     {
         void OnPostprocessMaterial(Material material)
         {
-            if (!ProjectSettings.LitShaderSettings.defaultShader)
+            if (!ProjectSettings.ShaderSettings.defaultShader)
             {
                 return;
             }
