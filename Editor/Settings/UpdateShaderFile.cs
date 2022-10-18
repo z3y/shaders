@@ -27,7 +27,7 @@ namespace z3y.Shaders
         {
             var isApplied = SessionState.GetBool(sessionKey, false);
 
-            if (!isApplied)
+            if (!isApplied || ProjectSettings.lit is null)
             {
                 return;
             }
@@ -39,7 +39,6 @@ namespace z3y.Shaders
         {
             if (ProjectSettings.lit is null)
             {
-                Debug.Log($"Shader {ProjectSettings.shaderName} not found");
                 return;
             }
 
