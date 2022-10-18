@@ -29,10 +29,7 @@ namespace z3y
 
         public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data)
         {
-            if (!ProjectSettings.ShaderSettings.compileVariantsWithoutDirectionalLight)
-            {
-                return;
-            }
+            
 
             if (shader.name != ShaderName)
             {
@@ -51,22 +48,26 @@ namespace z3y
                 return;
             }
 #endif
-
-            for (int i = data.Count - 1; i >= 0; --i)
+            if (ProjectSettings.ShaderSettings.directionalLightVariants == LitShaderSettings.CompileDirectional.CompileBoth)
             {
-                bool directionalEnabled = data[i].shaderKeywordSet.IsEnabled(_directional);
-                bool _shadowsScreenEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowsScreen);
-                bool _shadowMaskEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMask);
-                bool _shadowMixingEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMixing);
-
-                if (directionalEnabled && !_shadowsScreenEnabled && !_shadowMaskEnabled && !_shadowMixingEnabled)
+                for (int i = data.Count - 1; i >= 0; --i)
                 {
-                    var shaderData = data[i];
-                    shaderData.shaderKeywordSet.Disable(_directional);
-                    data.Add(shaderData);
+                    bool directionalEnabled = data[i].shaderKeywordSet.IsEnabled(_directional);
+                    bool _shadowsScreenEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowsScreen);
+                    bool _shadowMaskEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMask);
+                    bool _shadowMixingEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMixing);
 
+                    if (directionalEnabled && !_shadowsScreenEnabled && !_shadowMaskEnabled && !_shadowMixingEnabled)
+                    {
+                        var shaderData = data[i];
+                        shaderData.shaderKeywordSet.Disable(_directional);
+                        data.Add(shaderData);
+
+                    }
                 }
             }
+
+
         }
     }
 }

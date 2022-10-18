@@ -50,7 +50,13 @@ namespace z3y.Shaders
         public bool fixBlackLevel = true;
 
         // variants
-        public bool compileVariantsWithoutDirectionalLight = true;
+        public enum CompileDirectional
+        {
+            OnlyEnabled,
+            OnlyDisabled,
+            CompileBoth,
+        }
+        public CompileDirectional directionalLightVariants = CompileDirectional.CompileBoth;
         public bool compileVertexLights = true;
         public bool compileLODCrossfade = false;
 

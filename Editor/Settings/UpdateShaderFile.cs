@@ -209,6 +209,11 @@ namespace z3y.Shaders
                 sb.AppendLine("#ifdef LTCGI\n#include \"Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc\"\n#endif");
             }
 
+            // directionalLightVariants
+            if (ProjectSettings.ShaderSettings.directionalLightVariants == LitShaderSettings.CompileDirectional.OnlyDisabled)
+            {
+                sb.AppendLine("#ifdef UNITY_PASS_FORWARDBASE\n#undef USING_LIGHT_MULTI_COMPILE\n#endif");
+            }
 
 
             return sb.ToString();

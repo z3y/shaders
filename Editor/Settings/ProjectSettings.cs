@@ -52,7 +52,10 @@ namespace z3y.Shaders
 
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Compile Variants", EditorStyles.boldLabel);
-                    EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.compileVariantsWithoutDirectionalLight)), new GUIContent("Directional Light Off"));
+                    EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.directionalLightVariants)), new GUIContent("Directional Light",
+                        "Only Enabled: Default Unity behaviour. Every variant in the ForwardBase pass is calculating directional lights even if it doesnt exist.\n" +
+                        "Only Disabled: Completely disable directional light, mostly for improving performance on Quest.\n" +
+                        "Compile Both: Compile both Disabled and Enabled variants. This almost doubles the compiled variants."));
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.compileVertexLights)), new GUIContent("Vertex Lights"));
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.compileLODCrossfade)), new GUIContent("LOD Crossfade"));
 
