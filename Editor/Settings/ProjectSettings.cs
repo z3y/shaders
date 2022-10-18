@@ -24,7 +24,7 @@ namespace z3y.Shaders
 
                     EditorGUI.BeginChangeCheck();
                     EditorGUILayout.Space();
-                    EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.defaultShader)), new GUIContent("Default Shader", "Use this shader on materials as default instead of Standard. Only affects the Model Importer materials"));
+                    EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.defaultShader)), new GUIContent("Default Model Shader", "Use this shader on materials as default instead of Standard. Only affects the Model Importer materials"));
 
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Lightmap", EditorStyles.boldLabel);

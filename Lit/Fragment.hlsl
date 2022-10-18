@@ -127,7 +127,7 @@ half4 frag (v2f input, uint facing : SV_IsFrontFace) : SV_Target
         }
     #endif
 
-    #ifndef SHADER_API_MOBILE
+    #if !defined(SHADER_API_MOBILE) && defined(UNITY_PASS_FORWARDBASE)
         #ifdef DITHERING
             finalColor.rgb -= ditherNoiseFuncHigh(input.uv01.xy) * 0.001;
         #else
