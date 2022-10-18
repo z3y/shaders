@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Presets;
 using UnityEngine;
 
 namespace z3y.Shaders
@@ -7,6 +8,7 @@ namespace z3y.Shaders
     public class LitShaderSettings : ScriptableObject
     {
         public bool defaultShader = false;
+        public Preset defaultPreset;
         public enum BakeryMode
         {
             PerMaterial,

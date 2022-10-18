@@ -102,8 +102,14 @@ namespace z3y.Shaders
                 {
                     material.DisableKeyword(keyword);
                 }
+                var preset = ProjectSettings.litShaderSettings.defaultPreset;
+                if (preset != null)
+                {
+                    preset.ApplyTo(material);
+                }
                 MaterialEditor.ApplyMaterialPropertyDrawers(material);
                 OnValidate(material);
+
                 ResetFix.floatValue = 1f;
             }
 
