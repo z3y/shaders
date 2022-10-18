@@ -1,4 +1,4 @@
-﻿Shader "Lit"
+Shader "Lit"
 {
 
 Properties

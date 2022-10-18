@@ -162,7 +162,7 @@ namespace z3y.Shaders
             }
             else
             {
-                sb.AppendLine("#include \"Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc\"");
+                sb.AppendLine("#ifdef LTCGI\n#include \"Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc\"\n#endif");
             }
 
 
