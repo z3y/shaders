@@ -154,9 +154,6 @@ CGINCLUDE
 #pragma skip_variants LOD_FADE_CROSSFADE
 #pragma skip_variants LTCGI
 #pragma skip_variants LTCGI_DIFFUSE_OFF
-#ifdef UNITY_PASS_FORWARDBASE
-#undef USING_LIGHT_MULTI_COMPILE
-#endif
 
 //ConfigEnd
 
