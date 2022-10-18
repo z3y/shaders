@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Text;
 using UnityEditor;
-using UnityEngine;
-using UnityEditor.PackageManager;
 
 namespace z3y.Shaders
 {
@@ -169,6 +167,12 @@ namespace z3y.Shaders
             if (ProjectSettings.ShaderSettings.aces)
             {
                 sb.AppendLine("#define ACES_TONEMAPPING");
+            }
+
+            // fixBlackLevel
+            if (ProjectSettings.ShaderSettings.fixBlackLevel)
+            {
+                sb.AppendLine("#define FIX_BLACK_LEVEL");
             }
 
             // compileVertexLights

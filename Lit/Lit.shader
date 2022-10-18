@@ -1,4 +1,4 @@
-﻿Shader "Lit"
+Shader "Lit"
 {
 
 Properties
@@ -150,6 +150,7 @@ CGINCLUDE
 #endif
 
 //ConfigStart
+#define FIX_BLACK_LEVEL
 #pragma skip_variants LOD_FADE_CROSSFADE
 #pragma skip_variants LTCGI
 #pragma skip_variants LTCGI_DIFFUSE_OFF

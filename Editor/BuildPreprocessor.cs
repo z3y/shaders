@@ -39,6 +39,19 @@ namespace z3y
                 return;
             }
 
+#if UNITY_ANDROID
+            if (ProjectSettings.ShaderSettings.q_DisableForwardAdd && snippet.passType == PassType.ForwardAdd)
+            {
+                data.Clear();
+                return;
+            }
+            if (ProjectSettings.ShaderSettings.q_DisableShadowCaster && snippet.passType == PassType.ShadowCaster)
+            {
+                data.Clear();
+                return;
+            }
+#endif
+
             for (int i = data.Count - 1; i >= 0; --i)
             {
                 bool directionalEnabled = data[i].shaderKeywordSet.IsEnabled(_directional);

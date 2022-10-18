@@ -47,11 +47,16 @@ namespace z3y.Shaders
         // global keywords
         public bool dithering = false;
         public bool aces = false;
+        public bool fixBlackLevel = true;
 
         // variants
         public bool compileVariantsWithoutDirectionalLight = true;
         public bool compileVertexLights = true;
         public bool compileLODCrossfade = false;
+
+        // quest
+        public bool q_DisableForwardAdd = true;
+        public bool q_DisableShadowCaster = true;
     }
 
     

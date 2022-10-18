@@ -43,7 +43,9 @@ namespace z3y.Shaders
                     EditorGUILayout.LabelField("Lightprobes", EditorStyles.boldLabel);
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.allowLPPV)), new GUIContent("Allow Lightprobe Proxy Volumes"));
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.nonLinearLightprobeSH)), new GUIContent("Non Linear Lightprobe SH"));
+
                     EditorGUILayout.Space();
+                    EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.fixBlackLevel)), new GUIContent("Black Level Fix"));
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.dithering)), new GUIContent("Dithering"));
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.aces)), new GUIContent("ACES"));
 
@@ -52,6 +54,12 @@ namespace z3y.Shaders
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.compileVariantsWithoutDirectionalLight)), new GUIContent("Directional Light Off"));
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.compileVertexLights)), new GUIContent("Vertex Lights"));
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.compileLODCrossfade)), new GUIContent("LOD Crossfade"));
+
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Quest", EditorStyles.boldLabel);
+                    EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.q_DisableForwardAdd)), new GUIContent("Disable AddPass"));
+                    EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.q_DisableShadowCaster)), new GUIContent("Disable ShadowCaster"));
+
 
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Third Party", EditorStyles.boldLabel);
