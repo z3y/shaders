@@ -14,7 +14,7 @@ namespace z3y.Shaders
             }
         }
 
-        public const string ShaderVersion = "v1.2.0";
+        public const string ShaderVersion = "v2.2.0";
 
         [SettingsProvider]
         public static SettingsProvider CreateProvider()
