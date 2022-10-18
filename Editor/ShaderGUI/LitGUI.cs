@@ -102,11 +102,11 @@ namespace z3y.Shaders
                 {
                     material.DisableKeyword(keyword);
                 }
-                /*var preset = ProjectSettings.litShaderSettings.defaultPreset;
+                var preset = ProjectSettings.ShaderSettings.defaultPreset;
                 if (preset != null)
                 {
-                    preset.ApplyTo(material);
-                }*/
+                    ApplyPresetPartially(preset, material, material.shader, 1);
+                }
                 MaterialEditor.ApplyMaterialPropertyDrawers(material);
                 OnValidate(material);
 
