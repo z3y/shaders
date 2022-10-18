@@ -1,7 +1,4 @@
-﻿using NUnit.Framework.Internal;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -25,7 +22,7 @@ namespace z3y.Shaders
                     EditorGUI.BeginChangeCheck();
                     EditorGUILayout.Space();
                     EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.defaultShader)), new GUIContent("Default Model Shader", "Use this shader on materials as default instead of Standard. Only affects the Model Importer materials"));
-                    EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.defaultPreset)), new GUIContent("Default Preset"));
+                    //EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.defaultPreset)), new GUIContent("Default Preset"));
 
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Lightmap", EditorStyles.boldLabel);

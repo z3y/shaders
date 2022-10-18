@@ -150,7 +150,6 @@ CGINCLUDE
 #endif
 
 //ConfigStart
-#pragma skip_variants VERTEXLIGHT_ON
 #pragma skip_variants LOD_FADE_CROSSFADE
 #pragma skip_variants LTCGI
 #pragma skip_variants LTCGI_DIFFUSE_OFF
