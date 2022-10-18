@@ -47,9 +47,7 @@ namespace z3y.Shaders
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Third Party", EditorStyles.boldLabel);
 
-                    EditorGUI.BeginDisabledGroup(!ltcgiIncluded);
                     EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.allowLTCGI)), new GUIContent("Allow LTCGI"));
-                    EditorGUI.EndDisabledGroup();
 
                     if (EditorGUI.EndChangeCheck())
                     {
@@ -62,12 +60,6 @@ namespace z3y.Shaders
 
             return provider;
         }
-
-#if LTCGI_INCLUDED
-        const bool ltcgiIncluded = true;
-#else
-        const bool ltcgiIncluded = false;
-#endif
 
         const string SettingsPath = "Assets/Settings/LitShaderSettings.asset";
 
