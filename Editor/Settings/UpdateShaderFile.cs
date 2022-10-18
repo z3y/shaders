@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEditor;
@@ -6,12 +8,35 @@ using UnityEngine;
 
 namespace z3y.Shaders
 {
-    // TODO: update the config less often 
     [InitializeOnLoad]
     public static class UpdateLitShaderFile
     {
+        const string sessionKey = "UpdateLitShaderFile";
 
-        static UpdateLitShaderFile() => UpdateConfig();
+        static UpdateLitShaderFile()
+        {
+            var isApplied = SessionState.GetBool(sessionKey, false);
+            Debug.Log(isApplied);
+            if (isApplied)
+            {
+                return;
+            }
+            EditorApplication.update += UpdateConfig;
+            EditorApplication.update += RemoveUpdateConfigActionAfterUpdate;
+
+        }
+
+        private static void RemoveUpdateConfigActionAfterUpdate()
+        {
+            var isApplied = SessionState.GetBool(sessionKey, false);
+
+            if (!isApplied)
+            {
+                return;
+            }
+            EditorApplication.update -= UpdateConfig;
+            EditorApplication.update -= EditorApplication.update;
+        }
 
         public static void UpdateConfig()
         {
@@ -51,8 +76,10 @@ namespace z3y.Shaders
             }
 
             File.WriteAllLines(path, lines);
-
             AssetDatabase.ImportAsset(path);
+            SessionState.SetBool(sessionKey, true);
+
+            Debug.Log("Update Shader Config");
         }
 
         private static string GetConfig()
