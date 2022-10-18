@@ -408,12 +408,12 @@ namespace z3y.Shaders
 
             MaterialEditor.ApplyMaterialPropertyDrawers(m);
             SetupMaterialWithBlendMode(m, (int)m.GetFloat("_Mode"));
-            if (m.GetColor("_EmissionColor") != defaultEmission || m.GetTexture("_EmissionMap") != null)
+            /*if (m.GetColor("_EmissionColor") != defaultEmission || m.GetTexture("_EmissionMap") != null)
             {
                 m.SetFloat("_EmissionToggle", 1f);
                 m.EnableKeyword("_EMISSION");
                 m.SetFloat("Foldout_Emission", 1f);
-            }
+            }*/
 
 
             ApplyChanges(m);
