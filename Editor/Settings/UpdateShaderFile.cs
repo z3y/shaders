@@ -3,17 +3,25 @@ using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using UnityEditor.PackageManager;
 
 namespace z3y.Shaders
 {
     [InitializeOnLoad]
     public static class UpdateLitShaderFile
     {
-        const string sessionKey = "UpdateLitShaderFile";
+        public static string SessionKey
+        {
+            get
+            {
+                return "UpdateLitShaderFile" + ProjectSettings.ShaderVersion;
+            }
+        }
 
         static UpdateLitShaderFile()
         {
-            var isApplied = SessionState.GetBool(sessionKey, false);
+            var isApplied = SessionState.GetBool(SessionKey, false);
+
             if (isApplied)
             {
                 return;
@@ -25,7 +33,7 @@ namespace z3y.Shaders
 
         private static void RemoveUpdateConfigActionAfterUpdate()
         {
-            var isApplied = SessionState.GetBool(sessionKey, false);
+            var isApplied = SessionState.GetBool(SessionKey, false);
 
             if (!isApplied || ProjectSettings.lit is null)
             {
@@ -43,7 +51,7 @@ namespace z3y.Shaders
             }
 
             #if !LTCGI_INCLUDED
-            ProjectSettings.litShaderSettings.allowLTCGI = false;
+            ProjectSettings.LitShaderSettings.allowLTCGI = false;
             #endif
 
             var path = AssetDatabase.GetAssetPath(ProjectSettings.lit);
@@ -73,7 +81,7 @@ namespace z3y.Shaders
 
             File.WriteAllLines(path, lines);
             AssetDatabase.ImportAsset(path);
-            SessionState.SetBool(sessionKey, true);
+            SessionState.SetBool(SessionKey, true);
         }
 
         private static string GetConfig()
@@ -81,13 +89,13 @@ namespace z3y.Shaders
             var sb = new StringBuilder();
 
             // bakeryMode
-            if (ProjectSettings.litShaderSettings.bakeryMode != LitShaderSettings.BakeryMode.PerMaterial)
+            if (ProjectSettings.LitShaderSettings.bakeryMode != LitShaderSettings.BakeryMode.PerMaterial)
             {
                 sb.AppendLine("#pragma skip_variants BAKERY_SH");
                 sb.AppendLine("#pragma skip_variants BAKERY_RNM");
                 sb.AppendLine("#pragma skip_variants BAKERY_MONOSH");
             }
-            switch (ProjectSettings.litShaderSettings.bakeryMode)
+            switch (ProjectSettings.LitShaderSettings.bakeryMode)
             {
                 case LitShaderSettings.BakeryMode.ForceRNM:
                     sb.AppendLine("#define BAKERY_RNM");
@@ -101,11 +109,11 @@ namespace z3y.Shaders
             }
 
             // nonLinearLightmapSH
-            if (ProjectSettings.litShaderSettings.nonLinearLightmapSH != LitShaderSettings.NonLinearLightmapSH.PerMaterial)
+            if (ProjectSettings.LitShaderSettings.nonLinearLightmapSH != LitShaderSettings.NonLinearLightmapSH.PerMaterial)
             {
                 sb.AppendLine("#pragma skip_variants BAKERY_SHNONLINEAR_OFF");
             }
-            switch (ProjectSettings.litShaderSettings.nonLinearLightmapSH)
+            switch (ProjectSettings.LitShaderSettings.nonLinearLightmapSH)
             {
                 case LitShaderSettings.NonLinearLightmapSH.ForceDisabled:
                     sb.AppendLine("#define BAKERY_SHNONLINEAR_OFF");
@@ -116,11 +124,11 @@ namespace z3y.Shaders
             }
 
             // bicubicLightmap
-            if (ProjectSettings.litShaderSettings.bicubicLightmap != LitShaderSettings.BicubicLightmap.PerMaterial)
+            if (ProjectSettings.LitShaderSettings.bicubicLightmap != LitShaderSettings.BicubicLightmap.PerMaterial)
             {
                 sb.AppendLine("#pragma skip_variants _BICUBICLIGHTMAP");
             }
-            switch (ProjectSettings.litShaderSettings.bicubicLightmap)
+            switch (ProjectSettings.LitShaderSettings.bicubicLightmap)
             {
                 case LitShaderSettings.BicubicLightmap.ForceDisabled:
                     // default
@@ -131,17 +139,17 @@ namespace z3y.Shaders
             }
 
             // allowLPPV
-            if (ProjectSettings.litShaderSettings.allowLPPV)
+            if (ProjectSettings.LitShaderSettings.allowLPPV)
             {
                 sb.AppendLine("#define _ALLOW_LPPV");
             }
 
             // nonLinearLightprobeSH
-            if (ProjectSettings.litShaderSettings.nonLinearLightprobeSH != LitShaderSettings.NonLinearLightprobeSH.PerMaterial)
+            if (ProjectSettings.LitShaderSettings.nonLinearLightprobeSH != LitShaderSettings.NonLinearLightprobeSH.PerMaterial)
             {
                 sb.AppendLine("#pragma skip_variants NONLINEAR_LIGHTPROBESH");
             }
-            switch (ProjectSettings.litShaderSettings.nonLinearLightprobeSH)
+            switch (ProjectSettings.LitShaderSettings.nonLinearLightprobeSH)
             {
                 case LitShaderSettings.NonLinearLightprobeSH.ForceDisabled:
                     // default
@@ -152,31 +160,31 @@ namespace z3y.Shaders
             }
 
             // dithering
-            if (ProjectSettings.litShaderSettings.dithering)
+            if (ProjectSettings.LitShaderSettings.dithering)
             {
                 sb.AppendLine("#define DITHERING");
             }
 
             // aces
-            if (ProjectSettings.litShaderSettings.aces)
+            if (ProjectSettings.LitShaderSettings.aces)
             {
                 sb.AppendLine("#define ACES_TONEMAPPING");
             }
 
             // compileVertexLights
-            if (!ProjectSettings.litShaderSettings.compileVertexLights)
+            if (!ProjectSettings.LitShaderSettings.compileVertexLights)
             {
                 sb.AppendLine("#pragma skip_variants VERTEXLIGHT_ON");
             }
 
             // compileLODCrossfade
-            if (!ProjectSettings.litShaderSettings.compileLODCrossfade)
+            if (!ProjectSettings.LitShaderSettings.compileLODCrossfade)
             {
                 sb.AppendLine("#pragma skip_variants LOD_FADE_CROSSFADE");
             }
 
             // allowLTCGI
-            if (!ProjectSettings.litShaderSettings.allowLTCGI)
+            if (!ProjectSettings.LitShaderSettings.allowLTCGI)
             {
                 sb.AppendLine("#pragma skip_variants LTCGI");
                 sb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");

@@ -193,7 +193,7 @@ namespace z3y.Shaders
                 Draw(_specularAntiAliasingThreshold);
             }
 
-            if (ProjectSettings.litShaderSettings.allowLTCGI)
+            if (ProjectSettings.LitShaderSettings.allowLTCGI)
             {
                 Space();
                 Draw(_LTCGI);
@@ -202,22 +202,22 @@ namespace z3y.Shaders
 
             Space();
             Draw(_LightmappedSpecular);
-            if (ProjectSettings.litShaderSettings.bicubicLightmap == LitShaderSettings.BicubicLightmap.PerMaterial)
+            if (ProjectSettings.LitShaderSettings.bicubicLightmap == LitShaderSettings.BicubicLightmap.PerMaterial)
             {
                 Draw(_BicubicLightmap);
             }
 
             Space();
-            if (ProjectSettings.litShaderSettings.bakeryMode == LitShaderSettings.BakeryMode.PerMaterial)
+            if (ProjectSettings.LitShaderSettings.bakeryMode == LitShaderSettings.BakeryMode.PerMaterial)
             {
                 Draw(Bakery);
             }
 
-            if (ProjectSettings.litShaderSettings.nonLinearLightmapSH == LitShaderSettings.NonLinearLightmapSH.PerMaterial)
+            if (ProjectSettings.LitShaderSettings.nonLinearLightmapSH == LitShaderSettings.NonLinearLightmapSH.PerMaterial)
             {
                 Draw(_BAKERY_SHNONLINEAR);
             }
-            if (ProjectSettings.litShaderSettings.nonLinearLightprobeSH == LitShaderSettings.NonLinearLightprobeSH.PerMaterial)
+            if (ProjectSettings.LitShaderSettings.nonLinearLightprobeSH == LitShaderSettings.NonLinearLightprobeSH.PerMaterial)
             {
                 Draw(_NonLinearLightProbeSH);
             }
