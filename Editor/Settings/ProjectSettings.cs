@@ -6,8 +6,13 @@ namespace z3y.Shaders
 {
     public class ProjectSettings
     {
-        public const string shaderName = "Lit";
-        public static Shader lit = Shader.Find(shaderName);
+        public static Shader lit
+        {
+            get
+            {
+                return Shader.Find("Lit");
+            }
+        }
 
         [SettingsProvider]
         public static SettingsProvider CreateProvider()
