@@ -1,4 +1,4 @@
-Shader "Lit"
+﻿Shader "Lit"
 {
 
 Properties
@@ -238,6 +238,8 @@ SubShader
         #pragma multi_compile_fwdadd_fullshadows
         #pragma multi_compile_instancing
         #pragma multi_compile_fog
+        #pragma multi_compile _ LOD_FADE_CROSSFADE
+
 
         #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
         #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
@@ -274,6 +276,8 @@ SubShader
         CGPROGRAM
         #pragma multi_compile_shadowcaster
         #pragma multi_compile_instancing
+        #pragma multi_compile _ LOD_FADE_CROSSFADE
+
 
         #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAFADE_ON
 
