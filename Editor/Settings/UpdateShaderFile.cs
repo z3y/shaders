@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using UnityEditor;
+using UnityEngine;
 
 namespace z3y.Shaders
 {
@@ -41,6 +42,7 @@ namespace z3y.Shaders
             EditorApplication.update -= RemoveUpdateConfigActionAfterUpdate;
         }
 
+        private static int _cachedConfigHash = 0;
         public static void UpdateConfig()
         {
             if (ProjectSettings.lit is null)
@@ -50,7 +52,16 @@ namespace z3y.Shaders
 
             #if !LTCGI_INCLUDED
             ProjectSettings.ShaderSettings.allowLTCGI = false;
-            #endif
+#endif
+
+            var config = GetConfig();
+            var hash = config.GetHashCode();
+
+            if (hash == _cachedConfigHash)
+            {
+                return;
+            }
+            _cachedConfigHash = hash;
 
             var path = AssetDatabase.GetAssetPath(ProjectSettings.lit);
             var lines = File.ReadAllLines(path).ToList();
@@ -60,7 +71,7 @@ namespace z3y.Shaders
                 if (lines[i].StartsWith("//ConfigStart", System.StringComparison.Ordinal))
                 {
                     lines[i] += "\n";
-                    lines[i] += GetConfig();
+                    lines[i] += config;
 
                     for (int j = i+1; j < lines.Count; j++)
                     {

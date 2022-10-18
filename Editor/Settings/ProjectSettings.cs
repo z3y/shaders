@@ -29,8 +29,8 @@ namespace z3y.Shaders
                     EditorGUILayout.LabelField("  " + ShaderVersion, EditorStyles.boldLabel);
 
                     EditorGUI.BeginChangeCheck();
-                    EditorGUILayout.Space();
-                    EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.defaultShader)), new GUIContent("Default Model Shader", "Use this shader on materials as default instead of Standard. Only affects the Model Importer materials"));
+                    //EditorGUILayout.Space();
+                    //EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.defaultShader)), new GUIContent("Default Model Shader", "Use this shader on materials as default instead of Standard. Only affects the Model Importer materials"));
                     //EditorGUILayout.PropertyField(settingsObject.FindProperty(nameof(litShaderSettings.defaultPreset)), new GUIContent("Default Preset"));
 
                     EditorGUILayout.Space();
@@ -45,7 +45,8 @@ namespace z3y.Shaders
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.nonLinearLightprobeSH)), new GUIContent("Non Linear Lightprobe SH"));
 
                     EditorGUILayout.Space();
-                    EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.fixBlackLevel)), new GUIContent("Black Level Fix"));
+                    EditorGUILayout.LabelField("Features", EditorStyles.boldLabel);
+                    //EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.fixBlackLevel)), new GUIContent("Black Level Fix"));
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.dithering)), new GUIContent("Dithering"));
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.aces)), new GUIContent("ACES"));
 
