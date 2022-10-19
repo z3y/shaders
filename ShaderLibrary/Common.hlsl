@@ -379,6 +379,9 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
         lightData.NoH = saturate(dot(normalWS, lightData.HalfVector));
         
         UNITY_LIGHT_ATTENUATION(lightAttenuation, input, input.worldPos.xyz);
+        #if defined(UNITY_PASS_FORWARDBASE) && !defined(SHADOWS_SCREEN)
+            lightAttenuation = 1.0;
+        #endif
         lightData.Attenuation = lightAttenuation;
         lightData.Color = lightAttenuation * _LightColor0.rgb;
         lightData.FinalColor = (lightData.NoL * lightData.Color);

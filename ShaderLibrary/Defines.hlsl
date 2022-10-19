@@ -3,8 +3,6 @@
 #endif
 
 #if defined(SHADER_API_MOBILE)
-    // #undef BAKERY_RNM
-    // #undef BAKERY_SH
     #undef _PARALLAXMAP
     #undef NONLINEAR_LIGHTPROBESH
     #undef _BICUBICLIGHTMAP
@@ -18,11 +16,4 @@
 
 #ifndef SHADER_API_MOBILE
     #define VERTEXLIGHT_PS
-#endif
-
-#if defined(LTCGI)
-    #ifdef _SPECULARHIGHLIGHTS_OFF
-        #define LTCGI_SPECULAR_OFF
-    #endif
-    #include "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc"
 #endif

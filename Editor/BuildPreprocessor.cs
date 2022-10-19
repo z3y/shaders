@@ -4,6 +4,7 @@ using UnityEditor.Build;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Rendering;
+using z3y.Shaders;
 
 namespace z3y
 {
@@ -28,26 +29,45 @@ namespace z3y
 
         public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data)
         {
+            
+
             if (shader.name != ShaderName)
             {
                 return;
             }
 
-            for (int i = data.Count - 1; i >= 0; --i)
+#if UNITY_ANDROID
+            if (ProjectSettings.ShaderSettings.q_DisableForwardAdd && snippet.passType == PassType.ForwardAdd)
             {
-                bool directionalEnabled = data[i].shaderKeywordSet.IsEnabled(_directional);
-                bool _shadowsScreenEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowsScreen);
-                bool _shadowMaskEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMask);
-                bool _shadowMixingEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMixing);
-
-                if (directionalEnabled && !_shadowsScreenEnabled && !_shadowMaskEnabled && !_shadowMixingEnabled)
+                data.Clear();
+                return;
+            }
+            if (ProjectSettings.ShaderSettings.q_DisableShadowCaster && snippet.passType == PassType.ShadowCaster)
+            {
+                data.Clear();
+                return;
+            }
+#endif
+            if (ProjectSettings.ShaderSettings.directionalLightVariants == LitShaderSettings.CompileDirectional.CompileBoth)
+            {
+                for (int i = data.Count - 1; i >= 0; --i)
                 {
-                    var shaderData = data[i];
-                    shaderData.shaderKeywordSet.Disable(_directional);
-                    data.Add(shaderData);
+                    bool directionalEnabled = data[i].shaderKeywordSet.IsEnabled(_directional);
+                    bool _shadowsScreenEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowsScreen);
+                    bool _shadowMaskEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMask);
+                    bool _shadowMixingEnabled = data[i].shaderKeywordSet.IsEnabled(_shadowMixing);
 
+                    if (directionalEnabled && !_shadowsScreenEnabled && !_shadowMaskEnabled && !_shadowMixingEnabled)
+                    {
+                        var shaderData = data[i];
+                        shaderData.shaderKeywordSet.Disable(_directional);
+                        data.Add(shaderData);
+
+                    }
                 }
             }
+
+
         }
     }
 }

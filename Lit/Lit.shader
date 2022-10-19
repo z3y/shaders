@@ -1,4 +1,4 @@
-﻿Shader "Lit"
+Shader "Lit"
 {
 
 Properties
@@ -123,8 +123,8 @@ Properties
     [Toggle(_LIGHTMAPPED_SPECULAR)] _LightmappedSpecular ("Lightmapped Specular ", Int) = 0
     [Toggle(_BICUBICLIGHTMAP)] _BicubicLightmap ("Bicubic Lightmap", Float) = 0
 
-    [Toggle(DITHERING)] _Dithering ("Dithering", Float) = 0
-    [Toggle(ACES_TONEMAPPING)] _ACES ("ACES", Float) = 0
+    // [Toggle(DITHERING)] _Dithering ("Dithering", Float) = 0
+    // [Toggle(ACES_TONEMAPPING)] _ACES ("ACES", Float) = 0
 
     [Enum(None, 0, SH, 1, RNM, 2, MONOSH, 3)] Bakery ("Bakery Mode", Int) = 0
     [ToggleOff(BAKERY_SHNONLINEAR_OFF)] _BAKERY_SHNONLINEAR ("Non-linear Lightmap SH", Float) = 1
@@ -134,6 +134,8 @@ Properties
 
 
 CGINCLUDE
+
+#pragma target 4.5
 #pragma vertex vert
 #pragma fragment frag
 #include "UnityCG.cginc"
@@ -143,13 +145,21 @@ CGINCLUDE
     #include "UnityMetaPass.cginc"
 #endif
 
+#ifdef _SPECULARHIGHLIGHTS_OFF
+    #define LTCGI_SPECULAR_OFF
+#endif
+
+//ConfigStart
+#define FIX_BLACK_LEVEL
+#pragma skip_variants LOD_FADE_CROSSFADE
+#pragma skip_variants LTCGI
+#pragma skip_variants LTCGI_DIFFUSE_OFF
+
+//ConfigEnd
 
 #include "../ShaderLibrary/Defines.hlsl"
 #include "Vertex.hlsl"
 #include "Fragment.hlsl"
-
-
-
 
 ENDCG
 
@@ -167,13 +177,12 @@ SubShader
         Blend [_SrcBlend] [_DstBlend]
 
         CGPROGRAM
-        #pragma target 4.5
-
         #pragma multi_compile_fwdbase
         #pragma multi_compile_instancing
         #pragma multi_compile_fog
         #pragma skip_variants LIGHTPROBE_SH
         
+        #pragma multi_compile _ LOD_FADE_CROSSFADE
         #pragma multi_compile_fragment _ VERTEXLIGHT_ON
 
         #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM BAKERY_MONOSH
@@ -227,11 +236,11 @@ SubShader
         AlphaToMask [_AlphaToMask]
 
         CGPROGRAM
-        #pragma target 4.5
-
         #pragma multi_compile_fwdadd_fullshadows
         #pragma multi_compile_instancing
         #pragma multi_compile_fog
+        #pragma multi_compile _ LOD_FADE_CROSSFADE
+
 
         #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
         #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
@@ -266,10 +275,10 @@ SubShader
         ZTest LEqual
 
         CGPROGRAM
-        #pragma target 4.5
-
         #pragma multi_compile_shadowcaster
         #pragma multi_compile_instancing
+        #pragma multi_compile _ LOD_FADE_CROSSFADE
+
 
         #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAFADE_ON
 
@@ -284,8 +293,6 @@ SubShader
         Cull Off
 
         CGPROGRAM
-        #pragma target 4.5
-
         #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
         #pragma shader_feature_local _EMISSION
         #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP

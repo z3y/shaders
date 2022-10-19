@@ -85,15 +85,12 @@ namespace z3y.Shaders
         private MaterialProperty _NonLinearLightProbeSH;
         private MaterialProperty _LightmappedSpecular;
         private MaterialProperty _BicubicLightmap;
-        private MaterialProperty _Dithering;
-        private MaterialProperty _ACES;
         private MaterialProperty _LTCGI;
         private MaterialProperty _LTCGI_DIFFUSE_OFF;
         private MaterialProperty _SpecularHighlights;
         private MaterialProperty _GlossyReflections;
         private MaterialProperty _ForceBoxProjection;
         private MaterialProperty _BlendReflectionProbes;
-        private MaterialProperty _Allow_LPPV_Toggle;
         private MaterialProperty _GSAA;
         #endregion
 
@@ -105,8 +102,14 @@ namespace z3y.Shaders
                 {
                     material.DisableKeyword(keyword);
                 }
+                var preset = ProjectSettings.ShaderSettings.defaultPreset;
+                if (preset != null)
+                {
+                    ApplyPresetPartially(preset, material, material.shader, 1);
+                }
                 MaterialEditor.ApplyMaterialPropertyDrawers(material);
                 OnValidate(material);
+
                 ResetFix.floatValue = 1f;
             }
 
@@ -182,7 +185,6 @@ namespace z3y.Shaders
             Draw(_GlossyReflections);
             Draw(_ForceBoxProjection, "Force Box Projection on Quest");
             Draw(_BlendReflectionProbes);
-            Draw(_Allow_LPPV_Toggle, "Allow Lightprobe Proxy Volumes");
 
             Draw(_GSAA);
             if (_GSAA.floatValue == 1)
@@ -191,25 +193,34 @@ namespace z3y.Shaders
                 Draw(_specularAntiAliasingThreshold);
             }
 
-#if LTCGI_INCLUDED
-            Space();
-            Draw(_LTCGI);
-            Draw(_LTCGI_DIFFUSE_OFF);
-#else
-            material.ToggleKeyword("LTCGI", false);
-            _LTCGI.floatValue = 0;
-#endif
+            if (ProjectSettings.ShaderSettings.allowLTCGI)
+            {
+                Space();
+                Draw(_LTCGI);
+                Draw(_LTCGI_DIFFUSE_OFF);
+            }
 
             Space();
             Draw(_LightmappedSpecular);
-            Draw(_BicubicLightmap);
-            Draw(_Dithering);
-            Draw(_ACES);
+            if (ProjectSettings.ShaderSettings.bicubicLightmap == LitShaderSettings.BicubicLightmap.PerMaterial)
+            {
+                Draw(_BicubicLightmap);
+            }
 
             Space();
-            Draw(Bakery);
-            Draw(_BAKERY_SHNONLINEAR);
-            Draw(_NonLinearLightProbeSH);
+            if (ProjectSettings.ShaderSettings.bakeryMode == LitShaderSettings.BakeryMode.PerMaterial)
+            {
+                Draw(Bakery);
+            }
+
+            if (ProjectSettings.ShaderSettings.nonLinearLightmapSH == LitShaderSettings.NonLinearLightmapSH.PerMaterial)
+            {
+                Draw(_BAKERY_SHNONLINEAR);
+            }
+            if (ProjectSettings.ShaderSettings.nonLinearLightprobeSH == LitShaderSettings.NonLinearLightprobeSH.PerMaterial)
+            {
+                Draw(_NonLinearLightProbeSH);
+            }
             Space();
         }
 
@@ -397,12 +408,12 @@ namespace z3y.Shaders
 
             MaterialEditor.ApplyMaterialPropertyDrawers(m);
             SetupMaterialWithBlendMode(m, (int)m.GetFloat("_Mode"));
-            if (m.GetColor("_EmissionColor") != defaultEmission || m.GetTexture("_EmissionMap") != null)
+            /*if (m.GetColor("_EmissionColor") != defaultEmission || m.GetTexture("_EmissionMap") != null)
             {
                 m.SetFloat("_EmissionToggle", 1f);
                 m.EnableKeyword("_EMISSION");
                 m.SetFloat("Foldout_Emission", 1f);
-            }
+            }*/ 
 
 
             ApplyChanges(m);
