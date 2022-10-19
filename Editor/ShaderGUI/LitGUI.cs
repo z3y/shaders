@@ -413,7 +413,7 @@ namespace z3y.Shaders
                 m.SetFloat("_EmissionToggle", 1f);
                 m.EnableKeyword("_EMISSION");
                 m.SetFloat("Foldout_Emission", 1f);
-            }*/
+            }*/ 
 
 
             ApplyChanges(m);

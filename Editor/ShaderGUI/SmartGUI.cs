@@ -185,31 +185,32 @@ namespace z3y.Shaders
             preset.ApplyTo(tempMaterial);
             var presetProperties = MaterialEditor.GetMaterialProperties(new Material[] { tempMaterial });
 
+            Undo.RecordObject(material, "ApplyingMaterialPropertiesPreset");
             for (int i = startIndex; i < defaultProperties.Length; i++)
             {
                 switch (defaultProperties[i].type)
                 {
                     case MaterialProperty.PropType.Color:
-                        if (defaultProperties[i].colorValue != presetProperties[i].colorValue)
+                        if (defaultProperties[i].colorValue != presetProperties[i].colorValue && material.GetColor(defaultProperties[i].name) == defaultProperties[i].colorValue)
                         {
                             material.SetColor(defaultProperties[i].name, presetProperties[i].colorValue);
                         }
                         break;
                     case MaterialProperty.PropType.Vector:
-                        if (defaultProperties[i].vectorValue != presetProperties[i].vectorValue)
+                        if (defaultProperties[i].vectorValue != presetProperties[i].vectorValue && material.GetVector(defaultProperties[i].name) == defaultProperties[i].vectorValue)
                         {
                             material.SetVector(defaultProperties[i].name, presetProperties[i].vectorValue);
                         }
                         break;
                     case MaterialProperty.PropType.Float:
                     case MaterialProperty.PropType.Range:
-                        if (defaultProperties[i].floatValue != presetProperties[i].floatValue)
+                        if (defaultProperties[i].floatValue != presetProperties[i].floatValue && material.GetFloat(defaultProperties[i].name) == defaultProperties[i].floatValue)
                         {
                             material.SetFloat(defaultProperties[i].name, presetProperties[i].floatValue);
                         }
                         break;
                     case MaterialProperty.PropType.Texture:
-                        if (presetProperties[i].textureValue && defaultProperties[i].textureValue != presetProperties[i].textureValue)
+                        if (presetProperties[i].textureValue && defaultProperties[i].textureValue != presetProperties[i].textureValue && material.GetTexture(defaultProperties[i].name) == defaultProperties[i].textureValue)
                         {
                             material.SetTexture(defaultProperties[i].name, presetProperties[i].textureValue);
                         }
