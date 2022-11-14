@@ -6,15 +6,9 @@ namespace z3y.Shaders
 {
     public class ProjectSettings
     {
-        public static Shader lit
-        {
-            get
-            {
-                return Shader.Find("Lit");
-            }
-        }
+        public static readonly Shader lit = Shader.Find("Lit");
 
-        public const string ShaderVersion = "v2.2.0";
+        public const string ShaderVersion = "v2.2.1";
         public const string ShaderName = "Lit";
 
         [SettingsProvider]
@@ -30,7 +24,7 @@ namespace z3y.Shaders
 
                     EditorGUI.BeginChangeCheck();
                     //EditorGUILayout.Space();
-                    //EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.defaultShader)), new GUIContent("Default Model Shader", "Use this shader on materials as default instead of Standard. Only affects the Model Importer materials"));
+                    EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.defaultShader)), new GUIContent("MaterialDescription Shader", "Use this shader on models with MaterialDescription creation mode for improved Blender workflow"));
                     //EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.defaultPreset)), new GUIContent("Default Preset"));
 
                     EditorGUILayout.Space();
