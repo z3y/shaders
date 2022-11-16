@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 using static z3y.FreeImagePacking;
-using Color = System.Drawing.Color;
 
 namespace z3y
 {

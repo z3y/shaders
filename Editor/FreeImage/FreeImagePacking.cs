@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 using UnityEditor;
-using Color = System.Drawing.Color;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 using static z3y.FreeImage;
 
@@ -75,7 +75,7 @@ namespace z3y
                 if (textureChannel.DefaultColor == DefaultColor.White)
                 {
                     var ch = GetChannel(newImage, ChannelSourceToFreeImage(textureChannel.Source));
-                    FillBackground(ch, Color.White);
+                    Invert(ch);
                     SetChannel(newImage, ch, newChannel);
                 }
                 return;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using Color = System.Drawing.Color;
 
 namespace z3y
 {
@@ -181,8 +180,8 @@ namespace z3y
     [DllImport(FreeImageDLL, EntryPoint = "FreeImage_Save")]
     public static extern bool FreeImage_Save(ImageFormat format, IntPtr handle, string filename, int flags = 0);
 
-    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_FillBackground")]
-    public static extern bool FillBackground(IntPtr dib, Color color, int options = 0);
+    //[DllImport(FreeImageDLL, EntryPoint = "FreeImage_FillBackground")]
+    //public static extern bool FillBackground(IntPtr dib, Color color, int options = 0);
 
     [DllImport(FreeImageDLL, EntryPoint = "FreeImage_Rescale")]
     public static extern IntPtr Rescale(IntPtr dib, int dst_width, int dst_height, FREE_IMAGE_FILTER filter);
