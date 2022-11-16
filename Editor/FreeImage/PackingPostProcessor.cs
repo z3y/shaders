@@ -15,7 +15,7 @@ namespace z3y
             }
 
             var path = importer.assetPath;
-            var fileName = System.IO.Path.GetFileName(path);
+            var fileName = System.IO.Path.GetFileNameWithoutExtension(path);
             if (fileName.EndsWith("_linear"))
             {
                 importer.sRGBTexture = false;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
@@ -17,7 +18,7 @@ namespace z3y
             var window = (FreeImagePackingEditor)GetWindow(typeof(FreeImagePackingEditor));
             window.titleContent = new GUIContent("Texture Packing");
             window.Show();
-            window.minSize = new Vector2(400, 300);
+            window.minSize = new Vector2(400, 500);
         }
 
         public static PackingField ChannelR;
@@ -25,8 +26,11 @@ namespace z3y
         public static PackingField ChannelB;
         public static PackingField ChannelA;
 
-        public static int Width = 1024;
-        public static int Height = 1024;
+        public static Texture2D packedTexture = null;
+
+        public static bool Linear = false;
+
+        public static TextureSize Size = FreeImagePacking.TextureSize.Default;
 
         public struct PackingField
         {
@@ -48,11 +52,17 @@ namespace z3y
             
             PackingFormat = (TexturePackingFormat)EditorGUILayout.EnumPopup("Format",PackingFormat);
             ImageFilter = (FreeImage.FREE_IMAGE_FILTER)EditorGUILayout.EnumPopup("Rescale Filter",ImageFilter);
+            Size = (TextureSize)EditorGUILayout.EnumPopup("Size", Size);
+            Linear = EditorGUILayout.Toggle("Linear", Linear);
+
             
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Clear"))
             {
-                
+                ChannelR.UnityTexture = null;
+                ChannelB.UnityTexture = null;
+                ChannelG.UnityTexture = null;
+                ChannelA.UnityTexture = null;
             }
             if (GUILayout.Button("Pack"))
             {
@@ -61,14 +71,47 @@ namespace z3y
                 GetTexturePath(ref ChannelB);
                 GetTexturePath(ref ChannelA);
 
-                PackCustom(@"d:\packed", ChannelR.Channel, ChannelG.Channel, ChannelB.Channel, ChannelA.Channel, (Width, Height), PackingFormat);
+                
+                var referenceTexture = ChannelG.UnityTexture ?? ChannelA.UnityTexture ?? ChannelR.UnityTexture ?? ChannelB.UnityTexture;
+                if (referenceTexture is null) return;
+                
+                var unityPath = AssetDatabase.GetAssetPath(referenceTexture);
+                var fileName = Path.GetFileNameWithoutExtension(unityPath);
+                var path = Path.GetDirectoryName(Path.GetFullPath(unityPath));
+
+                var newPath = unityPath + fileName + "_packed";
+                if (Linear)
+                {
+                    newPath += "_linear";
+                }
+                
+                Debug.Log(newPath);
+
+                int width = (int)Size;
+                int height = (int)Size;
+
+                if (Size == TextureSize.Default)
+                {
+                    width = referenceTexture.width;
+                    height = referenceTexture.height;
+                }
+
+                PackCustom(newPath, ChannelR.Channel, ChannelG.Channel, ChannelB.Channel, ChannelA.Channel, (width, height), PackingFormat);
             }
             EditorGUILayout.EndHorizontal();
+            
+            
+            EditorGUILayout.Space(20);
+            if (LastPackingTime > 0)
+            {
+                EditorGUILayout.LabelField($"Packed in {LastPackingTime}ms");
+            }
 
         }
         
-        private static TexturePackingFormat PackingFormat = TexturePackingFormat.tga;
+        private static TexturePackingFormat PackingFormat = TexturePackingFormat.tiff;
 
+        public static int LastPackingTime = 0;
 
         private void OnEnable()
         {
@@ -82,6 +125,13 @@ namespace z3y
             ChannelG.Channel.Source = ChannelSource.Green;
             ChannelB.Channel.Source = ChannelSource.Blue;
             ChannelA.Channel.Source = ChannelSource.Alpha;
+
+            ChannelR.Channel.DefaultColor = DefaultColor.Black;
+            ChannelG.Channel.DefaultColor = DefaultColor.Black;
+            ChannelB.Channel.DefaultColor = DefaultColor.Black;
+
+            LastPackingTime = 0;
+
         }
 
         private static void GetTexturePath(ref PackingField field)
@@ -132,7 +182,7 @@ namespace z3y
             
             field.Channel.Invert = GUILayout.Toggle(field.Channel.Invert, "Invert", GUILayout.Width(70));
             
-            GUILayout.Label("Fallback", GUILayout.Width(50));
+            GUILayout.Label("Fallback", GUILayout.Width(55));
 
             field.Channel.DefaultColor = (DefaultColor)EditorGUILayout.EnumPopup(field.Channel.DefaultColor, GUILayout.Width(60));
 
@@ -149,6 +199,8 @@ namespace z3y
             //GUILayout.Space(1);
             
             EditorGUILayout.EndVertical();
+            
+           
 
         }
     }

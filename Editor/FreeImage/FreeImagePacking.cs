@@ -86,7 +86,6 @@ namespace z3y
             var size = GetWithAndHeight(ptr);
 
             uint bpp = GetBPP(ptr);
-            Debug.Log(bpp);
             if (bpp > 8)
             {
                 ptr = GetChannel(ptr, ChannelSourceToFreeImage(textureChannel.Source));
@@ -102,7 +101,7 @@ namespace z3y
                 Invert(ptr);
             }
 
-            SetChannel(newImage, ptr, newChannel);
+            bool success = SetChannel(newImage, ptr, newChannel);
             
             FreeImage_Unload(ptr);
         }
@@ -125,7 +124,7 @@ namespace z3y
             
             
             sw.Stop();
-            Debug.Log($"Packed in {sw.ElapsedMilliseconds} ms");
+            FreeImagePackingEditor.LastPackingTime = (int)sw.ElapsedMilliseconds;
         }
         
         public enum TexturePackingFormat
@@ -133,9 +132,20 @@ namespace z3y
             tga = 17,
             psd = 20,
             tiff = 18,
-            exr = 29,
-            jpg = 2,
             png = 13,
+        }
+        
+        public enum TextureSize
+        {
+            Default = 0,
+            _32 = 32,
+            _64 = 64,
+            _128 = 128,
+            _256 = 256,
+            _512 = 512,
+            _1024 = 1024,
+            _2048 = 2048,
+            _4096 = 4096,
         }
         
         public enum ChannelSource
