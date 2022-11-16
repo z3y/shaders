@@ -1,54 +1,56 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Windows;
 using Color = System.Drawing.Color;
 
 namespace z3y
 {
+  [PublicAPI]
   public class FreeImage
   {
     public enum ImageFormat
     {
-      FIF_UNKNOWN = -1,
+      TARGA = 17,
+      PSD = 20,
+      TIFF = 18,
+      EXR = 29,
+      JPEG = 2,
       BMP = 0,
       ICO = 1,
-      JPEG = 2,
-      FIF_JNG = 3,
-      FIF_KOALA = 4,
-      FIF_LBM = 5,
-      FIF_IFF = FIF_LBM,
-      FIF_MNG = 6,
-      FIF_PBM = 7,
-      FIF_PBMRAW = 8,
-      FIF_PCD = 9,
-      FIF_PCX = 10,
-      FIF_PGM = 11,
-      FIF_PGMRAW = 12,
-      FIF_PNG = 13,
-      FIF_PPM = 14,
-      FIF_PPMRAW = 15,
-      FIF_RAS = 16,
-      FIF_TARGA = 17,
-      FIF_TIFF = 18,
-      FIF_WBMP = 19,
-      FIF_PSD = 20,
-      FIF_CUT = 21,
-      FIF_XBM = 22,
-      FIF_XPM = 23,
-      FIF_DDS = 24,
-      FIF_GIF = 25,
-      FIF_HDR = 26,
-      FIF_FAXG3 = 27,
-      FIF_SGI = 28,
-      FIF_EXR = 29,
-      FIF_J2K = 30,
-      FIF_JP2 = 31,
-      FIF_PFM = 32,
-      FIF_PICT = 33,
-      FIF_RAW = 34,
-      FIF_WEBP = 35,
-      FIF_JXR = 36
+      JNG = 3,
+      KOALA = 4,
+      LBM = 5,
+      IFF = LBM,
+      MNG = 6,
+      PBM = 7,
+      PBMRAW = 8,
+      PCD = 9,
+      PCX = 10,
+      PGM = 11,
+      PGMRAW = 12,
+      PNG = 13,
+      PPM = 14,
+      PPMRAW = 15,
+      RAS = 16,
+      WBMP = 19,
+      CUT = 21,
+      XBM = 22,
+      XPM = 23,
+      DDS = 24,
+      GIF = 25,
+      HDR = 26,
+      FAXG3 = 27,
+      SGI = 28,
+      J2K = 30,
+      JP2 = 31,
+      PFM = 32,
+      PICT = 33,
+      RAW = 34,
+      WEBP = 35,
+      JXR = 36,
+      FIF_UNKNOWN = -1
     }
 
     internal enum ImageType
@@ -106,12 +108,12 @@ namespace z3y
 
     public enum FREE_IMAGE_FILTER
     {
-      FILTER_BOX,
-      FILTER_BICUBIC,
-      FILTER_BILINEAR,
-      FILTER_BSPLINE,
-      FILTER_CATMULLROM,
-      FILTER_LANCZOS3
+      Box,
+      Bicubic,
+      Bilinear,
+      Bspline,
+      Catmullrom,
+      Lanczos3
     }
 
     [Flags]
@@ -140,7 +142,7 @@ namespace z3y
 
     public static ImageFormat GetImageFormat(string extension)
     {
-      if (extension.Equals("tga")) return ImageFormat.FIF_TARGA;
+      if (extension.Equals("tga")) return ImageFormat.TARGA;
       
       return GetFIFFromFormat(extension);
     }
