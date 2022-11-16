@@ -133,9 +133,9 @@ namespace z3y
       FICD_COLOR_MASK
     }
 
-    const string FreeImageLibrary = "FreeImage";
+    const string FreeImageDLL = "FreeImage";
 
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_GetFIFFromFormat")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_GetFIFFromFormat")]
     private static extern ImageFormat GetFIFFromFormat(string format);
 
     public static ImageFormat GetImageFormat(string extension)
@@ -151,7 +151,7 @@ namespace z3y
       return GetImageFormat(extension);
     }
     
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_Load")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_Load")]
     public static extern IntPtr FreeImage_Load(ImageFormat format, string filename, int flags = 0);
 
     public static IntPtr FreeImage_Load(string path, int flags = 0)
@@ -159,59 +159,60 @@ namespace z3y
       return FreeImage_Load(GetImageFormatAtPath(path), path, flags);
     }
          
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_Unload")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_Unload")]
     public static extern void FreeImage_Unload(IntPtr handle);
     
-    [DllImport(FreeImageLibrary,  EntryPoint = "FreeImage_FlipHorizontal")]
+    [DllImport(FreeImageDLL,  EntryPoint = "FreeImage_FlipHorizontal")]
     public static extern bool FlipHorizontal(IntPtr dib);
 
-    [DllImport(FreeImageLibrary,  EntryPoint = "FreeImage_AdjustContrast")]
+    [DllImport(FreeImageDLL,  EntryPoint = "FreeImage_AdjustContrast")]
     public static extern bool AdjustContrast(IntPtr dib, double percentage);
 
-    [DllImport(FreeImageLibrary,  EntryPoint = "FreeImage_GetChannel")]
+    [DllImport(FreeImageDLL,  EntryPoint = "FreeImage_GetChannel")]
     public static extern IntPtr GetChannel(IntPtr dib, FREE_IMAGE_COLOR_CHANNEL channel);
 
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_SetChannel")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_SetChannel")]
     public static extern bool SetChannel(IntPtr dib, IntPtr dib8, FREE_IMAGE_COLOR_CHANNEL channel);
 
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_Save")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_Save")]
     public static extern bool FreeImage_Save(ImageFormat format, IntPtr handle, string filename, int flags = 0);
 
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_FillBackground")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_FillBackground")]
     public static extern bool FillBackground(IntPtr dib, Color color, int options = 0);
 
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_Rescale")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_Rescale")]
     public static extern IntPtr Rescale(IntPtr dib, int dst_width, int dst_height, FREE_IMAGE_FILTER filter);
 
     public delegate void OutputMessageFunction(ImageFormat fif, string message);
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_SetOutputMessage")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_SetOutputMessage")]
     public static extern void SetOutputMessage(OutputMessageFunction messageFunction);
     
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_GetWidth")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_GetWidth")]
     internal static extern uint GetWidth(IntPtr handle);
 
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_GetHeight")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_GetHeight")]
     internal static extern uint GetHeight(IntPtr handle);
 
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_GetImageType")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_GetImageType")]
     internal static extern ImageType GetImageType(IntPtr dib);
 
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_SetTransparent")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_SetTransparent")]
     public static extern void SetTransparent(IntPtr dib, bool enabled = true);
 
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_SetTransparentIndex")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_SetTransparentIndex")]
     public static extern void SetTransparentIndex(IntPtr dib, int index = 3);
     
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_IsTransparent")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_IsTransparent")]
     public static extern bool IsTransparent(IntPtr dib);
     
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_ConvertTo32Bits")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_ConvertTo32Bits")]
     public static extern IntPtr ConvertTo32Bits(IntPtr dib);
     
-    [DllImport(FreeImageLibrary, EntryPoint = "FreeImage_Invert")]
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_Invert")]
     public static extern bool Invert(IntPtr dib);
 
-
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_Allocate")]
+    public static extern IntPtr Allocate(int width, int height, int bpp);
     public static (uint, uint) GetWithAndHeight(IntPtr dib)
     {
       uint width = GetWidth(dib);
