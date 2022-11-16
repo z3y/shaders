@@ -79,11 +79,12 @@ namespace z3y
                 var fileName = Path.GetFileNameWithoutExtension(unityPath);
                 var path = Path.GetDirectoryName(Path.GetFullPath(unityPath));
 
-                var newPath = unityPath + fileName + "_packed";
+                var newPath = path + "/" + fileName + "_packed";
                 if (Linear)
                 {
                     newPath += "_linear";
                 }
+
 
                 int width = (int)Size;
                 int height = (int)Size;

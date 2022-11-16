@@ -70,7 +70,7 @@ namespace z3y
 
         private static void HandleTextureChannel(TextureChannel textureChannel, (int, int) widthHeight, IntPtr newImage, FREE_IMAGE_COLOR_CHANNEL newChannel)
         {
-            if (textureChannel.Path is null)
+            if (string.IsNullOrEmpty(textureChannel.Path))
             {
                 if (textureChannel.DefaultColor == DefaultColor.White)
                 {
