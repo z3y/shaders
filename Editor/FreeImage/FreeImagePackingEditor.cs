@@ -61,7 +61,7 @@ namespace z3y
                 GetTexturePath(ref ChannelB);
                 GetTexturePath(ref ChannelA);
 
-                PackCustom(@"d:\packed", ChannelR.Channel, ChannelB.Channel, ChannelG.Channel, ChannelA.Channel, (Width, Height), PackingFormat);
+                PackCustom(@"d:\packed", ChannelR.Channel, ChannelG.Channel, ChannelB.Channel, ChannelA.Channel, (Width, Height), PackingFormat);
             }
             EditorGUILayout.EndHorizontal();
 
@@ -76,6 +76,12 @@ namespace z3y
             ChannelG.DisplayName = "Green";
             ChannelB.DisplayName = "Blue";
             ChannelA.DisplayName = "Alpha";
+
+
+
+            ChannelG.Channel.Source = ChannelSource.Green;
+            ChannelB.Channel.Source = ChannelSource.Blue;
+            ChannelA.Channel.Source = ChannelSource.Alpha;
         }
 
         private static void GetTexturePath(ref PackingField field)

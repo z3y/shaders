@@ -19,6 +19,7 @@ namespace z3y
         public static ImageFormat PackingFormat = ImageFormat.TIFF;
         public static FREE_IMAGE_FILTER ImageFilter = FREE_IMAGE_FILTER.Bilinear;
 
+        /*
         public static void PackAlbedoAlpha(string destinationPath, string albedoPath, string alphaPath, ChannelSource alphaSource = ChannelSource.Grayscale, bool invertAlpha = false)
         {
             
@@ -52,6 +53,7 @@ namespace z3y
             FreeImage_Unload(albedoTex);
             FreeImage_Unload(alphaTex);
         }
+        */
         
         public struct TextureChannel
         {
@@ -83,10 +85,11 @@ namespace z3y
             var ptr = FreeImage_Load(textureChannel.Path);
             var size = GetWithAndHeight(ptr);
 
-            if (textureChannel.Source != ChannelSource.Grayscale)
+            uint bpp = GetBPP(ptr);
+            Debug.Log(bpp);
+            if (bpp > 8)
             {
                 ptr = GetChannel(ptr, ChannelSourceToFreeImage(textureChannel.Source));
-
             }
             
             if (size.Item1 != widthHeight.Item1 || size.Item2 != widthHeight.Item2)
@@ -140,8 +143,7 @@ namespace z3y
             Red,
             Green,
             Blue,
-            Alpha,
-            Grayscale
+            Alpha
         }
         
         public static FREE_IMAGE_COLOR_CHANNEL ChannelSourceToFreeImage(ChannelSource channelSource)
@@ -156,8 +158,6 @@ namespace z3y
                     return FREE_IMAGE_COLOR_CHANNEL.FICC_BLUE;
                 case ChannelSource.Alpha:
                     return FREE_IMAGE_COLOR_CHANNEL.FICC_ALPHA;
-                case ChannelSource.Grayscale:
-                    return FREE_IMAGE_COLOR_CHANNEL.FICC_RGB;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(channelSource), channelSource, null);
             }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using UnityEngine;
-using UnityEngine.Windows;
 using Color = System.Drawing.Color;
 
 namespace z3y
@@ -143,6 +141,7 @@ namespace z3y
     public static ImageFormat GetImageFormat(string extension)
     {
       if (extension.Equals("tga")) return ImageFormat.TARGA;
+      if (extension.Equals("jpg")) return ImageFormat.JPEG;
       
       return GetFIFFromFormat(extension);
     }
@@ -158,7 +157,9 @@ namespace z3y
 
     public static IntPtr FreeImage_Load(string path, int flags = 0)
     {
-      return FreeImage_Load(GetImageFormatAtPath(path), path, flags);
+      string absolutePath = System.IO.Path.GetFullPath(path);
+      
+      return FreeImage_Load(GetImageFormatAtPath(absolutePath), absolutePath, flags);
     }
          
     [DllImport(FreeImageDLL, EntryPoint = "FreeImage_Unload")]
@@ -197,6 +198,9 @@ namespace z3y
 
     [DllImport(FreeImageDLL, EntryPoint = "FreeImage_GetImageType")]
     internal static extern ImageType GetImageType(IntPtr dib);
+
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_GetBPP")]
+    internal static extern uint GetBPP(IntPtr dib);
 
     [DllImport(FreeImageDLL, EntryPoint = "FreeImage_SetTransparent")]
     public static extern void SetTransparent(IntPtr dib, bool enabled = true);
