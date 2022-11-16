@@ -17,9 +17,10 @@ namespace z3y
         }
 
         public static FREE_IMAGE_FILTER ImageFilter = FREE_IMAGE_FILTER.Bilinear;
+        public static TexturePackingFormat PackingFormat = TexturePackingFormat.tga;
 
-        /*
-        public static void PackAlbedoAlpha(string destinationPath, string albedoPath, string alphaPath, ChannelSource alphaSource = ChannelSource.Grayscale, bool invertAlpha = false)
+
+        public static void PackAlbedoAlpha(string destinationPath, string albedoPath, string alphaPath, ChannelSource alphaSource, bool invertAlpha = false)
         {
             
             var albedoTex = FreeImage_Load(albedoPath);
@@ -34,10 +35,15 @@ namespace z3y
             
             albedoTex = ConvertTo32Bits(albedoTex);
 
-            if (alphaSource != ChannelSource.Grayscale)
+            uint bpp = GetBPP(alphaTex);
+            if (bpp > 16)
             {
                 var source = ChannelSourceToFreeImage(alphaSource);
                 alphaTex = GetChannel(alphaTex, source);
+            }
+            if (bpp == 16)
+            {
+                alphaTex = ConvertTo8Bits(alphaTex);
             }
 
             if (invertAlpha)
@@ -47,13 +53,12 @@ namespace z3y
 
             SetChannel(albedoTex, alphaTex, FREE_IMAGE_COLOR_CHANNEL.FICC_ALPHA);
 
-            FreeImage_Save(PackingFormat, albedoTex, destinationPath);
+            FreeImage_Save((ImageFormat)PackingFormat, albedoTex, destinationPath);
 
             FreeImage_Unload(albedoTex);
             FreeImage_Unload(alphaTex);
         }
-        */
-        
+
         public struct TextureChannel
         {
             [CanBeNull] public string Path;

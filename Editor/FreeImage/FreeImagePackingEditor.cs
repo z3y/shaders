@@ -112,7 +112,6 @@ namespace z3y
 
         }
         
-        private static TexturePackingFormat PackingFormat = TexturePackingFormat.tga;
 
         public static int LastPackingTime = 0;
 
