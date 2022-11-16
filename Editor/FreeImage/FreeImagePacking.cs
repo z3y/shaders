@@ -16,7 +16,6 @@ namespace z3y
             SetOutputMessage(LogMessage);
         }
 
-        public static ImageFormat PackingFormat = ImageFormat.TIFF;
         public static FREE_IMAGE_FILTER ImageFilter = FREE_IMAGE_FILTER.Bilinear;
 
         /*

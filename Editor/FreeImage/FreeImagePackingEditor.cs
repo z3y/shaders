@@ -108,7 +108,7 @@ namespace z3y
 
         }
         
-        private static TexturePackingFormat PackingFormat = TexturePackingFormat.tiff;
+        private static TexturePackingFormat PackingFormat = TexturePackingFormat.tga;
 
         public static int LastPackingTime = 0;
 
@@ -135,7 +135,7 @@ namespace z3y
 
         private static void GetTexturePath(ref PackingField field)
         {
-            if (field.UnityTexture is null) return;
+            if (field.UnityTexture is null) field.Channel.Path = null;
             
             var path = AssetDatabase.GetAssetPath(field.UnityTexture);
             field.Channel.Path = path;
