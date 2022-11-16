@@ -86,9 +86,14 @@ namespace z3y
             var size = GetWithAndHeight(ptr);
 
             uint bpp = GetBPP(ptr);
-            if (bpp > 8)
+            if (bpp > 16)
             {
                 ptr = GetChannel(ptr, ChannelSourceToFreeImage(textureChannel.Source));
+            }
+
+            if (bpp == 16)
+            {
+                ptr = ConvertTo8Bits(ptr);
             }
             
             if (size.Item1 != widthHeight.Item1 || size.Item2 != widthHeight.Item2)

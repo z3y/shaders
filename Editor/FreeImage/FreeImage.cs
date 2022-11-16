@@ -214,6 +214,9 @@ namespace z3y
     [DllImport(FreeImageDLL, EntryPoint = "FreeImage_ConvertTo32Bits")]
     public static extern IntPtr ConvertTo32Bits(IntPtr dib);
     
+    [DllImport(FreeImageDLL, EntryPoint = "FreeImage_ConvertTo8Bits")]
+    public static extern IntPtr ConvertTo8Bits(IntPtr dib);
+    
     [DllImport(FreeImageDLL, EntryPoint = "FreeImage_Invert")]
     public static extern bool Invert(IntPtr dib);
 

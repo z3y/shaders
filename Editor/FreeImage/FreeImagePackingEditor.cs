@@ -84,8 +84,6 @@ namespace z3y
                 {
                     newPath += "_linear";
                 }
-                
-                Debug.Log(newPath);
 
                 int width = (int)Size;
                 int height = (int)Size;
@@ -97,6 +95,7 @@ namespace z3y
                 }
 
                 PackCustom(newPath, ChannelR.Channel, ChannelG.Channel, ChannelB.Channel, ChannelA.Channel, (width, height), PackingFormat);
+                AssetDatabase.Refresh();
             }
             EditorGUILayout.EndHorizontal();
             
