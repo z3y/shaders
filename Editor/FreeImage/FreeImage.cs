@@ -141,6 +141,8 @@ namespace z3y
     {
       if (extension.Equals("tga")) return ImageFormat.TARGA;
       if (extension.Equals("jpg")) return ImageFormat.JPEG;
+      if (extension.Equals("tif")) return ImageFormat.TIFF;
+
 
 
       return GetFIFFromFormat(extension);

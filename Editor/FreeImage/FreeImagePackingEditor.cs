@@ -39,20 +39,22 @@ namespace z3y
             [CanBeNull] public string InvertDisplayName;
         }
 
+        private const string _guiStyle = "helpBox";
         public void OnGUI()
         {
-            TexturePackingField(ref ChannelR);
-            TexturePackingField(ref ChannelG);
-            TexturePackingField(ref ChannelB);
-            TexturePackingField(ref ChannelA);
+            TexturePackingField(ref ChannelR, Color.red);
+            TexturePackingField(ref ChannelG, Color.green);
+            TexturePackingField(ref ChannelB, Color.blue);
+            TexturePackingField(ref ChannelA, Color.white);
 
             
-            EditorGUILayout.Space(20);
+            EditorGUILayout.Space(10);
             
+            EditorGUILayout.BeginVertical(_guiStyle);
             PackingFormat = (TexturePackingFormat)EditorGUILayout.EnumPopup("Format",PackingFormat);
-            ImageFilter = (FreeImage.FREE_IMAGE_FILTER)EditorGUILayout.EnumPopup("Rescale Filter",ImageFilter);
-            Size = (TextureSize)EditorGUILayout.EnumPopup("Size", Size);
-            Linear = EditorGUILayout.Toggle("Linear", Linear);
+            ImageFilter = (FreeImage.FREE_IMAGE_FILTER)EditorGUILayout.EnumPopup(new GUIContent("Rescale Filter", "Filter that will be used for rescaling textures to match them to the target size if needed"),ImageFilter);
+            Size = (TextureSize)EditorGUILayout.EnumPopup(new GUIContent("Size", "Specify the size of the packed texture"), Size);
+            Linear = EditorGUILayout.Toggle(new GUIContent("Linear", "Disable sRGB on texture import, for mask and data textures (Roughness, Occlusion, Metallic etc)"), Linear);
 
             
             EditorGUILayout.BeginHorizontal();
@@ -99,6 +101,8 @@ namespace z3y
             }
             EditorGUILayout.EndHorizontal();
             
+            EditorGUILayout.EndVertical();
+            
             
             EditorGUILayout.Space(20);
             if (LastPackingTime > 0)
@@ -141,12 +145,14 @@ namespace z3y
             field.Channel.Path = path;
         }
 
-        private static void TexturePackingField(ref PackingField field)
+        private static void TexturePackingField(ref PackingField field, Color color)
         {
-            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.BeginVertical(_guiStyle);
 
             //GUILayout.Space(1);
 
+            
+            
             GUILayout.BeginHorizontal();
             var style = new GUIStyle(GUI.skin.label)
             {
@@ -155,6 +161,8 @@ namespace z3y
                 
             };
             field.UnityTexture = (Texture2D)EditorGUILayout.ObjectField(field.UnityTexture, typeof(Texture2D), false, GUILayout.Width(60), GUILayout.Height(60));
+            var rect = GUILayoutUtility.GetLastRect();
+            EditorGUI.DrawRect(new Rect(rect.x-2, rect.y, 2, 60), color);
             GUILayout.Space(5);
             GUILayout.BeginVertical();
 
