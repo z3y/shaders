@@ -22,7 +22,6 @@ namespace z3y
 
         public static void PackAlbedoAlpha(string destinationPath, string albedoPath, string alphaPath, ChannelSource alphaSource, bool invertAlpha = false)
         {
-            
             var albedoTex = FreeImage_Load(albedoPath);
             var alphaTex = FreeImage_Load(alphaPath);
             var albedoWh = GetWithAndHeight(albedoTex);

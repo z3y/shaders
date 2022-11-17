@@ -159,11 +159,15 @@ namespace z3y
 
     public static IntPtr FreeImage_Load(string path, int flags = 0)
     {
-      string absolutePath = System.IO.Path.GetFullPath(path);
+      string absolutePath = path;
+      if (path.StartsWith("Packages", StringComparison.OrdinalIgnoreCase))
+      {
+        absolutePath = System.IO.Path.GetFullPath(path);
+      }
       
       return FreeImage_Load(GetImageFormatAtPath(absolutePath), absolutePath, flags);
     }
-         
+
     [DllImport(FreeImageDLL, EntryPoint = "FreeImage_Unload")]
     public static extern void FreeImage_Unload(IntPtr handle);
     
