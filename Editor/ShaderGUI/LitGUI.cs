@@ -249,8 +249,7 @@ namespace z3y.Shaders
             Draw(_DetailAlbedoMap, _DetailColor, null, "RGB: Albedo\nA: Blend Mask");
             if (TexturePackingButton())
             {
-                TexturePacking window = GetPackingWindow(material);
-                window.packingProperty = _DetailAlbedoMap;
+                GetPackingWindow(material, _DetailAlbedoMap);
             }
             Draw(_DetailNormalMap, _DetailNormalScale);
 
@@ -311,22 +310,23 @@ namespace z3y.Shaders
             Draw(_MainTex, _Color, _AlbedoSaturation);
             if (TexturePackingButton())
             {
-                TexturePacking window = GetPackingWindow(material);
-                window.packingProperty = _MainTex;
+                GetPackingWindow(material, _MainTex);
             }
 
             Draw(_BumpMap, _BumpScale);
             Draw(_MetallicGlossMap, _SmoothnessAlbedoAlpha, null, "R: Metallic\nG: Occlusion\nA: Smoothness");
             if (TexturePackingButton())
             {
-                TexturePacking window = GetPackingWindow(material);
-                window.packingProperty = _MetallicGlossMap;
-                window.dataR.displayName = "Metallic";
-                window.dataG.displayName = "Occlusion";
-                window.dataG.isWhite = true;
-                window.dataB.displayName = "";
-                window.dataA.displayName = "Smoothness";
-                window.disableSrgb = true;
+                GetPackingWindow(material, _MetallicGlossMap);
+
+                FreeImagePackingEditor.ChannelR.DisplayName = "Metallic";
+                FreeImagePackingEditor.ChannelG.Channel.DefaultColor = FreeImagePacking.DefaultColor.Black;
+                FreeImagePackingEditor.ChannelG.DisplayName = "Occlusion";
+                FreeImagePackingEditor.ChannelB.DisplayName = "";
+                FreeImagePackingEditor.ChannelA.DisplayName = "Smoothness";
+                FreeImagePackingEditor.ChannelA.InvertDisplayName = "Roughness";
+                FreeImagePackingEditor.ChannelG.Channel.DefaultColor = FreeImagePacking.DefaultColor.White;
+                FreeImagePackingEditor.Linear = true;
             }
             sRGBWarning(_MetallicGlossMap);
             EditorGUI.indentLevel+=2;
@@ -363,16 +363,10 @@ namespace z3y.Shaders
             Space();
         }
 
-        private static TexturePacking GetPackingWindow(Material material)
+        private static void GetPackingWindow(Material material, MaterialProperty property)
         {
-            TexturePacking.Init();
-            TexturePacking window = (TexturePacking)EditorWindow.GetWindow(typeof(TexturePacking));
-            window.Close();
-            TexturePacking.Init();
-            window = (TexturePacking)EditorWindow.GetWindow(typeof(TexturePacking));
-            window.packingMaterial = material;
-            window.minSize = new Vector2(450, 350);
-            return window;
+            FreeImagePackingEditor.Init();
+            FreeImagePackingEditor.AddPackingMaterial(material, property);
         }
 
         private void DrawRenderingOptions(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)

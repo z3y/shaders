@@ -139,9 +139,9 @@ namespace z3y
 
     public static ImageFormat GetImageFormat(string extension)
     {
-      if (extension.Equals("tga")) return ImageFormat.TARGA;
-      if (extension.Equals("jpg")) return ImageFormat.JPEG;
-      if (extension.Equals("tif")) return ImageFormat.TIFF;
+      if (extension.Equals("tga", StringComparison.OrdinalIgnoreCase)) return ImageFormat.TARGA;
+      if (extension.Equals("jpg", StringComparison.OrdinalIgnoreCase)) return ImageFormat.JPEG;
+      if (extension.Equals("tif", StringComparison.OrdinalIgnoreCase)) return ImageFormat.TIFF;
 
 
 

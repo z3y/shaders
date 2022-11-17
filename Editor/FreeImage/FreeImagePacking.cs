@@ -127,13 +127,18 @@ namespace z3y
             HandleTextureChannel(textureChannelB, widthHeight, newTexture, FREE_IMAGE_COLOR_CHANNEL.FICC_BLUE);
             HandleTextureChannel(textureChannelA, widthHeight, newTexture, FREE_IMAGE_COLOR_CHANNEL.FICC_ALPHA);
 
-            FreeImage_Save((ImageFormat)format, newTexture, destinationPath + "." + Enum.GetName(typeof(TexturePackingFormat), format));
+            FreeImage_Save((ImageFormat)format, newTexture, destinationPath);
 
             FreeImage_Unload(newTexture);
             
             
             sw.Stop();
             FreeImagePackingEditor.LastPackingTime = (int)sw.ElapsedMilliseconds;
+        }
+
+        public static string GetExtension(this TexturePackingFormat format)
+        {
+            return Enum.GetName(typeof(TexturePackingFormat), format);
         }
         
         public enum TexturePackingFormat
@@ -147,6 +152,7 @@ namespace z3y
         public enum TextureSize
         {
             Default = 0,
+            Custom = -1,
             _32 = 32,
             _64 = 64,
             _128 = 128,
