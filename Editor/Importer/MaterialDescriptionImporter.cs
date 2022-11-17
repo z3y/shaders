@@ -85,72 +85,10 @@ namespace z3y.Shaders
                 var smoothness = Mathf.Sqrt(shininessFactor * 0.01f);
                 material.SetFloat("_Glossiness", smoothness);
             }
-
-            var textureProps = new List<string>();
             
-            /*
-            description.GetTexturePropertyNames(textureProps);
-            
-            if (mainTexUnity && description.TryGetProperty("ShininessExponent", out TexturePropertyDescription roughnessTexture))
-            {
-                Debug.Log(roughnessTexture.path);
-                string roughnessPath = AssetDatabase.GetAssetPath(roughnessTexture.texture);
-                string albedoPath = AssetDatabase.GetAssetPath(mainTexUnity);
-                string newName = Path.GetFileNameWithoutExtension(albedoPath) + Path.GetFileNameWithoutExtension(roughnessPath) + "." + FreeImagePacking.PackingFormat.GetExtension();
-                string newPath = "Assets/" + newName;
-                Texture2D newTexture;
-                newTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(newPath);
-                
-                if (!newTexture)
-                {
-                    FreeImagePacking.PackAlbedoAlpha(newPath, albedoPath, roughnessPath, FreeImagePacking.ChannelSource.Red, true);
-                    AssetDatabase.ImportAsset(newPath, ImportAssetOptions.ForceUpdate);
-                    _packedTextures.Add(new PackedTexture(material, "_MainTex", newPath));
-                }
-                else
-                {
-                    material.SetTexture("_MainTex", newTexture);
-                }
-                material.SetFloat("_SmoothnessAlbedoAlpha", 1f);
-            }
-            */
-
-        
-
 
             LitGUI.ApplyChanges(material);
         }
-
         
-        /*private static List<PackedTexture> _packedTextures = new List<PackedTexture>();
-        private static void ApplyPackedTextures()
-        {
-            for (var i = 0; i < _packedTextures.Count; i++)
-            {
-                var applyTexture = _packedTextures[i];
-                var packedTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(applyTexture.Path);
-                if (!packedTexture)
-                {
-                    continue;
-                }
-                applyTexture.Material.SetTexture(applyTexture.PropertyName, packedTexture);
-            }
-            
-            _packedTextures.Clear();
-        }
-
-        private struct PackedTexture
-        {
-            public Material Material;
-            public string PropertyName;
-            public string Path;
-
-            public PackedTexture(Material material, string propertyName, string path)
-            {
-                Material = material;
-                PropertyName = propertyName;
-                Path = path;
-            }
-        }*/
     }
 }
