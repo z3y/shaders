@@ -75,7 +75,17 @@ namespace z3y
 
                 EditorGUILayout.LabelField(new GUIContent($"Material - {_packingMaterial.name}"));
                 EditorGUILayout.LabelField(new GUIContent($"Texture - {_packingProperty.displayName}"));
-                
+                if (_packingProperty.textureValue && GUILayout.Button("Modify"))
+                {
+                    var texture = _packingProperty.textureValue;
+                    if (texture is Texture2D texture2D)
+                    {
+                        ChannelR.UnityTexture = texture2D;
+                        ChannelG.UnityTexture = texture2D;
+                        ChannelB.UnityTexture = texture2D;
+                        ChannelA.UnityTexture = texture2D;
+                    }
+                }
                 EditorGUILayout.EndVertical();
             }
             
@@ -104,6 +114,7 @@ namespace z3y
             {
                 ResetFields();
             }
+            
             if (GUILayout.Button("Pack"))
             {
                 GetTexturePath(ref ChannelR);
