@@ -74,6 +74,7 @@ namespace z3y
                 EditorGUILayout.BeginVertical(_guiStyle);
 
                 EditorGUILayout.LabelField(new GUIContent($"Material - {_packingMaterial.name}"));
+                EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField(new GUIContent($"Texture - {_packingProperty.displayName}"));
                 if (_packingProperty.textureValue && GUILayout.Button("Modify"))
                 {
@@ -86,6 +87,7 @@ namespace z3y
                         ChannelA.UnityTexture = texture2D;
                     }
                 }
+                EditorGUILayout.EndHorizontal();
                 EditorGUILayout.EndVertical();
             }
             
