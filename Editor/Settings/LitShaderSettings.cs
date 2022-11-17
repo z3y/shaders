@@ -56,7 +56,7 @@ namespace z3y.Shaders
             OnlyDisabled,
             CompileBoth,
         }
-        public CompileDirectional directionalLightVariants = CompileDirectional.CompileBoth;
+        public CompileDirectional directionalLightVariants = CompileDirectional.OnlyEnabled;
         public bool compileVertexLights = true;
         public bool compileLODCrossfade = false;
 
