@@ -28,10 +28,18 @@ An optimized Standard shader replacement for Unity
 - Add the git url `https://github.com/z3y/shaders.git` with the package manager
 - Or [Clone](https://github.com/z3y/shaders/archive/refs/heads/main.zip) the repository and import into Unity Assets folder
 
+
+
 If you want to ask something add me z3y#3214 or join the [Discord](https://discord.gg/bw46tKgRFT). Please report bugs if you find them https://github.com/z3y/shaders/issues
 #
 
+### Inspector
 ![Unity_eZEBLyHWuP](https://user-images.githubusercontent.com/33181641/195345116-f24babd0-add7-4427-bc7f-c17e3068a351.png)
 
-![image](https://user-images.githubusercontent.com/33181641/195345438-3c23bfa2-22d3-4a8b-bffb-533cc1ba3178.png)
+### Texture Packing
+![image](https://user-images.githubusercontent.com/33181641/202446428-07b45383-a9f0-45dc-a1ea-f6635755a9b1.png)
 
+
+
+### Project Settings
+![image](https://user-images.githubusercontent.com/33181641/202446159-f67bca06-c777-4f12-a3fa-62d18990683d.png)
