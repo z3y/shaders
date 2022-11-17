@@ -75,10 +75,12 @@ namespace z3y.Shaders
                 material.SetFloat("_Metallic", metallic);
             }
 
+            /*
             if (description.TryGetProperty("SpecularFactor", out float reflectance))
             {
                 material.SetFloat("_Reflectance", reflectance * 2);
             }
+            */
 
             if (description.TryGetProperty("Shininess", out float shininessFactor))
             {
