@@ -330,12 +330,20 @@ namespace z3y.Shaders
             }
             sRGBWarning(_MetallicGlossMap);
             EditorGUI.indentLevel+=2;
-            if (_MetallicGlossMap.textureValue || _SmoothnessAlbedoAlpha.floatValue == 1)
+            bool maskMap = _MetallicGlossMap.textureValue;
+            bool smoothnessAlbedo = _SmoothnessAlbedoAlpha.floatValue == 1;
+            if (maskMap)
             {
                 DrawMinMax(_MetallicRemapping);
                 DrawMinMax(_GlossinessRange);
                 DrawMinMax(_GlossinessRemapping);
                 Draw(_OcclusionStrength);
+            }
+            else if (smoothnessAlbedo)
+            {
+                Draw(_Metallic);
+                DrawMinMax(_GlossinessRange);
+                DrawMinMax(_GlossinessRemapping);
             }
             else
             {
