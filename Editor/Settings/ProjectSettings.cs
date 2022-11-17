@@ -6,7 +6,8 @@ namespace z3y.Shaders
 {
     public class ProjectSettings
     {
-        public static readonly Shader lit = Shader.Find("Lit");
+        public static Shader lit => Shader.Find("Lit");
+
 
         public const string ShaderVersion = "v2.2.1";
         public const string ShaderName = "Lit";
