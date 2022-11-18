@@ -30,6 +30,7 @@ namespace z3y
         
         private void OnEnable()
         {
+            _firstTime = true;
             _previewShader = Shader.Find("Hidden/Lit/PackingPreview");
             _preview0 = new Material(_previewShader);
             _preview1 = new Material(_previewShader);
@@ -41,6 +42,7 @@ namespace z3y
 
         public static void ResetFields()
         {
+            _firstTime = true;
             _packingMaterial = null;
             _packingProperty = null;
             ChannelR = new PackingField();
@@ -86,7 +88,7 @@ namespace z3y
 
         private const string _guiStyle = "helpBox";
 
-        private bool _firstTime = true;
+        private static bool _firstTime = true;
         public void OnGUI()
         {
             if (_packingMaterial)
@@ -106,6 +108,8 @@ namespace z3y
                         ChannelB.UnityTexture = texture2D;
                         ChannelA.UnityTexture = texture2D;
                     }
+
+                    _firstTime = true;
                 }
                 EditorGUILayout.EndHorizontal();
                 EditorGUILayout.EndVertical();
@@ -116,7 +120,8 @@ namespace z3y
             TexturePackingField(ref ChannelG, Color.green, _preview1, _firstTime);
             TexturePackingField(ref ChannelB, Color.blue, _preview2, _firstTime);
             TexturePackingField(ref ChannelA, Color.white, _preview3, _firstTime);
-            
+            _firstTime = false;
+
             
             EditorGUILayout.BeginVertical(_guiStyle);
             PackingFormat = (TexturePackingFormat)EditorGUILayout.EnumPopup("Format",PackingFormat);
@@ -188,7 +193,6 @@ namespace z3y
                 EditorGUILayout.LabelField($"Packed in {LastPackingTime}ms");
             }
 
-            _firstTime = false;
         }
 
         public static void AddPackingMaterial(Material material, MaterialProperty property)
@@ -250,7 +254,7 @@ namespace z3y
             };
             
             var previewRect = EditorGUILayout.GetControlRect(GUILayout.Width(100), GUILayout.Height(100));
-            EditorGUI.DrawPreviewTexture(previewRect, field.UnityTexture ? field.UnityTexture : whiteTexture, previewMaterial, ScaleMode.ScaleAndCrop);
+            EditorGUI.DrawPreviewTexture(previewRect, whiteTexture, previewMaterial, ScaleMode.ScaleToFit);
 
             var rect = GUILayoutUtility.GetLastRect();
             EditorGUI.DrawRect(new Rect(rect.x-2, rect.y, 2, rect.height), color);
@@ -302,7 +306,7 @@ namespace z3y
             
             EditorGUILayout.EndVertical();
             
-            if (EditorGUI.EndChangeCheck() || firstTime)
+            if ( EditorGUI.EndChangeCheck() || firstTime)
             {
                 previewMaterial.SetTexture("_Texture0", field.UnityTexture);
                 previewMaterial.SetFloat("_Texture0Channel", (int)field.Channel.Source);
@@ -312,7 +316,6 @@ namespace z3y
                     previewMaterial.SetFloat("_Texture0Invert", field.Channel.DefaultColor == DefaultColor.Black ? 1f : 0f);
                 }
             }
-
         }
     }
 }
