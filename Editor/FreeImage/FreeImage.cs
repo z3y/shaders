@@ -227,7 +227,7 @@ namespace z3y
     public static extern bool Invert(IntPtr dib);
     
     [DllImport(FreeImageDLL, EntryPoint = "FreeImage_ConvertToGreyscale")]
-    public static extern bool ConvertToGreyscale(IntPtr dib);
+    public static extern IntPtr ConvertToGreyscale(IntPtr dib);
 
     [DllImport(FreeImageDLL, EntryPoint = "FreeImage_Allocate")]
     public static extern IntPtr Allocate(int width, int height, int bpp);
