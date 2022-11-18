@@ -99,10 +99,12 @@ namespace z3y
             {
                 ptr = ConvertTo8Bits(ptr);
             }
-            
+
+            bool grayscale = false;
             if (GetBPP(ptr) != 8)
             {
                 ptr = ConvertToGreyscale(ptr);
+                grayscale = true;
             }
 
             if (size.Item1 != widthHeight.Item1 || size.Item2 != widthHeight.Item2)
@@ -116,6 +118,11 @@ namespace z3y
             }
 
             bool success = SetChannel(newImage, ptr, newChannel);
+            if (!success && !grayscale)
+            {
+                ptr = ConvertToGreyscale(ptr);
+                SetChannel(newImage, ptr, newChannel);
+            }
             
             FreeImage_Unload(ptr);
         }
