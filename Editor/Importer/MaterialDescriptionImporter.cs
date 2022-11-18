@@ -61,11 +61,18 @@ namespace z3y.Shaders
 
             if (description.TryGetProperty("EmissiveColor", out Vector4 emissiveColor))
             {
-                if (description.TryGetProperty("EmissiveFactor", out float emissiveFactor) && emissiveFactor > 0 && (emissiveColor.x + emissiveColor.y + emissiveColor.z) > 0)
+                if (description.TryGetProperty("EmissiveColor", out TexturePropertyDescription emissionTex))
                 {
-                    material.EnableKeyword("_EMISSION");
                     material.SetFloat("_EmissionToggle", 1f);
                     material.SetFloat("Foldout_Emission", 1f);
+                    material.EnableKeyword("_EMISSION");
+                }
+
+                if (description.TryGetProperty("EmissiveFactor", out float emissiveFactor) && emissiveFactor > 0 && (emissiveColor.x + emissiveColor.y + emissiveColor.z) > 0)
+                {
+                    material.SetFloat("_EmissionToggle", 1f);
+                    material.SetFloat("Foldout_Emission", 1f);
+                    material.EnableKeyword("_EMISSION");
                     material.SetColor("_EmissionColor", emissiveColor * emissiveFactor);
                 }
             }
