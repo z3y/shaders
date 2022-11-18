@@ -17,7 +17,7 @@ namespace z3y
             var window = (FreeImagePackingEditor)GetWindow(typeof(FreeImagePackingEditor));
             window.titleContent = new GUIContent("Texture Packing");
             window.Show();
-            window.minSize = new Vector2(500, 600);
+            window.minSize = new Vector2(400, 550);
             ResetFields();
         }
 
@@ -253,7 +253,7 @@ namespace z3y
                 
             };
             
-            var previewRect = EditorGUILayout.GetControlRect(GUILayout.Width(100), GUILayout.Height(100));
+            var previewRect = EditorGUILayout.GetControlRect(GUILayout.Width(80), GUILayout.Height(80));
             EditorGUI.DrawPreviewTexture(previewRect, whiteTexture, previewMaterial, ScaleMode.ScaleToFit);
 
             var rect = GUILayoutUtility.GetLastRect();

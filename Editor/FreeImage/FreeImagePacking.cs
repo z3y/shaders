@@ -100,7 +100,7 @@ namespace z3y
                 ptr = ConvertTo8Bits(ptr);
             }
             
-            if (GetBPP(ptr) > 8)
+            if (GetBPP(ptr) != 8)
             {
                 ptr = ConvertToGreyscale(ptr);
             }
