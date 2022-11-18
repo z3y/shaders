@@ -89,12 +89,12 @@ namespace z3y
             var size = GetWithAndHeight(ptr);
 
             uint bpp = GetBPP(ptr);
-            if (bpp > 16)
+            if (bpp > 16 && textureChannel.Source != ChannelSource.Grayscale)
             {
                 ptr = GetChannel(ptr, ChannelSourceToFreeImage(textureChannel.Source));
             }
 
-            if (bpp == 16)
+            if (bpp == 16 || textureChannel.Source == ChannelSource.Grayscale)
             {
                 ptr = ConvertTo8Bits(ptr);
             }
@@ -167,7 +167,8 @@ namespace z3y
             Red,
             Green,
             Blue,
-            Alpha
+            Alpha,
+            Grayscale
         }
         
         public static FREE_IMAGE_COLOR_CHANNEL ChannelSourceToFreeImage(ChannelSource channelSource)
@@ -182,6 +183,8 @@ namespace z3y
                     return FREE_IMAGE_COLOR_CHANNEL.FICC_BLUE;
                 case ChannelSource.Alpha:
                     return FREE_IMAGE_COLOR_CHANNEL.FICC_ALPHA;
+                case ChannelSource.Grayscale:
+                    return FREE_IMAGE_COLOR_CHANNEL.FICC_RGB;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(channelSource), channelSource, null);
             }
