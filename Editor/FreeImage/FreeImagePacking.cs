@@ -87,6 +87,7 @@ namespace z3y
             
             var ptr = FreeImage_Load(textureChannel.Path);
             var size = GetWithAndHeight(ptr);
+            //ptr = ConvertTo32Bits(ptr);
 
             uint bpp = GetBPP(ptr);
             if (bpp > 16)
@@ -99,6 +100,11 @@ namespace z3y
                 ptr = ConvertTo8Bits(ptr);
             }
             
+            if (GetBPP(ptr) != 8)
+            {
+                ptr = ConvertToGreyscale(ptr);
+            }
+
             if (size.Item1 != widthHeight.Item1 || size.Item2 != widthHeight.Item2)
             {
                 ptr = Rescale(ptr, widthHeight.Item1, widthHeight.Item2, ImageFilter);

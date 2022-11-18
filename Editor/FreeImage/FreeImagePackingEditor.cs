@@ -17,12 +17,32 @@ namespace z3y
             var window = (FreeImagePackingEditor)GetWindow(typeof(FreeImagePackingEditor));
             window.titleContent = new GUIContent("Texture Packing");
             window.Show();
-            window.minSize = new Vector2(400, 500);
+            window.minSize = new Vector2(400, 550);
             ResetFields();
+        }
+
+        private static Shader _previewShader;
+        private static Material _preview0;
+        private static Material _preview1;
+        private static Material _preview2;
+        private static Material _preview3;
+        private static Texture2D whiteTexture;
+        
+        private void OnEnable()
+        {
+            _firstTime = true;
+            _previewShader = Shader.Find("Hidden/Lit/PackingPreview");
+            _preview0 = new Material(_previewShader);
+            _preview1 = new Material(_previewShader);
+            _preview2 = new Material(_previewShader);
+            _preview3 = new Material(_previewShader);
+            whiteTexture = Texture2D.whiteTexture;
+            LastPackingTime = 0;
         }
 
         public static void ResetFields()
         {
+            _firstTime = true;
             _packingMaterial = null;
             _packingProperty = null;
             ChannelR = new PackingField();
@@ -67,6 +87,8 @@ namespace z3y
         }
 
         private const string _guiStyle = "helpBox";
+
+        private static bool _firstTime = true;
         public void OnGUI()
         {
             if (_packingMaterial)
@@ -86,17 +108,20 @@ namespace z3y
                         ChannelB.UnityTexture = texture2D;
                         ChannelA.UnityTexture = texture2D;
                     }
+
+                    _firstTime = true;
                 }
                 EditorGUILayout.EndHorizontal();
                 EditorGUILayout.EndVertical();
             }
             
             
-            TexturePackingField(ref ChannelR, Color.red);
-            TexturePackingField(ref ChannelG, Color.green);
-            TexturePackingField(ref ChannelB, Color.blue);
-            TexturePackingField(ref ChannelA, Color.white);
-            
+            TexturePackingField(ref ChannelR, Color.red, _preview0, _firstTime);
+            TexturePackingField(ref ChannelG, Color.green, _preview1, _firstTime);
+            TexturePackingField(ref ChannelB, Color.blue, _preview2, _firstTime);
+            TexturePackingField(ref ChannelA, Color.white, _preview3, _firstTime);
+            _firstTime = false;
+
             
             EditorGUILayout.BeginVertical(_guiStyle);
             PackingFormat = (TexturePackingFormat)EditorGUILayout.EnumPopup("Format",PackingFormat);
@@ -197,10 +222,6 @@ namespace z3y
 
         public static int LastPackingTime = 0;
 
-        private void OnEnable()
-        {
-            LastPackingTime = 0;
-        }
 
         private static void GetTexturePath(ref PackingField field)
         {
@@ -210,11 +231,17 @@ namespace z3y
             field.Channel.Path = path;
         }
 
-        private static void TexturePackingField(ref PackingField field, Color color)
+        private void TexturePackingField(ref PackingField field, Color color, Material previewMaterial, bool firstTime = false)
         {
+            
+            EditorGUI.BeginChangeCheck();
+
+            
             EditorGUILayout.BeginVertical(_guiStyle);
 
             //GUILayout.Space(1);
+
+
 
             
             
@@ -225,17 +252,22 @@ namespace z3y
                 richText = true,
                 
             };
-            field.UnityTexture = (Texture2D)EditorGUILayout.ObjectField(field.UnityTexture, typeof(Texture2D), false, GUILayout.Width(60), GUILayout.Height(60));
+            
+            var previewRect = EditorGUILayout.GetControlRect(GUILayout.Width(80), GUILayout.Height(80));
+            EditorGUI.DrawPreviewTexture(previewRect, whiteTexture, previewMaterial, ScaleMode.ScaleToFit);
+
             var rect = GUILayoutUtility.GetLastRect();
-            EditorGUI.DrawRect(new Rect(rect.x-2, rect.y, 2, 60), color);
+            EditorGUI.DrawRect(new Rect(rect.x-2, rect.y, 2, rect.height), color);
             GUILayout.Space(5);
             GUILayout.BeginVertical();
 
+            
+            field.UnityTexture = (Texture2D)EditorGUILayout.ObjectField(field.UnityTexture, typeof(Texture2D), false);
+
             GUILayout.BeginHorizontal();
 
-            
             field.Channel.Source = (ChannelSource)EditorGUILayout.EnumPopup(field.Channel.Source, GUILayout.Width(80));
-    
+           
 
 
             GUILayout.Label("➜", GUILayout.Width(15));
@@ -249,8 +281,10 @@ namespace z3y
                 GUILayout.Label($"<b>{field.DisplayName}</b>", style, GUILayout.Width(85));
             }
             GUILayout.EndHorizontal();
+            
 
             GUILayout.BeginHorizontal();
+
             
             field.Channel.Invert = GUILayout.Toggle(field.Channel.Invert, "Invert", GUILayout.Width(70));
             
@@ -261,8 +295,8 @@ namespace z3y
             GUILayout.EndHorizontal();
                 
                 
-            GUILayout.Label(field.UnityTexture ? field.UnityTexture.name :  " ", style);
-
+           
+            
             GUILayout.EndVertical();
             
 
@@ -272,8 +306,16 @@ namespace z3y
             
             EditorGUILayout.EndVertical();
             
-           
-
+            if ( EditorGUI.EndChangeCheck() || firstTime)
+            {
+                previewMaterial.SetTexture("_Texture0", field.UnityTexture);
+                previewMaterial.SetFloat("_Texture0Channel", (int)field.Channel.Source);
+                previewMaterial.SetFloat("_Texture0Invert", field.Channel.Invert ? 1f : 0f);
+                if (!field.UnityTexture)
+                {
+                    previewMaterial.SetFloat("_Texture0Invert", field.Channel.DefaultColor == DefaultColor.Black ? 1f : 0f);
+                }
+            }
         }
     }
 }
