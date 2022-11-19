@@ -67,9 +67,6 @@ Properties
 
     [Toggle(_AUDIOLINK_EMISSION)] _AudioLinkEmissionToggle ("Audio Link", Float) = 0
     [Enum(Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3)] _AudioLinkEmissionBand ("Band", Int) = 0
-    [HideInInspector] _AudioTexture ("Audio Link Render Texture", 2D) = "_AudioTexture" {}
-
-
 
     Foldout_DetailFoldout ("Detail Inputs", Float) = 0
     [Enum(Overlay, 0, Screen, 1, Multiply X2, 2, Replace, 3)] _DetailBlendMode ("Blend Mode", Int) = 0
@@ -101,18 +98,12 @@ Properties
     [PowerSlider(2)] _WindSpeed ("Speed", Range(0,5)) = 0.05
     _WindIntensity ("Intensity XYZ", Vector) = (0.1,0.1,0.1,0)
 
-
-    SSS_Foldout ("Subsurface Scattering", Float) = 0
-    [Toggle(_SSS)] _SSSToggle ("Enable Subsurface Scattering", Int) = 0
-
-
     Foldout_AvancedSettings ("Additional Settings", Float) = 0
 
     [ToggleOff(_SPECULARHIGHLIGHTS_OFF)] _SpecularHighlights("Specular Highlights", Float) = 1
     [ToggleOff(_GLOSSYREFLECTIONS_OFF)] _GlossyReflections ("Reflections", Float) = 1
     [Toggle(FORCE_SPECCUBE_BOX_PROJECTION)] _ForceBoxProjection ("Force Box Projection", Float) = 0
     [ToggleUI] _BlendReflectionProbes ("Blend Reflection Probes", Float) = 1
-    [Toggle(_ALLOW_LPPV)] _Allow_LPPV_Toggle ("Allow LPPV", Float) = 0
 
     [Toggle(_GEOMETRICSPECULAR_AA)] _GSAA ("Geometric Specular AA", Int) = 0
     [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
@@ -122,9 +113,6 @@ Properties
     [Toggle(LTCGI_DIFFUSE_OFF)] _LTCGI_DIFFUSE_OFF("LTCGI Disable Diffuse", Int) = 0
     [Toggle(_LIGHTMAPPED_SPECULAR)] _LightmappedSpecular ("Lightmapped Specular ", Int) = 0
     [Toggle(_BICUBICLIGHTMAP)] _BicubicLightmap ("Bicubic Lightmap", Float) = 0
-
-    // [Toggle(DITHERING)] _Dithering ("Dithering", Float) = 0
-    // [Toggle(ACES_TONEMAPPING)] _ACES ("ACES", Float) = 0
 
     [Enum(None, 0, SH, 1, RNM, 2, MONOSH, 3)] Bakery ("Bakery Mode", Int) = 0
     [ToggleOff(BAKERY_SHNONLINEAR_OFF)] _BAKERY_SHNONLINEAR ("Non-linear Lightmap SH", Float) = 1
@@ -197,7 +185,6 @@ SubShader
         #pragma shader_feature_local _GEOMETRICSPECULAR_AA
         #pragma shader_feature_local _LIGHTMAPPED_SPECULAR
         #pragma shader_feature_local _EMISSION
-        #pragma shader_feature_local _ALLOW_LPPV
 
         #pragma shader_feature_local_fragment LTCGI
         #pragma shader_feature_local_fragment LTCGI_DIFFUSE_OFF
@@ -215,12 +202,6 @@ SubShader
         #pragma shader_feature_local _AUDIOLINK_EMISSION
 
         #pragma shader_feature_local _WIND
-        #pragma shader_feature_local _SSS
-
-        // "Global Keywords"
-        #pragma shader_feature_local_fragment DITHERING
-        #pragma shader_feature_local ACES_TONEMAPPING
-
         ENDCG
     }
 
@@ -258,11 +239,6 @@ SubShader
         #pragma shader_feature_local _DECAL
 
         #pragma shader_feature_local _WIND
-        #pragma shader_feature_local _SSS
-
-        // "Global Keywords"
-        #pragma shader_feature_local ACES_TONEMAPPING
-
         ENDCG
     }
 
