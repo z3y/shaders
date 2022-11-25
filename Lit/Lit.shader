@@ -138,6 +138,16 @@ CGINCLUDE
 #endif
 
 //ConfigStart
+#pragma skip_variants BAKERY_SH
+#pragma skip_variants BAKERY_RNM
+#pragma skip_variants BAKERY_MONOSH
+#define BAKERY_MONOSH
+#pragma skip_variants BAKERY_SHNONLINEAR_OFF
+#pragma skip_variants _BICUBICLIGHTMAP
+#define _BICUBICLIGHTMAP
+#pragma skip_variants NONLINEAR_LIGHTPROBESH
+#define NONLINEAR_LIGHTPROBESH
+#define ACES_TONEMAPPING
 #define FIX_BLACK_LEVEL
 #pragma skip_variants LOD_FADE_CROSSFADE
 #pragma skip_variants LTCGI
@@ -269,6 +279,7 @@ SubShader
         Cull Off
 
         CGPROGRAM
+        #pragma shader_feature_local _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
         #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
         #pragma shader_feature_local _EMISSION
         #pragma shader_feature_local _ _DETAILBLEND_SCREEN _DETAILBLEND_MULX2 _DETAILBLEND_LERP

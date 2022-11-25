@@ -76,8 +76,12 @@ void InitializeSurfaceData(inout SurfaceData surf, v2f i, uint facing)
     mainTexture *= mainColor;
 
     surf.albedo = mainTexture.rgb;
-    surf.alpha = mainTexture.a;
 
+    #ifdef _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+        surf.alpha = mainColor.a;
+    #else
+        surf.alpha = mainTexture.a;
+    #endif
     
 
     surf.reflectance = _Reflectance;
