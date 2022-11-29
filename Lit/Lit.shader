@@ -118,6 +118,10 @@ Properties
     [ToggleOff(BAKERY_SHNONLINEAR_OFF)] _BAKERY_SHNONLINEAR ("Non-linear Lightmap SH", Float) = 1
     [Toggle(NONLINEAR_LIGHTPROBESH)] _NonLinearLightProbeSH ("Non-linear Light Probe SH", Int) = 0
 
+    [Toggle(_REFRACTION)] _Refraction ("Refraction", Int) = 0
+    _RefractionRatio ("Ratio", Range(0,1)) = 0.95
+    _RefractionIntensity ("Intensity", Range(0,1)) = 1
+
 }
 
 
@@ -146,8 +150,6 @@ CGINCLUDE
 #pragma skip_variants _BICUBICLIGHTMAP
 #define _BICUBICLIGHTMAP
 #pragma skip_variants NONLINEAR_LIGHTPROBESH
-#define NONLINEAR_LIGHTPROBESH
-#define ACES_TONEMAPPING
 #define FIX_BLACK_LEVEL
 #pragma skip_variants LOD_FADE_CROSSFADE
 #pragma skip_variants LTCGI
@@ -195,6 +197,7 @@ SubShader
         #pragma shader_feature_local _GEOMETRICSPECULAR_AA
         #pragma shader_feature_local _LIGHTMAPPED_SPECULAR
         #pragma shader_feature_local _EMISSION
+        #pragma shader_feature_local _REFRACTION
 
         #pragma shader_feature_local_fragment LTCGI
         #pragma shader_feature_local_fragment LTCGI_DIFFUSE_OFF

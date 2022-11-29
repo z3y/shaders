@@ -73,6 +73,11 @@ half4 frag (v2f input, uint facing : SV_IsFrontFace) : SV_Target
         indirectSpecular += GetReflections(input.worldNormal, input.worldPos.xyz, viewDir, f0, NoV, surf, indirectDiffuse);
     #endif
 
+
+    #if defined(_REFRACTION)
+        indirectSpecular += GetRefraction(input.worldNormal, input.worldPos.xyz, viewDir, f0, NoV, surf, indirectDiffuse, _RefractionRatio);
+    #endif
+
     #ifdef LTCGI_INCLUDED
         float2 ltcgi_lmuv;
         #if defined(LIGHTMAP_ON)

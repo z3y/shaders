@@ -407,6 +407,7 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
 
 bool _BlendReflectionProbes;
 
+
 half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half NoV, SurfaceData surf, half3 indirectDiffuse)
 {
     half roughness = PerceptualRoughnessToRoughness(surf.perceptualRoughness);
@@ -446,6 +447,27 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
     #endif
 
     return indirectSpecular;
+}
+
+half _RefractionRatio;
+half _RefractionIntensity;
+
+half3 GetRefraction(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half NoV, SurfaceData surf, half3 indirectDiffuse, half eta)
+{
+    half roughness = PerceptualRoughnessToRoughness(surf.perceptualRoughness);
+    half3 indirectSpecular = 0;
+    #if defined(UNITY_PASS_FORWARDBASE)
+
+        float3 reflDir = refract(-viewDir, normalWS, eta);
+        Unity_GlossyEnvironmentData envData;
+        envData.roughness = surf.perceptualRoughness;
+        envData.reflUVW = BoxProjection(reflDir, positionWS, unity_SpecCube0_ProbePosition, unity_SpecCube0_BoxMin.xyz, unity_SpecCube0_BoxMax.xyz);
+
+        half3 probe0 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE(unity_SpecCube0), unity_SpecCube0_HDR, envData);
+        indirectSpecular = probe0;
+    #endif
+
+    return indirectSpecular * _RefractionIntensity;
 }
 
 #ifndef _ALLOW_LPPV

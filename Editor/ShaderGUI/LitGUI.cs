@@ -92,6 +92,9 @@ namespace z3y.Shaders
         private MaterialProperty _ForceBoxProjection;
         private MaterialProperty _BlendReflectionProbes;
         private MaterialProperty _GSAA;
+        private MaterialProperty _Refraction;
+        private MaterialProperty _RefractionRatio;
+        private MaterialProperty _RefractionIntensity;
         #endregion
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
@@ -102,11 +105,11 @@ namespace z3y.Shaders
                 {
                     material.DisableKeyword(keyword);
                 }
-                var preset = ProjectSettings.ShaderSettings.defaultPreset;
+                /*var preset = ProjectSettings.ShaderSettings.defaultPreset;
                 if (preset != null)
                 {
                     ApplyPresetPartially(preset, material, material.shader, 1);
-                }
+                }*/
                 MaterialEditor.ApplyMaterialPropertyDrawers(material);
                 OnValidate(material);
 
@@ -183,8 +186,15 @@ namespace z3y.Shaders
         {
             Draw(_SpecularHighlights);
             Draw(_GlossyReflections);
+
             Draw(_ForceBoxProjection, "Force Box Projection on Quest");
             Draw(_BlendReflectionProbes);
+            Draw(_Refraction);
+            if (_Refraction.floatValue == 1)
+            {
+                Draw(_RefractionRatio);
+                Draw(_RefractionIntensity);
+            }
 
             Draw(_GSAA);
             if (_GSAA.floatValue == 1)
