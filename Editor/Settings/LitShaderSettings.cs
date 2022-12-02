@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace z3y.Shaders
 {
-    //[CreateAssetMenu]
+    [CreateAssetMenu]
     public class LitShaderSettings : ScriptableObject
     {
         public bool defaultShader = false;

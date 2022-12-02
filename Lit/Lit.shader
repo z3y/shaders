@@ -143,15 +143,6 @@ CGINCLUDE
 #endif
 
 //ConfigStart
-#pragma skip_variants BAKERY_SH
-#pragma skip_variants BAKERY_RNM
-#pragma skip_variants BAKERY_MONOSH
-#define BAKERY_MONOSH
-#pragma skip_variants BAKERY_SHNONLINEAR_OFF
-#pragma skip_variants _BICUBICLIGHTMAP
-#define _BICUBICLIGHTMAP
-#pragma skip_variants NONLINEAR_LIGHTPROBESH
-#define NONLINEAR_LIGHTPROBESH
 #define FIX_BLACK_LEVEL
 #pragma skip_variants LOD_FADE_CROSSFADE
 #pragma skip_variants LTCGI
