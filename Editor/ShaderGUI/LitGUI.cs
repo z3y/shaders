@@ -250,7 +250,7 @@ namespace z3y.Shaders
         {
             Draw(_DetailBlendMode);
             Draw(_DetailMask);
-            materialEditor.TextureScaleOffsetProperty(_DetailBlendMode);
+            materialEditor.TextureScaleOffsetProperty(_DetailMask);
             Draw(_DetailMask_UV);
 
             Space();
