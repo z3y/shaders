@@ -118,9 +118,10 @@ Properties
     [ToggleOff(BAKERY_SHNONLINEAR_OFF)] _BAKERY_SHNONLINEAR ("Non-linear Lightmap SH", Float) = 1
     [Toggle(NONLINEAR_LIGHTPROBESH)] _NonLinearLightProbeSH ("Non-linear Light Probe SH", Int) = 0
 
-    [Toggle(_REFRACTION)] _Refraction ("Refraction", Int) = 0
-    _RefractionRatio ("Ratio", Range(0,1)) = 0.95
-    _RefractionIntensity ("Intensity", Range(0,1)) = 1
+    // wip
+    // [Toggle(_REFRACTION)] _Refraction ("Refraction", Int) = 0
+    // _RefractionRatio ("Ratio", Range(0,1)) = 0.95
+    // _RefractionIntensity ("Intensity", Range(0,1)) = 1
 
 }
 

@@ -189,8 +189,8 @@ namespace z3y.Shaders
 
             Draw(_ForceBoxProjection, "Force Box Projection on Quest");
             Draw(_BlendReflectionProbes);
-            Draw(_Refraction);
-            if (_Refraction.floatValue == 1)
+            Draw(_Refraction, "Samples the closest reflection probe and refracts it");
+            if (_Refraction?.floatValue == 1)
             {
                 Draw(_RefractionRatio);
                 Draw(_RefractionIntensity);
