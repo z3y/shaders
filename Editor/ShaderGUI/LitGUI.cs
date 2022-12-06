@@ -376,7 +376,9 @@ namespace z3y.Shaders
                 Draw(_ParallaxMap);
             }
             sRGBWarning(_ParallaxMap);
-            Draw(_AnisotropyMap, _Anisotropy, onHover: "RG: Anisotropy Tangent Map\nB: Anisotropy Level");
+            const string anisoHover = "GA: Anisotropy RG Tangent Map\nR: Anisotropy Level/Mask";
+            if (_AnisotropyMap.textureValue) Draw(_AnisotropyMap, _Anisotropy, onHover: anisoHover);
+            else Draw(_AnisotropyMap, null, onHover: anisoHover);
             if (TexturePackingButton())
             {
                 GetPackingWindow(material, _AnisotropyMap);
