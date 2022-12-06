@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEditor;
+using UnityEditor.WindowsStandalone;
 using UnityEngine;
 
 namespace z3y.Shaders
@@ -24,7 +26,9 @@ namespace z3y.Shaders
                     EditorGUILayout.LabelField("  " + ShaderVersion, EditorStyles.boldLabel);
 
                     EditorGUI.BeginChangeCheck();
-                    //EditorGUILayout.Space();
+                    _shaderSettingsEditorWindow = (LitShaderSettings)EditorGUILayout.ObjectField(_shaderSettingsEditorWindow, typeof(LitShaderSettings), false);
+                    EditorGUILayout.Space();
+
                     EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.defaultShader)), new GUIContent("MaterialDescription Shader", "Use this shader on models with MaterialDescription creation mode for improved Blender workflow"));
                     //EditorGUILayout.PropertyField(SettingsObject.FindProperty(nameof(LitShaderSettings.defaultPreset)), new GUIContent("Default Preset"));
 
@@ -67,9 +71,9 @@ namespace z3y.Shaders
 
                     if (EditorGUI.EndChangeCheck())
                     {
+                        SaveSettingsReference();
                         SettingsObject.ApplyModifiedProperties();
                         UpdateLitShaderFile.UpdateConfig();
-
                     }
                 },
             };
@@ -79,11 +83,49 @@ namespace z3y.Shaders
 
         const string SettingsPath = "Assets/Settings/LitShaderSettings.asset";
 
+        private static string ReferenceSettingsPath = Environment.CurrentDirectory + @"\ProjectSettings\LitShaderSettings.txt";
+
+        private static string _lastGUID = string.Empty;
+
+        private static void SaveSettingsReference()
+        {
+            ShaderSettings = _shaderSettingsEditorWindow;
+            var path = AssetDatabase.GetAssetPath(ShaderSettings);
+            var guid = AssetDatabase.AssetPathToGUID(path);
+            if (!_lastGUID.Equals(guid))
+            {
+                File.WriteAllText(ReferenceSettingsPath, guid);
+                _settingsObject = null;
+            }
+            _lastGUID = guid;
+        }
+
+        private static string LoadSettingsReference()
+        {
+            if (File.Exists(ReferenceSettingsPath))
+            {
+                return File.ReadAllText(ReferenceSettingsPath);
+
+            }
+            return null;
+        }
+
+        private static LitShaderSettings _shaderSettingsEditorWindow;
+
         private static LitShaderSettings _shaderSettings;
         public static LitShaderSettings ShaderSettings
         {
             get
-            {   
+            {
+                if (_shaderSettings is null)
+                {
+                    var reference = LoadSettingsReference();
+                    if (!string.IsNullOrEmpty(reference))
+                    {
+                        var path = AssetDatabase.GUIDToAssetPath(LoadSettingsReference());
+                        if (!string.IsNullOrEmpty(path)) _shaderSettings = AssetDatabase.LoadAssetAtPath<LitShaderSettings>(path);
+                    }
+                }
                 if (_shaderSettings is null)
                 {
                     _shaderSettings = AssetDatabase.LoadAssetAtPath<LitShaderSettings>(SettingsPath);
@@ -91,8 +133,14 @@ namespace z3y.Shaders
                 if (_shaderSettings is null)
                 {
                     _shaderSettings = CreateDefaultSettingsAsset();
+                    SaveSettingsReference();
                 }
+                _shaderSettingsEditorWindow = _shaderSettings;
                 return _shaderSettings;
+            }
+            set
+            {
+                _shaderSettings = value;
             }
 
         }

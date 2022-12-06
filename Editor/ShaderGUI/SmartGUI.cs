@@ -484,7 +484,7 @@ namespace z3y.Shaders
             }
         }
 
-        public virtual void SetupMaterialWithBlendMode(Material material, int type)
+        public static void SetupMaterialWithBlendMode(Material material, int type)
         {
             switch (type)
             {

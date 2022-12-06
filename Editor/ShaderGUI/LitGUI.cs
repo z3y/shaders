@@ -92,6 +92,12 @@ namespace z3y.Shaders
         private MaterialProperty _ForceBoxProjection;
         private MaterialProperty _BlendReflectionProbes;
         private MaterialProperty _GSAA;
+        private MaterialProperty _Refraction;
+        private MaterialProperty _RefractionRatio;
+        private MaterialProperty _RefractionIntensity;
+        private MaterialProperty _AnisotropyMap;
+        private MaterialProperty _Anisotropy;
+
         #endregion
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
@@ -102,11 +108,11 @@ namespace z3y.Shaders
                 {
                     material.DisableKeyword(keyword);
                 }
-                var preset = ProjectSettings.ShaderSettings.defaultPreset;
+                /*var preset = ProjectSettings.ShaderSettings.defaultPreset;
                 if (preset != null)
                 {
                     ApplyPresetPartially(preset, material, material.shader, 1);
-                }
+                }*/
                 MaterialEditor.ApplyMaterialPropertyDrawers(material);
                 OnValidate(material);
 
@@ -183,8 +189,15 @@ namespace z3y.Shaders
         {
             Draw(_SpecularHighlights);
             Draw(_GlossyReflections);
+
             Draw(_ForceBoxProjection, "Force Box Projection on Quest");
             Draw(_BlendReflectionProbes);
+            Draw(_Refraction, "Samples the closest reflection probe and refracts it");
+            if (_Refraction?.floatValue == 1)
+            {
+                Draw(_RefractionRatio);
+                Draw(_RefractionIntensity);
+            }
 
             Draw(_GSAA);
             if (_GSAA.floatValue == 1)
@@ -240,7 +253,7 @@ namespace z3y.Shaders
         {
             Draw(_DetailBlendMode);
             Draw(_DetailMask);
-            materialEditor.TextureScaleOffsetProperty(_DetailBlendMode);
+            materialEditor.TextureScaleOffsetProperty(_DetailMask);
             Draw(_DetailMask_UV);
 
             Space();
@@ -363,6 +376,26 @@ namespace z3y.Shaders
                 Draw(_ParallaxMap);
             }
             sRGBWarning(_ParallaxMap);
+            const string anisoHover = "GA: Anisotropy RG Tangent Map\nR: Anisotropy Level/Mask";
+            if (_AnisotropyMap.textureValue) Draw(_AnisotropyMap, _Anisotropy, onHover: anisoHover);
+            else Draw(_AnisotropyMap, null, onHover: anisoHover);
+            if (TexturePackingButton())
+            {
+                GetPackingWindow(material, _AnisotropyMap);
+
+                FreeImagePackingEditor.ChannelR.DisplayName = "Anisotropy Level";
+                FreeImagePackingEditor.ChannelR.Channel.DefaultColor = FreeImagePacking.DefaultColor.White;
+                FreeImagePackingEditor.ChannelG.DisplayName = "Tangent Map R";
+                FreeImagePackingEditor.ChannelG.Channel.Source = FreeImagePacking.ChannelSource.Red;
+                FreeImagePackingEditor.ChannelB.DisplayName = "";
+                FreeImagePackingEditor.ChannelB.Channel.DefaultColor = FreeImagePacking.DefaultColor.Black;
+                FreeImagePackingEditor.ChannelA.DisplayName = "Tangent Map G";
+                FreeImagePackingEditor.ChannelA.Channel.Source = FreeImagePacking.ChannelSource.Green;
+
+                FreeImagePackingEditor.Linear = true;
+            }
+            sRGBWarning(_AnisotropyMap);
+
             Space();
             materialEditor.TextureScaleOffsetProperty(_MainTex);
             Draw(_Reflectance);
@@ -448,6 +481,8 @@ namespace z3y.Shaders
             m.ToggleKeyword("_DETAIL_ALBEDOMAP", m.GetTexture("_DetailAlbedoMap"));
             m.ToggleKeyword("_DETAIL_NORMALMAP", m.GetTexture("_DetailNormalMap"));
             m.ToggleKeyword("_DETAIL_HEIGHTBLEND", m.GetTexture("_DetailHeightBlend"));
+            m.ToggleKeyword("_ANISOTROPY", m.GetTexture("_AnisotropyMap"));
+
 
             int bakeryMode = (int)m.GetFloat("Bakery");
             m.ToggleKeyword("BAKERY_MONOSH", bakeryMode == 3);

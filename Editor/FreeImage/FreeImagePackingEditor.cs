@@ -274,11 +274,11 @@ namespace z3y
 
             if (field.InvertDisplayName != null && field.Channel.Invert)
             {
-                GUILayout.Label($"<b>{field.InvertDisplayName}</b>", style, GUILayout.Width(85));
+                GUILayout.Label($"<b>{field.InvertDisplayName}</b>", style, GUILayout.Width(120));
             }
             else
             {
-                GUILayout.Label($"<b>{field.DisplayName}</b>", style, GUILayout.Width(85));
+                GUILayout.Label($"<b>{field.DisplayName}</b>", style, GUILayout.Width(120));
             }
             GUILayout.EndHorizontal();
             

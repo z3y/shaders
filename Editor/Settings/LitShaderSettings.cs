@@ -5,10 +5,11 @@ using UnityEngine;
 
 namespace z3y.Shaders
 {
+    [CreateAssetMenu]
     public class LitShaderSettings : ScriptableObject
     {
         public bool defaultShader = false;
-        public Preset defaultPreset;
+        //public Preset defaultPreset;
         public enum BakeryMode
         {
             PerMaterial,

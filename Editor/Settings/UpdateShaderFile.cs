@@ -17,6 +17,8 @@ namespace z3y.Shaders
             }
         }
 
+        private static string SettingsGUID;
+
         static UpdateLitShaderFile()
         {
             var isApplied = SessionState.GetBool(SessionKey, false);

@@ -138,6 +138,18 @@ half D_GGX(half NoH, half roughness)
     return k * k * (1.0 / UNITY_PI);
 }
 
+float D_GGX_Anisotropic(float NoH, float3 h, float3 t, float3 b, float at, float ab)
+{
+    half ToH = dot(t, h);
+    half BoH = dot(b, h);
+    half a2 = at * ab;
+    float3 v = float3(ab * ToH, at * BoH, a2 * NoH);
+    float v2 = dot(v, v);
+    half w2 = a2 / v2;
+    return a2 * w2 * w2 * (1.0 / UNITY_PI);
+}
+
+
 float V_SmithGGXCorrelatedFast(half NoV, half NoL, half roughness) {
     half a = roughness;
     float GGXV = NoL * (NoV * (1.0 - a) + a);
@@ -156,6 +168,23 @@ float V_SmithGGXCorrelated(half NoV, half NoL, half roughness)
         return 0.5 / (GGXV + GGXL);
     #endif
 }
+
+float V_SmithGGXCorrelated_Anisotropic(float at, float ab, float ToV, float BoV, float ToL, float BoL, float NoV, float NoL)
+{
+    float lambdaV = NoL * length(float3(at * ToV, ab * BoV, NoV));
+    float lambdaL = NoV * length(float3(at * ToL, ab * BoL, NoL));
+    float v = 0.5 / (lambdaV + lambdaL);
+    return saturate(v);
+}
+
+half2 GetAtAb(half roughness, half anisotropy)
+{
+    half at = max(roughness * (1.0 + anisotropy), 0.001);
+    half ab = max(roughness * (1.0 - anisotropy), 0.001);
+
+    return half2(at, ab);
+}
+
 
 half V_Kelemen(half LoH)
 {
@@ -232,6 +261,31 @@ bool isReflectionProbe()
     // thx 3
     return unity_CameraProjection._m11 == 1 && UNITY_MATRIX_P[0][0] == 1;
 }
+
+half3 UnpackNormalmapAG(half2 packednormal)
+{
+    // dont do the trick
+//    packednormal.x *= packednormal.w;
+
+    fixed3 normal;
+    normal.xy = packednormal.xy * 2 - 1;
+    normal.z = sqrt(1 - saturate(dot(normal.xy, normal.xy)));
+    return normal;
+}
+
+half3 TransformTangentToWorld(float3 dirTS, float3x3 tangentToWorld)
+{
+    // Note matrix is in row major convention with left multiplication as it is build on the fly
+    return mul(dirTS, tangentToWorld);
+}
+
+float3 Orthonormalize(float3 tangent, float3 normal)
+{
+    // TODO: use SafeNormalize()?
+    return normalize(tangent - dot(tangent, normal) * normal);
+}
+ 
+ 
 
 
 
@@ -365,11 +419,35 @@ half3 MainLightSpecular(LightData lightData, half NoV, half perceptualRoughness,
     return max(0.0, (D * V) * F) * lightData.FinalColor * UNITY_PI;
 }
 
+half3 LightSpecularAnisotropic(LightData lightData, half NoV, half perceptualRoughness, half3 f0, float3 tangent, float3 bitangent, float3 viewDir, SurfaceData surf)
+{
+    half clampedRoughness = PerceptualRoughnessToRoughnessClamped(perceptualRoughness);
+    half2 atab = GetAtAb(clampedRoughness, surf.anisotropyDirection * surf.anisotropyLevel);
+
+    float3 l = lightData.Direction;
+    float3 t = tangent;
+    float3 b = bitangent;
+    float3 v = viewDir;
+
+    half ToV = dot(t, v);
+    half BoV = dot(b, v);
+    half ToL = dot(t, l);
+    half BoL = dot(b, l);
+    half ToH = dot(t, lightData.HalfVector);
+    half BoH = dot(b, lightData.HalfVector);
+
+    half3 F = F_Schlick(lightData.LoH, f0) * DFGEnergyCompensation;
+    half D = D_GGX_Anisotropic(lightData.NoH, lightData.HalfVector, t, b, atab.x, atab.y);
+    half V = V_SmithGGXCorrelated_Anisotropic(atab.x, atab.y, ToV, BoV, ToL, BoL, NoV, lightData.NoL);
+
+    return max(0.0, (D * V) * F) * lightData.FinalColor * UNITY_PI;
+}
+
 #ifdef _SSS
     #include "../ShaderLibrary/SSS.hlsl"
 #endif
 
-void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 viewDir, half NoV, half perceptualRoughness, half3 f0, v2f input)
+void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 viewDir, half NoV, half perceptualRoughness, half3 f0, v2f input, SurfaceData surf)
 {
     #ifdef USING_LIGHT_MULTI_COMPILE
         lightData.Direction = normalize(UnityWorldSpaceLightDir(input.worldPos));
@@ -395,7 +473,11 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
             lightData.FinalColor *= UnityComputeForwardShadows(input.uv01.zw * unity_LightmapST.xy + unity_LightmapST.zw, input.worldPos, input._ShadowCoord);
         #endif
 
-        lightData.Specular = MainLightSpecular(lightData, NoV, perceptualRoughness, f0);
+        #ifdef _ANISOTROPY
+            lightData.Specular = LightSpecularAnisotropic(lightData, NoV, perceptualRoughness, f0, input.tangent, input.bitangent, viewDir, surf);
+        #else
+            lightData.Specular = MainLightSpecular(lightData, NoV, perceptualRoughness, f0);
+        #endif
 
         #ifdef _SSS
             ApplySSS(lightData, normalWS, viewDir);
@@ -407,15 +489,25 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
 
 bool _BlendReflectionProbes;
 
-half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half NoV, SurfaceData surf, half3 indirectDiffuse)
+half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half NoV, SurfaceData surf, half3 indirectDiffuse, float3 bitangent, float3 tangent)
 {
     half roughness = PerceptualRoughnessToRoughness(surf.perceptualRoughness);
     half3 indirectSpecular = 0;
     #if defined(UNITY_PASS_FORWARDBASE)
 
         float3 reflDir = reflect(-viewDir, normalWS);
+
+        #ifdef _ANISOTROPY
+            float3 anisotropicDirection = surf.anisotropyDirection >= 0.0 ? bitangent : tangent;
+            float3 anisotropicTangent = cross(anisotropicDirection, viewDir);
+            float3 anisotropicNormal = cross(anisotropicTangent, anisotropicDirection);
+            float bendFactor = abs(surf.anisotropyDirection) * saturate(1.0 - (Pow5(1.0 - surf.perceptualRoughness))) * surf.anisotropyLevel;
+            float3 bentNormal = normalize(lerp(normalWS, anisotropicNormal, bendFactor));
+            reflDir = reflect(-viewDir, bentNormal);
+        #endif
+
         #ifndef SHADER_API_MOBILE
-        reflDir = lerp(reflDir, normalWS, roughness * roughness);
+            reflDir = lerp(reflDir, normalWS, roughness * roughness);
         #endif
 
         Unity_GlossyEnvironmentData envData;
@@ -446,6 +538,27 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
     #endif
 
     return indirectSpecular;
+}
+
+half _RefractionRatio;
+half _RefractionIntensity;
+
+half3 GetRefraction(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half NoV, SurfaceData surf, half3 indirectDiffuse, half eta)
+{
+    half roughness = PerceptualRoughnessToRoughness(surf.perceptualRoughness);
+    half3 indirectSpecular = 0;
+    #if defined(UNITY_PASS_FORWARDBASE)
+
+        float3 reflDir = refract(-viewDir, normalWS, eta);
+        Unity_GlossyEnvironmentData envData;
+        envData.roughness = surf.perceptualRoughness;
+        envData.reflUVW = BoxProjection(reflDir, positionWS, unity_SpecCube0_ProbePosition, unity_SpecCube0_BoxMin.xyz, unity_SpecCube0_BoxMax.xyz);
+
+        half3 probe0 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE(unity_SpecCube0), unity_SpecCube0_HDR, envData);
+        indirectSpecular = probe0;
+    #endif
+
+    return indirectSpecular * _RefractionIntensity;
 }
 
 #ifndef _ALLOW_LPPV
@@ -513,7 +626,10 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
             #endif
 
             #if defined(BAKERY_MONOSH)
-                BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness));
+                BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness),
+                surf, i.tangent, i.bitangent
+                );
+
             #endif
 
             indirectDiffuse = lightMap;
