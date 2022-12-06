@@ -95,6 +95,9 @@ namespace z3y.Shaders
         private MaterialProperty _Refraction;
         private MaterialProperty _RefractionRatio;
         private MaterialProperty _RefractionIntensity;
+        private MaterialProperty _AnisotropyMap;
+        private MaterialProperty _Anisotropy;
+
         #endregion
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
@@ -373,6 +376,21 @@ namespace z3y.Shaders
                 Draw(_ParallaxMap);
             }
             sRGBWarning(_ParallaxMap);
+            Draw(_AnisotropyMap, _Anisotropy, onHover: "RG: Anisotropy Tangent Map\nB: Anisotropy Level");
+            if (TexturePackingButton())
+            {
+                GetPackingWindow(material, _AnisotropyMap);
+
+                FreeImagePackingEditor.ChannelR.DisplayName = "Tangent Map R";
+                FreeImagePackingEditor.ChannelG.DisplayName = "Tangent Map G";
+                FreeImagePackingEditor.ChannelB.DisplayName = "Intensity";
+                FreeImagePackingEditor.ChannelB.Channel.DefaultColor = FreeImagePacking.DefaultColor.White;
+                FreeImagePackingEditor.ChannelA.DisplayName = "";
+
+                FreeImagePackingEditor.Linear = true;
+            }
+            sRGBWarning(_AnisotropyMap);
+
             Space();
             materialEditor.TextureScaleOffsetProperty(_MainTex);
             Draw(_Reflectance);
@@ -458,6 +476,8 @@ namespace z3y.Shaders
             m.ToggleKeyword("_DETAIL_ALBEDOMAP", m.GetTexture("_DetailAlbedoMap"));
             m.ToggleKeyword("_DETAIL_NORMALMAP", m.GetTexture("_DetailNormalMap"));
             m.ToggleKeyword("_DETAIL_HEIGHTBLEND", m.GetTexture("_DetailHeightBlend"));
+            m.ToggleKeyword("_ANISOTROPY", m.GetTexture("_AnisotropyMap"));
+
 
             int bakeryMode = (int)m.GetFloat("Bakery");
             m.ToggleKeyword("BAKERY_MONOSH", bakeryMode == 3);

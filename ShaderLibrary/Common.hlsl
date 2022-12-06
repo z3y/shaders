@@ -233,6 +233,31 @@ bool isReflectionProbe()
     return unity_CameraProjection._m11 == 1 && UNITY_MATRIX_P[0][0] == 1;
 }
 
+half3 UnpackNormalmapAG(half2 packednormal)
+{
+    // dont do the trick
+//    packednormal.x *= packednormal.w;
+
+    fixed3 normal;
+    normal.xy = packednormal.xy * 2 - 1;
+    normal.z = sqrt(1 - saturate(dot(normal.xy, normal.xy)));
+    return normal;
+}
+
+half3 TransformTangentToWorld(float3 dirTS, float3x3 tangentToWorld)
+{
+    // Note matrix is in row major convention with left multiplication as it is build on the fly
+    return mul(dirTS, tangentToWorld);
+}
+
+float3 Orthonormalize(float3 tangent, float3 normal)
+{
+    // TODO: use SafeNormalize()?
+    return normalize(tangent - dot(tangent, normal) * normal);
+}
+ 
+ 
+
 
 
 #ifdef DYNAMICLIGHTMAP_ON
@@ -407,16 +432,27 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
 
 bool _BlendReflectionProbes;
 
-
-half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half NoV, SurfaceData surf, half3 indirectDiffuse)
+half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f0, half NoV, SurfaceData surf, half3 indirectDiffuse, float3 bitangent, float3 tangent)
 {
     half roughness = PerceptualRoughnessToRoughness(surf.perceptualRoughness);
     half3 indirectSpecular = 0;
     #if defined(UNITY_PASS_FORWARDBASE)
 
         float3 reflDir = reflect(-viewDir, normalWS);
+
+        #ifdef _ANISOTROPY
+
+
+            float3 anisotropicDirection = surf.anisotropyDirection >= 0.0 ? bitangent : tangent;
+            float3 anisotropicTangent = cross(anisotropicDirection, viewDir);
+            float3 anisotropicNormal = cross(anisotropicTangent, anisotropicDirection);
+            float bendFactor = abs(surf.anisotropyDirection) * saturate(1.0 - (Pow5(1.0 - surf.perceptualRoughness))) * surf.anisotropyLevel;
+            float3 bentNormal = normalize(lerp(normalWS, anisotropicNormal, bendFactor));
+            reflDir = reflect(-viewDir, bentNormal);
+        #endif
+
         #ifndef SHADER_API_MOBILE
-        reflDir = lerp(reflDir, normalWS, roughness * roughness);
+            reflDir = lerp(reflDir, normalWS, roughness * roughness);
         #endif
 
         Unity_GlossyEnvironmentData envData;

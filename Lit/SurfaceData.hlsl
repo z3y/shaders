@@ -44,6 +44,9 @@ half _DetailNormalScale;
 half _DetailMetallic;
 half _DetailGlossiness;
 
+half _Anisotropy;
+Texture2D _AnisotropyMap; SamplerState sampler_AnisotropyMap;
+
 UNITY_INSTANCING_BUFFER_START(InstancedProps)
     UNITY_DEFINE_INSTANCED_PROP(float4, _MainTex_ST)
     UNITY_DEFINE_INSTANCED_PROP(half4, _Color)
@@ -198,6 +201,15 @@ void InitializeSurfaceData(inout SurfaceData surf, v2f i, uint facing)
     #endif
 
     #ifdef _DECAL
+    }
+    #endif
+
+    #ifdef _ANISOTROPY
+    {
+        half4 anisotropyMap = _AnisotropyMap.Sample(sampler_AnisotropyMap, mainUV);
+        surf.anisotropyTangent = UnpackNormalmapAG(anisotropyMap.ag);
+        surf.anisotropyLevel = anisotropyMap.r;
+        surf.anisotropyDirection = _Anisotropy;
     }
     #endif
 

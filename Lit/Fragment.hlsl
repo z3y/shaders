@@ -38,8 +38,16 @@ half4 frag (v2f input, uint facing : SV_IsFrontFace) : SV_Target
     #ifdef _GEOMETRICSPECULAR_AA
         surf.perceptualRoughness = GSAA_Filament(input.worldNormal, surf.perceptualRoughness);
     #endif
+
     
     TangentToWorldNormal(surf.tangentNormal, input.worldNormal, input.tangent, input.bitangent);
+
+#ifdef _ANISOTROPY
+    float3x3 tangentToWorld = float3x3(input.tangent, input.bitangent, input.worldNormal);
+    input.tangent = TransformTangentToWorld(surf.anisotropyTangent, tangentToWorld);
+    input.bitangent = Orthonormalize(input.tangent, input.worldNormal);
+    input.tangent = normalize(cross(input.worldNormal, input.bitangent));
+#endif
 
     float3 viewDir = normalize(UnityWorldSpaceViewDir(input.worldPos));
     half NoV = NormalDotViewDir(input.worldNormal, viewDir);
@@ -70,7 +78,7 @@ half4 frag (v2f input, uint facing : SV_IsFrontFace) : SV_Target
     indirectDiffuse = GetIndirectDiffuseAndSpecular(input, surf, indirectSpecular, f0, input.worldNormal, viewDir, NoV, lightData);
 
     #if !defined(_GLOSSYREFLECTIONS_OFF)
-        indirectSpecular += GetReflections(input.worldNormal, input.worldPos.xyz, viewDir, f0, NoV, surf, indirectDiffuse);
+        indirectSpecular += GetReflections(input.worldNormal, input.worldPos.xyz, viewDir, f0, NoV, surf, indirectDiffuse, input.bitangent, input.tangent);
     #endif
 
 

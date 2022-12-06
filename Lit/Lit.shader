@@ -123,6 +123,10 @@ Properties
     // _RefractionRatio ("Ratio", Range(0,1)) = 0.95
     // _RefractionIntensity ("Intensity", Range(0,1)) = 1
 
+    _AnisotropyMap ("Anisotropy", 2D) = "black" {}
+    _Anisotropy ("", Range(-1.0, 1.0)) = 0
+
+
 }
 
 
@@ -143,6 +147,8 @@ CGINCLUDE
 #endif
 
 //ConfigStart
+#pragma skip_variants NONLINEAR_LIGHTPROBESH
+#define NONLINEAR_LIGHTPROBESH
 #define FIX_BLACK_LEVEL
 #pragma skip_variants LOD_FADE_CROSSFADE
 #pragma skip_variants LTCGI
@@ -206,6 +212,7 @@ SubShader
         #pragma shader_feature_local _DETAIL_HEIGHTBLEND
         #pragma shader_feature_local _DECAL
         #pragma shader_feature_local _AUDIOLINK_EMISSION
+        #pragma shader_feature_local _ANISOTROPY
 
         #pragma shader_feature_local _WIND
         ENDCG
@@ -243,6 +250,7 @@ SubShader
         #pragma shader_feature_local _DETAIL_NORMALMAP
         #pragma shader_feature_local _DETAIL_HEIGHTBLEND
         #pragma shader_feature_local _DECAL
+        #pragma shader_feature_local _ANISOTROPY
 
         #pragma shader_feature_local _WIND
         ENDCG
