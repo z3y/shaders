@@ -91,7 +91,7 @@ void BakerySHLightmapAndSpecular(inout half3 lightMap, float2 lightmapUV, inout 
 }
 
 #ifdef BAKERY_MONOSH
-void BakeryMonoSH(inout half3 diffuseColor, inout half3 specularColor, float2 lmUV, float3 normalWorld, float3 viewDir, half roughness)
+void BakeryMonoSH(inout half3 diffuseColor, inout half3 specularColor, float2 lmUV, float3 normalWorld, float3 viewDir, half roughness, SurfaceData surf, float3 tangent, float3 bitangent)
 {
     half3 L0 = diffuseColor;
 
@@ -135,9 +135,22 @@ void BakeryMonoSH(inout half3 diffuseColor, inout half3 specularColor, float2 lm
         half spec = D_GGX(nh, roughness);
 
         sh = L0 + dominantDir.x * L1x + dominantDir.y * L1y + dominantDir.z * L1z;
-
+        
         specularColor = max(spec * sh, 0.0);
+
+        #ifdef _ANISOTROPY
+            half2 atab = GetAtAb(roughness, surf.anisotropyDirection * surf.anisotropyLevel);
+
+            specularColor = max(D_GGX_Anisotropic(nh, halfDir, tangent, bitangent, atab.x, atab.y) * sh, 0.0);
+
+        #else
+            specularColor = max(spec * sh, 0.0);
+        #endif
+        
+
     #endif
+
+    
 }
 #endif
 

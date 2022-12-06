@@ -419,7 +419,7 @@ half3 MainLightSpecular(LightData lightData, half NoV, half perceptualRoughness,
     return max(0.0, (D * V) * F) * lightData.FinalColor * UNITY_PI;
 }
 
-half3 MainLightSpecularAnisotropic(LightData lightData, half NoV, half perceptualRoughness, half3 f0, float3 tangent, float3 bitangent, float3 viewDir, SurfaceData surf)
+half3 LightSpecularAnisotropic(LightData lightData, half NoV, half perceptualRoughness, half3 f0, float3 tangent, float3 bitangent, float3 viewDir, SurfaceData surf)
 {
     half clampedRoughness = PerceptualRoughnessToRoughnessClamped(perceptualRoughness);
     half2 atab = GetAtAb(clampedRoughness, surf.anisotropyDirection * surf.anisotropyLevel);
@@ -474,7 +474,7 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
         #endif
 
         #ifdef _ANISOTROPY
-            lightData.Specular = MainLightSpecularAnisotropic(lightData, NoV, perceptualRoughness, f0, input.tangent, input.bitangent, viewDir, surf);
+            lightData.Specular = LightSpecularAnisotropic(lightData, NoV, perceptualRoughness, f0, input.tangent, input.bitangent, viewDir, surf);
         #else
             lightData.Specular = MainLightSpecular(lightData, NoV, perceptualRoughness, f0);
         #endif
@@ -626,7 +626,10 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
             #endif
 
             #if defined(BAKERY_MONOSH)
-                BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness));
+                BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, worldNormal, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness),
+                surf, i.tangent, i.bitangent
+                );
+
             #endif
 
             indirectDiffuse = lightMap;
