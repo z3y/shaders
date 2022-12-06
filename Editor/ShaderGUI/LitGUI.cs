@@ -381,11 +381,14 @@ namespace z3y.Shaders
             {
                 GetPackingWindow(material, _AnisotropyMap);
 
-                FreeImagePackingEditor.ChannelR.DisplayName = "Tangent Map R";
-                FreeImagePackingEditor.ChannelG.DisplayName = "Tangent Map G";
-                FreeImagePackingEditor.ChannelB.DisplayName = "Intensity";
-                FreeImagePackingEditor.ChannelB.Channel.DefaultColor = FreeImagePacking.DefaultColor.White;
-                FreeImagePackingEditor.ChannelA.DisplayName = "";
+                FreeImagePackingEditor.ChannelR.DisplayName = "Anisotropy Level";
+                FreeImagePackingEditor.ChannelR.Channel.DefaultColor = FreeImagePacking.DefaultColor.White;
+                FreeImagePackingEditor.ChannelG.DisplayName = "Tangent Map R";
+                FreeImagePackingEditor.ChannelG.Channel.Source = FreeImagePacking.ChannelSource.Red;
+                FreeImagePackingEditor.ChannelB.DisplayName = "";
+                FreeImagePackingEditor.ChannelB.Channel.DefaultColor = FreeImagePacking.DefaultColor.Black;
+                FreeImagePackingEditor.ChannelA.DisplayName = "Tangent Map G";
+                FreeImagePackingEditor.ChannelA.Channel.Source = FreeImagePacking.ChannelSource.Green;
 
                 FreeImagePackingEditor.Linear = true;
             }
