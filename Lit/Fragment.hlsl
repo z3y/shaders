@@ -61,7 +61,7 @@ half4 frag (v2f input, uint facing : SV_IsFrontFace) : SV_Target
     #endif
 
     LightData lightData;
-    InitializeMainLightData(lightData, input.worldNormal, viewDir, NoV, surf.perceptualRoughness, f0, input);
+    InitializeMainLightData(lightData, input.worldNormal, viewDir, NoV, surf.perceptualRoughness, f0, input, surf);
 
     #if !defined(_SPECULARHIGHLIGHTS_OFF) && defined(USING_LIGHT_MULTI_COMPILE)
         directSpecular += lightData.Specular;

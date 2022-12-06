@@ -138,6 +138,18 @@ half D_GGX(half NoH, half roughness)
     return k * k * (1.0 / UNITY_PI);
 }
 
+float D_GGX_Anisotropic(float NoH, float3 h, float3 t, float3 b, float at, float ab)
+{
+    half ToH = dot(t, h);
+    half BoH = dot(b, h);
+    half a2 = at * ab;
+    float3 v = float3(ab * ToH, at * BoH, a2 * NoH);
+    float v2 = dot(v, v);
+    half w2 = a2 / v2;
+    return a2 * w2 * w2 * (1.0 / UNITY_PI);
+}
+
+
 float V_SmithGGXCorrelatedFast(half NoV, half NoL, half roughness) {
     half a = roughness;
     float GGXV = NoL * (NoV * (1.0 - a) + a);
@@ -156,6 +168,23 @@ float V_SmithGGXCorrelated(half NoV, half NoL, half roughness)
         return 0.5 / (GGXV + GGXL);
     #endif
 }
+
+float V_SmithGGXCorrelated_Anisotropic(float at, float ab, float ToV, float BoV, float ToL, float BoL, float NoV, float NoL)
+{
+    float lambdaV = NoL * length(float3(at * ToV, ab * BoV, NoV));
+    float lambdaL = NoV * length(float3(at * ToL, ab * BoL, NoL));
+    float v = 0.5 / (lambdaV + lambdaL);
+    return saturate(v);
+}
+
+half2 GetAtAb(half roughness, half anisotropy)
+{
+    half at = max(roughness * (1.0 + anisotropy), 0.001);
+    half ab = max(roughness * (1.0 - anisotropy), 0.001);
+
+    return half2(at, ab);
+}
+
 
 half V_Kelemen(half LoH)
 {
@@ -390,11 +419,35 @@ half3 MainLightSpecular(LightData lightData, half NoV, half perceptualRoughness,
     return max(0.0, (D * V) * F) * lightData.FinalColor * UNITY_PI;
 }
 
+half3 MainLightSpecularAnisotropic(LightData lightData, half NoV, half perceptualRoughness, half3 f0, float3 tangent, float3 bitangent, float3 viewDir, SurfaceData surf)
+{
+    half clampedRoughness = PerceptualRoughnessToRoughnessClamped(perceptualRoughness);
+    half2 atab = GetAtAb(clampedRoughness, surf.anisotropyDirection * surf.anisotropyLevel);
+
+    float3 l = lightData.Direction;
+    float3 t = tangent;
+    float3 b = bitangent;
+    float3 v = viewDir;
+
+    half ToV = dot(t, v);
+    half BoV = dot(b, v);
+    half ToL = dot(t, l);
+    half BoL = dot(b, l);
+    half ToH = dot(t, lightData.HalfVector);
+    half BoH = dot(b, lightData.HalfVector);
+
+    half3 F = F_Schlick(lightData.LoH, f0) * DFGEnergyCompensation;
+    half D = D_GGX_Anisotropic(lightData.NoH, lightData.HalfVector, t, b, atab.x, atab.y);
+    half V = V_SmithGGXCorrelated_Anisotropic(atab.x, atab.y, ToV, BoV, ToL, BoL, NoV, lightData.NoL);
+
+    return max(0.0, (D * V) * F) * lightData.FinalColor * UNITY_PI;
+}
+
 #ifdef _SSS
     #include "../ShaderLibrary/SSS.hlsl"
 #endif
 
-void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 viewDir, half NoV, half perceptualRoughness, half3 f0, v2f input)
+void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 viewDir, half NoV, half perceptualRoughness, half3 f0, v2f input, SurfaceData surf)
 {
     #ifdef USING_LIGHT_MULTI_COMPILE
         lightData.Direction = normalize(UnityWorldSpaceLightDir(input.worldPos));
@@ -420,7 +473,11 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
             lightData.FinalColor *= UnityComputeForwardShadows(input.uv01.zw * unity_LightmapST.xy + unity_LightmapST.zw, input.worldPos, input._ShadowCoord);
         #endif
 
-        lightData.Specular = MainLightSpecular(lightData, NoV, perceptualRoughness, f0);
+        #ifdef _ANISOTROPY
+            lightData.Specular = MainLightSpecularAnisotropic(lightData, NoV, perceptualRoughness, f0, input.tangent, input.bitangent, viewDir, surf);
+        #else
+            lightData.Specular = MainLightSpecular(lightData, NoV, perceptualRoughness, f0);
+        #endif
 
         #ifdef _SSS
             ApplySSS(lightData, normalWS, viewDir);
@@ -441,8 +498,6 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
         float3 reflDir = reflect(-viewDir, normalWS);
 
         #ifdef _ANISOTROPY
-
-
             float3 anisotropicDirection = surf.anisotropyDirection >= 0.0 ? bitangent : tangent;
             float3 anisotropicTangent = cross(anisotropicDirection, viewDir);
             float3 anisotropicNormal = cross(anisotropicTangent, anisotropicDirection);
