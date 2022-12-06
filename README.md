@@ -23,6 +23,7 @@ An optimized Standard shader replacement for Unity
 - Simple Wind
 - Texture Packing
 - Box Projection on Quest
+- Anisotropy
 
 ### Installation
 - Add the git url `https://github.com/z3y/shaders.git` with the package manager
