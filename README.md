@@ -26,8 +26,9 @@ An optimized Standard shader replacement for Unity
 - Anisotropy
 
 ### Installation
-- Add the git url `https://github.com/z3y/shaders.git` with the package manager
-- Or [Clone](https://github.com/z3y/shaders/archive/refs/heads/main.zip) the repository and import into Unity Assets folder
+- Add the git url `https://github.com/z3y/shaders.git` with the [Package Manager](https://user-images.githubusercontent.com/33181641/210658098-851627b9-c67d-4fab-a493-94e2c8bb53e3.png)
+
+Or [Clone](https://github.com/z3y/shaders/archive/refs/heads/main.zip) the repository and import into Unity Assets folder
 
 
 
