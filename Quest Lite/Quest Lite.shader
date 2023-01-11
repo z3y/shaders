@@ -51,7 +51,7 @@
                 float3 lightDir : TEXCOORD3;
                 #endif
 
-                UNITY_FOG_COORDS(3)
+                UNITY_FOG_COORDS(4)
 
                 UNITY_VERTEX_OUTPUT_STEREO
             };
