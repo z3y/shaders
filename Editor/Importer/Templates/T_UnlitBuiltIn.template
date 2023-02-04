@@ -1,0 +1,131 @@
+Shader ""
+{
+    Properties
+    {
+        $DefaultPropertiesInclude
+
+        $PropertiesInclude
+    }
+    SubShader
+    {
+        Tags
+        {
+            "RenderPipeline"=""
+            "RenderType"="Opaque"
+            "Queue"="Geometry+0"
+        }
+
+        $Feature_GrabPass
+
+        Pass
+        {
+            Name "FORWARDBASE"
+
+            Tags 
+            { 
+                "LightMode" = "ForwardBase"
+            }
+
+            Blend [_SrcBlend] [_DstBlend]
+            Cull [_Cull]
+            // ZTest: <None>
+            ZWrite [_ZWrite]
+            $Feature_a2c
+
+
+            HLSLPROGRAM
+            #define PIPELINE_BUILTIN
+            #define GENERATION_CODE
+            #define SHADING_UNLIT
+        
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma target 4.5
+            #pragma multi_compile_fog
+            #pragma multi_compile_instancing
+            #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
+
+            $Defines
+
+            #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+            $Cbuffer
+            CBUFFER_END
+
+            $ShaderDescription
+
+            #include "Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl"
+            #include "Packages/com.z3y.shaders/ShaderLibrary/FragmentUnlit.hlsl"
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "SHADOWCASTER"
+            Tags { "LightMode"="ShadowCaster" }
+            ZWrite On
+            Cull [_Cull]
+            ZTest LEqual
+
+            HLSLPROGRAM
+            #define PIPELINE_BUILTIN
+            #define GENERATION_CODE
+            
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma target 4.5
+            #pragma multi_compile_instancing
+            #pragma multi_compile_shadowcaster
+            #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAFADE_ON
+
+
+            $Defines
+
+            #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+            $Cbuffer
+            CBUFFER_END
+
+            $ShaderDescription
+
+            #include "Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl"
+            #include "Packages/com.z3y.shaders/ShaderLibrary/FragmentShadowCaster.hlsl"
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "META"
+            Tags { "LightMode"="Meta" }
+            Cull Off
+
+            HLSLPROGRAM
+            #define PIPELINE_BUILTIN
+            #define GENERATION_CODE
+            
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma target 4.5
+
+            #pragma shader_feature EDITOR_VISUALIZATION
+            #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
+
+            $Defines
+
+            #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
+            
+            CBUFFER_START(UnityPerMaterial)
+            $Cbuffer
+            CBUFFER_END
+
+            $ShaderDescription
+
+            #include "Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl"
+            #include "Packages/com.z3y.shaders/ShaderLibrary/FragmentMeta.hlsl"
+            ENDHLSL
+        }
+    }
+    $ShaderEditor
+}

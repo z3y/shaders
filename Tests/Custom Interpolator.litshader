@@ -1,0 +1,83 @@
+﻿PROPERTIES_START // Properties
+    _MainTex ("Texture", 2D) = "white" {}
+    _Color ("Color", Color) = (1,1,1,1)
+    _Glossiness ("Smoothness", Range(0,1)) = 0.5
+    _Metallic ("Metallic", Range(0,1)) = 0
+    [NoScaleOffset] [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
+    _BumpScale ("Normal Scale", Float) = 1
+PROPERTIES_END
+
+
+DEFINES_START // Keywords, Defines
+
+    // varyings passed to the fragment shader
+    // enabling will also define attributes
+    #define VARYINGS_NEED_TEXCOORD0
+    //#define VARYINGS_NEED_TEXCOORD1
+    //#define VARYINGS_NEED_TEXCOORD2
+    //#define VARYINGS_NEED_TEXCOORD3
+    //#define VARYINGS_NEED_COLOR
+    #define VARYINGS_NEED_INTERP0
+    //#define VARYINGS_NEED_INTERP1
+    //#define VARYINGS_NEED_INTERP2
+    //#define VARYINGS_NEED_INTERP3
+    //#define VARYINGS_NEED_INTERP4
+    //#define VARYINGS_NEED_CULLFACE
+
+    // attributes passed to the vertex shader
+    //#define ATTRIBUTES_NEED_NORMAL
+    //#define ATTRIBUTES_NEED_TANGENT
+    //#define ATTRIBUTES_NEED_COLOR
+    //#define ATTRIBUTES_NEED_TEXCOORD0
+    //#define ATTRIBUTES_NEED_TEXCOORD1
+    //#define ATTRIBUTES_NEED_TEXCOORD2
+    //#define ATTRIBUTES_NEED_TEXCOORD3
+    #define ATTRIBUTES_NEED_VERTEXID
+DEFINES_END
+
+
+CBUFFER_START
+    half4 _Color;
+    half4 _MainTex_ST;
+    half _Glossiness;
+    half _Metallic;
+    half _BumpScale;
+CBUFFER_END
+
+
+CODE_START
+
+    TEXTURE2D(_MainTex);
+    TEXTURE2D(_BumpMap);
+    SAMPLER(sampler_MainTex);
+    SAMPLER(sampler_BumpMap);
+
+    // Modify varyings at the end
+    #define USE_MODIFYVARYINGS
+    void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
+    {
+        // output funky colors based on vertex ID
+        float f = (float)attributes.vertexId;
+        varyings.interp0 = half4(sin(f/10),sin(f/100),sin(f/1000),0) * 0.5 + 0.5;
+    }
+
+    // SurfaceDescription:
+    // Albedo, Normal, Metallic, Emission, Smoothness, Occlusion
+    // Alpha, AlphaClipThreshold, Reflectance
+    #define USE_SURFACEDESCRIPTION
+    void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
+    {
+        float2 uv = TRANSFORM_TEX(IN.texCoord0.xy, _MainTex);
+        half4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
+        mainTex *= _Color;
+
+        half4 normalMap = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
+        surface.Normal = UnpackNormalScale(normalMap, _BumpScale);
+
+        surface.Albedo = IN.interp0.xyz;
+        surface.Metallic = _Metallic;
+        surface.Smoothness = _Glossiness;
+        surface.Alpha = mainTex.a;
+    }
+
+CODE_END
