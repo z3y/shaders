@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 427ca4389b243d64096d80aa0ad93f87
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: c6b508151abe0a040a11a4b72bff5b69, type: 3}
+  settings:
+    shaderName: Lit/Examples/CustomInterpolatorStacked
+    materialType: 0
+    bicubicLightmap: 3
+    gsaa: 3
+    anisotropy: 3
+    bakeryMonoSH: 0
+    grabPass: 0
+    alphaToCoverage: 1
+    customEditorGUI: 

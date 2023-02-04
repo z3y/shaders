@@ -18,6 +18,7 @@ DEFINES_START // Keywords, Defines
     //#define VARYINGS_NEED_TEXCOORD3
     //#define VARYINGS_NEED_COLOR
     #define VARYINGS_NEED_INTERP0
+    #define VARYINGS_NEED_INTERP0_NOINTERP // custom interpolators support _NOINTERP and _CENTROID
     //#define VARYINGS_NEED_INTERP1
     //#define VARYINGS_NEED_INTERP2
     //#define VARYINGS_NEED_INTERP3
@@ -33,6 +34,7 @@ DEFINES_START // Keywords, Defines
     //#define ATTRIBUTES_NEED_TEXCOORD2
     //#define ATTRIBUTES_NEED_TEXCOORD3
     #define ATTRIBUTES_NEED_VERTEXID
+
 DEFINES_END
 
 
@@ -51,6 +53,14 @@ CODE_START
     TEXTURE2D(_BumpMap);
     SAMPLER(sampler_MainTex);
     SAMPLER(sampler_BumpMap);
+
+        // VertexDescription:
+    // World Space VertexPosition, VertexNormal, VertexTangent
+    #define USE_VERTEXDESCRIPTION
+    void VertexDescriptionFunction(Attributes attributes, inout VertexDescription description)
+    {
+
+    }
 
     // Modify varyings at the end
     #define USE_MODIFYVARYINGS

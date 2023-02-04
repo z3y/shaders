@@ -1,0 +1,43 @@
+﻿#include "Packages/com.z3y.shaders/Tests/Custom Interpolator.litshader"
+
+DEFINES_START
+#define VARYINGS_NEED_NORMAL
+DEFINES_END
+
+PROPERTIES_START // Properties
+    _Tint ("Tint", Color) = (1,1,1,1)
+PROPERTIES_END
+
+CODE_START
+    half4 _Tint;
+
+    // VertexDescription:
+    // World Space VertexPosition, VertexNormal, VertexTangent
+    #define USE_VERTEXDESCRIPTION
+    void VertexDescriptionFunction1(Attributes attributes, inout VertexDescription description)
+    {
+        // previous vertex description
+        VertexDescriptionFunction(attributes, description);
+        description.VertexPosition.y += sin(_Time.y) * _Glossiness.x;
+
+    }
+    #define VertexDescriptionFunction VertexDescriptionFunction1 // redefine the VertexDescriptionFunction
+
+    // SurfaceDescription:
+    // Albedo, Normal, Metallic, Emission, Smoothness, Occlusion
+    // Alpha, AlphaClipThreshold, Reflectance
+    #define USE_SURFACEDESCRIPTION
+    void SurfaceDescriptionFunction1(Varyings IN, inout SurfaceDescription surface)
+    {
+        // SurfaceDescriptionFunction from previous shader
+        SurfaceDescriptionFunction(IN, surface); 
+
+        surface.Albedo *= _Tint;
+
+        surface.Albedo = lerp(surface.Albedo,1, IN.normalWS.y);
+
+    }
+
+    #define SurfaceDescriptionFunction SurfaceDescriptionFunction1 // redefine the SurfaceDescriptionFunction
+
+CODE_END
