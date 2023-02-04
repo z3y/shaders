@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 1b5869406e7a82447954ff63572c0921
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: c6b508151abe0a040a11a4b72bff5b69, type: 3}
+  settings:
+    shaderName: Hidden/Lit/v3
+    materialType: 0
+    bicubicLightmap: 0
+    gsaa: 0
+    anisotropy: 0
+    bakeryMonoSH: 0
+    grabPass: 0
+    alphaToCoverage: 1
+    customEditorGUI: z3y.Shaders.LitGUI

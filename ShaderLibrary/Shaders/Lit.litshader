@@ -1,0 +1,177 @@
+﻿PROPERTIES_START // Properties
+    _Cutoff ("Alpha Cuttoff", Range(0.001, 1)) = 0.5
+    _CutoutSharpness ("Sharpness", Range(1, 0.0001)) = 0.0001
+    [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Source Blend", Int) = 1
+    [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Destination Blend", Int) = 0
+    [Enum(Off, 0, On, 1)] _ZWrite ("ZWrite", Int) = 1
+    [HideInInspector] [Enum(Off, 0, On, 1)] _AlphaToMask ("Alpha To Coverage", Int) = 0
+    [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Int) = 2
+        
+
+    Foldout_SurfaceInputs ("Surface Inputs", Float) = 1
+    _MainTex ("Albedo", 2D) = "white" {}
+    _Color ("Color", Color) = (1,1,1,1)
+    _AlbedoSaturation ("Saturation", Float) = 1
+
+
+
+    _Metallic ("Metallic", Range(0,1)) = 0
+    _Glossiness ("Smoothness", Range(0,1)) = 0.5
+    _Reflectance ("Reflectance", Range(0.0, 1.0)) = 0.5
+
+    _MetallicGlossMap("Mask Map", 2D) = "white" {}
+    _MetallicRemapping ("Metallic Remap", Vector) = (0,1,0,1)
+    _GlossinessRange ("Smoothness Range", Vector) = (0,1,0,1)
+    _GlossinessRemapping ("Smoothness Remap", Vector) = (0,1,0,1)
+    _OcclusionStrength ("Occlusion", Range(0,1)) = 1
+
+
+
+    [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
+    _BumpScale ("Scale", Float) = 1
+    
+	[Toggle(_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A)] _SmoothnessAlbedoAlpha ("Smoothness Albedo Alpha", Int) = 0
+	_ParallaxMap ("Height Map", 2D) = "white" {}
+    _Parallax ("Scale", Range (0, 0.2)) = 0.02
+    _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
+    [IntRange] _ParallaxSteps ("Steps", Range(1, 32)) = 16
+
+
+    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
+
+
+    Foldout_Emission ("Emission", Float) = 0
+
+    [Toggle(_EMISSION)] _EmissionToggle ("Enable Emission", Int) = 0
+
+    _EmissionMap ("Emission Map", 2D) = "white" {}
+    [HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
+    [HideInInspector] _EmissionColorLDR ("Emission Color", Color) = (1,1,1)
+    [ToggleUI] _UseEmissionIntensity ("Use Emission Intensity", Int) = 0
+    _EmissionIntensity ("Intensity", Float) = 1
+
+    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _EmissionMap_UV ("UV", Int) = 0
+    _EmissionMultBase ("Multiply Base", Range(0,1)) = 0
+    _EmissionGIMultiplier ("GI Multiplier", Float) = 1
+
+    [Toggle(_AUDIOLINK_EMISSION)] _AudioLinkEmissionToggle ("Audio Link", Float) = 0
+    [Enum(Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3)] _AudioLinkEmissionBand ("Band", Int) = 0
+
+    Foldout_DetailFoldout ("Detail Inputs", Float) = 0
+    [Enum(Overlay, 0, Screen, 1, Multiply X2, 2, Replace, 3)] _DetailBlendMode ("Blend Mode", Int) = 0
+
+    _DetailMask ("Blend Mask", 2D) = "white" {}
+    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _DetailMask_UV ("UV", Int) = 0
+
+
+    _DetailAlbedoMap ("Albedo", 2D) = "white" {}
+    _DetailColor ("Color", Color) = (1,1,1,1)
+    [Normal]_DetailNormalMap ("Normal Map", 2D) = "bump" {}
+    _DetailNormalScale ("Scale", Float) = 1
+
+    _DetailMetallic ("Metallic", Range(0,1)) = 0
+    _DetailGlossiness ("Smoothness", Range(0,1)) = 0.5
+
+    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _DetailMap_UV ("UV", Int) = 0
+    [Toggle(_DECAL)] _IsDecal ("Use as Decal", Float) = 0
+
+
+    _DetailHeightBlend ("Height Blend", 2D) = "white" {}
+    _HeightBlend ("Blend", Float) = 5
+    [Toggle] _HeightBlendInvert ("Blend Invert", Float) = 0
+
+    Foldout_WindFoldout ("Wind", Float) = 0
+    [Toggle(_WIND)] _WindToggle ("Enable Wind", Float) = 0
+    _WindNoise ("Noise RGB", 2D) = "black" {}
+    _WindScale ("Noise Scale", Float) = 0.02
+    [PowerSlider(2)] _WindSpeed ("Speed", Range(0,5)) = 0.05
+    _WindIntensity ("Intensity XYZ", Vector) = (0.1,0.1,0.1,0)
+
+//    Foldout_AvancedSettings ("Additional Settings", Float) = 0
+
+    //[Toggle(FORCE_SPECCUBE_BOX_PROJECTION)] _ForceBoxProjection ("Force Box Projection", Float) = 0
+
+    [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
+    [PowerSlider(2)] _specularAntiAliasingThreshold ("Threshold", Range(0.0, 1.0)) = 0.1
+
+    _AnisotropyMap ("Anisotropy", 2D) = "black" {}
+    _Anisotropy ("", Range(-1.0, 1.0)) = 0
+PROPERTIES_END
+
+
+DEFINES_START // Keywords, Defines
+    #define VARYINGS_NEED_TEXCOORD0
+    //#define VARYINGS_NEED_TEXCOORD1
+    //#define VARYINGS_NEED_TEXCOORD2
+    //#define VARYINGS_NEED_TEXCOORD3
+    //#define VARYINGS_NEED_COLOR
+    //#define VARYINGS_NEED_INTERP0
+    //#define VARYINGS_NEED_INTERP1
+    //#define VARYINGS_NEED_INTERP2
+    //#define VARYINGS_NEED_INTERP3
+    //#define VARYINGS_NEED_INTERP4
+    //#define VARYINGS_NEED_CULLFACE
+    // #pragma skip_variants _GLOSSYREFLECTIONS_OFF
+    // #pragma skip_variants _SPECULARHIGHLIGHTS_OFF
+DEFINES_END
+
+
+CBUFFER_START(UnityPerMaterial) // declare all Material properties excluding textures
+    half4 _Color;
+    half4 _MainTex_ST;
+    half _Glossiness;
+    half _Metallic;
+    half _BumpScale;
+CBUFFER_END
+
+
+CODE_START
+
+    TEXTURE2D(_MainTex);
+    TEXTURE2D(_BumpMap);
+    SAMPLER(sampler_MainTex);
+    SAMPLER(sampler_BumpMap);
+
+    // Modify attributes before the VertexDescription
+    #define USE_MODIFYATTRIBUTES
+    void ModifyAttributes(inout Attributes attributes)
+    {
+
+    }
+
+    // VertexDescription:
+    // Transform VertexPosition, VertexNormal, VertexTangent in World Space
+    #define USE_VERTEXDESCRIPTION
+    void VertexDescriptionFunction(Attributes attributes, inout VertexDescription description)
+    {
+        
+    }
+
+    // Modify varyings at the end
+    #define USE_MODIFYVARYINGS
+    void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
+    {
+        
+    }
+
+
+    // SurfaceDescription:
+    // Albedo, Normal, Metallic, Emission, Smoothness, Occlusion
+    // Alpha, AlphaClipThreshold, Reflectance
+    #define USE_SURFACEDESCRIPTION
+    void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
+    {
+        float2 uv = TRANSFORM_TEX(IN.texCoord0.xy, _MainTex);
+        half4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
+        mainTex *= _Color;
+
+        half4 normalMap = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
+        surface.Normal = UnpackNormalScale(normalMap, _BumpScale);
+
+        surface.Albedo = mainTex.rgb;
+        surface.Metallic = _Metallic;
+        surface.Smoothness = _Glossiness;
+        surface.Alpha = mainTex.a;
+    }
+
+CODE_END

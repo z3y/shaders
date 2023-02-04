@@ -8,6 +8,15 @@ float3 CalculateTangentViewDir(float3 tangentViewDir)
 	return tangentViewDir;
 }
 
+float2 GetMinUvSize(float2 baseUV, float4 texelSize)
+{
+    float2 minUvSize = float2(FLT_MAX, FLT_MAX);
+
+    minUvSize = min(baseUV * texelSize.zw, minUvSize);
+
+    return minUvSize;
+}
+
 float2 ParallaxOcclusionMapping(float strength, float2 uv, float3 tangentViewDir, Texture2D parallaxMap, SamplerState sampl, float4 texelSize, uint steps, half parallaxOffset)
 {
     tangentViewDir = CalculateTangentViewDir(tangentViewDir);
