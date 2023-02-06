@@ -7,7 +7,7 @@ An optimized Standard shader replacement for Unity
 ### Installation
 - Add the git url `https://github.com/z3y/shaders.git` with the [Package Manager](https://user-images.githubusercontent.com/33181641/210658098-851627b9-c67d-4fab-a493-94e2c8bb53e3.png) (Requires [git](https://git-scm.com/downloads))
 
-Or [Clone](https://github.com/z3y/shaders/archive/refs/heads/main.zip) the repository and import into Unity Assets folder
+Or [Clone](https://github.com/z3y/shaders/archive/refs/heads/main.zip) the repository and add the package from disk in the Package Manager
 
 ### Features
 
