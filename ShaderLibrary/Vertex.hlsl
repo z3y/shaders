@@ -1,14 +1,3 @@
-// unity macros need workaround
-struct LegacyAttributes
-{
-    float4 vertex;
-    float3 normal;
-};
-struct LegacyVaryings
-{
-    float4 pos;
-    float4 _ShadowCoord;
-};
 
 #if defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_FORWARDADD)
     #define UNITY_PASS_FORWARD
