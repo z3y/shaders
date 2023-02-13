@@ -1,5 +1,3 @@
-Repository for my Unity shaders. Most features now also available in shader graph: https://github.com/z3y/ShaderGraph-BuiltIn
-#
 ### Lit Shader
 An optimized Standard shader replacement for Unity
 
@@ -35,9 +33,10 @@ Or [Clone](https://github.com/z3y/shaders/archive/refs/heads/main.zip) the repos
 
 - Custom shaders from template
 
-### Custom Shaders
+### Custom Shaders with Code and Graph
 
-You can create surface like shaders `Create > Shader > Lit Shader Variant` using the same lighting as the main shader
+You can create surface-like shaders with code `Create > Shader > Lit Shader Variant` or graph https://github.com/z3y/ShaderGraph 
+using the same lighting as the main shader
 
 
 If you want to ask something add me z3y#3214 or join the [Discord](https://discord.gg/bw46tKgRFT). Please report bugs if you find them https://github.com/z3y/shaders/issues
