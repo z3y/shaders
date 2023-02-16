@@ -111,11 +111,16 @@ half4 frag (Varyings input) : SV_Target
     BRDFData brdfData;
     InitializeBRDFData(surfaceDescription.Albedo, surfaceDescription.Metallic, specular, surfaceDescription.Smoothness, surfaceDescription.Alpha, brdfData);
  
-    MetaInput metaInput;
+    MetaInput metaInput = (MetaInput)0;
     metaInput.Albedo = brdfData.diffuse + brdfData.specular * brdfData.roughness * 0.5;
     //metaInput.SpecularColor = specular;
     metaInput.Emission = surfaceDescription.Emission;
-    
+
+    #ifdef EDITOR_VISUALIZATION
+        metaInput.VizUV = input.vizUV;
+        metaInput.LightCoord = input.lightCoord;
+    #endif
+        
     // bakery alpha
     if (unity_MetaFragmentControl.w != 0)
     {
