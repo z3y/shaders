@@ -56,8 +56,10 @@ Varyings vert(Attributes input)
     #endif
 
 
-    #if defined(UNITY_PASS_META)
+    #if defined(UNITY_PASS_META) && defined(PIPELINE_BUILTIN)
         output.positionCS = UnityMetaVertexPosition(float4(TransformWorldToObject(positionWS), 0), input.uv1, input.uv2, unity_LightmapST, unity_DynamicLightmapST);
+    #elif defined(UNITY_PASS_META) && defined(PIPELINE_URP)
+        output.positionCS = MetaVertexPosition(float4(TransformWorldToObject(positionWS), 0), input.uv1, input.uv2, unity_LightmapST, unity_DynamicLightmapST);
     #else
         output.positionCS = TransformWorldToHClip(positionWS);
     #endif

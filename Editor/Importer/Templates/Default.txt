@@ -1,8 +1,8 @@
 PROPERTIES_START // Properties
     _MainTex ("Texture", 2D) = "white" {}
     _Color ("Color", Color) = (1,1,1,1)
-    _Glossiness ("Smoothness", Range(0,1)) = 0.5
     _Metallic ("Metallic", Range(0,1)) = 0
+    _Glossiness ("Smoothness", Range(0,1)) = 0.5
     [NoScaleOffset] [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
     _BumpScale ("Normal Scale", Float) = 1
 PROPERTIES_END

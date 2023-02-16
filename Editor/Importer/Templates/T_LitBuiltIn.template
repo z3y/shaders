@@ -155,7 +155,7 @@ Shader ""
 
         Pass
         {
-            Name "META"
+            Name "META_BAKERY"
             Tags { "LightMode"="Meta" }
             Cull Off
 

@@ -81,11 +81,15 @@
 #endif
 
 #ifdef PIPELINE_URP
+#define Unity_SafeNormalize SafeNormalize
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
     #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
         #define VARYINGS_NEED_SHADOWCOORD
+    #endif
+    #ifdef UNITY_PASS_META
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl"
     #endif
 #endif
 
