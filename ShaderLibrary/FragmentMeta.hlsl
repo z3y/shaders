@@ -1,5 +1,3 @@
-#include "Packages/com.z3y.shaders/ShaderLibrary/LightFunctions.hlsl"
-
 inline half OneMinusReflectivityFromMetallic(half metallic)
 {
     // We'll need oneMinusReflectivity, so

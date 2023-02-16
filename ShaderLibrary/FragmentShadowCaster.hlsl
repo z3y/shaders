@@ -1,5 +1,3 @@
-#include "LightFunctions.hlsl"
-
 half4 frag (Varyings input) : SV_Target
 {
     UNITY_SETUP_INSTANCE_ID(input);

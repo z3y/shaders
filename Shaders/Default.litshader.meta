@@ -12,7 +12,7 @@ ScriptedImporter:
     shaderName: 
     materialType: 0
     bicubicLightmap: 3
-    gsaa: 3
+    gsaa: 0
     anisotropy: 3
     bakeryMonoSH: 0
     grabPass: 0
