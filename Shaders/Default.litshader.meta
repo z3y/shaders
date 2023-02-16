@@ -11,7 +11,7 @@ ScriptedImporter:
   settings:
     shaderName: 
     materialType: 0
-    bicubicLightmap: 3
+    bicubicLightmap: 2
     gsaa: 0
     anisotropy: 3
     bakeryMonoSH: 0

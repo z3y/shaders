@@ -81,6 +81,7 @@
 #endif
 
 #ifdef PIPELINE_URP
+#define Unity_SafeNormalize SafeNormalize
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
