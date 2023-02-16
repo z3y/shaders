@@ -184,6 +184,39 @@ Shader ""
             ENDHLSL
         }
 
+        Pass
+        {
+            Name "META_BAKERY"
+            Tags { "LightMode"="Meta" }
+            Cull Off
+
+            HLSLPROGRAM
+            #define PIPELINE_URP
+            #define GENERATION_CODE
+            #define UNITY_PASS_META
+
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma target 4.5
+
+            #pragma shader_feature EDITOR_VISUALIZATION
+            #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
+
+            $Defines
+
+            #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+            $Cbuffer
+            CBUFFER_END
+            
+            $ShaderDescription
+
+            #include "Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl"
+            #include "Packages/com.z3y.shaders/ShaderLibrary/FragmentMeta.hlsl"
+            ENDHLSL
+        }
+
     }
     $ShaderEditor
     // Fallback "Standard"

@@ -88,6 +88,9 @@
     #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
         #define VARYINGS_NEED_SHADOWCOORD
     #endif
+    #ifdef UNITY_PASS_META
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl"
+    #endif
 #endif
 
 #if USE_EXTERNAL_CORERP
