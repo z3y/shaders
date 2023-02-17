@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.Graphs;
 using UnityEngine;
 
 namespace z3y.Shaders
@@ -76,6 +75,16 @@ namespace z3y.Shaders
             {
                 for (int i = startIndex; i < materialProperties.Length; i++)
                 {
+                    if (materialProperties[i].type == MaterialProperty.PropType.Texture)
+                    {
+                        float fieldWidth = EditorGUIUtility.fieldWidth;
+                        float labelWidth = EditorGUIUtility.labelWidth;
+                        materialEditor.SetDefaultGUIWidths();
+                        materialEditor.TextureProperty(materialProperties[i], materialProperties[i].displayName);
+                        EditorGUIUtility.fieldWidth = fieldWidth;
+                        EditorGUIUtility.labelWidth = labelWidth;
+                        continue;
+                    }
                     Draw(materialProperties[i]);
                 }
             }
