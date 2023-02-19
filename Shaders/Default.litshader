@@ -83,4 +83,11 @@ CODE_START
         surface.Alpha = mainTex.a;
     }
 
+    #define USE_MODIFYLIGHTING
+    void ModifyLighting(inout GIData giData, Varyings IN, ShaderData sd, SurfaceDescription surfaceDescription)
+    {
+        
+    }
+    
+
 CODE_END

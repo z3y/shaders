@@ -183,7 +183,7 @@ namespace CustomLighting
         return indirectDiffuse;
     }
 
-    half3 GetReflections(Varyings unpacked, SurfaceDescription surfaceDescription, ShaderData sd, half3 indirectDiffuse)
+    half3 GetReflections(Varyings unpacked, SurfaceDescription surfaceDescription, ShaderData sd)
     {
         #if !defined(UNITY_PASS_FORWARDBASE) && defined(PIPELINE_BUILTIN)
             return 0.0f;
@@ -242,13 +242,6 @@ namespace CustomLighting
             float horizon = min(1.0 + dot(reflDir, sd.normalWS), 1.0);
             reflectionSpecular *= horizon * horizon;
 
-            #ifdef LIGHTMAP_ON
-                half specularOcclusion = saturate(sqrt(dot(indirectDiffuse, 1.0)) * surfaceDescription.Occlusion);
-            #else
-                half specularOcclusion = surfaceDescription.Occlusion;
-            #endif
-
-            reflectionSpecular *= Filament::computeSpecularAO(sd.NoV, specularOcclusion, roughness);
 
             indirectSpecular += reflectionSpecular;
         #endif
@@ -296,13 +289,26 @@ namespace CustomLighting
         giData.IndirectDiffuse += GetLightProbes(sd.normalWS, unpacked.positionWS);
 
         // reflection probes
-        giData.Reflections += GetReflections(unpacked, surfaceDescription, sd, giData.IndirectDiffuse);
+        giData.Reflections += GetReflections(unpacked, surfaceDescription, sd);
+
+
+        // modify lighting
+        #ifdef USE_MODIFYLIGHTING
+        ModifyLighting(giData, unpacked, sd, surfaceDescription);
+        #endif
+
+
+        // occlusion
+        #ifdef LIGHTMAP_ON
+            half specularOcclusion = saturate(sqrt(dot(giData.IndirectDiffuse, 1.0)) * surfaceDescription.Occlusion);
+        #else
+            half specularOcclusion = surfaceDescription.Occlusion;
+        #endif
+        giData.Reflections *= Filament::computeSpecularAO(sd.NoV, specularOcclusion, sd.perceptualRoughness * sd.perceptualRoughness);
 
         // fresnel
         giData.Reflections *= sd.energyCompensation * sd.brdf;
         giData.Specular *= PI;
-
-        // modify lighting
 
         #if defined(_ALPHAPREMULTIPLY_ON)
             surfaceDescription.Albedo.rgb *= surfaceDescription.Alpha;
@@ -315,6 +321,17 @@ namespace CustomLighting
 
         half4 finalColor = half4(surfaceDescription.Albedo * (1.0 - surfaceDescription.Metallic) * (giData.IndirectDiffuse * surfaceDescription.Occlusion + (giData.Light))
                         + giData.Reflections + giData.Specular + surfaceDescription.Emission, surfaceDescription.Alpha);
+
+        // fog
+        #if defined(FOG_ANY) && defined(PIPELINE_BUILTIN)
+            UNITY_APPLY_FOG(unpacked.fogCoord, finalColor);
+        #endif
+
+
+        // modify final color
+        #ifdef USE_MODIFYFINALCOLOR
+        ModifyFinalColor(inout finalColor, giData, unpacked, sd, surfaceDescription);
+        #endif
 
         return finalColor;
     }
