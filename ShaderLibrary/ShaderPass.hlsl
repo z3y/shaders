@@ -172,6 +172,14 @@ SurfaceDescription InitializeSurfaceDescription()
     return surfaceDescription;
 }
 
+struct GIData
+{
+    half3 IndirectDiffuse;
+    half3 Light;
+    half3 Reflections;
+    half3 Specular;
+};
+
 // unity macros need workaround
 struct LegacyAttributes
 {

@@ -259,10 +259,7 @@ namespace CustomLighting
 
     half4 ApplyPBRLighting(Varyings unpacked, SurfaceDescription surfaceDescription)
     {
-        half3 indirectDiffuse = 0;
-        half3 lightFinalColor = 0;
-        half3 indirectSpecular = 0;
-        half3 directSpecular = 0;
+        GIData giData = (GIData)0;
 
         // alpha
         ApplyAlphaClip(surfaceDescription);
@@ -274,12 +271,12 @@ namespace CustomLighting
         CustomLightData mainLightData = GetCustomMainLightData(unpacked);
 
         // lightmap and lightmapped specular
-        indirectDiffuse = GetLightmap(unpacked, surfaceDescription, sd, mainLightData, indirectSpecular);
+        giData.IndirectDiffuse = GetLightmap(unpacked, surfaceDescription, sd, mainLightData, giData.Reflections);
 
-        //MixRealtimeAndBakedGI(mainLightData, unpacked.normalWS, indirectDiffuse);
+        //MixRealtimeAndBakedGI(mainLightData, unpacked.normalWS, giData.IndirectDiffuse);
 
         // main light and specular
-        LightPBR(lightFinalColor, directSpecular, mainLightData, unpacked, surfaceDescription, sd);
+        LightPBR(giData.Light, giData.Specular, mainLightData, unpacked, surfaceDescription, sd);
 
         // additional light and specular (urp and non important lights)
         #if defined(_ADDITIONAL_LIGHTS) && defined(PIPELINE_URP)
@@ -291,19 +288,21 @@ namespace CustomLighting
                 additionalLightData.color = light.color;
                 additionalLightData.direction = light.direction;
                 additionalLightData.attenuation = light.distanceAttenuation * light.shadowAttenuation;
-                LightPBR(lightFinalColor, directSpecular, additionalLightData, unpacked, surfaceDescription, sd);
+                LightPBR(giData.Light, giData.Specular, additionalLightData, unpacked, surfaceDescription, sd);
             }
         #endif
 
         // light probes
-        indirectDiffuse += GetLightProbes(sd.normalWS, unpacked.positionWS);
+        giData.IndirectDiffuse += GetLightProbes(sd.normalWS, unpacked.positionWS);
 
         // reflection probes
-        indirectSpecular += GetReflections(unpacked, surfaceDescription, sd, indirectDiffuse);
+        giData.Reflections += GetReflections(unpacked, surfaceDescription, sd, giData.IndirectDiffuse);
 
         // fresnel
-        indirectSpecular *= sd.energyCompensation * sd.brdf;
-        directSpecular *= PI;
+        giData.Reflections *= sd.energyCompensation * sd.brdf;
+        giData.Specular *= PI;
+
+        // modify lighting
 
         #if defined(_ALPHAPREMULTIPLY_ON)
             surfaceDescription.Albedo.rgb *= surfaceDescription.Alpha;
@@ -314,8 +313,8 @@ namespace CustomLighting
             surfaceDescription.Albedo.rgb = lerp(1.0, surfaceDescription.Albedo.rgb, surfaceDescription.Alpha);
         #endif
 
-        half4 finalColor = half4(surfaceDescription.Albedo * (1.0 - surfaceDescription.Metallic) * (indirectDiffuse * surfaceDescription.Occlusion + (lightFinalColor))
-                        + indirectSpecular + directSpecular + surfaceDescription.Emission, surfaceDescription.Alpha);
+        half4 finalColor = half4(surfaceDescription.Albedo * (1.0 - surfaceDescription.Metallic) * (giData.IndirectDiffuse * surfaceDescription.Occlusion + (giData.Light))
+                        + giData.Reflections + giData.Specular + surfaceDescription.Emission, surfaceDescription.Alpha);
 
         return finalColor;
     }
