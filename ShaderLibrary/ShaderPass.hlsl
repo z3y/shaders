@@ -353,7 +353,7 @@ struct Varyings
     uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
     #endif
     #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-    uint cullFace : FRONT_FACE_SEMANTIC;
+    uint cullFace : VFACE;
     #endif
 
     #if defined(EDITOR_VISUALIZATION)
