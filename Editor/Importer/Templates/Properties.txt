@@ -4,8 +4,7 @@
 [Enum(Off, 0, On, 1)]_ZWrite("ZWrite", Float) = 1
 [Enum(Off, 0, On, 1)]_AlphaToMask("AlphaToMask", Float) = 0
 [Enum(UnityEngine.Rendering.CullMode)]_Cull("Cull", Float) = 2
-[Toggle(_LIGHTMAPPED_SPECULAR)]_LightmappedSpecular("Lightmapped Specular", Float) = 0
-[Toggle(NONLINEAR_LIGHTPROBESH)]_NonLinearLightProbeSH("Non-linear Light Probe SH", Float) = 0
+//[Toggle(NONLINEAR_LIGHTPROBESH)]_NonLinearLightProbeSH("Non-linear Light Probe SH", Float) = 0
 [HideInInspector]BAKERY_META_ALPHA_ENABLE("Enable Bakery alpha meta pass", Float) = 1
 [ToggleUI]_BakeryAlphaDither("Bakery Alpha Dither", Float) = 0
 [ToggleOff(_GLOSSYREFLECTIONS_OFF)]_GlossyReflections("Reflections", Float) = 1

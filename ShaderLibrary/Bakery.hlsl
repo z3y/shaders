@@ -37,7 +37,7 @@ void BakeryMonoSH(inout half3 diffuseColor, inout half3 specularColor, float2 lm
     specularColor = 0;
     #ifdef _LIGHTMAPPED_SPECULAR
         dominantDir = nL1;
-        float focus = saturate(length(dominantDir));
+        //float focus = saturate(length(dominantDir));
         half3 halfDir = Unity_SafeNormalize(normalize(dominantDir) + viewDir);
         half nh = saturate(dot(normalWorld, halfDir));
         half spec = D_GGX(nh, roughness);

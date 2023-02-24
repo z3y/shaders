@@ -181,7 +181,7 @@ SurfaceDescription InitializeSurfaceDescription()
     surfaceDescription.GSAAThreshold = float(0.1);
 
     surfaceDescription.Anisotropy = float(0);
-    surfaceDescription.Tangent = float3(0,0,1);
+    surfaceDescription.Tangent = float3(1,1,1);
 
     return surfaceDescription;
 }

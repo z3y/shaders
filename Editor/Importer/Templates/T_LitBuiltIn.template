@@ -61,6 +61,8 @@ Shader ""
             $Feature_BicubicLightmap
             $Feature_GSAA
             $Feature_Anisotropy
+            $Feature_LightmappedSpecular
+
 
             $Defines
 

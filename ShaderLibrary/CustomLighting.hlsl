@@ -1,5 +1,6 @@
 #include "Packages/com.z3y.shaders/ShaderLibrary/LightFunctions.hlsl"
 
+static float3 DebugColor = 0;
 namespace CustomLighting
 {
 
@@ -125,7 +126,8 @@ namespace CustomLighting
         #if !defined(UNITY_PASS_FORWARDBASE) && defined(PIPELINE_BUILTIN)
             return 0.0f;
         #endif
-
+        half clampedRoughness = max(sd.perceptualRoughness * sd.perceptualRoughness, 0.002);
+        half3 lightMapColor = 0;
         half3 indirectDiffuse = 0;
         #if defined(LIGHTMAP_ON)
             float2 lightmapUV = unpacked.lightmapUV.xy;
@@ -147,10 +149,12 @@ namespace CustomLighting
 
             #if defined(PIPELINE_BUILTIN)
             half3 lightMap = DecodeLightmap(bakedColorTex);
+            lightMapColor = lightMap;
             #endif
             #if defined(PIPELINE_URP)
             half4 decodeInstructions = half4(LIGHTMAP_HDR_MULTIPLIER, LIGHTMAP_HDR_EXPONENT, 0.0h, 0.0h);
             half3 lightMap = DecodeLightmap(bakedColorTex, decodeInstructions);
+            lightMapColor = lightMap;
             #endif
 
             #if defined(DIRLIGHTMAP_COMBINED)
@@ -161,7 +165,6 @@ namespace CustomLighting
             #endif
 
             #if defined(BAKERY_MONOSH)
-                half clampedRoughness = max(sd.perceptualRoughness * sd.perceptualRoughness, 0.002);
                 BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, sd.normalWS, sd.viewDirectionWS, clampedRoughness, surfaceDescription, sd.tangentWS, sd.bitangentWS);
             #endif
 
@@ -175,6 +178,36 @@ namespace CustomLighting
 
         #if defined(DYNAMICLIGHTMAP_ON)
             indirectDiffuse += RealtimeLightmap(unpacked.lightmapUV.zw, sd.normalWS);
+        #endif
+
+        #if defined(_LIGHTMAPPED_SPECULAR)
+            float3 bakedDominantDirection = 0.0;
+            half3 bakedSpecularColor = 0.0;
+
+            #if defined(DIRLIGHTMAP_COMBINED) && defined(LIGHTMAP_ON) && !defined(BAKERY_SH) && !defined(BAKERY_RNM) && !defined(BAKERY_MONOSH)
+                bakedDominantDirection = (lightMapDirection.xyz) * 2.0 - 1.0;
+                half directionality = max(0.001, length(bakedDominantDirection));
+                bakedDominantDirection /= directionality;
+                bakedSpecularColor = lightMap * directionality;
+            #endif
+
+            #ifndef LIGHTMAP_ON
+                bakedSpecularColor = half3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
+                bakedDominantDirection = unity_SHAr.xyz + unity_SHAg.xyz + unity_SHAb.xyz;
+            #endif
+
+            bakedDominantDirection = normalize(bakedDominantDirection);
+
+            half3 halfDir = Unity_SafeNormalize(bakedDominantDirection + sd.viewDirectionWS);
+            half nh = saturate(dot(sd.normalWS, halfDir));
+
+            #ifdef _ANISOTROPY
+                half at = max(clampedRoughness * (1.0 + surfaceDescription.Anisotropy), 0.001);
+                half ab = max(clampedRoughness * (1.0 - surfaceDescription.Anisotropy), 0.001);
+                lightmappedSpecular += max(Filament::D_GGX_Anisotropic(nh, halfDir, sd.tangentWS, sd.bitangentWS, at, ab) * bakedSpecularColor, 0.0) * PI;
+            #else
+                lightmappedSpecular += max(Filament::D_GGX(nh, clampedRoughness) * bakedSpecularColor, 0.0) * PI;
+            #endif
         #endif
 
 
@@ -336,6 +369,8 @@ namespace CustomLighting
         #ifdef USE_MODIFYFINALCOLOR
         ModifyFinalColor(inout finalColor, giData, unpacked, sd, surfaceDescription);
         #endif
+
+        // return DebugColor.rgbb;
 
         return finalColor;
     }

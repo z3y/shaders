@@ -15,6 +15,7 @@ ScriptedImporter:
     gsaa: 0
     anisotropy: 3
     bakeryMonoSH: 0
+    lightmappedSpecular: 0
     grabPass: 0
     alphaToCoverage: 1
     customEditorGUI: 

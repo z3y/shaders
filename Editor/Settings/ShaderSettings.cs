@@ -15,6 +15,8 @@ namespace z3y.Shaders
         public DefineType anisotropy = DefineType.Disabled;
         // fragment normal space option?
         public DefineType bakeryMonoSH = DefineType.LocalKeyword;
+        public DefineType lightmappedSpecular = DefineType.LocalKeyword;
+
         // public Shader additionalPass;
         public bool grabPass = false;
         public bool alphaToCoverage = true;
@@ -47,6 +49,8 @@ namespace z3y.Shaders
         public const string BicubicLightmapKeyword = "BICUBIC_LIGHTMAP";
         public const string GsaaKeyword = "_GEOMETRICSPECULAR_AA";
         public const string AnisotropyKeyword = "_ANISOTROPY";
+        public const string LightmappedSpecular = "_LIGHTMAPPED_SPECULAR";
+
 
     }
 }

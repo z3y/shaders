@@ -109,6 +109,7 @@ namespace z3y.Shaders
             defaultProps.AppendLine(GetPropertyDeclaration(settings.bicubicLightmap, ShaderSettings.BicubicLightmapKeyword, "Bicubic Lightmap"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.gsaa, ShaderSettings.GsaaKeyword, "Geometric Specular AA"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword, "Anisotropy"));
+            defaultProps.AppendLine(GetPropertyDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular, "Lightmapped Specular"));
 
             RenderPipeline rp = QualitySettings.renderPipeline == null ? RenderPipeline.BuiltIn : RenderPipeline.URP;
 
@@ -241,7 +242,11 @@ namespace z3y.Shaders
                 {
                     template[i] = GetDefineTypeDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword);
                 }
-                                
+                else if (trimmed.StartsWith("$Feature_LightmappedSpecular"))
+                {
+                    template[i] = GetDefineTypeDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular);
+                }
+
                 else if (trimmed.Equals("$ShaderEditor"))
                 {
                     if (string.IsNullOrEmpty(settings.customEditorGUI))
