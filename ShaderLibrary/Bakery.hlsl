@@ -40,7 +40,7 @@ void BakeryMonoSH(inout half3 diffuseColor, inout half3 specularColor, float2 lm
         //float focus = saturate(length(dominantDir));
         half3 halfDir = Unity_SafeNormalize(normalize(dominantDir) + viewDir);
         half nh = saturate(dot(normalWorld, halfDir));
-        half spec = D_GGX(nh, roughness);
+        half spec = Filament::D_GGX(nh, roughness);
 
         sh = L0 + dominantDir.x * L1x + dominantDir.y * L1y + dominantDir.z * L1z;
         
@@ -50,7 +50,7 @@ void BakeryMonoSH(inout half3 diffuseColor, inout half3 specularColor, float2 lm
             half at = max(roughness * (1.0 + surf.Anisotropy), 0.001);
             half ab = max(roughness * (1.0 - surf.Anisotropy), 0.001);
 
-            specularColor = max(D_GGX_Anisotropic(nh, halfDir, tangent, bitangent, at, ab) * sh, 0.0);
+            specularColor = max(Filament::D_GGX_Anisotropic(nh, halfDir, tangent, bitangent, at, ab) * sh, 0.0);
 
         #else
            specularColor = max(spec * sh, 0.0);
