@@ -48,6 +48,7 @@ Shader ""
             #pragma multi_compile_fog
             #pragma multi_compile_instancing
             #pragma multi_compile_fwdbase
+            #pragma multi_compile_fragment _ VERTEXLIGHT_ON
             #pragma skip_variants LIGHTPROBE_SH
 
             #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
@@ -100,6 +101,7 @@ Shader ""
             #pragma multi_compile_fwdadd_fullshadows
 
             #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
+            #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
             $Feature_GSAA
             $Feature_Anisotropy
 

@@ -1,8 +1,9 @@
 ﻿PROPERTIES_START // Properties
-    _MainTex ("Texture", 2D) = "white" {}
-    _Color ("Color", Color) = (1,1,1,1)
-    _Glossiness ("Smoothness", Range(0,1)) = 0.5
+    [MainTexture] _MainTex ("Albedo", 2D) = "white" {}
+    [MainColor] _Color ("Color", Color) = (1,1,1,1)
+    [NoScaleOffset] _MetallicGlossMap("Mask Map", 2D) = "white" {}
     _Metallic ("Metallic", Range(0,1)) = 0
+    _Glossiness ("Smoothness", Range(0,1)) = 0.5
     [NoScaleOffset] [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
     _BumpScale ("Normal Scale", Float) = 1
 PROPERTIES_END
@@ -10,9 +11,10 @@ PROPERTIES_END
 
 DEFINES_START // Keywords, Defines
     //#define VARYINGS_NEED_TEXCOORDX (0-3)
-    #define VARYINGS_NEED_TEXCOORD0
+    #define ATTRIBUTES_NEED_TEXCOORD0
     //#define VARYINGS_NEED_COLOR
     //#define VARYINGS_NEED_INTERPX (0-4)
+    #define VARYINGS_NEED_INTERP0
     //#define VARYINGS_NEED_CULLFACE
 DEFINES_END
 
@@ -30,8 +32,10 @@ CODE_START
 
     TEXTURE2D(_MainTex);
     TEXTURE2D(_BumpMap);
+    TEXTURE2D(_MetallicGlossMap);
     SAMPLER(sampler_MainTex);
     SAMPLER(sampler_BumpMap);
+    SAMPLER(sampler_MetallicGlossMap);
 
     // Modify attributes before the VertexDescription
     #define USE_MODIFYATTRIBUTES
@@ -52,7 +56,7 @@ CODE_START
     #define USE_MODIFYVARYINGS
     void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
     {
-        
+        varyings.interp0.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
     }
 
 
@@ -62,24 +66,31 @@ CODE_START
     #define USE_SURFACEDESCRIPTION
     void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
     {
-        float2 uv = TRANSFORM_TEX(IN.texCoord0.xy, _MainTex);
+        float2 uv = IN.interp0.xy;
         half4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
         mainTex *= _Color;
 
         half4 normalMap = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
         surface.Normal = UnpackNormalScale(normalMap, _BumpScale);
 
+        half4 moas = SAMPLE_TEXTURE2D(_MetallicGlossMap, sampler_MetallicGlossMap, uv);
+        moas.r *= _Metallic;
+        moas.a *= _Glossiness;
+
         surface.Albedo = mainTex.rgb;
-        surface.Metallic = _Metallic;
-        surface.Smoothness = _Glossiness;
+        surface.Metallic = moas.r;
+        surface.Smoothness = moas.a;
+        surface.Occlusion = moas.g;
         surface.Alpha = mainTex.a;
     }
 
+    #if defined(UNITY_PASS_FORWARD)
     #define USE_MODIFYLIGHTING
     void ModifyLighting(inout GIData giData, Varyings IN, ShaderData sd, SurfaceDescription surfaceDescription)
     {
         
     }
+    #endif
     
 
 CODE_END

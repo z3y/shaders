@@ -1,7 +1,4 @@
 
-#if defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_FORWARDADD)
-    #define UNITY_PASS_FORWARD
-#endif
 
 #if defined(UNITY_PASS_SHADOWCASTER) && defined(PIPELINE_URP)
 float3 _LightDirection;
@@ -142,6 +139,16 @@ Varyings vert(Attributes input)
             output.lightCoord = mul(unity_EditorViz_WorldToLight, mul(unity_ObjectToWorld, float4(input.positionOS.xyz, 1)));
         }
     #endif
+
+    #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
+		output.vertexLight = Shade4PointLights
+        (
+			unity_4LightPosX0, unity_4LightPosY0, unity_4LightPosZ0,
+			unity_LightColor[0].rgb, unity_LightColor[1].rgb,
+			unity_LightColor[2].rgb, unity_LightColor[3].rgb,
+			unity_4LightAtten0, output.positionWS, output.normalWS
+		);
+	#endif
 
     #ifdef USE_MODIFYVARYINGS
     ModifyVaryings(input, description, output);

@@ -284,6 +284,10 @@ namespace CustomLighting
                 LightPBR(giData.Light, giData.Specular, additionalLightData, unpacked, surfaceDescription, sd);
             }
         #endif
+        
+        #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
+            giData.Light += unpacked.vertexLight;
+        #endif
 
         // light probes
         giData.IndirectDiffuse += GetLightProbes(sd.normalWS, unpacked.positionWS);

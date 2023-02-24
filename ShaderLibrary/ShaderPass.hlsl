@@ -8,8 +8,21 @@
     #define UNITY_STEREO_INSTANCING_ENABLED
 #endif
 
+#ifndef UNITY_PBS_USE_BRDF1
+    #define SHADER_API_MOBILE
+    #define QUALITY_LOW
+#endif
+
+#ifndef QUALITY_LOW
+    // #define VERTEXLIGHT_PS
+#endif
+
 #if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
     #define FOG_ANY
+#endif
+
+#if defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_FORWARDADD)
+    #define UNITY_PASS_FORWARD
 #endif
 
 #if defined(SHADOWS_SCREEN) || defined(SHADOWS_SHADOWMASK) || defined(LIGHTMAP_SHADOW_MIXING)
@@ -42,6 +55,8 @@
 #ifdef _ALPHAPREMULTIPLY_ON
 #define _SURFACE_TYPE_TRANSPARENT
 #endif
+
+#define Unity_SafeNormalize SafeNormalize
 
 
 #define USE_EXTERNAL_CORERP 0
@@ -81,7 +96,6 @@
 #endif
 
 #ifdef PIPELINE_URP
-#define Unity_SafeNormalize SafeNormalize
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
@@ -366,6 +380,10 @@ struct Varyings
     float4 lightmapUV : LIGHTMAPUV;
     #elif defined(LIGHTMAP_ON)
     float2 lightmapUV : LIGHTMAPUV;
+    #endif
+
+    #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
+        half3 vertexLight : VERTEXLIGHT;
     #endif
 };
 #endif // #ifdef GENERATION_CODE
