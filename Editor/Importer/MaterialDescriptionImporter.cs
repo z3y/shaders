@@ -16,6 +16,8 @@ namespace z3y.Shaders
             return 2;
         }
 
+        private static Shader DefaultShader = Shader.Find("Lit/Default");
+
         public void OnPreprocessMaterialDescription(MaterialDescription description, Material material, AnimationClip[] materialAnimation)
         {
             if (!ProjectSettings.ShaderSettings.defaultShader)
@@ -23,7 +25,7 @@ namespace z3y.Shaders
                 return;
             }
 
-            material.shader = ProjectSettings.lit;
+            material.shader = DefaultShader;
 
 
             if (description.TryGetProperty("DiffuseColor", out Vector4 color))

@@ -58,8 +58,12 @@
 
 #define Unity_SafeNormalize SafeNormalize
 
-
+#ifdef PIPELINE_BUILTIN
 #define USE_EXTERNAL_CORERP 0
+#endif
+#ifdef PIPELINE_URP
+#define USE_EXTERNAL_CORERP 1
+#endif
 
 #if USE_EXTERNAL_CORERP
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
