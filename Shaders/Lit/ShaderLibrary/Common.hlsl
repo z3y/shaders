@@ -601,12 +601,14 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
 {
     half3 lightmappedSpecular = 0;
     half3 indirectDiffuse = 0;
+    half clampedRoughness = PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness);
     #ifdef UNITY_PASS_FORWARDBASE
         #if defined(LIGHTMAP_ON)
 
             float2 lightmapUV = i.uv01.zw * unity_LightmapST.xy + unity_LightmapST.zw;
             half4 bakedColorTex = SampleBicubic(unity_Lightmap, custom_bilinear_clamp_sampler, lightmapUV, GetTexelSize(unity_Lightmap));
             half3 lightMap = DecodeLightmap(bakedColorTex);
+            half3 lightmapColor = lightMap;
 
             #ifdef BAKERY_RNM
                 BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, lightmappedSpecular, surf.tangentNormal, i.viewDirTS, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness));
@@ -621,7 +623,13 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
             #if defined(DIRLIGHTMAP_COMBINED)
                 float4 lightMapDirection = unity_LightmapInd.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0);
                 #ifndef BAKERY_MONOSH
-                    lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, worldNormal);
+                    #if 0
+                        lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, worldNormal);
+                    #else
+                        half halfLambert = dot(worldNormal, lightMapDirection.xyz - 0.5) + 0.5;
+                        halfLambert *= halfLambert;
+                        lightMap = lightMap * halfLambert / max(1e-4h, lightMapDirection.w * lightMapDirection.w);
+                    #endif
                 #endif
             #endif
 
@@ -666,16 +674,25 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
 
             #if defined(DIRLIGHTMAP_COMBINED) && defined(LIGHTMAP_ON) && !defined(BAKERY_SH) && !defined(BAKERY_RNM) && !defined(BAKERY_MONOSH)
                 bakedDominantDirection = (lightMapDirection.xyz) * 2.0 - 1.0;
-                bakedSpecularColor = indirectDiffuse;
+                bakedSpecularColor = lightmapColor;
             #endif
 
             #ifndef LIGHTMAP_ON
                 bakedSpecularColor = half3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
                 bakedDominantDirection = unity_SHAr.xyz + unity_SHAg.xyz + unity_SHAb.xyz;
+                bakedDominantDirection = normalize(bakedDominantDirection);
             #endif
 
-            bakedDominantDirection = normalize(bakedDominantDirection);
-           lightmappedSpecular += SpecularHighlights(worldNormal, bakedSpecularColor, bakedDominantDirection, f0, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness), NoV, DFGEnergyCompensation);
+            half3 halfDir = Unity_SafeNormalize(bakedDominantDirection + viewDir);
+            half nh = saturate(dot(worldNormal, halfDir));
+
+            // #ifdef _ANISOTROPY
+            //     half at = max(clampedRoughness * (1.0 + surfaceDescription.Anisotropy), 0.001);
+            //     half ab = max(clampedRoughness * (1.0 - surfaceDescription.Anisotropy), 0.001);
+            //     lightmappedSpecular += max(Filament::D_GGX_Anisotropic(nh, halfDir, sd.tangentWS, sd.bitangentWS, at, ab) * bakedSpecularColor, 0.0);
+            // #else
+                lightmappedSpecular += max(D_GGX(nh, clampedRoughness) * bakedSpecularColor, 0.0);
+            // #endif
         }
         #endif
 

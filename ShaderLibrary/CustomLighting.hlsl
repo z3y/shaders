@@ -159,14 +159,14 @@ namespace CustomLighting
                 float4 lightMapDirection = unity_LightmapInd.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0);
                 #ifndef BAKERY_MONOSH
 
-                #if 0
-                    lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, sd.normalWS);
-                #else
-                    half halfLambert = dot(sd.normalWS, lightMapDirection.xyz - 0.5) + 0.5;
-                    halfLambert *= halfLambert;
-                    lightMap = lightMap * halfLambert / max(1e-4h, lightMapDirection.w * lightMapDirection.w);
-                #endif
-                DebugColor = lightMap;
+                    #if 0
+                        lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, sd.normalWS);
+                    #else
+                        half halfLambert = dot(sd.normalWS, lightMapDirection.xyz - 0.5) + 0.5;
+                        halfLambert *= halfLambert;
+                        lightMap = lightMap * halfLambert / max(1e-4h, lightMapDirection.w * lightMapDirection.w);
+                    #endif
+                // DebugColor = lightMap;
                 // #define USE_DEBUGCOLOR
                 #endif
             #endif

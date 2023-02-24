@@ -147,7 +147,12 @@ CGINCLUDE
 #endif
 
 //ConfigStart
+#pragma skip_variants BAKERY_SHNONLINEAR_OFF
+#pragma skip_variants _BICUBICLIGHTMAP
+#define _BICUBICLIGHTMAP
+#pragma skip_variants NONLINEAR_LIGHTPROBESH
 #define FIX_BLACK_LEVEL
+#pragma skip_variants VERTEXLIGHT_ON
 #pragma skip_variants LOD_FADE_CROSSFADE
 #pragma skip_variants LTCGI
 #pragma skip_variants LTCGI_DIFFUSE_OFF

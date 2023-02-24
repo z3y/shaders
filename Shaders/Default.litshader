@@ -1,6 +1,7 @@
 ﻿PROPERTIES_START // Properties
     [MainTexture] _MainTex ("Albedo", 2D) = "white" {}
     [MainColor] _Color ("Color", Color) = (1,1,1,1)
+    _AlbedoSaturation ("Saturation", Float) = 1
     [NoScaleOffset] _MetallicGlossMap("Mask Map", 2D) = "white" {}
     _Metallic ("Metallic", Range(0,1)) = 0
     _Glossiness ("Smoothness", Range(0,1)) = 0.5
@@ -25,6 +26,7 @@ CBUFFER_START // declare all Material properties excluding textures
     half _Glossiness;
     half _Metallic;
     half _BumpScale;
+    half _AlbedoSaturation;
 CBUFFER_END
 
 
@@ -68,6 +70,7 @@ CODE_START
     {
         float2 uv = IN.interp0.xy;
         half4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
+        mainTex.rgb = lerp(dot(mainTex.rgb, half3(0.2125, 0.7154, 0.0721)), mainTex.rgb, _AlbedoSaturation);
         mainTex *= _Color;
 
         half4 normalMap = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
