@@ -115,6 +115,7 @@
     #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/SpaceTransforms.hlsl"
 #endif
 
+static float3 DebugColor = 0;
 
 struct CustomLightData
 {
