@@ -33,7 +33,7 @@ namespace z3y.Shaders
 
 
 
-        private const string DEFAULTPATH = "Packages/com.z3y.shaders/Editor/Importer/Templates/Default.txt";
+        private const string DefaultShaderPath = "Packages/com.z3y.shaders/Shaders/Default.litshader";
 
         private const string DefaultPropertiesInclude = "Packages/com.z3y.shaders/Editor/Importer/Templates/Properties.txt";
 
@@ -59,7 +59,7 @@ namespace z3y.Shaders
         [MenuItem("Assets/Create/Shader/Lit Shader Variant")]
         public static void CreateVariantFile()
         {
-            var defaultContent = File.ReadAllText(DEFAULTPATH);
+            var defaultContent = File.ReadAllText(DefaultShaderPath);
             ProjectWindowUtil.CreateAssetWithContent($"Lit Shader Variant.{EXT}", defaultContent);
         }
 
