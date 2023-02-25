@@ -626,8 +626,9 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
                         lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, worldNormal);
                     #else
                         half halfLambert = dot(worldNormal, lightMapDirection.xyz - 0.5) + 0.5;
-                        halfLambert *= halfLambert;
-                        lightMap = lightMap * halfLambert / max(1e-4h, lightMapDirection.w * lightMapDirection.w);
+                        half mult = halfLambert / max(1e-4h, lightMapDirection.w);
+                        mult *= mult * mult;
+                        lightMap = lightMap * min(mult, 2.0);
                     #endif
                 #endif
             #endif

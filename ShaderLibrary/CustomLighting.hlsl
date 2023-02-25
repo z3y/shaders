@@ -163,7 +163,7 @@ namespace CustomLighting
                         half halfLambert = dot(sd.normalWS, lightMapDirection.xyz - 0.5) + 0.5;
                         half mult = halfLambert / max(1e-4h, lightMapDirection.w);
                         mult *= mult * mult;
-                        lightMap = lightMap * mult;
+                        lightMap = lightMap * min(mult, 2.0);
                     #endif
                 #endif
             #endif
