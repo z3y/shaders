@@ -40,10 +40,14 @@ namespace z3y.Shaders
 
         [SerializeField] public ShaderSettings settings;
 
+        private static List<string> _sourceDependencies = new List<string>();
+
         public override void OnImportAsset(AssetImportContext ctx)
         {
             var oldShader = AssetDatabase.LoadAssetAtPath<Shader>(ctx.assetPath);
             if (oldShader != null) ShaderUtil.ClearShaderMessages(oldShader);
+
+            _sourceDependencies.Clear();
 
             var code = ProcessFileLines(settings, ctx.assetPath, ctx.selectedBuildTarget);
             var shader = ShaderUtil.CreateShaderAsset(code, false);
@@ -51,7 +55,13 @@ namespace z3y.Shaders
             EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG" }, new Texture[] { DFGLut() });
             
             ctx.DependsOnSourceAsset("Assets/com.z3y.shaders/Editor/Importer/LitImporter.cs");
-            
+
+            foreach (var dependency in _sourceDependencies)
+            {
+                ctx.DependsOnSourceAsset(dependency);
+            }
+
+
             ctx.AddObjectToAsset("MainAsset", shader);
             ctx.SetMainObject(shader);
         }
@@ -350,6 +360,7 @@ namespace z3y.Shaders
                     if (includeFile.EndsWith(".litshader".AsSpan(), StringComparison.Ordinal))
                     {
                         var includeFileLines = File.ReadLines(includePath);
+                        _sourceDependencies.Add(includePath);
                         Parse(includeFileLines, shaderData);
                     }
 

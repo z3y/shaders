@@ -608,7 +608,6 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
             float2 lightmapUV = i.uv01.zw * unity_LightmapST.xy + unity_LightmapST.zw;
             half4 bakedColorTex = SampleBicubic(unity_Lightmap, custom_bilinear_clamp_sampler, lightmapUV, GetTexelSize(unity_Lightmap));
             half3 lightMap = DecodeLightmap(bakedColorTex);
-            half3 lightmapColor = lightMap;
 
             #ifdef BAKERY_RNM
                 BakeryRNMLightmapAndSpecular(lightMap, lightmapUV, lightmappedSpecular, surf.tangentNormal, i.viewDirTS, viewDir, PerceptualRoughnessToRoughnessClamped(surf.perceptualRoughness));
@@ -674,7 +673,9 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
 
             #if defined(DIRLIGHTMAP_COMBINED) && defined(LIGHTMAP_ON) && !defined(BAKERY_SH) && !defined(BAKERY_RNM) && !defined(BAKERY_MONOSH)
                 bakedDominantDirection = (lightMapDirection.xyz) * 2.0 - 1.0;
-                bakedSpecularColor = lightmapColor;
+                half directionality = max(0.001, length(bakedDominantDirection));
+                bakedDominantDirection /= directionality;
+                bakedSpecularColor = lightMap * directionality;
             #endif
 
             #ifndef LIGHTMAP_ON
@@ -684,6 +685,7 @@ half3 GetIndirectDiffuseAndSpecular(v2f i, SurfaceData surf, inout half3 directS
             #endif
 
             half3 halfDir = Unity_SafeNormalize(bakedDominantDirection + viewDir);
+
             half nh = saturate(dot(worldNormal, halfDir));
 
             // #ifdef _ANISOTROPY

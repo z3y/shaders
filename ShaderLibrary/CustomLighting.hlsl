@@ -127,7 +127,6 @@ namespace CustomLighting
         #endif
         half clampedRoughness = max(sd.perceptualRoughness * sd.perceptualRoughness, 0.002);
         half3 indirectDiffuse = 0;
-        half3 lightmapColor = 0;
         #if defined(LIGHTMAP_ON)
             float2 lightmapUV = unpacked.lightmapUV.xy;
 
@@ -153,7 +152,6 @@ namespace CustomLighting
             half4 decodeInstructions = half4(LIGHTMAP_HDR_MULTIPLIER, LIGHTMAP_HDR_EXPONENT, 0.0h, 0.0h);
             half3 lightMap = DecodeLightmap(bakedColorTex, decodeInstructions);
             #endif
-            lightmapColor = lightMap;
 
             #if defined(DIRLIGHTMAP_COMBINED)
                 float4 lightMapDirection = unity_LightmapInd.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0);
@@ -195,7 +193,7 @@ namespace CustomLighting
                 bakedDominantDirection = (lightMapDirection.xyz) * 2.0 - 1.0;
                 half directionality = max(0.001, length(bakedDominantDirection));
                 bakedDominantDirection /= directionality;
-                bakedSpecularColor = lightmapColor * directionality;
+                bakedSpecularColor = lightMap * directionality;
             #endif
 
             #ifndef LIGHTMAP_ON
@@ -207,6 +205,7 @@ namespace CustomLighting
             half3 halfDir = Unity_SafeNormalize(bakedDominantDirection + sd.viewDirectionWS);
             half nh = saturate(dot(sd.normalWS, halfDir));
 
+           
             #ifdef _ANISOTROPY
                 half at = max(clampedRoughness * (1.0 + surfaceDescription.Anisotropy), 0.001);
                 half ab = max(clampedRoughness * (1.0 - surfaceDescription.Anisotropy), 0.001);
@@ -214,7 +213,8 @@ namespace CustomLighting
             #else
                 lightmappedSpecular += max(Filament::D_GGX(nh, clampedRoughness) * bakedSpecularColor, 0.0);
             #endif
-
+            // DebugColor = lightmappedSpecular;
+            // #define USE_DEBUGCOLOR
         #endif
 
 
