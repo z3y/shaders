@@ -1,4 +1,5 @@
 #include "Packages/com.z3y.shaders/ShaderLibrary/LightFunctions.hlsl"
+#include "Packages/com.z3y.shaders/ShaderLibrary/SSR.hlsl"
 
 namespace CustomLighting
 {
@@ -337,6 +338,18 @@ namespace CustomLighting
 
         // reflection probes
         giData.Reflections += GetReflections(unpacked, surfaceDescription, sd);
+
+        #ifdef _SSR
+        float2 screenUVs = 0;
+	    float4 screenPos = 0;
+		screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
+		screenUVs = screenPos.xy / (screenPos.w+0.0000000001);
+		#if UNITY_SINGLE_PASS_STEREO || defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+			screenUVs.x *= 2;
+		#endif
+        giData.Reflections = GetSSR(unpacked.positionWS, sd.viewDirectionWS, reflect(-sd.viewDirectionWS, sd.normalWS), sd.normalWS, 1- sd.perceptualRoughness, surfaceDescription.Albedo, surfaceDescription.Metallic, screenUVs, screenPos);
+        // return giData.Reflections.xyzz;
+        #endif
 
 
         // modify lighting

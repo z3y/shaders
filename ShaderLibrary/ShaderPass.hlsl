@@ -58,6 +58,32 @@
 
 #define Unity_SafeNormalize SafeNormalize
 
+#ifdef _SSR
+#define REQUIRE_DEPTH_TEXTURE
+#define REQUIRE_OPAQUE_TEXTURE
+#endif
+
+
+
+//should get moved to a separate file eventually
+#ifdef VRCHAT_SDK
+float _VRChatMirrorMode;
+float _VRChatCameraMode;
+
+bool IsInMirror()
+{
+    return _VRChatMirrorMode != 0;
+}
+#else
+bool IsInMirror()
+{
+    return false;
+}
+#endif
+
+
+
+
 #ifdef PIPELINE_BUILTIN
 #define USE_EXTERNAL_CORERP 0
 #endif

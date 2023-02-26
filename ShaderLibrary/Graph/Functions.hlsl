@@ -74,6 +74,7 @@ Gradient NewGradient(int type, int colorsLength, int alphasLength,
 
 #ifdef REQUIRE_DEPTH_TEXTURE
     UNITY_DECLARE_DEPTH_TEXTURE(_CameraDepthTexture);
+    float4 _CameraDepthTexture_TexelSize;
 #endif
 
 float shadergraph_SampleSceneDepth(float2 uv)
@@ -88,6 +89,7 @@ float shadergraph_SampleSceneDepth(float2 uv)
 #ifdef REQUIRE_OPAQUE_TEXTURE
     TEXTURE2D(_CameraOpaqueTexture);
     SAMPLER(sampler_CameraOpaqueTexture);
+    float4 _CameraOpaqueTexture_TexelSize;
 #endif
 
 float3 shadergraph_SampleSceneColor(float2 uv)
