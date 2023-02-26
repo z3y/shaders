@@ -101,6 +101,7 @@ namespace z3y.Shaders
             Space();
             DrawSplitter();
             Space();
+            materialEditor.LightmapEmissionProperty();
             materialEditor.RenderQueueField();
             materialEditor.EnableInstancingField();
             materialEditor.DoubleSidedGIField();

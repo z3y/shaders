@@ -11,7 +11,7 @@ namespace z3y
 {
     public class FreeImagePackingEditor : EditorWindow
     {
-        [MenuItem("Lit/Texture Packing")]
+        [MenuItem("Tools/Lit/Texture Packing")]
         public static void Init()
         {
             var window = (FreeImagePackingEditor)GetWindow(typeof(FreeImagePackingEditor));

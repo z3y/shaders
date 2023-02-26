@@ -7,6 +7,10 @@
     _Glossiness ("Smoothness", Range(0,1)) = 0.5
     [NoScaleOffset] [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
     _BumpScale ("Normal Scale", Float) = 1
+
+    [Toggle(_EMISSION)] _EmissionToggle ("Enable Emission", Int) = 0
+    [NoScaleOffset] _EmissionMap ("Emission Map", 2D) = "white" {}
+    [HDR] _EmissionColor ("Emission Color", Color) = (0,0,0)
 PROPERTIES_END
 
 
@@ -27,6 +31,7 @@ CBUFFER_START // declare all Material properties excluding textures
     half _Metallic;
     half _BumpScale;
     half _AlbedoSaturation;
+    half3 _EmissionColor;
 CBUFFER_END
 
 
@@ -35,9 +40,11 @@ CODE_START
     TEXTURE2D(_MainTex);
     TEXTURE2D(_BumpMap);
     TEXTURE2D(_MetallicGlossMap);
+    TEXTURE2D(_EmissionMap);
     SAMPLER(sampler_MainTex);
     SAMPLER(sampler_BumpMap);
     SAMPLER(sampler_MetallicGlossMap);
+    SAMPLER(sampler_EmissionMap);
 
     // Modify attributes before the VertexDescription
     #define USE_MODIFYATTRIBUTES
@@ -85,6 +92,11 @@ CODE_START
         surface.Smoothness = moas.a;
         surface.Occlusion = moas.g;
         surface.Alpha = mainTex.a;
+
+        #ifdef _EMISSION
+            half3 emissionMap = SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, uv).rgb;
+            surface.Emission = emissionMap * _EmissionColor;
+        #endif
     }
 
     #if defined(UNITY_PASS_FORWARD)
