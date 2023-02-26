@@ -254,31 +254,33 @@ half3 GetLightProbes(float3 normalWS, float3 positionWS)
 
 #include "Bakery.hlsl"
 
-#ifdef LOD_FADE_CROSSFADE
-    TEXTURE2D(BlueNoiseCrossFade);
-    SAMPLER(samplerBlueNoiseCrossFade);
-    void UnityApplyBlueNoiseDitherCrossFade(float2 vpos)
+#define UNIVERSAL_SPEEDTREE_UTILITY
+uint2 ComputeFadeMaskSeed(float3 V, uint2 positionSS)
+{
+    uint2 fadeMaskSeed;
+
+    // Is this a reasonable quality gate?
+#if defined(SHADER_QUALITY_HIGH)
+    if (IsPerspectiveProjection())
     {
-        vpos /= 16.; // the dither mask texture is 16x16
-        vpos.y = frac(vpos.y) * 0.0625 + unity_LODFade.y; // quantized lod fade by 16 levels
-        clip(SAMPLE_TEXTURE2D(BlueNoiseCrossFade, samplerBlueNoiseCrossFade, vpos).r - 0.5);
+        // Start with the world-space direction V. It is independent from the orientation of the camera,
+        // and only depends on the position of the camera and the position of the fragment.
+        // Now, project and transform it into [-1, 1].
+        float2 pv = PackNormalOctQuadEncode(V);
+        // Rescale it to account for the resolution of the screen.
+        pv *= _ScreenParams.xy;
+        // The camera only sees a small portion of the sphere, limited by hFoV and vFoV.
+        // Therefore, we must rescale again (before quantization), roughly, by 1/tan(FoV/2).
+        pv *= UNITY_MATRIX_P._m00_m11;
+        // Truncate and quantize.
+        fadeMaskSeed = asuint((int2)pv);
+    }
+    else
+#endif
+    {
+        // Can't use the view direction, it is the same across the entire screen.
+        fadeMaskSeed = positionSS;
     }
 
-    #ifdef UNITY_DITHER_CROSSFADE
-        sampler2D _DitherMaskLOD2D;
-        void UnityApplyDitherCrossFade(float2 vpos)
-        {
-            vpos /= 4; // the dither mask texture is 4x4
-            vpos.y = frac(vpos.y) * 0.0625 /* 1/16 */ + unity_LODFade.y; // quantized lod fade by 16 levels
-            clip(tex2D(_DitherMaskLOD2D, vpos).a - 0.5);
-        }
-    #endif
-    #ifdef UNITY_DITHER_CROSSFADE
-        #define UNITY_APPLY_DITHER_CROSSFADE(vpos)  UnityApplyDitherCrossFade(vpos)
-    #else
-        #define UNITY_APPLY_DITHER_CROSSFADE(vpos)  UnityApplyBlueNoiseDitherCrossFade(vpos)
-    #endif
-
-#else
-    #define UNITY_APPLY_DITHER_CROSSFADE(vpos)
-#endif
+    return fadeMaskSeed;
+}

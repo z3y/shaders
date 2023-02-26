@@ -299,6 +299,10 @@ namespace CustomLighting
         // shader data
         ShaderData sd = InitializeShaderData(unpacked, surfaceDescription);
 
+        #ifdef LOD_FADE_CROSSFADE
+        LODDitheringTransition(ComputeFadeMaskSeed(sd.viewDirectionWS, unpacked.positionCS.xy), unity_LODFade.x);
+        #endif
+
         // main light
         CustomLightData mainLightData = GetCustomMainLightData(unpacked);
 
