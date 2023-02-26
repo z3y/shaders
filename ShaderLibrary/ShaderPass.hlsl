@@ -17,6 +17,12 @@
     // #define VERTEXLIGHT_PS
 #endif
 
+#ifdef QUALITY_LOW
+    #undef _SSR
+    #undef REQUIRE_DEPTH_TEXTURE
+    #undef REQUIRE_OPAQUE_TEXTURE
+#endif
+
 #if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
     #define FOG_ANY
 #endif
