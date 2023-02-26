@@ -254,30 +254,31 @@ half3 GetLightProbes(float3 normalWS, float3 positionWS)
 
 #include "Bakery.hlsl"
 
-// #define UNITY_DITHER_CROSSFADE
 #ifdef LOD_FADE_CROSSFADE
-TEXTURE2D(BlueNoiseCrossFade);
-SAMPLER(samplerBlueNoiseCrossFade);
-void UnityApplyBlueNoiseDitherCrossFade(float2 vpos)
-{
-	vpos /= 16.; // the dither mask texture is 16x16
-	vpos.y = frac(vpos.y) * 0.0625 + unity_LODFade.y; // quantized lod fade by 16 levels
-	clip(SAMPLE_TEXTURE2D(BlueNoiseCrossFade, samplerBlueNoiseCrossFade, vpos).r - 0.5);
-}
+    TEXTURE2D(BlueNoiseCrossFade);
+    SAMPLER(samplerBlueNoiseCrossFade);
+    void UnityApplyBlueNoiseDitherCrossFade(float2 vpos)
+    {
+        vpos /= 16.; // the dither mask texture is 16x16
+        vpos.y = frac(vpos.y) * 0.0625 + unity_LODFade.y; // quantized lod fade by 16 levels
+        clip(SAMPLE_TEXTURE2D(BlueNoiseCrossFade, samplerBlueNoiseCrossFade, vpos).r - 0.5);
+    }
 
-#ifdef UNITY_DITHER_CROSSFADE
-sampler2D _DitherMaskLOD2D;
-void UnityApplyDitherCrossFade(float2 vpos)
-{
-    vpos /= 4; // the dither mask texture is 4x4
-    vpos.y = frac(vpos.y) * 0.0625 /* 1/16 */ + unity_LODFade.y; // quantized lod fade by 16 levels
-    clip(tex2D(_DitherMaskLOD2D, vpos).a - 0.5);
-}
-#endif
+    #ifdef UNITY_DITHER_CROSSFADE
+        sampler2D _DitherMaskLOD2D;
+        void UnityApplyDitherCrossFade(float2 vpos)
+        {
+            vpos /= 4; // the dither mask texture is 4x4
+            vpos.y = frac(vpos.y) * 0.0625 /* 1/16 */ + unity_LODFade.y; // quantized lod fade by 16 levels
+            clip(tex2D(_DitherMaskLOD2D, vpos).a - 0.5);
+        }
+    #endif
     #ifdef UNITY_DITHER_CROSSFADE
         #define UNITY_APPLY_DITHER_CROSSFADE(vpos)  UnityApplyDitherCrossFade(vpos)
     #else
         #define UNITY_APPLY_DITHER_CROSSFADE(vpos)  UnityApplyBlueNoiseDitherCrossFade(vpos)
     #endif
 
+#else
+    #define UNITY_APPLY_DITHER_CROSSFADE(vpos)
 #endif
