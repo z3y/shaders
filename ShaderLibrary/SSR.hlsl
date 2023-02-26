@@ -12,16 +12,19 @@
 #ifdef _SSR
 #define _EdgeFade 0.1
 
-inline float3 ComputeGrabScreenPos(float3 pos)
+inline float4 ComputeGrabScreenPos(float4 pos)
 {
-    #if UNITY_UV_STARTS_AT_TOP
-        float scale = -1.0;
-    #else
-        float scale = 1.0;
-    #endif
-	float3 o = pos * 0.5f;
-	o.xy = float2(o.x, o.y * scale) + o.z;
-	o.z = pos.z;
+	#if UNITY_UV_STARTS_AT_TOP
+	float scale = -1.0;
+	#else
+	float scale = 1.0;
+	#endif
+	float4 o = pos * 0.5f;
+	o.xy = float2(o.x, o.y*scale) + o.w;
+#ifdef UNITY_SINGLE_PASS_STEREO
+	o.xy = TransformStereoScreenSpaceTex(o.xy, pos.w);
+#endif
+	o.zw = pos.zw;
 	return o;
 }
 
@@ -65,8 +68,8 @@ float4 ReflectRay(float3 reflectedRay, float3 rayDir, float _LRad, float _SRad, 
 
 	for (int i = 0; i < maxIterations; i++){
 		totalIterations = i;
-		float3 spos = ComputeGrabScreenPos(CameraToScreenPosCheap(reflectedRay));
-		float2 uvDepth = spos.xy / spos.z;
+		float4 spos = ComputeGrabScreenPos(CameraToScreenPosCheap(reflectedRay).xyzz);
+		float2 uvDepth = spos.xy / spos.w;
 		UNITY_BRANCH
 		if (uvDepth.x > x_max || uvDepth.x < x_min || uvDepth.y > 1 || uvDepth.y < 0){
 			break;
@@ -129,7 +132,7 @@ float4 GetSSR(float3 wPos, float3 viewDir, float3 rayDir, half3 faceNormal, floa
     }
     
     // float4 uvs = UNITY_PROJ_COORD(ComputeGrabScreenPos(mul(UNITY_MATRIX_P, finalPos)));
-    float4 uvs = UNITY_PROJ_COORD(ComputeGrabScreenPos(CameraToScreenPosCheap(finalPos)).xyzz);
+    float4 uvs = UNITY_PROJ_COORD(ComputeGrabScreenPos(CameraToScreenPosCheap(finalPos).xyzz));
     uvs.xy = uvs.xy / uvs.w;
 
     #if UNITY_SINGLE_PASS_STEREO || defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
