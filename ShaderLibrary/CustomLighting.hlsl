@@ -340,15 +340,14 @@ namespace CustomLighting
         giData.Reflections += GetReflections(unpacked, surfaceDescription, sd);
 
         #ifdef _SSR
-        float2 screenUVs = 0;
-	    float4 screenPos = 0;
-		screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
-		screenUVs = screenPos.xy / (screenPos.w+0.0000000001);
+		float4 screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
+		float2 screenUVs = screenPos.xy / (screenPos.w+0.0000000001);
 		#if UNITY_SINGLE_PASS_STEREO || defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
 			screenUVs.x *= 2;
 		#endif
-        giData.Reflections = GetSSR(unpacked.positionWS, sd.viewDirectionWS, reflect(-sd.viewDirectionWS, sd.normalWS), sd.normalWS, 1- sd.perceptualRoughness, surfaceDescription.Albedo, surfaceDescription.Metallic, screenUVs, screenPos);
+        float4 ssReflections = GetSSR(unpacked.positionWS, sd.viewDirectionWS, reflect(-sd.viewDirectionWS, sd.normalWS), sd.normalWS, 1- sd.perceptualRoughness, surfaceDescription.Albedo, surfaceDescription.Metallic, screenUVs, screenPos);
         // return giData.Reflections.xyzz;
+        giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
         #endif
 
 

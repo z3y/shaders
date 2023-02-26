@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------------
 
 #ifdef _SSR
-#define _EdgeFade 0.2
+#define _EdgeFade 0.1
 
 inline float3 ComputeGrabScreenPos(float3 pos)
 {
@@ -25,6 +25,7 @@ inline float3 ComputeGrabScreenPos(float3 pos)
 	return o;
 }
 
+// from slz modified urp
 float3 CameraToScreenPosCheap(const float3 pos)
 {
 	return float3(pos.x * UNITY_MATRIX_P._m00 + pos.z * UNITY_MATRIX_P._m02, pos.y * UNITY_MATRIX_P._m11 + pos.z * UNITY_MATRIX_P._m12, -pos.z);
@@ -108,46 +109,68 @@ float4 GetSSR(float3 wPos, float3 viewDir, float3 rayDir, half3 faceNormal, floa
 	float FdotR = dot(faceNormal, rayDir.xyz);
 
 	UNITY_BRANCH
-	if (IsInMirror() || FdotR < 0){
+	if (IsInMirror() || FdotR < 0)
+    {
 		return 0;
 	}
-	else {
-		float4 noiseUvs = screenPos;
-		noiseUvs.xy = (noiseUvs.xy * _CameraOpaqueTexture_TexelSize.zw) / (_NoiseTexSSR_TexelSize.zw * noiseUvs.w);	
-		float4 noiseRGBA = SAMPLE_TEXTURE2D_LOD(_NoiseTexSSR, sampler_NoiseTexSSR, noiseUvs.xy, 0);
-		float noise = noiseRGBA.r;
-		
-		float3 reflectedRay = wPos + (0.2*0.09/FdotR + noise*0.09)*rayDir;
-		float4 finalPos = ReflectRay(reflectedRay, rayDir, 0.2, 0.02, 0.09, noise, 50);
-		float totalSteps = finalPos.w;
-		finalPos.w = 1;
-		
-		if (!any(finalPos.xyz)){
-			return 0;
-		}
-		
-		// float4 uvs = UNITY_PROJ_COORD(ComputeGrabScreenPos(mul(UNITY_MATRIX_P, finalPos)));
-		float4 uvs = UNITY_PROJ_COORD(ComputeGrabScreenPos(CameraToScreenPosCheap(finalPos)).xyzz);
-		uvs.xy = uvs.xy / uvs.w;
+	
+    float4 noiseUvs = screenPos;
+    noiseUvs.xy = (noiseUvs.xy * _CameraOpaqueTexture_TexelSize.zw) / (_NoiseTexSSR_TexelSize.zw * noiseUvs.w);	
+    float4 noiseRGBA = SAMPLE_TEXTURE2D_LOD(_NoiseTexSSR, sampler_NoiseTexSSR, noiseUvs.xy, 0);
+    float noise = noiseRGBA.r;
+    
+    float3 reflectedRay = wPos + (0.2*0.09/FdotR + noise*0.09)*rayDir;
+    float4 finalPos = ReflectRay(reflectedRay, rayDir, 0.2, 0.02, 0.09, noise, 50);
+    float totalSteps = finalPos.w;
+    finalPos.w = 1;
+    
+    if (!any(finalPos.xyz)){
+        return 0;
+    }
+    
+    // float4 uvs = UNITY_PROJ_COORD(ComputeGrabScreenPos(mul(UNITY_MATRIX_P, finalPos)));
+    float4 uvs = UNITY_PROJ_COORD(ComputeGrabScreenPos(CameraToScreenPosCheap(finalPos)).xyzz);
+    uvs.xy = uvs.xy / uvs.w;
 
-		#if UNITY_SINGLE_PASS_STEREO || defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
-			float xfade = 1;
-		#else
-			float xfade = smoothstep(0, _EdgeFade, uvs.x) * smoothstep(1, 1-_EdgeFade, uvs.x); //Fade x uvs out towards the edges
-		#endif
-		float yfade = smoothstep(0, _EdgeFade, uvs.y)*smoothstep(1, 1-_EdgeFade, uvs.y); //Same for y
-		float lengthFade = smoothstep(1, 0, 2*(totalSteps / 50)-1);
+    #if UNITY_SINGLE_PASS_STEREO || defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+        float xfade = 1;
+    #else
+        float xfade = smoothstep(0, _EdgeFade, uvs.x) * smoothstep(1, 1-_EdgeFade, uvs.x); //Fade x uvs out towards the edges
+    #endif
+    float yfade = smoothstep(0, _EdgeFade, uvs.y)*smoothstep(1, 1-_EdgeFade, uvs.y); //Same for y
+    float lengthFade = smoothstep(1, 0, 2*(totalSteps / 50)-1);
 
-		float blurFac = max(1,min(12, 12 * (-2)*(smoothness-1)));
-		float4 reflection = float4(GetBlurredGP(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, _CameraOpaqueTexture_TexelSize.zw, uvs.xy, blurFac*1.5),1);
+    float blurFac = max(1,min(12, 12 * (-2)*(smoothness-1)));
+    float4 reflection = float4(GetBlurredGP(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, _CameraOpaqueTexture_TexelSize.zw, uvs.xy, blurFac*1.5),1);
 
-		reflection.rgb = lerp(reflection.rgb, reflection.rgb*albedo.rgb,smoothstep(0, 1.75, metallic));
+    //reflection.rgb = lerp(reflection.rgb, reflection.rgb*albedo.rgb,smoothstep(0, 1.75, metallic));
 
-		reflection.a = FdotR * xfade * yfade * lengthFade;
-		return max(0,reflection);
-	}	
+    reflection.a = FdotR * xfade * yfade * lengthFade;
+    return max(0,reflection);
 }
 
 #endif
 
-#endif // MOCHIE_STANDARD_SSR_INCLUDED
+#endif
+
+// MIT License
+
+// Copyright (c) 2020 MochiesCode
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
