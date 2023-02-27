@@ -345,8 +345,23 @@ namespace CustomLighting
 		#if UNITY_SINGLE_PASS_STEREO || defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
 			screenUVs.x *= 2;
 		#endif
-        float4 ssReflections = GetSSR(unpacked.positionWS, sd.viewDirectionWS, reflect(-sd.viewDirectionWS, sd.normalWS), sd.normalWS, 1- sd.perceptualRoughness, surfaceDescription.Albedo, surfaceDescription.Metallic, screenUVs, screenPos);
+        //float4 ssReflections = GetSSR(unpacked.positionWS, sd.viewDirectionWS, reflect(-sd.viewDirectionWS, sd.normalWS), sd.normalWS, 1- sd.perceptualRoughness, surfaceDescription.Albedo, surfaceDescription.Metallic, screenUVs, screenPos);
         // return giData.Reflections.xyzz;
+        //giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
+        SSRInput ssr;
+        ssr.wPos = unpacked.positionWS.xyzz;
+        ssr.viewDir = sd.viewDirectionWS;
+        ssr.rayDir = reflect(-sd.viewDirectionWS, sd.normalWS).xyzz;
+        ssr.faceNormal = sd.normalWS;
+        ssr.hitRadius = 0.02;
+        ssr.blur = 8;
+        ssr.maxSteps = 100;
+        ssr.smoothness = 1- sd.perceptualRoughness;
+        ssr.edgeFade = 0.1;
+        ssr.scrnParams = _CameraOpaqueTexture_TexelSize.zw; //TODO: fix for urp
+        ssr.NoiseTex = _NoiseTexSSR;
+        ssr.NoiseTex_dim = _NoiseTexSSR_TexelSize.xy;
+        float4 ssReflections = getSSRColor(ssr);
         giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
         #endif
 
