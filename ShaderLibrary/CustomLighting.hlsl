@@ -355,7 +355,7 @@ namespace CustomLighting
         ssr.faceNormal = sd.normalWS;
         ssr.hitRadius = 0.02;
         ssr.blur = 8;
-        ssr.maxSteps = 100;
+        ssr.maxSteps = 50;
         ssr.smoothness = 1- sd.perceptualRoughness;
         ssr.edgeFade = 0.1;
         ssr.scrnParams = _CameraOpaqueTexture_TexelSize.zw; //TODO: fix for urp

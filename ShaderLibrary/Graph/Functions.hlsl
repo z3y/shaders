@@ -100,9 +100,9 @@ float3 shadergraph_SampleSceneColor(float2 uv)
 {
     #ifdef REQUIRE_OPAQUE_TEXTURE
         #if defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
-            SAMPLE_TEXTURE2D_ARRAY_LOD(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv, unity_StereoEyeIndex, 0);
+            return SAMPLE_TEXTURE2D_ARRAY_LOD(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv, unity_StereoEyeIndex, 0).rgb;
         #else
-            return SAMPLE_TEXTURE2D_LOD(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv, 0);
+            return SAMPLE_TEXTURE2D_LOD(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv, 0).rgb;
         #endif
     #else
         return 0;
