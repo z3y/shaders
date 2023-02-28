@@ -60,9 +60,9 @@ namespace z3y
             ChannelB.Channel.Source = ChannelSource.Blue;
             ChannelA.Channel.Source = ChannelSource.Alpha;
 
-            ChannelR.Channel.DefaultColor = DefaultColor.Black;
-            ChannelG.Channel.DefaultColor = DefaultColor.Black;
-            ChannelB.Channel.DefaultColor = DefaultColor.Black;
+            ChannelR.Channel.DefaultColor = DefaultColor.White;
+            ChannelG.Channel.DefaultColor = DefaultColor.White;
+            ChannelB.Channel.DefaultColor = DefaultColor.White;
         }
 
         public static PackingField ChannelR;
