@@ -9,7 +9,7 @@
 #endif
 
 #ifndef UNITY_PBS_USE_BRDF1
-    #define SHADER_API_MOBILE
+    #define QUALITY_LOW
     #define QUALITY_LOW
 #endif
 

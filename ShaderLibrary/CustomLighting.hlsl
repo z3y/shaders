@@ -82,7 +82,7 @@ namespace CustomLighting
         half3 lightColor = lightData.attenuation * lightData.color;
         half3 lightFinalColor = lightNoL * lightColor;
 
-        #ifndef SHADER_API_MOBILE //TODO: redefine to something that will resemble lower shader quality
+        #ifndef QUALITY_LOW
             lightFinalColor *= Filament::Fd_Burley(sd.perceptualRoughness, sd.NoV, lightNoL, lightLoH);
         #endif
 
@@ -245,7 +245,7 @@ namespace CustomLighting
                 reflDir = reflect(-sd.viewDirectionWS, bentNormal);
             #endif
 
-            #ifndef SHADER_API_MOBILE
+            #ifndef QUALITY_LOW
                 reflDir = lerp(reflDir, sd.normalWS, roughness * roughness);
             #endif
 

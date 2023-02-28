@@ -56,7 +56,7 @@ namespace BicubicSampling
 
     half4 SampleBicubic(Texture2D t, SamplerState s, float2 uv, float4 texelSize, float lod = 0)
     {
-        #if defined(SHADER_API_MOBILE) || !defined(BICUBIC_LIGHTMAP)
+        #if defined(QUALITY_LOW) || !defined(BICUBIC_LIGHTMAP)
             return t.SampleLevel(s, uv, lod);
         #else
             float2 xy = uv * texelSize.xy - 0.5;

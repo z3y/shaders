@@ -64,7 +64,7 @@ namespace Filament
 
     float V_SmithGGXCorrelated(half NoV, half NoL, half roughness)
     {
-        #ifdef SHADER_API_MOBILE
+        #ifdef QUALITY_LOW
             return V_SmithGGXCorrelatedFast(NoV, NoL, roughness);
         #else
             half a2 = roughness * roughness;
@@ -141,14 +141,14 @@ half3 EnvironmentBRDFApproximation(half perceptualRoughness, half NoV, half3 f0)
     return saturate(lerp(a0, a1, f0));
 }
 
-#ifndef SHADER_API_MOBILE
+#ifndef QUALITY_LOW
 TEXTURE2D(_DFG);
 SAMPLER(sampler_DFG);
 #endif
 
 void EnvironmentBRDF(half NoV, half perceptualRoughness, half3 f0, out half3 brdf, out half3 energyCompensation)
 {
-    #ifdef SHADER_API_MOBILE
+    #ifdef QUALITY_LOW
         energyCompensation = 1.0;
         brdf = EnvironmentBRDFApproximation(perceptualRoughness, NoV, f0);
     #else
