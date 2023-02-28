@@ -279,8 +279,10 @@ namespace CustomLighting
                 #endif
             #endif
 
+        #ifndef QUALITY_LOW
             float horizon = min(1.0 + dot(reflDir, sd.normalWS), 1.0);
             reflectionSpecular *= horizon * horizon;
+        #endif
 
             indirectSpecular += reflectionSpecular;
         #endif

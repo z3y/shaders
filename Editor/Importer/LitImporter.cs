@@ -139,6 +139,9 @@ namespace z3y.Shaders
 
 
             Parse(fileLines, shaderData);
+#if VRCHAT_SDK
+            shaderData.definesSb.AppendLine("#define VRCHAT_SDK");
+#endif
 
             for (int i = 0; i < template.Length; i++)
             {
