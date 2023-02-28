@@ -197,6 +197,7 @@ float perspectiveScaledStep(float3 rayDir, float3 rayPos, float maxIterations)
  *          it took stored in the w component. If the function ran out of
  *          iterations or the ray went off screen, the xyz will be (0,0,0).
  */
+
 float4 reflect_ray(float3 reflectedRay, float3 rayDir, float hitRadius, float noise, float FdotR, const float maxIterations)
 {
 	/* 
@@ -238,13 +239,17 @@ float4 reflect_ray(float3 reflectedRay, float3 rayDir, float hitRadius, float no
 	
 	float dynStepSize = clamp(distScale * reflectedRay.z, stepSize, 30*stepSize);
 	*/
-	float dynStepSize = perspectiveScaledStep(rayDir.xyz, reflectedRay.xyz, maxIterations);
+	// float dynStepSize = perspectiveScaledStep(rayDir.xyz, reflectedRay.xyz, maxIterations);
+	float dynStepSize = 0.09;
 	//smallRadius *= 1 + noise;
 	//smallRadius = hitRadius*dynStepSize;
 	float smallRadius = mad(noise, hitRadius, hitRadius);
 	float largeRadius = mad(noise,2.0*dynStepSize,dynStepSize);
+	// float smallRadius = 0.02;
+	// float largeRadius = 0.2;
 
-	reflectedRay += rayDir * largeRadius;
+// remove
+	// reflectedRay += rayDir * largeRadius;
 	
 
 	for (float i = 0; i < maxIterations; i++)
@@ -255,7 +260,7 @@ float4 reflect_ray(float3 reflectedRay, float3 rayDir, float hitRadius, float no
 		//largeRadius = max(stepSizeMult*largeRadius0, mad(stepSize, noise, stepSize));
 		//smallRadius = largeRadius * 0.05 / stepSizeMult;
 
-		float4 spos = ComputeGrabScreenPos(CameraToScreenPosCheap(reflectedRay));
+		float4 spos = ComputeGrabScreenPos(CameraToScreenPosCheap(reflectedRay).xyzw);
 
 		float2 uvDepth = spos.xy / spos.w;
 
@@ -268,7 +273,7 @@ float4 reflect_ray(float3 reflectedRay, float3 rayDir, float hitRadius, float no
 
 
 		//float rawDepth = SAMPLE_TEXTURE2D_X_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, uvDepth, 0).r;
-		float rawDepth = shadergraph_SampleSceneDepth(uvDepth).r;
+		float rawDepth = DecodeFloatRG(SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture,float4(uvDepth,0,0)));
 		float linearDepth = Linear01Depth(rawDepth);
 		linearDepth = linearDepth > 0.999999 ? 2000 : linearDepth;
 
@@ -282,7 +287,7 @@ float4 reflect_ray(float3 reflectedRay, float3 rayDir, float hitRadius, float no
 		// If it is, stop raymarching and set the final position. If it is not, decrease
 		// the step size and possibly reverse the ray direction if it went past the small
 		// radius
-		
+		#if 0
 		if (direction == 1)
 		{
 			if (depthDifference < largeRadius && sampleDepth > realDepth)
@@ -317,7 +322,28 @@ float4 reflect_ray(float3 reflectedRay, float3 rayDir, float hitRadius, float no
 				//stepSizeMult *= 0.5;
 			}
 		}
+		#else
+		if (depthDifference < largeRadius){ 
+			if (direction == 1){
+				if(sampleDepth > (realDepth - smallRadius)){
+					if(sampleDepth < (realDepth + smallRadius)){
+						finalPos.xyz = reflectedRay;
+						break;
+					}
+					direction = -1;
+					dynStepSize = dynStepSize*0.1;
+				}
+			}
+			else {
+				if(sampleDepth < (realDepth + smallRadius)){
+					direction = 1;
+					dynStepSize = dynStepSize*0.1;
+				}
+			}
+		}
+		#endif
 		
+		#if 0
 		/*
 		reflectedRay = rayDir*direction*stepSize + reflectedRay;
 		*/
@@ -339,6 +365,13 @@ float4 reflect_ray(float3 reflectedRay, float3 rayDir, float hitRadius, float no
 		//stepSize += stepSize * step_noise;
 		//largeRadius += largeRadius * step_noise;
 		//smallRadius += smallRadius * step_noise;
+
+		#else
+		reflectedRay = reflectedRay + direction*dynStepSize	*rayDir;
+		dynStepSize += dynStepSize*(0.025 + 0.005*noise);
+		largeRadius += largeRadius*(0.025 + 0.005*noise);
+		smallRadius += smallRadius*(0.025 + 0.005*noise);
+		#endif
 		
 	}
 	// We're going to throw the number of iterations into the w component of the final ray position cause we'll need that later, and we know for a fact
@@ -386,9 +419,14 @@ float4 getSSRColor(SSRInput data)
 	 */
 	float FdotR = saturate(dot(data.faceNormal, data.rayDir.xyz));
 
+	UNITY_BRANCH
+	if (IsInMirror() || FdotR < 0)
+	{
+		return 0;
+	}
+
 
 	float4 screenUVs = UNITY_PROJ_COORD(ComputeGrabScreenPos(mul(UNITY_MATRIX_VP, data.wPos)));
-	screenUVs.xy = screenUVs.xy / screenUVs.w;
 
 	/*
 	 * Read noise from a blue noise texture. We'll use this to randomly change the ray's
@@ -400,7 +438,8 @@ float4 getSSRColor(SSRInput data)
 	noiseUvs.xy = fmod(noiseUvs.xy, data.NoiseTex_dim);
 	//noiseUvs.xy = noiseUvs.xy/((scrnParams*NoiseTex_dim) * noiseUvs.w);	
 	float4 noiseRGBA = data.NoiseTex.Load(float4(noiseUvs.xy,0,0));
-	float noise = noiseRGBA.r;
+	// float noise = noiseRGBA.r;
+	float noise = 1;
 	
 	float3 reflectedRay = data.wPos;
 	

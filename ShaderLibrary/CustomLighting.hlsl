@@ -357,10 +357,10 @@ namespace CustomLighting
         ssr.blur = 8;
         ssr.maxSteps = 50;
         ssr.smoothness = 1- sd.perceptualRoughness;
-        ssr.edgeFade = 0.1;
+        ssr.edgeFade = 0.2;
         ssr.scrnParams = _CameraOpaqueTexture_TexelSize.zw; //TODO: fix for urp
         ssr.NoiseTex = _NoiseTexSSR;
-        ssr.NoiseTex_dim = _NoiseTexSSR_TexelSize.xy;
+        ssr.NoiseTex_dim = _NoiseTexSSR_TexelSize.zw;
         float4 ssReflections = getSSRColor(ssr);
         giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
         #endif
