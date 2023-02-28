@@ -358,8 +358,8 @@ namespace CustomLighting
         ssr.smoothness = 1- sd.perceptualRoughness;
         ssr.edgeFade = 0.2;
         ssr.scrnParams = _CameraOpaqueTexture_TexelSize.zw; //TODO: fix for urp
-        ssr.NoiseTex = _NoiseTexSSR;
-        ssr.NoiseTex_dim = _NoiseTexSSR_TexelSize.zw;
+        ssr.NoiseTex = BlueNoise;
+        ssr.NoiseTex_dim = BlueNoise_TexelSize.zw;
         float4 ssReflections = getSSRColor(ssr);
         float horizon = min(1.0 + dot(ssr.rayDir.xyz, ssr.faceNormal), 1.0);
         ssReflections.rgb *= horizon * horizon;

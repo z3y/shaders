@@ -52,7 +52,7 @@ namespace z3y.Shaders
             var code = ProcessFileLines(settings, ctx.assetPath, ctx.selectedBuildTarget);
             var shader = ShaderUtil.CreateShaderAsset(code, false);
 
-            EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG" }, new Texture[] { DFGLut() });
+            EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG", "BlueNoise" }, new Texture[] { DFGLut(), BlueNoise() });
             
             ctx.DependsOnSourceAsset("Assets/com.z3y.shaders/Editor/Importer/LitImporter.cs");
 
@@ -429,6 +429,11 @@ namespace z3y.Shaders
             const string path = "Packages/com.z3y.shaders/ShaderLibrary/dfg-multiscatter.exr"; //TODO: replace the package path with const string
             return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
-
+        public static Texture2D BlueNoise()
+        {
+            const string path = "Packages/com.z3y.shaders/ShaderLibrary/LDR_LLL1_0.png";
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        }
+        
     }
 }

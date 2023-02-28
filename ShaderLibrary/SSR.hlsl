@@ -5,6 +5,9 @@
 //
 //-----------------------------------------------------------------------------------
 #ifdef _SSR
+TEXTURE2D(BlueNoise);
+float4 BlueNoise_TexelSize;
+
 inline float4 ComputeGrabScreenPos(float4 pos)
 {
 	#if UNITY_UV_STARTS_AT_TOP
