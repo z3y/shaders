@@ -69,6 +69,11 @@
 #define REQUIRE_OPAQUE_TEXTURE
 #endif
 
+#ifdef PIPELINE_BUILTIN
+#ifndef UNITY_PASS_FORWARDBASE
+#undef _SSR
+#endif
+#endif
 
 
 //should get moved to a separate file eventually

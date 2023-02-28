@@ -282,7 +282,6 @@ namespace CustomLighting
             float horizon = min(1.0 + dot(reflDir, sd.normalWS), 1.0);
             reflectionSpecular *= horizon * horizon;
 
-
             indirectSpecular += reflectionSpecular;
         #endif
 
@@ -362,6 +361,8 @@ namespace CustomLighting
         ssr.NoiseTex = _NoiseTexSSR;
         ssr.NoiseTex_dim = _NoiseTexSSR_TexelSize.zw;
         float4 ssReflections = getSSRColor(ssr);
+        float horizon = min(1.0 + dot(ssr.rayDir.xyz, ssr.faceNormal), 1.0);
+        ssReflections.rgb *= horizon * horizon;
         giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
         #endif
 
