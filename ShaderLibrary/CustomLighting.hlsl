@@ -349,9 +349,9 @@ namespace CustomLighting
         // return giData.Reflections.xyzz;
         //giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
         SSRInput ssr;
-        ssr.wPos = unpacked.positionWS.xyzz;
+        ssr.wPos = float4(unpacked.positionWS.xyz, 1);
         ssr.viewDir = sd.viewDirectionWS;
-        ssr.rayDir = reflect(-sd.viewDirectionWS, sd.normalWS).xyzz;
+        ssr.rayDir = float4(reflect(-sd.viewDirectionWS, sd.normalWS).xyz, 1);
         ssr.faceNormal = sd.normalWS;
         ssr.hitRadius = 0.02;
         ssr.blur = 8;

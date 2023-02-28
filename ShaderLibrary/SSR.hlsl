@@ -427,7 +427,7 @@ float4 getSSRColor(SSRInput data)
 
 
 	float4 screenUVs = UNITY_PROJ_COORD(ComputeGrabScreenPos(mul(UNITY_MATRIX_VP, data.wPos)));
-
+	screenUVs.xy = screenUVs.xy / screenUVs.w;
 	/*
 	 * Read noise from a blue noise texture. We'll use this to randomly change the ray's
 	 * hit detection range to hide repeating artifacts like banding due to the step size
@@ -436,10 +436,9 @@ float4 getSSRColor(SSRInput data)
 	noiseUvs.xy = noiseUvs.xy * data.scrnParams;
 	noiseUvs.xy += frac(_Time[1]) * data.scrnParams;
 	noiseUvs.xy = fmod(noiseUvs.xy, data.NoiseTex_dim);
-	//noiseUvs.xy = noiseUvs.xy/((scrnParams*NoiseTex_dim) * noiseUvs.w);	
+	//noiseUvs.xy = noiseUvs.xy/((data.scrnParams*data.NoiseTex_dim) * noiseUvs.w);	
 	float4 noiseRGBA = data.NoiseTex.Load(float4(noiseUvs.xy,0,0));
-	// float noise = noiseRGBA.r;
-	float noise = 1;
+	float noise = noiseRGBA.r;
 	
 	float3 reflectedRay = data.wPos;
 	
