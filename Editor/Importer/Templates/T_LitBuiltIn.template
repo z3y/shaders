@@ -69,9 +69,9 @@ Shader ""
 
             #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
+            //CBUFFER_START(UnityPerMaterial)
             $Cbuffer
-            CBUFFER_END
+            //CBUFFER_END
 
             $ShaderDescription
 
@@ -113,9 +113,9 @@ Shader ""
 
             #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
+            //CBUFFER_START(UnityPerMaterial)
             $Cbuffer
-            CBUFFER_END
+            //CBUFFER_END
 
             $ShaderDescription
 
@@ -147,9 +147,9 @@ Shader ""
 
             #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
+            //CBUFFER_START(UnityPerMaterial)
             $Cbuffer
-            CBUFFER_END
+            //CBUFFER_END
             
             $ShaderDescription
 
@@ -180,9 +180,9 @@ Shader ""
 
             #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
+            //CBUFFER_START(UnityPerMaterial)
             $Cbuffer
-            CBUFFER_END
+            //CBUFFER_END
             
             $ShaderDescription
 
