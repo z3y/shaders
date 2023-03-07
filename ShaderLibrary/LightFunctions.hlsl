@@ -64,7 +64,7 @@ namespace Filament
 
     float V_SmithGGXCorrelated(half NoV, half NoL, half roughness)
     {
-        #ifdef SHADER_API_MOBILE
+        #ifdef QUALITY_LOW
             return V_SmithGGXCorrelatedFast(NoV, NoL, roughness);
         #else
             half a2 = roughness * roughness;
@@ -141,14 +141,14 @@ half3 EnvironmentBRDFApproximation(half perceptualRoughness, half NoV, half3 f0)
     return saturate(lerp(a0, a1, f0));
 }
 
-#ifndef SHADER_API_MOBILE
+#ifndef QUALITY_LOW
 TEXTURE2D(_DFG);
 SAMPLER(sampler_DFG);
 #endif
 
 void EnvironmentBRDF(half NoV, half perceptualRoughness, half3 f0, out half3 brdf, out half3 energyCompensation)
 {
-    #ifdef SHADER_API_MOBILE
+    #ifdef QUALITY_LOW
         energyCompensation = 1.0;
         brdf = EnvironmentBRDFApproximation(perceptualRoughness, NoV, f0);
     #else
@@ -253,3 +253,34 @@ half3 GetLightProbes(float3 normalWS, float3 positionWS)
 #endif
 
 #include "Bakery.hlsl"
+
+#define UNIVERSAL_SPEEDTREE_UTILITY
+uint2 ComputeFadeMaskSeed(float3 V, uint2 positionSS)
+{
+    uint2 fadeMaskSeed;
+
+    // Is this a reasonable quality gate?
+#if defined(SHADER_QUALITY_HIGH)
+    if (IsPerspectiveProjection())
+    {
+        // Start with the world-space direction V. It is independent from the orientation of the camera,
+        // and only depends on the position of the camera and the position of the fragment.
+        // Now, project and transform it into [-1, 1].
+        float2 pv = PackNormalOctQuadEncode(V);
+        // Rescale it to account for the resolution of the screen.
+        pv *= _ScreenParams.xy;
+        // The camera only sees a small portion of the sphere, limited by hFoV and vFoV.
+        // Therefore, we must rescale again (before quantization), roughly, by 1/tan(FoV/2).
+        pv *= UNITY_MATRIX_P._m00_m11;
+        // Truncate and quantize.
+        fadeMaskSeed = asuint((int2)pv);
+    }
+    else
+#endif
+    {
+        // Can't use the view direction, it is the same across the entire screen.
+        fadeMaskSeed = positionSS;
+    }
+
+    return fadeMaskSeed;
+}

@@ -33,25 +33,35 @@ namespace z3y.Shaders
 
 
 
-        private const string DEFAULTPATH = "Packages/com.z3y.shaders/Editor/Importer/Templates/Default.txt";
+        private const string DefaultShaderPath = "Packages/com.z3y.shaders/Shaders/Default.litshader";
 
         private const string DefaultPropertiesInclude = "Packages/com.z3y.shaders/Editor/Importer/Templates/Properties.txt";
 
 
         [SerializeField] public ShaderSettings settings;
 
+        private static List<string> _sourceDependencies = new List<string>();
+
         public override void OnImportAsset(AssetImportContext ctx)
         {
             var oldShader = AssetDatabase.LoadAssetAtPath<Shader>(ctx.assetPath);
             if (oldShader != null) ShaderUtil.ClearShaderMessages(oldShader);
 
+            _sourceDependencies.Clear();
+
             var code = ProcessFileLines(settings, ctx.assetPath, ctx.selectedBuildTarget);
             var shader = ShaderUtil.CreateShaderAsset(code, false);
 
-            EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG" }, new Texture[] { DFGLut() });
+            EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG", "BlueNoise" }, new Texture[] { DFGLut(), BlueNoise() });
             
             ctx.DependsOnSourceAsset("Assets/com.z3y.shaders/Editor/Importer/LitImporter.cs");
-            
+
+            foreach (var dependency in _sourceDependencies)
+            {
+                ctx.DependsOnSourceAsset(dependency);
+            }
+
+
             ctx.AddObjectToAsset("MainAsset", shader);
             ctx.SetMainObject(shader);
         }
@@ -59,7 +69,7 @@ namespace z3y.Shaders
         [MenuItem("Assets/Create/Shader/Lit Shader Variant")]
         public static void CreateVariantFile()
         {
-            var defaultContent = File.ReadAllText(DEFAULTPATH);
+            var defaultContent = File.ReadAllText(DefaultShaderPath);
             ProjectWindowUtil.CreateAssetWithContent($"Lit Shader Variant.{EXT}", defaultContent);
         }
 
@@ -109,6 +119,9 @@ namespace z3y.Shaders
             defaultProps.AppendLine(GetPropertyDeclaration(settings.bicubicLightmap, ShaderSettings.BicubicLightmapKeyword, "Bicubic Lightmap"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.gsaa, ShaderSettings.GsaaKeyword, "Geometric Specular AA"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword, "Anisotropy"));
+            defaultProps.AppendLine(GetPropertyDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular, "Lightmapped Specular"));
+
+            if (settings.grabPass) defaultProps.Append("[HideInInspector][ToggleUI]_GrabPass(\"GrabPass\", Float) = 1");
 
             RenderPipeline rp = QualitySettings.renderPipeline == null ? RenderPipeline.BuiltIn : RenderPipeline.URP;
 
@@ -128,6 +141,9 @@ namespace z3y.Shaders
 
 
             Parse(fileLines, shaderData);
+#if VRCHAT_SDK
+            shaderData.definesSb.AppendLine("#define VRCHAT_SDK");
+#endif
 
             for (int i = 0; i < template.Length; i++)
             {
@@ -161,7 +177,7 @@ namespace z3y.Shaders
                     if (settings.grabPass && !isAndroid)
                     {
                         shaderData.definesSb.AppendLine("#define REQUIRE_OPAQUE_TEXTURE");
-                        template[i] = "GrabPass { \"_CameraOpaqueTexture\" }";
+                        template[i] = "GrabPass\n{\n Name \"GrabPass\" \n \"_CameraOpaqueTexture\" \n}";
                     }
                     else
                     {
@@ -241,7 +257,11 @@ namespace z3y.Shaders
                 {
                     template[i] = GetDefineTypeDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword);
                 }
-                                
+                else if (trimmed.StartsWith("$Feature_LightmappedSpecular"))
+                {
+                    template[i] = GetDefineTypeDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular);
+                }
+
                 else if (trimmed.Equals("$ShaderEditor"))
                 {
                     if (string.IsNullOrEmpty(settings.customEditorGUI))
@@ -345,6 +365,7 @@ namespace z3y.Shaders
                     if (includeFile.EndsWith(".litshader".AsSpan(), StringComparison.Ordinal))
                     {
                         var includeFileLines = File.ReadLines(includePath);
+                        _sourceDependencies.Add(includePath);
                         Parse(includeFileLines, shaderData);
                     }
 
@@ -410,8 +431,14 @@ namespace z3y.Shaders
 
         public static Texture2D DFGLut()
         {
-            const string DFGPATH = "Packages/com.z3y.shaders/ShaderLibrary/dfg-multiscatter.exr"; //TODO: replace the package path with const string
-            return AssetDatabase.LoadAssetAtPath<Texture2D>(DFGPATH);
+            const string path = "Packages/com.z3y.shaders/ShaderLibrary/dfg-multiscatter.exr"; //TODO: replace the package path with const string
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
+        public static Texture2D BlueNoise()
+        {
+            const string path = "Packages/com.z3y.shaders/ShaderLibrary/LDR_LLL1_0.png";
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        }
+        
     }
 }

@@ -74,26 +74,36 @@ Gradient NewGradient(int type, int colorsLength, int alphasLength,
 
 #ifdef REQUIRE_DEPTH_TEXTURE
     UNITY_DECLARE_DEPTH_TEXTURE(_CameraDepthTexture);
+    float4 _CameraDepthTexture_TexelSize;
 #endif
 
 float shadergraph_SampleSceneDepth(float2 uv)
 {
     #ifdef REQUIRE_DEPTH_TEXTURE
-    return SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
+    return SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, float4(uv,0,0));
     #else
     return 1;
     #endif
 }
 
 #ifdef REQUIRE_OPAQUE_TEXTURE
+#if defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+    TEXTURE2D_ARRAY(_CameraOpaqueTexture);
+#else
     TEXTURE2D(_CameraOpaqueTexture);
+#endif
     SAMPLER(sampler_CameraOpaqueTexture);
+    float4 _CameraOpaqueTexture_TexelSize;
 #endif
 
 float3 shadergraph_SampleSceneColor(float2 uv)
 {
     #ifdef REQUIRE_OPAQUE_TEXTURE
-        return SAMPLE_TEXTURE2D(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv);
+        #if defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+            return SAMPLE_TEXTURE2D_ARRAY_LOD(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv, unity_StereoEyeIndex, 0).rgb;
+        #else
+            return SAMPLE_TEXTURE2D_LOD(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv, 0).rgb;
+        #endif
     #else
         return 0;
     #endif

@@ -1,4 +1,5 @@
 #include "Packages/com.z3y.shaders/ShaderLibrary/LightFunctions.hlsl"
+#include "Packages/com.z3y.shaders/ShaderLibrary/SSR.hlsl"
 
 namespace CustomLighting
 {
@@ -81,7 +82,7 @@ namespace CustomLighting
         half3 lightColor = lightData.attenuation * lightData.color;
         half3 lightFinalColor = lightNoL * lightColor;
 
-        #ifndef SHADER_API_MOBILE //TODO: redefine to something that will resemble lower shader quality
+        #ifndef QUALITY_LOW
             lightFinalColor *= Filament::Fd_Burley(sd.perceptualRoughness, sd.NoV, lightNoL, lightLoH);
         #endif
 
@@ -125,7 +126,7 @@ namespace CustomLighting
         #if !defined(UNITY_PASS_FORWARDBASE) && defined(PIPELINE_BUILTIN)
             return 0.0f;
         #endif
-
+        half clampedRoughness = max(sd.perceptualRoughness * sd.perceptualRoughness, 0.002);
         half3 indirectDiffuse = 0;
         #if defined(LIGHTMAP_ON)
             float2 lightmapUV = unpacked.lightmapUV.xy;
@@ -156,12 +157,19 @@ namespace CustomLighting
             #if defined(DIRLIGHTMAP_COMBINED)
                 float4 lightMapDirection = unity_LightmapInd.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0);
                 #ifndef BAKERY_MONOSH
-                    lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, sd.normalWS);
+
+                    #if 0
+                        lightMap = DecodeDirectionalLightmap(lightMap, lightMapDirection, sd.normalWS);
+                    #else
+                        half halfLambert = dot(sd.normalWS, lightMapDirection.xyz - 0.5) + 0.5;
+                        half mult = halfLambert / max(1e-4h, lightMapDirection.w);
+                        mult *= mult * mult;
+                        lightMap = lightMap * min(mult, 2.0);
+                    #endif
                 #endif
             #endif
 
             #if defined(BAKERY_MONOSH)
-                half clampedRoughness = max(sd.perceptualRoughness * sd.perceptualRoughness, 0.002);
                 BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, sd.normalWS, sd.viewDirectionWS, clampedRoughness, surfaceDescription, sd.tangentWS, sd.bitangentWS);
             #endif
 
@@ -177,13 +185,45 @@ namespace CustomLighting
             indirectDiffuse += RealtimeLightmap(unpacked.lightmapUV.zw, sd.normalWS);
         #endif
 
+        #if defined(_LIGHTMAPPED_SPECULAR)
+            float3 bakedDominantDirection = 0.0;
+            half3 bakedSpecularColor = 0.0;
+
+            #if defined(DIRLIGHTMAP_COMBINED) && defined(LIGHTMAP_ON) && !defined(BAKERY_SH) && !defined(BAKERY_RNM) && !defined(BAKERY_MONOSH)
+                bakedDominantDirection = (lightMapDirection.xyz) * 2.0 - 1.0;
+                half directionality = max(0.001, length(bakedDominantDirection));
+                bakedDominantDirection /= directionality;
+                bakedSpecularColor = lightMap * directionality;
+            #endif
+
+            #ifndef LIGHTMAP_ON
+                bakedSpecularColor = half3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
+                bakedDominantDirection = unity_SHAr.xyz + unity_SHAg.xyz + unity_SHAb.xyz;
+                bakedDominantDirection = normalize(bakedDominantDirection);
+            #endif
+
+            half3 halfDir = Unity_SafeNormalize(bakedDominantDirection + sd.viewDirectionWS);
+            half nh = saturate(dot(sd.normalWS, halfDir));
+
+           
+            #ifdef _ANISOTROPY
+                half at = max(clampedRoughness * (1.0 + surfaceDescription.Anisotropy), 0.001);
+                half ab = max(clampedRoughness * (1.0 - surfaceDescription.Anisotropy), 0.001);
+                lightmappedSpecular += max(Filament::D_GGX_Anisotropic(nh, halfDir, sd.tangentWS, sd.bitangentWS, at, ab) * bakedSpecularColor, 0.0);
+            #else
+                lightmappedSpecular += max(Filament::D_GGX(nh, clampedRoughness) * bakedSpecularColor, 0.0);
+            #endif
+            // DebugColor = lightmappedSpecular;
+            // #define USE_DEBUGCOLOR
+        #endif
+
 
         indirectDiffuse = max(0.0, indirectDiffuse);
 
         return indirectDiffuse;
     }
 
-    half3 GetReflections(Varyings unpacked, SurfaceDescription surfaceDescription, ShaderData sd, half3 indirectDiffuse)
+    half3 GetReflections(Varyings unpacked, SurfaceDescription surfaceDescription, ShaderData sd)
     {
         #if !defined(UNITY_PASS_FORWARDBASE) && defined(PIPELINE_BUILTIN)
             return 0.0f;
@@ -205,7 +245,7 @@ namespace CustomLighting
                 reflDir = reflect(-sd.viewDirectionWS, bentNormal);
             #endif
 
-            #ifndef SHADER_API_MOBILE
+            #ifndef QUALITY_LOW
                 reflDir = lerp(reflDir, sd.normalWS, roughness * roughness);
             #endif
 
@@ -239,16 +279,10 @@ namespace CustomLighting
                 #endif
             #endif
 
+        #ifndef QUALITY_LOW
             float horizon = min(1.0 + dot(reflDir, sd.normalWS), 1.0);
             reflectionSpecular *= horizon * horizon;
-
-            #ifdef LIGHTMAP_ON
-                half specularOcclusion = saturate(sqrt(dot(indirectDiffuse, 1.0)) * surfaceDescription.Occlusion);
-            #else
-                half specularOcclusion = surfaceDescription.Occlusion;
-            #endif
-
-            reflectionSpecular *= Filament::computeSpecularAO(sd.NoV, specularOcclusion, roughness);
+        #endif
 
             indirectSpecular += reflectionSpecular;
         #endif
@@ -259,10 +293,7 @@ namespace CustomLighting
 
     half4 ApplyPBRLighting(Varyings unpacked, SurfaceDescription surfaceDescription)
     {
-        half3 indirectDiffuse = 0;
-        half3 lightFinalColor = 0;
-        half3 indirectSpecular = 0;
-        half3 directSpecular = 0;
+        GIData giData = (GIData)0;
 
         // alpha
         ApplyAlphaClip(surfaceDescription);
@@ -270,16 +301,20 @@ namespace CustomLighting
         // shader data
         ShaderData sd = InitializeShaderData(unpacked, surfaceDescription);
 
+        #ifdef LOD_FADE_CROSSFADE
+        LODDitheringTransition(ComputeFadeMaskSeed(sd.viewDirectionWS, unpacked.positionCS.xy), unity_LODFade.x);
+        #endif
+
         // main light
         CustomLightData mainLightData = GetCustomMainLightData(unpacked);
 
         // lightmap and lightmapped specular
-        indirectDiffuse = GetLightmap(unpacked, surfaceDescription, sd, mainLightData, indirectSpecular);
+        giData.IndirectDiffuse = GetLightmap(unpacked, surfaceDescription, sd, mainLightData, giData.Reflections);
 
-        //MixRealtimeAndBakedGI(mainLightData, unpacked.normalWS, indirectDiffuse);
+        //MixRealtimeAndBakedGI(mainLightData, unpacked.normalWS, giData.IndirectDiffuse);
 
         // main light and specular
-        LightPBR(lightFinalColor, directSpecular, mainLightData, unpacked, surfaceDescription, sd);
+        LightPBR(giData.Light, giData.Specular, mainLightData, unpacked, surfaceDescription, sd);
 
         // additional light and specular (urp and non important lights)
         #if defined(_ADDITIONAL_LIGHTS) && defined(PIPELINE_URP)
@@ -291,19 +326,66 @@ namespace CustomLighting
                 additionalLightData.color = light.color;
                 additionalLightData.direction = light.direction;
                 additionalLightData.attenuation = light.distanceAttenuation * light.shadowAttenuation;
-                LightPBR(lightFinalColor, directSpecular, additionalLightData, unpacked, surfaceDescription, sd);
+                LightPBR(giData.Light, giData.Specular, additionalLightData, unpacked, surfaceDescription, sd);
             }
+        #endif
+        
+        #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
+            giData.Light += unpacked.vertexLight;
         #endif
 
         // light probes
-        indirectDiffuse += GetLightProbes(sd.normalWS, unpacked.positionWS);
+        giData.IndirectDiffuse += GetLightProbes(sd.normalWS, unpacked.positionWS);
 
         // reflection probes
-        indirectSpecular += GetReflections(unpacked, surfaceDescription, sd, indirectDiffuse);
+        giData.Reflections += GetReflections(unpacked, surfaceDescription, sd);
+
+        #ifdef _SSR
+		float4 screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
+		float2 screenUVs = screenPos.xy / (screenPos.w+0.0000000001);
+		#if UNITY_SINGLE_PASS_STEREO || defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+			screenUVs.x *= 2;
+		#endif
+        //float4 ssReflections = GetSSR(unpacked.positionWS, sd.viewDirectionWS, reflect(-sd.viewDirectionWS, sd.normalWS), sd.normalWS, 1- sd.perceptualRoughness, surfaceDescription.Albedo, surfaceDescription.Metallic, screenUVs, screenPos);
+        // return giData.Reflections.xyzz;
+        //giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
+        SSRInput ssr;
+        ssr.wPos = float4(unpacked.positionWS.xyz, 1);
+        ssr.viewDir = sd.viewDirectionWS;
+        ssr.rayDir = float4(reflect(-sd.viewDirectionWS, sd.normalWS).xyz, 1);
+        ssr.faceNormal = sd.normalWS;
+        ssr.hitRadius = 0.02;
+        ssr.blur = 8;
+        ssr.maxSteps = 50;
+        ssr.smoothness = 1- sd.perceptualRoughness;
+        ssr.edgeFade = 0.2;
+        ssr.scrnParams = _CameraOpaqueTexture_TexelSize.zw; //TODO: fix for urp
+        ssr.NoiseTex = BlueNoise;
+        ssr.NoiseTex_dim = BlueNoise_TexelSize.zw;
+        float4 ssReflections = getSSRColor(ssr);
+        float horizon = min(1.0 + dot(ssr.rayDir.xyz, ssr.faceNormal), 1.0);
+        ssReflections.rgb *= horizon * horizon;
+        giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
+        #endif
+
+
+        // modify lighting
+        #ifdef USE_MODIFYLIGHTING
+        ModifyLighting(giData, unpacked, sd, surfaceDescription);
+        #endif
+
+
+        // occlusion
+        #ifdef LIGHTMAP_ON
+            half specularOcclusion = saturate(sqrt(dot(giData.IndirectDiffuse, 1.0)) * surfaceDescription.Occlusion);
+        #else
+            half specularOcclusion = surfaceDescription.Occlusion;
+        #endif
+        giData.Reflections *= Filament::computeSpecularAO(sd.NoV, specularOcclusion, sd.perceptualRoughness * sd.perceptualRoughness);
 
         // fresnel
-        indirectSpecular *= sd.energyCompensation * sd.brdf;
-        directSpecular *= PI;
+        giData.Reflections *= sd.energyCompensation * sd.brdf;
+        giData.Specular *= PI;
 
         #if defined(_ALPHAPREMULTIPLY_ON)
             surfaceDescription.Albedo.rgb *= surfaceDescription.Alpha;
@@ -314,8 +396,23 @@ namespace CustomLighting
             surfaceDescription.Albedo.rgb = lerp(1.0, surfaceDescription.Albedo.rgb, surfaceDescription.Alpha);
         #endif
 
-        half4 finalColor = half4(surfaceDescription.Albedo * (1.0 - surfaceDescription.Metallic) * (indirectDiffuse * surfaceDescription.Occlusion + (lightFinalColor))
-                        + indirectSpecular + directSpecular + surfaceDescription.Emission, surfaceDescription.Alpha);
+        half4 finalColor = half4(surfaceDescription.Albedo * (1.0 - surfaceDescription.Metallic) * (giData.IndirectDiffuse * surfaceDescription.Occlusion + (giData.Light))
+                        + giData.Reflections + giData.Specular + surfaceDescription.Emission, surfaceDescription.Alpha);
+
+        // fog
+        #if defined(FOG_ANY) && defined(PIPELINE_BUILTIN)
+            UNITY_APPLY_FOG(unpacked.fogCoord, finalColor);
+        #endif
+
+
+        // modify final color
+        #ifdef USE_MODIFYFINALCOLOR
+        ModifyFinalColor(inout finalColor, giData, unpacked, sd, surfaceDescription);
+        #endif
+
+        #ifdef USE_DEBUGCOLOR
+        return DebugColor.rgbb;
+        #endif
 
         return finalColor;
     }

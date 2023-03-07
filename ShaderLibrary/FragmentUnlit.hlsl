@@ -3,6 +3,9 @@ half4 frag (Varyings input) : SV_Target
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
+    #ifdef LOD_FADE_CROSSFADE
+    LODDitheringTransition(input.positionCS.xy, unity_LODFade.x);
+    #endif
 
     SurfaceDescription surfaceDescription = InitializeSurfaceDescription();
     #ifdef USE_SURFACEDESCRIPTION

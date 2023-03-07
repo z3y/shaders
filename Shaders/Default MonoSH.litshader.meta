@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ee3045976cdf80a4ca15a5c4c80ebfed
+guid: 464f638e6d22e3a4bb13866fda412a95
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -14,7 +14,7 @@ ScriptedImporter:
     bicubicLightmap: 0
     gsaa: 0
     anisotropy: 3
-    bakeryMonoSH: 0
+    bakeryMonoSH: 2
     lightmappedSpecular: 0
     grabPass: 0
     alphaToCoverage: 1

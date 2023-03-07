@@ -33,6 +33,7 @@ namespace z3y.Shaders
                 material.DisableKeyword(keyword);
                 MaterialEditor.ApplyMaterialPropertyDrawers(material);
             }
+            ApplyChanges(material);
         }
 
         public static void ApplyChanges(Material m)
@@ -47,6 +48,14 @@ namespace z3y.Shaders
             m.ToggleKeyword("_ALPHAFADE_ON", mode == 2);
             m.ToggleKeyword("_ALPHAPREMULTIPLY_ON", mode == 3);
             m.ToggleKeyword("_ALPHAMODULATE_ON", mode == 5);
+
+            if (m.FindPass("GrabPass") != -1 || (m.HasProperty("_GrabPass") && m.GetFloat("_GrabPass") > 0))
+            {
+                if (m.renderQueue <= 3000)
+                {
+                    m.renderQueue = 3001;
+                }
+            }
         }
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
@@ -71,10 +80,17 @@ namespace z3y.Shaders
 
             }
 
+            EditorGUI.BeginChangeCheck();
+
             if (Foldout(ref _foldout1, "Properties"))
             {
                 for (int i = startIndex; i < materialProperties.Length; i++)
                 {
+                    if (materialProperties[i].flags.HasFlag(MaterialProperty.PropFlags.HideInInspector))
+                    {
+                        continue;
+                    }
+
                     if (materialProperties[i].type == MaterialProperty.PropType.Texture)
                     {
                         float fieldWidth = EditorGUIUtility.fieldWidth;
@@ -98,12 +114,23 @@ namespace z3y.Shaders
                 Draw(_SpecularHighlights);
             }
 
+
+
             Space();
             DrawSplitter();
             Space();
+            materialEditor.LightmapEmissionProperty();
             materialEditor.RenderQueueField();
             materialEditor.EnableInstancingField();
             materialEditor.DoubleSidedGIField();
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                foreach (Material target in materialEditor.targets)
+                {
+                    ApplyChanges(target);
+                }
+            }
         }
     }
 }

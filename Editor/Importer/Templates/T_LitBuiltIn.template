@@ -48,10 +48,12 @@ Shader ""
             #pragma multi_compile_fog
             #pragma multi_compile_instancing
             #pragma multi_compile_fwdbase
+            #pragma multi_compile_fragment _ VERTEXLIGHT_ON
             #pragma skip_variants LIGHTPROBE_SH
 
             #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
             #pragma shader_feature_local _GLOSSYREFLECTIONS_OFF
+            #pragma shader_feature_local _EMISSION
             //#pragma shader_feature_local _ADVANCED_BOXPROJECTION
             #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
 
@@ -60,14 +62,16 @@ Shader ""
             $Feature_BicubicLightmap
             $Feature_GSAA
             $Feature_Anisotropy
+            $Feature_LightmappedSpecular
+
 
             $Defines
 
             #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
+            //CBUFFER_START(UnityPerMaterial)
             $Cbuffer
-            CBUFFER_END
+            //CBUFFER_END
 
             $ShaderDescription
 
@@ -100,6 +104,7 @@ Shader ""
             #pragma multi_compile_fwdadd_fullshadows
 
             #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
+            #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
             $Feature_GSAA
             $Feature_Anisotropy
 
@@ -108,9 +113,9 @@ Shader ""
 
             #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
+            //CBUFFER_START(UnityPerMaterial)
             $Cbuffer
-            CBUFFER_END
+            //CBUFFER_END
 
             $ShaderDescription
 
@@ -142,9 +147,9 @@ Shader ""
 
             #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
+            //CBUFFER_START(UnityPerMaterial)
             $Cbuffer
-            CBUFFER_END
+            //CBUFFER_END
             
             $ShaderDescription
 
@@ -169,14 +174,15 @@ Shader ""
 
             #pragma shader_feature EDITOR_VISUALIZATION
             #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
-
+            #pragma shader_feature_local _EMISSION
+            
             $Defines
 
             #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
+            //CBUFFER_START(UnityPerMaterial)
             $Cbuffer
-            CBUFFER_END
+            //CBUFFER_END
             
             $ShaderDescription
 

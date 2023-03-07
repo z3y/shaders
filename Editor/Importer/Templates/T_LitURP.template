@@ -70,6 +70,7 @@ Shader ""
             #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
             #pragma shader_feature_local _GLOSSYREFLECTIONS_OFF
             #pragma shader_feature_local _LIGHTMAPPED_SPECULAR
+            #pragma shader_feature_local _EMISSION
 
             //--------------------------------------
             // GPU Instancing
@@ -81,6 +82,7 @@ Shader ""
             $Feature_BicubicLightmap
             $Feature_GSAA
             $Feature_Anisotropy
+            $Feature_LightmappedSpecular
 
             $Defines
 
@@ -201,6 +203,7 @@ Shader ""
 
             #pragma shader_feature EDITOR_VISUALIZATION
             #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
+            #pragma shader_feature_local _EMISSION
 
             $Defines
 

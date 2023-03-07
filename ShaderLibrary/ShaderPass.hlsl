@@ -8,8 +8,27 @@
     #define UNITY_STEREO_INSTANCING_ENABLED
 #endif
 
+#ifndef UNITY_PBS_USE_BRDF1
+    #define QUALITY_LOW
+    #define QUALITY_LOW
+#endif
+
+#ifndef QUALITY_LOW
+    // #define VERTEXLIGHT_PS
+#endif
+
+#ifdef QUALITY_LOW
+    #undef _SSR
+    #undef REQUIRE_DEPTH_TEXTURE
+    #undef REQUIRE_OPAQUE_TEXTURE
+#endif
+
 #if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
     #define FOG_ANY
+#endif
+
+#if defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_FORWARDADD)
+    #define UNITY_PASS_FORWARD
 #endif
 
 #if defined(SHADOWS_SCREEN) || defined(SHADOWS_SHADOWMASK) || defined(LIGHTMAP_SHADOW_MIXING)
@@ -43,8 +62,45 @@
 #define _SURFACE_TYPE_TRANSPARENT
 #endif
 
+#define Unity_SafeNormalize SafeNormalize
 
+#ifdef _SSR
+#define REQUIRE_DEPTH_TEXTURE
+#define REQUIRE_OPAQUE_TEXTURE
+#endif
+
+#ifdef PIPELINE_BUILTIN
+#ifndef UNITY_PASS_FORWARDBASE
+#undef _SSR
+#endif
+#endif
+
+
+//should get moved to a separate file eventually
+#ifdef VRCHAT_SDK
+float _VRChatMirrorMode;
+float _VRChatCameraMode;
+
+bool IsInMirror()
+{
+    return _VRChatMirrorMode != 0;
+}
+#else
+bool IsInMirror()
+{
+    return false;
+}
+#endif
+
+
+
+
+#ifdef PIPELINE_BUILTIN
 #define USE_EXTERNAL_CORERP 0
+#endif
+#ifdef PIPELINE_URP
+#define USE_EXTERNAL_CORERP 1
+#endif
 
 #if USE_EXTERNAL_CORERP
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
@@ -81,7 +137,6 @@
 #endif
 
 #ifdef PIPELINE_URP
-#define Unity_SafeNormalize SafeNormalize
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
@@ -101,6 +156,7 @@
     #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/SpaceTransforms.hlsl"
 #endif
 
+static float3 DebugColor = 0;
 
 struct CustomLightData
 {
@@ -167,10 +223,18 @@ SurfaceDescription InitializeSurfaceDescription()
     surfaceDescription.GSAAThreshold = float(0.1);
 
     surfaceDescription.Anisotropy = float(0);
-    surfaceDescription.Tangent = float3(0,0,1);
+    surfaceDescription.Tangent = float3(1,1,1);
 
     return surfaceDescription;
 }
+
+struct GIData
+{
+    half3 IndirectDiffuse;
+    half3 Light;
+    half3 Reflections;
+    half3 Specular;
+};
 
 // unity macros need workaround
 struct LegacyAttributes
@@ -345,7 +409,7 @@ struct Varyings
     uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
     #endif
     #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-    uint cullFace : FRONT_FACE_SEMANTIC;
+    uint cullFace : VFACE;
     #endif
 
     #if defined(EDITOR_VISUALIZATION)
@@ -358,6 +422,10 @@ struct Varyings
     float4 lightmapUV : LIGHTMAPUV;
     #elif defined(LIGHTMAP_ON)
     float2 lightmapUV : LIGHTMAPUV;
+    #endif
+
+    #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
+        half3 vertexLight : VERTEXLIGHT;
     #endif
 };
 #endif // #ifdef GENERATION_CODE

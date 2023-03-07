@@ -4,8 +4,15 @@ half4 frag (v2f input, uint facing : SV_IsFrontFace) : SV_Target
 {
     UNITY_SETUP_INSTANCE_ID(input)
     SurfaceData surf;
+
+    #ifdef LOD_FADE_CROSSFADE
+    UNITY_APPLY_DITHER_CROSSFADE(input.pos);
+    #endif
+
     InitializeDefaultSurfaceData(surf);
     InitializeSurfaceData(surf, input, facing);
+
+
 
 #if defined(UNITY_PASS_SHADOWCASTER)
     #if defined(_ALPHATEST_ON)
@@ -89,7 +96,7 @@ half4 frag (v2f input, uint facing : SV_IsFrontFace) : SV_Target
     #ifdef LTCGI_INCLUDED
         float2 ltcgi_lmuv;
         #if defined(LIGHTMAP_ON)
-            ltcgi_lmuv = input.uv01.zw * unity_LightmapST.xy + unity_LightmapST.zw;
+            ltcgi_lmuv = input.uv01.zw;
         #else
             ltcgi_lmuv = float2(0, 0);
         #endif

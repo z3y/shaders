@@ -10,6 +10,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.vrchat.base",
+            "expression": "0",
+            "define": "VRCHAT_SDK"
+        }
+    ],
     "noEngineReferences": false
 }

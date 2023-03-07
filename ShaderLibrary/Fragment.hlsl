@@ -12,9 +12,6 @@ half4 frag (Varyings input) : SV_Target
 
     half4 finalColor = CustomLighting::ApplyPBRLighting(input, surfaceDescription);
 
-    #if defined(FOG_ANY) && defined(PIPELINE_BUILTIN)
-        UNITY_APPLY_FOG(input.fogCoord, finalColor);
-    #endif
 
     return finalColor;
 }
