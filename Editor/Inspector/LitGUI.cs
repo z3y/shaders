@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using static z3y.FreeImagePacking;
 
 namespace z3y.Shaders
 {
@@ -332,6 +333,10 @@ namespace z3y.Shaders
             {
                 GetPackingWindow(material, _MetallicGlossMap);
 
+                FreeImagePackingEditor.ChannelR.Channel.DefaultColor = DefaultColor.Black;
+                FreeImagePackingEditor.ChannelG.Channel.DefaultColor = DefaultColor.Black;
+                FreeImagePackingEditor.ChannelB.Channel.DefaultColor = DefaultColor.Black;
+
                 FreeImagePackingEditor.ChannelR.DisplayName = "Metallic";
                 FreeImagePackingEditor.ChannelG.Channel.DefaultColor = FreeImagePacking.DefaultColor.Black;
                 FreeImagePackingEditor.ChannelG.DisplayName = "Occlusion";
@@ -382,6 +387,10 @@ namespace z3y.Shaders
             if (TexturePackingButton())
             {
                 GetPackingWindow(material, _AnisotropyMap);
+
+                FreeImagePackingEditor.ChannelR.Channel.DefaultColor = DefaultColor.Black;
+                FreeImagePackingEditor.ChannelG.Channel.DefaultColor = DefaultColor.Black;
+                FreeImagePackingEditor.ChannelB.Channel.DefaultColor = DefaultColor.Black;
 
                 FreeImagePackingEditor.ChannelR.DisplayName = "Anisotropy Level";
                 FreeImagePackingEditor.ChannelR.Channel.DefaultColor = FreeImagePacking.DefaultColor.White;
