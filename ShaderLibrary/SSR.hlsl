@@ -423,7 +423,7 @@ float4 getSSRColor(SSRInput data)
 	float FdotR = saturate(dot(data.faceNormal, data.rayDir.xyz));
 
 	UNITY_BRANCH
-	if (IsInMirror() || FdotR < 0)
+	if (IsInMirror())
 	{
 		return 0;
 	}
