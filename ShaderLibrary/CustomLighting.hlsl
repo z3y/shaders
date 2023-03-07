@@ -143,7 +143,7 @@ namespace CustomLighting
                 float4 lightmapTexelSize = BicubicSampling::GetTexelSize(unity_Lightmap);
                 half4 bakedColorTex = BicubicSampling::SampleBicubic(unity_Lightmap, custom_bilinear_clamp_sampler, lightmapUV, lightmapTexelSize);
             #else
-                half4 bakedColorTex = unity_Lightmap.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0);
+                half4 bakedColorTex = SAMPLE_TEXTURE2D_LOD(unity_Lightmap, custom_bilinear_clamp_sampler, lightmapUV, 0);
             #endif
 
             #if defined(PIPELINE_BUILTIN)
@@ -155,7 +155,7 @@ namespace CustomLighting
             #endif
 
             #if defined(DIRLIGHTMAP_COMBINED)
-                float4 lightMapDirection = unity_LightmapInd.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0);
+                float4 lightMapDirection = SAMPLE_TEXTURE2D_LOD(unity_LightmapInd, custom_bilinear_clamp_sampler, lightmapUV, 0);
                 #ifndef BAKERY_MONOSH
 
                     #if 0

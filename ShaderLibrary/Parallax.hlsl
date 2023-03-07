@@ -20,7 +20,7 @@ float2 GetMinUvSize(float2 baseUV, float4 texelSize)
 float2 ParallaxOcclusionMapping(float strength, float2 uv, float3 tangentViewDir, Texture2D parallaxMap, SamplerState sampl, float4 texelSize, uint steps, half parallaxOffset)
 {
     tangentViewDir = CalculateTangentViewDir(tangentViewDir);
-    float surfaceHeight = parallaxMap.Sample(sampl, uv);
+    float surfaceHeight = SAMPLE_TEXTURE2D(parallaxMap, sampl, uv);
 
 	float stepSize = 1.0 / steps;
     float3 uvDelta_stepSize = float3(tangentViewDir.xy * (stepSize * strength), stepSize);
@@ -47,7 +47,7 @@ float2 ParallaxOcclusionMapping(float strength, float2 uv, float3 tangentViewDir
 
 
         uvOffset_stepHeight -= uvDelta_stepSize;
-        surfaceHeight = parallaxMap.SampleLevel(sampl, (uv + uvOffset_stepHeight.xy), lod) + parallaxOffset;
+        surfaceHeight = SAMPLE_TEXTURE2D_LOD(parallaxMap, sampl, (uv + uvOffset_stepHeight.xy), lod) + parallaxOffset;
     }
 
     // taken from filamented cause it looks better https://gitlab.com/s-ilent/filamented

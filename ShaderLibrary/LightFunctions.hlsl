@@ -152,7 +152,7 @@ void EnvironmentBRDF(half NoV, half perceptualRoughness, half3 f0, out half3 brd
         energyCompensation = 1.0;
         brdf = EnvironmentBRDFApproximation(perceptualRoughness, NoV, f0);
     #else
-        float2 dfg = _DFG.SampleLevel(sampler_DFG, float2(NoV, perceptualRoughness), 0).rg;
+        float2 dfg = SAMPLE_TEXTURE2D_LOD(_DFG, sampler_DFG, float2(NoV, perceptualRoughness), 0).rg;
         brdf = lerp(dfg.xxx, dfg.yyy, f0);
         energyCompensation = 1.0 + f0 * (1.0 / dfg.y - 1.0);
     #endif
