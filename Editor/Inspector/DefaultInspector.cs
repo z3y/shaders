@@ -32,6 +32,7 @@ namespace z3y.Shaders
             {
                 material.DisableKeyword(keyword);
                 MaterialEditor.ApplyMaterialPropertyDrawers(material);
+                ApplyChanges(material);
             }
         }
 
@@ -47,6 +48,11 @@ namespace z3y.Shaders
             m.ToggleKeyword("_ALPHAFADE_ON", mode == 2);
             m.ToggleKeyword("_ALPHAPREMULTIPLY_ON", mode == 3);
             m.ToggleKeyword("_ALPHAMODULATE_ON", mode == 5);
+
+            if (m.FindPass("GrabPass") != -1 && m.renderQueue <= 3000)
+            {
+                m.renderQueue = 3001;
+            }
         }
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
@@ -70,6 +76,8 @@ namespace z3y.Shaders
                 Draw(_Cull);
 
             }
+
+            EditorGUI.BeginChangeCheck();
 
             if (Foldout(ref _foldout1, "Properties"))
             {
@@ -98,6 +106,8 @@ namespace z3y.Shaders
                 Draw(_SpecularHighlights);
             }
 
+
+
             Space();
             DrawSplitter();
             Space();
@@ -105,6 +115,14 @@ namespace z3y.Shaders
             materialEditor.RenderQueueField();
             materialEditor.EnableInstancingField();
             materialEditor.DoubleSidedGIField();
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                foreach (Material target in materialEditor.targets)
+                {
+                    ApplyChanges(target);
+                }
+            }
         }
     }
 }

@@ -175,7 +175,7 @@ namespace z3y.Shaders
                     if (settings.grabPass && !isAndroid)
                     {
                         shaderData.definesSb.AppendLine("#define REQUIRE_OPAQUE_TEXTURE");
-                        template[i] = "GrabPass { \"_CameraOpaqueTexture\" }";
+                        template[i] = "GrabPass\n{\n Name \"GrabPass\" \n \"_CameraOpaqueTexture\" \n}";
                     }
                     else
                     {
