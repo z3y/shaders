@@ -32,8 +32,8 @@ namespace z3y.Shaders
             {
                 material.DisableKeyword(keyword);
                 MaterialEditor.ApplyMaterialPropertyDrawers(material);
-                ApplyChanges(material);
             }
+            ApplyChanges(material);
         }
 
         public static void ApplyChanges(Material m)
@@ -49,9 +49,12 @@ namespace z3y.Shaders
             m.ToggleKeyword("_ALPHAPREMULTIPLY_ON", mode == 3);
             m.ToggleKeyword("_ALPHAMODULATE_ON", mode == 5);
 
-            if (m.FindPass("GrabPass") != -1 && m.renderQueue <= 3000)
+            if (m.FindPass("GrabPass") != -1 || (m.HasProperty("_GrabPass") && m.GetFloat("_GrabPass") > 0))
             {
-                m.renderQueue = 3001;
+                if (m.renderQueue <= 3000)
+                {
+                    m.renderQueue = 3001;
+                }
             }
         }
 
@@ -83,6 +86,11 @@ namespace z3y.Shaders
             {
                 for (int i = startIndex; i < materialProperties.Length; i++)
                 {
+                    if (materialProperties[i].flags.HasFlag(MaterialProperty.PropFlags.HideInInspector))
+                    {
+                        continue;
+                    }
+
                     if (materialProperties[i].type == MaterialProperty.PropType.Texture)
                     {
                         float fieldWidth = EditorGUIUtility.fieldWidth;
