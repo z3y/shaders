@@ -48,7 +48,7 @@ Properties
     [IntRange] _ParallaxSteps ("Steps", Range(1, 32)) = 16
 
 
-    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
+    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
 
 
     Foldout_Emission ("Emission", Float) = 0
