@@ -311,23 +311,36 @@ namespace CustomLighting
         // lightmap and lightmapped specular
         giData.IndirectDiffuse = GetLightmap(unpacked, surfaceDescription, sd, mainLightData, giData.Reflections);
 
+        #if defined(PIPELINE_URP)
         //MixRealtimeAndBakedGI(mainLightData, unpacked.normalWS, giData.IndirectDiffuse);
+        uint meshRenderingLayers = GetMeshRenderingLightLayer();
+        #endif
 
         // main light and specular
         LightPBR(giData.Light, giData.Specular, mainLightData, unpacked, surfaceDescription, sd);
 
+
         // additional light and specular (urp and non important lights)
         #if defined(_ADDITIONAL_LIGHTS) && defined(PIPELINE_URP)
             uint pixelLightCount = GetAdditionalLightsCount();
-            for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
-            {
-                Light light = GetAdditionalLight(lightIndex, unpacked.positionWS);
+            #if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
+            half4 shadowMask = SAMPLE_SHADOWMASK(unpacked.lightmapUV.xy);
+            #else
+            half4 shadowMask = 0.0f;
+            #endif
+
+            LIGHT_LOOP_BEGIN(pixelLightCount)
+                Light light = GetAdditionalLight(lightIndex, unpacked.positionWS, shadowMask);
                 CustomLightData additionalLightData;
                 additionalLightData.color = light.color;
                 additionalLightData.direction = light.direction;
                 additionalLightData.attenuation = light.distanceAttenuation * light.shadowAttenuation;
-                LightPBR(giData.Light, giData.Specular, additionalLightData, unpacked, surfaceDescription, sd);
-            }
+
+                if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+                {
+                    LightPBR(giData.Light, giData.Specular, additionalLightData, unpacked, surfaceDescription, sd);
+                }
+            LIGHT_LOOP_END
         #endif
         
         #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
