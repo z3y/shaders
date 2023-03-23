@@ -158,8 +158,9 @@ CGINCLUDE
 #define FIX_BLACK_LEVEL
 #pragma skip_variants VERTEXLIGHT_ON
 #pragma skip_variants LOD_FADE_CROSSFADE
-#pragma skip_variants LTCGI
-#pragma skip_variants LTCGI_DIFFUSE_OFF
+#ifdef LTCGI
+#include "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc"
+#endif
 
 //ConfigEnd
 

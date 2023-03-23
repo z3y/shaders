@@ -91,6 +91,7 @@ namespace z3y.Shaders
             }
 
 
+            BaseShaderGUI.SetupMaterialWithBlendMode(material, (int)material.GetFloat("_Mode"));
             LitGUI.ApplyChanges(material);
         }
 
