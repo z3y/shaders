@@ -102,11 +102,7 @@ half4 frag (v2f input, uint facing : SV_IsFrontFace) : SV_Target
         #endif
 
         float3 ltcgiSpecular = 0;
-        LTCGI_Contribution(input.worldPos, input.worldNormal, viewDir, surf.perceptualRoughness, ltcgi_lmuv, indirectDiffuse
-            #ifndef SPECULAR_HIGHLIGHTS_OFF
-                    , ltcgiSpecular
-            #endif
-        );
+        LTCGI_Contribution(input.worldPos, input.worldNormal, viewDir, surf.perceptualRoughness, ltcgi_lmuv, indirectDiffuse, ltcgiSpecular);
         indirectSpecular += ltcgiSpecular;
     #endif
 

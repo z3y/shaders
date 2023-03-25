@@ -17,6 +17,7 @@ Shader ""
             "RenderPipeline"=""
             "RenderType"="Opaque"
             "Queue"="Geometry+0"
+            "LTCGI" = "_LTCGI"
         }
 
         $Feature_GrabPass
@@ -63,7 +64,8 @@ Shader ""
             $Feature_GSAA
             $Feature_Anisotropy
             $Feature_LightmappedSpecular
-
+            #pragma shader_feature_local_fragment LTCGI
+            #pragma shader_feature_local_fragment LTCGI_DIFFUSE_OFF
 
             $Defines
 

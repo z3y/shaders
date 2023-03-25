@@ -37,6 +37,8 @@ namespace z3y.Shaders
 
         private const string DefaultPropertiesInclude = "Packages/com.z3y.shaders/Editor/Importer/Templates/Properties.txt";
 
+        private static bool _ltcgiIncluded => File.Exists("Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc");
+
 
         [SerializeField] public ShaderSettings settings;
 
@@ -121,6 +123,12 @@ namespace z3y.Shaders
             defaultProps.AppendLine(GetPropertyDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword, "Anisotropy"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular, "Lightmapped Specular"));
 
+            if (!isAndroid && _ltcgiIncluded)
+            {
+                defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI", "Enable LTCGI"));
+                defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI_DIFFUSE_OFF", "Disable LTCGI Diffuse"));
+            }
+
             if (settings.grabPass) defaultProps.Append("[HideInInspector][ToggleUI]_GrabPass(\"GrabPass\", Float) = 1");
 
             RenderPipeline rp = QualitySettings.renderPipeline == null ? RenderPipeline.BuiltIn : RenderPipeline.URP;
@@ -144,6 +152,16 @@ namespace z3y.Shaders
 #if VRCHAT_SDK
             shaderData.definesSb.AppendLine("#define VRCHAT_SDK");
 #endif
+
+            if (isAndroid || !_ltcgiIncluded)
+            {
+                shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI");
+                shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");
+            }
+            else if (_ltcgiIncluded)
+            {
+                shaderData.definesSb.AppendLine("#define LTCGI_EXISTS");
+            }
 
             for (int i = 0; i < template.Length; i++)
             {

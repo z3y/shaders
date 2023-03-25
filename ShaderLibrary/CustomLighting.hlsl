@@ -1,6 +1,13 @@
 #include "Packages/com.z3y.shaders/ShaderLibrary/LightFunctions.hlsl"
 #include "Packages/com.z3y.shaders/ShaderLibrary/SSR.hlsl"
 
+#if defined(LTCGI) && defined(LTCGI_EXISTS)
+    #define UNITY_PI PI
+    #define UNITY_HALF_PI PI/2.
+    #define UNITY_TWO_PI PI*2
+    #include "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc"
+#endif
+
 namespace CustomLighting
 {
 
@@ -379,6 +386,19 @@ namespace CustomLighting
         float horizon = min(1.0 + dot(ssr.rayDir.xyz, ssr.faceNormal), 1.0);
         ssReflections.rgb *= horizon * horizon;
         giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
+        #endif
+
+        #if defined(LTCGI) && defined(LTCGI_EXISTS)
+            float2 ltcgi_lmuv;
+            #if defined(LIGHTMAP_ON)
+                ltcgi_lmuv = unpacked.texCoord1.xy;
+            #else
+                ltcgi_lmuv = float2(0, 0);
+            #endif
+
+            float3 ltcgiSpecular = 0;
+            LTCGI_Contribution(unpacked.positionWS.xyz, sd.normalWS, sd.viewDirectionWS, sd.perceptualRoughness, ltcgi_lmuv, giData.IndirectDiffuse, ltcgiSpecular);
+            giData.Reflections += ltcgiSpecular;
         #endif
 
 
