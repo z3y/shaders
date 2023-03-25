@@ -209,6 +209,7 @@ struct SurfaceDescription
     half GSAAThreshold;
     half3 Tangent;
     half Anisotropy;
+    half SpecularOcclusion;
 };
 
 SurfaceDescription InitializeSurfaceDescription()
@@ -230,6 +231,7 @@ SurfaceDescription InitializeSurfaceDescription()
 
     surfaceDescription.Anisotropy = float(0);
     surfaceDescription.Tangent = float3(1,1,1);
+    surfaceDescription.SpecularOcclusion = float(1);
 
     return surfaceDescription;
 }

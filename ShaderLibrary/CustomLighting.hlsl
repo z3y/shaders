@@ -410,7 +410,7 @@ namespace CustomLighting
 
         // occlusion
         #ifdef LIGHTMAP_ON
-            half specularOcclusion = saturate(sqrt(dot(giData.IndirectDiffuse, 1.0)) * surfaceDescription.Occlusion);
+            half specularOcclusion = lerp(1.0f, saturate(sqrt(dot(giData.IndirectDiffuse, 1.0)) * surfaceDescription.Occlusion), surfaceDescription.SpecularOcclusion);
         #else
             half specularOcclusion = surfaceDescription.Occlusion;
         #endif
