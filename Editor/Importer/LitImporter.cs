@@ -37,7 +37,9 @@ namespace z3y.Shaders
 
         private const string DefaultPropertiesInclude = "Packages/com.z3y.shaders/Editor/Importer/Templates/Properties.txt";
 
-        private static bool _ltcgiIncluded => File.Exists("Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc");
+
+        private const string LTCGIIncludePath = "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc";
+        private static bool _ltcgiIncluded = File.Exists(LTCGIIncludePath);
 
 
         [SerializeField] public ShaderSettings settings;
@@ -61,6 +63,11 @@ namespace z3y.Shaders
             foreach (var dependency in _sourceDependencies)
             {
                 ctx.DependsOnSourceAsset(dependency);
+            }
+
+            if (_ltcgiIncluded)
+            {
+                ctx.DependsOnSourceAsset(LTCGIIncludePath);
             }
 
 

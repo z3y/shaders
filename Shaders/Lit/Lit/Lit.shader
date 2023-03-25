@@ -142,9 +142,9 @@ CGINCLUDE
     #include "UnityMetaPass.cginc"
 #endif
 
-#ifdef _SPECULARHIGHLIGHTS_OFF
-    #define LTCGI_SPECULAR_OFF
-#endif
+// #ifdef _SPECULARHIGHLIGHTS_OFF
+//     #define LTCGI_SPECULAR_OFF
+// #endif
 
 //ConfigStart
 #pragma skip_variants BAKERY_SH
