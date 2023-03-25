@@ -443,6 +443,7 @@ namespace CustomLighting
         ModifyFinalColor(inout finalColor, giData, unpacked, sd, surfaceDescription);
         #endif
 
+        #define FIX_BLACK_LEVEL
         #if !defined(SHADER_API_MOBILE) && defined(UNITY_PASS_FORWARDBASE)
             #ifdef DITHERING
                 finalColor.rgb -= ditherNoiseFuncHigh(input.uv01.xy) * 0.001;
