@@ -24,6 +24,10 @@
     #undef _GEOMETRICSPECULAR_AA
 #endif
 
+#if defined(_LIGHTMAPPED_SPECULAR) && defined(LIGHTMAP_ON) && !defined(SHADOWS_SHADOWMASK) && !defined(LIGHTMAP_SHADOW_MIXING)
+    #define _SPECULARHIGHLIGHTS_OFF
+#endif
+
 
 #if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
     #define FOG_ANY

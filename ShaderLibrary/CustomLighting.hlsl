@@ -89,7 +89,7 @@ namespace CustomLighting
         half3 lightColor = lightData.attenuation * lightData.color;
         half3 lightFinalColor = lightNoL * lightColor;
 
-        #ifndef QUALITY_LOW
+        #if !defined(QUALITY_LOW) && !defined(LIGHTMAP_ON)
             lightFinalColor *= Filament::Fd_Burley(sd.perceptualRoughness, sd.NoV, lightNoL, lightLoH);
         #endif
 
@@ -324,7 +324,16 @@ namespace CustomLighting
         #endif
 
         // main light and specular
-        LightPBR(giData.Light, giData.Specular, mainLightData, unpacked, surfaceDescription, sd);
+        #if defined(UNITY_PASS_FORWARDBASE) && !defined(DIRECTIONAL_COOKIE) && !defined(SHADOWS_SCREEN) && !defined(_SPECULARHIGHLIGHTS_OFF) && !defined(SHADOWS_SHADOWMASK) && !defined(LIGHTMAP_SHADOW_MIXING)
+            bool lightEnabled = any(mainLightData.direction);
+            UNITY_BRANCH
+        #else
+            bool lightEnabled = true;
+        #endif
+        if (lightEnabled)
+        {
+            LightPBR(giData.Light, giData.Specular, mainLightData, unpacked, surfaceDescription, sd);
+        }
 
 
         // additional light and specular (urp and non important lights)
