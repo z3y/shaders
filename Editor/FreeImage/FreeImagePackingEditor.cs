@@ -58,7 +58,7 @@ namespace z3y
 
             ChannelG.Channel.Source = ChannelSource.Green;
             ChannelB.Channel.Source = ChannelSource.Blue;
-            ChannelA.Channel.Source = ChannelSource.Alpha;
+            ChannelA.Channel.Source = ChannelSource.Red;
 
             ChannelR.Channel.DefaultColor = DefaultColor.White;
             ChannelG.Channel.DefaultColor = DefaultColor.White;
@@ -100,6 +100,7 @@ namespace z3y
                 EditorGUILayout.LabelField(new GUIContent($"Texture - {_packingProperty.displayName}"));
                 if (_packingProperty.textureValue && GUILayout.Button("Modify"))
                 {
+                    ChannelA.Channel.Source = ChannelSource.Alpha;
                     var texture = _packingProperty.textureValue;
                     if (texture is Texture2D texture2D)
                     {

@@ -21,6 +21,7 @@
     #undef REQUIRE_DEPTH_TEXTURE
     #undef REQUIRE_OPAQUE_TEXTURE
     #undef LTCGI
+    #undef _GEOMETRICSPECULAR_AA
 #endif
 
 
@@ -437,6 +438,27 @@ struct Varyings
     #endif
 };
 #endif // #ifdef GENERATION_CODE
+
+
+
+// Need to paste this here because its not included
+// Light falloff
+
+float ftLightFalloff(float4x4 ftUnityLightMatrix, float3 worldPos)
+{
+    float3 lightCoord = mul(ftUnityLightMatrix, float4(worldPos, 1)).xyz / ftUnityLightMatrix._11;
+    float distSq = dot(lightCoord, lightCoord);
+    float falloff = saturate(1.0f - pow(sqrt(distSq) * ftUnityLightMatrix._11, 4.0f)) / (distSq + 1.0f);
+    return falloff;
+}
+
+float ftLightFalloff(float4 lightPosRadius, float3 worldPos)
+{
+    float3 lightCoord = worldPos - lightPosRadius.xyz;
+    float distSq = dot(lightCoord, lightCoord);
+    float falloff = saturate(1.0f - pow(sqrt(distSq * lightPosRadius.w), 4.0f)) / (distSq + 1.0f);
+    return falloff;
+}
 
 CustomLightData GetCustomMainLightData(Varyings unpacked)
 {
