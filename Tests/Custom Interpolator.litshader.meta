@@ -9,13 +9,13 @@ ScriptedImporter:
   assetBundleVariant: 
   script: {fileID: 11500000, guid: c6b508151abe0a040a11a4b72bff5b69, type: 3}
   settings:
-    shaderName: Lit/Examples/CustomInterpolator
+    shaderName: Lit/Samples/CustomInterpolator
     materialType: 0
     bicubicLightmap: 3
     gsaa: 3
     anisotropy: 3
     bakeryMonoSH: 0
+    lightmappedSpecular: 0
     grabPass: 0
     alphaToCoverage: 1
-    skipVariants: []
     customEditorGUI: 

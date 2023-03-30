@@ -25,6 +25,10 @@
 #endif
 
 #if defined(_LIGHTMAPPED_SPECULAR) && defined(LIGHTMAP_ON) && !defined(SHADOWS_SHADOWMASK) && !defined(LIGHTMAP_SHADOW_MIXING)
+
+#ifdef _SPECULARHIGHLIGHTS_OFF
+#undef _LIGHTMAPPED_SPECULAR
+#endif
     #define _SPECULARHIGHLIGHTS_OFF
 #endif
 
@@ -209,6 +213,7 @@ struct SurfaceDescription
     half Occlusion;
     half Alpha;
     half AlphaClipThreshold;
+    half AlphaClipSharpness;
     half Reflectance;
     half GSAAVariance;
     half GSAAThreshold;
@@ -229,6 +234,7 @@ SurfaceDescription InitializeSurfaceDescription()
     surfaceDescription.Occlusion = float(1);
     surfaceDescription.Alpha = float(1);
     surfaceDescription.AlphaClipThreshold = float(0.5);
+    surfaceDescription.AlphaClipSharpness = float(0.0001);
     surfaceDescription.Reflectance = float(0.5);
 
     surfaceDescription.GSAAVariance = float(0.15);

@@ -14,7 +14,7 @@ namespace CustomLighting
     void ApplyAlphaClip(inout SurfaceDescription surfaceDescription)
     {
         #if defined(_ALPHATEST_ON) && defined(ALPHATOCOVERAGE_ON)
-            surfaceDescription.Alpha = (surfaceDescription.Alpha - surfaceDescription.AlphaClipThreshold) / max(fwidth(surfaceDescription.Alpha), 0.01f) + 0.5f;
+            surfaceDescription.Alpha = (surfaceDescription.Alpha - surfaceDescription.AlphaClipThreshold) / max(fwidth(surfaceDescription.Alpha), surfaceDescription.AlphaClipSharpness) + 0.5f;
         #endif
 
         #if defined(_ALPHATEST_ON) && !defined(ALPHATOCOVERAGE_ON)
