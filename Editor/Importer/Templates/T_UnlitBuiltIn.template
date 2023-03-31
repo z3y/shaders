@@ -48,6 +48,7 @@ Shader ""
             $Defines
 
             #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
+            #include "Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
             $Cbuffer
@@ -83,6 +84,7 @@ Shader ""
             $Defines
 
             #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
+            #include "Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
             $Cbuffer
@@ -115,6 +117,7 @@ Shader ""
             $Defines
 
             #include "Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl"
+            #include "Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl"
             
             CBUFFER_START(UnityPerMaterial)
             $Cbuffer

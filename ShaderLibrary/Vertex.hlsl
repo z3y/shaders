@@ -4,7 +4,11 @@
 float3 _LightDirection;
 #endif
 
+#ifdef GENERATION_CODE
 Varyings vert(Attributes input)
+#else
+Varyings BuildVaryings(Attributes input)
+#endif
 {
     Varyings output = (Varyings)0;
 
@@ -156,3 +160,14 @@ Varyings vert(Attributes input)
 
     return output;
 }
+
+
+#ifdef GENERATION_GRAPH
+PackedVaryings vert(Attributes input)
+{
+    Varyings output = (Varyings)0;
+    output = BuildVaryings(input);
+    PackedVaryings packedOutput = PackVaryings(output);
+    return packedOutput;
+}
+#endif

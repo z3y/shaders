@@ -1,4 +1,5 @@
 #pragma warning (disable : 1519)
+#undef BUILTIN_TARGET_API
 
 #if defined(UNITY_INSTANCING_ENABLED) || defined(STEREO_INSTANCING_ON) || defined(INSTANCING_ON)
     #define UNITY_ANY_INSTANCING_ENABLED 1
@@ -194,6 +195,36 @@ struct ShaderData
     half3 energyCompensation;
 };
 
+struct GIData
+{
+    half3 IndirectDiffuse;
+    half3 Light;
+    half3 Reflections;
+    half3 Specular;
+};
+
+// unity macros need workaround
+struct LegacyAttributes
+{
+    float4 vertex;
+    float3 normal;
+};
+struct LegacyVaryings
+{
+    float4 pos;
+    float4 _ShadowCoord;
+};
+
+#ifdef GENERATION_GRAPH
+    #define Albedo BaseColor
+    #define NormalTS Normal
+
+    #define Position VertexPosition
+    #define Normal VertexNormal
+    #define Tangent VertexTangent
+#endif
+
+
 #ifdef GENERATION_CODE
 
 struct VertexDescription
@@ -202,6 +233,7 @@ struct VertexDescription
     float3 VertexNormal;
     float3 VertexTangent;
 };
+
 
 struct SurfaceDescription
 {
@@ -246,26 +278,6 @@ SurfaceDescription InitializeSurfaceDescription()
 
     return surfaceDescription;
 }
-
-struct GIData
-{
-    half3 IndirectDiffuse;
-    half3 Light;
-    half3 Reflections;
-    half3 Specular;
-};
-
-// unity macros need workaround
-struct LegacyAttributes
-{
-    float4 vertex;
-    float3 normal;
-};
-struct LegacyVaryings
-{
-    float4 pos;
-    float4 _ShadowCoord;
-};
 
 
 #ifdef VARYINGS_NEED_NORMAL
@@ -468,61 +480,4 @@ float ftLightFalloff(float4 lightPosRadius, float3 worldPos)
     float distSq = dot(lightCoord, lightCoord);
     float falloff = saturate(1.0f - pow(sqrt(distSq * lightPosRadius.w), 4.0f)) / (distSq + 1.0f);
     return falloff;
-}
-
-CustomLightData GetCustomMainLightData(Varyings unpacked)
-{
-    CustomLightData data = (CustomLightData)0;
-
-    #if defined(PIPELINE_BUILTIN) && defined(USING_LIGHT_MULTI_COMPILE)
-        data.direction = Unity_SafeNormalize(UnityWorldSpaceLightDir(unpacked.positionWS));
-        data.color = _LightColor0.rgb;
-
-        // attenuation
-        // my favorite macro from UnityCG /s
-        LegacyVaryings legacyVaryings = (LegacyVaryings)0;
-        legacyVaryings.pos = unpacked.positionCS;
-        #ifdef VARYINGS_NEED_SHADOWCOORD
-        legacyVaryings._ShadowCoord = unpacked.shadowCoord;
-        #endif
-        UNITY_LIGHT_ATTENUATION(lightAttenuation, legacyVaryings, unpacked.positionWS.xyz);
-
-        #if defined(UNITY_PASS_FORWARDBASE) && !defined(SHADOWS_SCREEN)
-            lightAttenuation = 1.0;
-        #endif
-        data.attenuation = lightAttenuation;
-    
-        #if defined(LIGHTMAP_SHADOW_MIXING) && defined(LIGHTMAP_ON)
-            data.color *= UnityComputeForwardShadows(unpacked.lightmapUV.xy, unpacked.positionWS, unpacked.shadowCoord);
-        #endif
-    
-    #endif
-
-    #if defined(PIPELINE_URP)
-
-        #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-            float4 shadowCoord = unpacked.shadowCoord;
-        #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-            float4 shadowCoord = TransformWorldToShadowCoord(unpacked.positionWS);
-        #else
-            float4 shadowCoord = float4(0, 0, 0, 0);
-        #endif
-
-        Light mainLight = GetMainLight(shadowCoord);
-
-        data.color = mainLight.color;
-        data.direction = mainLight.direction;
-        data.attenuation = mainLight.distanceAttenuation * mainLight.shadowAttenuation;
-    #endif
-
-    return data;
-}
-
-float3 GetViewDirectionWS(float3 positionWS)
-{
-    #ifdef PIPELINE_BUILTIN
-        return normalize(UnityWorldSpaceViewDir(positionWS));
-    #else
-        return normalize(GetCameraPositionWS() - positionWS);
-    #endif
 }
