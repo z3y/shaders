@@ -23,6 +23,7 @@
     #undef REQUIRE_OPAQUE_TEXTURE
     #undef LTCGI
     #undef _GEOMETRICSPECULAR_AA
+    #define BAKERY_SHNONLINEAR_OFF
 #endif
 
 #if defined(_LIGHTMAPPED_SPECULAR) && defined(LIGHTMAP_ON) && !defined(SHADOWS_SHADOWMASK) && !defined(LIGHTMAP_SHADOW_MIXING)
@@ -450,9 +451,9 @@ struct Varyings
     float4 lightCoord : LIGHTCOORD;
     #endif
     #if defined(LIGHTMAP_ON) && defined(DYNAMICLIGHTMAP_ON)
-    float4 lightmapUV : LIGHTMAPUV;
+    centroid float4 lightmapUV : LIGHTMAPUV;
     #elif defined(LIGHTMAP_ON)
-    float2 lightmapUV : LIGHTMAPUV;
+    centroid float2 lightmapUV : LIGHTMAPUV;
     #endif
 
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
