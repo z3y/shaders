@@ -45,7 +45,7 @@
 
 #if defined(SHADOWS_SCREEN) || defined(SHADOWS_SHADOWMASK) || defined(LIGHTMAP_SHADOW_MIXING)
 #define VARYINGS_NEED_SHADOWCOORD
-#define VARYINGS_NEED_TEXCOORD1
+#define ATTRIBUTES_NEED_TEXCOORD1
 #endif
 
 #ifdef LIGHTMAP_ON
@@ -125,7 +125,7 @@ bool IsInMirror()
     #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Color.hlsl"
     #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Packing.hlsl"
     // #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/EntityLighting.hlsl"
-// #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Texture.hlsl"
+    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Texture.hlsl"
 #endif
 
 
