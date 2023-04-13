@@ -43,15 +43,26 @@ half3 UnityLightmappingAlbedo (half3 diffuse, half3 specular, half smoothness)
 }
 
 
-half4 frag (Varyings input) : SV_Target
-{
+#ifdef GENERATION_CODE
+    half4 frag (Varyings unpacked) : SV_Target
+    {
+#else
+    half4 frag (PackedVaryings packedInput) : SV_Target
+    {
+        Varyings unpacked = UnpackVaryings(packedInput);
+#endif
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
 
-    SurfaceDescription surfaceDescription = InitializeSurfaceDescription();
-    #ifdef USE_SURFACEDESCRIPTION
-    SurfaceDescriptionFunction(input, surfaceDescription);
+    #ifdef GENERATION_CODE
+        SurfaceDescription surfaceDescription = InitializeSurfaceDescription();
+        #ifdef USE_SURFACEDESCRIPTION
+        SurfaceDescriptionFunction(unpacked, surfaceDescription);
+        #endif
+    #else
+        SurfaceDescriptionInputs surfaceDescriptionInputs = BuildSurfaceDescriptionInputs(unpacked);
+        SurfaceDescription surfaceDescription = SurfaceDescriptionFunction(surfaceDescriptionInputs);
     #endif
 
     UnityMetaInput o;

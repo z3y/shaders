@@ -37,9 +37,15 @@ Varyings BuildVaryings(Attributes input)
     #ifdef ATTRIBUTES_NEED_TANGENT
     description.VertexTangent = tangentWS.xyz;
     #endif
-    #ifdef USE_VERTEXDESCRIPTION
-    VertexDescriptionFunction(input, description);
+
+    #if defined(GENERATION_GRAPH)
+        description = VertexDescriptionFunction(BuildVertexDescriptionInputs(input));
+    #else 
+        #if defined(USE_VERTEXDESCRIPTION)
+        VertexDescriptionFunction(input, description);
+        #endif
     #endif
+
     positionWS = description.VertexPosition;
     #ifdef ATTRIBUTES_NEED_NORMAL
     normalWS = description.VertexNormal;
@@ -85,8 +91,11 @@ Varyings BuildVaryings(Attributes input)
     #ifdef VARYINGS_NEED_TANGENT
     output.tangentWS = tangentWS;
     #endif
+
+    #if defined(VARYINGS_NEED_POSITION) || defined(GENERATION_CODE)
     output.positionWS = positionWS;
-    
+    #endif
+
     #if defined(VARYINGS_NEED_TEXCOORD0)
         output.texCoord0 = input.uv0;
     #endif
