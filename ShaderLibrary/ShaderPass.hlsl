@@ -26,13 +26,7 @@
     #define BAKERY_SHNONLINEAR_OFF
 #endif
 
-#if defined(_LIGHTMAPPED_SPECULAR) && defined(LIGHTMAP_ON) && !defined(SHADOWS_SHADOWMASK) && !defined(LIGHTMAP_SHADOW_MIXING)
 
-#ifdef _SPECULARHIGHLIGHTS_OFF
-#undef _LIGHTMAPPED_SPECULAR
-#endif
-    #define _SPECULARHIGHLIGHTS_OFF
-#endif
 
 
 #if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
