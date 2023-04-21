@@ -310,7 +310,7 @@ namespace z3y.Shaders
             var fileName = Path.GetFileNameWithoutExtension(assetPath);
             if (string.IsNullOrEmpty(settings.shaderName))
             {
-                template[0] = $"Shader \"Lit/{fileName}\"";
+                template[0] = $"Shader \"Lit Variants/{fileName}\"";
             }
             else
             {

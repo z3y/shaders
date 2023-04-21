@@ -1,7 +1,7 @@
 #include "Packages/com.z3y.shaders/ShaderLibrary/LightFunctions.hlsl"
 #include "Packages/com.z3y.shaders/ShaderLibrary/SSR.hlsl"
 
-#if defined(LTCGI) && defined(LTCGI_EXISTS)
+#if defined(LTCGI_EXISTS) && defined(LTCGI) 
     #define UNITY_PI PI
     #define UNITY_HALF_PI PI/2.
     #define UNITY_TWO_PI PI*2

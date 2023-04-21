@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 464f638e6d22e3a4bb13866fda412a95
+guid: 675704bef7a44d34f93f6a48010d53cb
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -9,13 +9,13 @@ ScriptedImporter:
   assetBundleVariant: 
   script: {fileID: 11500000, guid: c6b508151abe0a040a11a4b72bff5b69, type: 3}
   settings:
-    shaderName: 
-    materialType: 0
-    bicubicLightmap: 0
-    gsaa: 0
+    shaderName: Lit Variants/Samples/Unlit
+    materialType: 1
+    bicubicLightmap: 3
+    gsaa: 3
     anisotropy: 3
-    bakeryMonoSH: 2
-    lightmappedSpecular: 0
+    bakeryMonoSH: 3
+    lightmappedSpecular: 3
     grabPass: 0
     alphaToCoverage: 1
     customEditorGUI: 
