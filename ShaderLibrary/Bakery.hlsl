@@ -34,6 +34,13 @@ void BakeryMonoSH(inout half3 diffuseColor, inout half3 specularColor, float2 lm
 
     diffuseColor = max(sh, 0.0);
 
+#ifdef APPROXIMATE_AREALIGHT_SPECULAR
+    half smoothness = 1.0f - roughness;
+    half3 directionLength = saturate(length(nL1));
+    smoothness *= sqrt(directionLength);
+    roughness = 1.0f - smoothness;
+#endif
+
     specularColor = 0;
     #ifdef _LIGHTMAPPED_SPECULAR
         dominantDir = nL1;
