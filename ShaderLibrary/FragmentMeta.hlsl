@@ -74,8 +74,8 @@ half3 UnityLightmappingAlbedo (half3 diffuse, half3 specular, half smoothness)
 
     #ifdef EDITOR_VISUALIZATION
         o.Albedo = diffuseColor;
-        o.VizUV = input.vizUV;
-        o.LightCoord = input.lightCoord;
+        o.VizUV = unpacked.vizUV;
+        o.LightCoord = unpacked.lightCoord;
     #else
         o.Albedo = UnityLightmappingAlbedo(diffuseColor, specColor, surfaceDescription.Smoothness);
     #endif
@@ -94,7 +94,7 @@ half3 UnityLightmappingAlbedo (half3 diffuse, half3 specular, half smoothness)
         #ifdef _ALPHAPREMULTIPLY_ON
         if (_BakeryAlphaDither > 0.5)
         {
-            half dither = Unity_Dither(surfaceDescription.Alpha, input.positionCS.xy);
+            half dither = Unity_Dither(surfaceDescription.Alpha, unpacked.positionCS.xy);
             return dither < 0.0 ? 0 : 1;
         }
         #endif

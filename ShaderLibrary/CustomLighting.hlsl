@@ -458,11 +458,11 @@ namespace CustomLighting
                 finalColor.rgb -= ditherNoiseFuncHigh(input.uv01.xy) * 0.001;
             #else
                 #ifdef FIX_BLACK_LEVEL
-                // the reason why this exists is because post processing doesnt handle black colors properly
-                // only visible with OLED displays, black colors are gray
-                // shifts the colors down a bit so when the post processing dithering is applied it keeps the blacks
-                // doesnt fix all post processing effects 
-                finalColor.rgb -= 0.0002;
+                // the reason why this exists is because post processing applies dithering additively with a noise in range [-1, 1]
+                // when applying dithering to 0 the visible range of the result is [0, 1]
+                // shifts the colors down one level so when the dithering gets applied black color will be in range [-2,0]
+                // doesnt fix color grading, it would require changes in post processing shaders
+                finalColor.rgb -= (1./255.);
                 #endif
             #endif
         #endif
