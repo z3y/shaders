@@ -467,21 +467,6 @@ namespace CustomLighting
             #endif
         #endif
 
-        #define FIX_BLACK_LEVEL
-        #if !defined(SHADER_API_MOBILE) && defined(UNITY_PASS_FORWARDBASE)
-            #ifdef DITHERING
-                finalColor.rgb -= ditherNoiseFuncHigh(input.uv01.xy) * 0.001;
-            #else
-                #ifdef FIX_BLACK_LEVEL
-                // the reason why this exists is because post processing doesnt handle black colors properly
-                // only visible with OLED displays, black colors are gray
-                // shifts the colors down a bit so when the post processing dithering is applied it keeps the blacks
-                // doesnt fix all post processing effects 
-                finalColor.rgb -= 0.0002;
-                #endif
-            #endif
-        #endif
-
         #ifdef USE_DEBUGCOLOR
         return DebugColor.rgbb;
         #endif
