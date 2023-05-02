@@ -77,7 +77,8 @@ half3 UnityLightmappingAlbedo (half3 diffuse, half3 specular, half smoothness)
         o.VizUV = unpacked.vizUV;
         o.LightCoord = unpacked.lightCoord;
     #else
-        o.Albedo = UnityLightmappingAlbedo(diffuseColor, specColor, surfaceDescription.Smoothness);
+        // o.Albedo = UnityLightmappingAlbedo(diffuseColor, specColor, surfaceDescription.Smoothness);
+        o.Albedo = surfaceDescription.Albedo;
     #endif
         o.SpecularColor = specColor;
         o.Emission = surfaceDescription.Emission;

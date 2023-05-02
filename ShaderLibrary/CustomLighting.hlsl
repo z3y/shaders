@@ -462,7 +462,7 @@ namespace CustomLighting
                 // when applying dithering to 0 the visible range of the result is [0, 1]
                 // shifts the colors down one level so when the dithering gets applied black color will be in range [-2,0]
                 // doesnt fix color grading, it would require changes in post processing shaders
-                finalColor.rgb -= (1./255.);
+                finalColor.rgb -= 0.0002;
                 #endif
             #endif
         #endif
