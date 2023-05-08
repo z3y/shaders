@@ -33,7 +33,7 @@ namespace z3y.Shaders
 
 
 
-        private const string DefaultShaderPath = "Packages/com.z3y.shaders/Shaders/Samples/Default.litshader";
+        private const string DefaultShaderPath = "Packages/com.z3y.shaders/Shaders/Default.litshader";
 
         private const string DefaultPropertiesInclude = "Packages/com.z3y.shaders/Editor/Importer/Templates/Properties.txt";
 
