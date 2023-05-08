@@ -418,7 +418,7 @@ namespace CustomLighting
             float4 ssReflections = getSSRColor(ssr);
             float horizon = min(1.0 + dot(ssr.rayDir.xyz, ssr.faceNormal), 1.0);
             ssReflections.rgb *= horizon * horizon;
-            float3 giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
+            giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
         #endif
 
         // fresnel

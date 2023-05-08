@@ -23,7 +23,11 @@ DEFINES_START // Keywords, Defines
     //#define VARYINGS_NEED_INTERPX (0-4)
     #define VARYINGS_NEED_INTERP0
     //#define VARYINGS_NEED_CULLFACE
-    #define DISABLE_LIGHT_PROBE_PROXY_VOLUME
+
+    #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // avoid unnecessary calculations and reduce the compiled size if LPPV arent used
+    #define APPROXIMATE_AREALIGHT_SPECULAR // lower the smoothness in areas where theres less directionality in directional lightmaps
+    // #pragma multi_compile _ LOD_FADE_CROSSFADE // disabled by defualt, too many variants
+    // #define _SSR // Screen-Space Reflections, expensive, requires Grab Pass enabled
 DEFINES_END
 
 
@@ -50,33 +54,27 @@ CODE_START
     SAMPLER(sampler_MetallicGlossMap);
     SAMPLER(sampler_EmissionMap);
 
-    // Modify attributes before the VertexDescription
-    #define USE_MODIFYATTRIBUTES
+    #define USE_MODIFYATTRIBUTES // Modify attributes before the VertexDescription
     void ModifyAttributes(inout Attributes attributes)
     {
 
     }
 
-    // VertexDescription:
-    // Transform VertexPosition, VertexNormal, VertexTangent in World Space
-    #define USE_VERTEXDESCRIPTION
+    #define USE_VERTEXDESCRIPTION // VertexDescription (World Space): VertexPosition, VertexNormal, VertexTangent
     void VertexDescriptionFunction(Attributes attributes, inout VertexDescription description)
     {
         
     }
 
-    // Modify varyings at the end
-    #define USE_MODIFYVARYINGS
+    #define USE_MODIFYVARYINGS // Modify varyings at the end of vertex shader
     void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
     {
         varyings.interp0.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
     }
 
 
-    // SurfaceDescription:
-    // Albedo, Normal, Metallic, Emission, Smoothness, Occlusion
-    // Alpha, AlphaClipThreshold, Reflectance
-    #define USE_SURFACEDESCRIPTION
+
+    #define USE_SURFACEDESCRIPTION // SurfaceDescription: Albedo, Normal, Metallic, Emission, Smoothness, Occlusion, Alpha, AlphaClipThreshold, Reflectance
     void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
     {
         float2 uv = IN.interp0.xy;
@@ -113,5 +111,10 @@ CODE_START
     }
     #endif
     
+    #define USE_MODIFYFINALCOLOR
+    void ModifyFinalColor(inout half4 finalColor, GIData giData, Varyings unpacked, ShaderData sd, SurfaceDescription surfaceDescription)
+    {
+
+    }
 
 CODE_END
