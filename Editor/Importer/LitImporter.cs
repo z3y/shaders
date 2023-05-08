@@ -229,6 +229,11 @@ namespace z3y.Shaders
                     template[i] = defaultProps.ToString();
                 }
 
+                else if (trimmed.StartsWith("$Feature_RenderQueue"))
+                {
+                    template[i] = settings.grabPass ? "\"Queue\"=\"Transparent+100\"" : "\"Queue\"=\"Geometry+0\"";
+                }
+
                 else if (trimmed.StartsWith("$PropertiesInclude"))
                 {
                     template[i] = shaderData.propertiesSb.ToString();

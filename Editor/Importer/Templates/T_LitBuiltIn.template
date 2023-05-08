@@ -16,7 +16,7 @@ Shader ""
         {
             "RenderPipeline"=""
             "RenderType"="Opaque"
-            "Queue"="Geometry+0"
+            $Feature_RenderQueue
             "LTCGI" = "_LTCGI"
         }
 
