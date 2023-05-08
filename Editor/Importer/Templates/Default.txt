@@ -1,4 +1,4 @@
-PROPERTIES_START // Properties
+PROPERTIES_START
     _MainTex ("Texture", 2D) = "white" {}
     _Color ("Color", Color) = (1,1,1,1)
     _Metallic ("Metallic", Range(0,1)) = 0
@@ -8,23 +8,18 @@ PROPERTIES_START // Properties
 PROPERTIES_END
 
 
-DEFINES_START // Keywords, Defines
+DEFINES_START
     #define VARYINGS_NEED_TEXCOORD0
-    //#define VARYINGS_NEED_TEXCOORD1
-    //#define VARYINGS_NEED_TEXCOORD2
-    //#define VARYINGS_NEED_TEXCOORD3
-    //#define VARYINGS_NEED_COLOR
-    //#define VARYINGS_NEED_INTERP0
-    //#define VARYINGS_NEED_INTERP1
-    //#define VARYINGS_NEED_INTERP2
-    //#define VARYINGS_NEED_INTERP3
-    //#define VARYINGS_NEED_INTERP4
-    //#define VARYINGS_NEED_CULLFACE
+    // #define VARYINGS_NEED_TEXCOORDX (0-3)
+    // #define VARYINGS_NEED_COLOR
+    // #define VARYINGS_NEED_INTERPX (0-4)
+    // #define VARYINGS_NEED_CULLFACE
+
     // #pragma skip_variants _GLOSSYREFLECTIONS_OFF
     // #pragma skip_variants _SPECULARHIGHLIGHTS_OFF
-
-    // lower the smoothness in areas where theres less directionality in directional lightmaps
-    #define APPROXIMATE_AREALIGHT_SPECULAR
+  
+    #define APPROXIMATE_AREALIGHT_SPECULAR // lower the smoothness in areas where theres less directionality in directional lightmaps
+    // #pragma multi_compile _ LOD_FADE_CROSSFADE // disabled by defualt, too many variants
 DEFINES_END
 
 
@@ -44,33 +39,25 @@ CODE_START
     SAMPLER(sampler_MainTex);
     SAMPLER(sampler_BumpMap);
 
-    // Modify attributes before the VertexDescription
-    #define USE_MODIFYATTRIBUTES
+    #define USE_MODIFYATTRIBUTES // Modify attributes before the VertexDescription
     void ModifyAttributes(inout Attributes attributes)
     {
 
     }
 
-    // VertexDescription:
-    // Transform VertexPosition, VertexNormal, VertexTangent in World Space
-    #define USE_VERTEXDESCRIPTION
+    #define USE_VERTEXDESCRIPTION // VertexDescription (World Space): VertexPosition, VertexNormal, VertexTangent
     void VertexDescriptionFunction(Attributes attributes, inout VertexDescription description)
     {
         
     }
 
-    // Modify varyings at the end
-    #define USE_MODIFYVARYINGS
+    #define USE_MODIFYVARYINGS // Modify varyings at the end of vertex shader
     void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
     {
         
     }
 
-
-    // SurfaceDescription:
-    // Albedo, Normal, Metallic, Emission, Smoothness, Occlusion
-    // Alpha, AlphaClipThreshold, Reflectance
-    #define USE_SURFACEDESCRIPTION
+    #define USE_SURFACEDESCRIPTION // SurfaceDescription: Albedo, Normal, Metallic, Emission, Smoothness, Occlusion, Alpha, AlphaClipThreshold, Reflectance
     void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
     {
         float2 uv = TRANSFORM_TEX(IN.texCoord0.xy, _MainTex);
