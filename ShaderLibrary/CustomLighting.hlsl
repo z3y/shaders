@@ -324,9 +324,14 @@ namespace CustomLighting
         #endif
 
         // main light and specular
+
         #if defined(UNITY_PASS_FORWARDBASE) && !defined(DIRECTIONAL_COOKIE) && !defined(SHADOWS_SCREEN) && !defined(_SPECULARHIGHLIGHTS_OFF) && !defined(SHADOWS_SHADOWMASK) && !defined(LIGHTMAP_SHADOW_MIXING)
-            bool lightEnabled = any(mainLightData.direction);
-            UNITY_BRANCH
+            #ifdef DIRECTIONAL // always defined
+                bool lightEnabled = any(mainLightData.direction);
+                UNITY_BRANCH // avoid calculating directional light in some cases, used in the if statement below
+            #else
+                bool lightEnabled = false;
+            #endif
         #else
             bool lightEnabled = true;
         #endif
