@@ -1,3 +1,6 @@
+// Most likely will never be fully implemented and maintened or removed at some point because no one will use this in urp
+// in cause of unity development outside of vrchat it would make much more sense to modify the entire pipeline and implement it in a better way
+
 Shader ""
 {
     Properties

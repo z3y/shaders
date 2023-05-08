@@ -369,33 +369,14 @@ namespace CustomLighting
         // reflection probes
         giData.Reflections += GetReflections(unpacked, surfaceDescription, sd);
 
-        #ifdef _SSR
-		float4 screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
-		float2 screenUVs = screenPos.xy / (screenPos.w+0.0000000001);
-		#if UNITY_SINGLE_PASS_STEREO || defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
-			screenUVs.x *= 2;
-		#endif
-        //float4 ssReflections = GetSSR(unpacked.positionWS, sd.viewDirectionWS, reflect(-sd.viewDirectionWS, sd.normalWS), sd.normalWS, 1- sd.perceptualRoughness, surfaceDescription.Albedo, surfaceDescription.Metallic, screenUVs, screenPos);
-        // return giData.Reflections.xyzz;
-        //giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
-        SSRInput ssr;
-        ssr.wPos = float4(unpacked.positionWS.xyz, 1);
-        ssr.viewDir = sd.viewDirectionWS;
-        ssr.rayDir = float4(reflect(-sd.viewDirectionWS, sd.normalWS).xyz, 1);
-        ssr.faceNormal = sd.normalWS;
-        ssr.hitRadius = 0.02;
-        ssr.blur = 8;
-        ssr.maxSteps = 50;
-        ssr.smoothness = 1- sd.perceptualRoughness;
-        ssr.edgeFade = 0.2;
-        ssr.scrnParams = _CameraOpaqueTexture_TexelSize.zw; //TODO: fix for urp
-        ssr.NoiseTex = BlueNoise;
-        ssr.NoiseTex_dim = BlueNoise_TexelSize.zw;
-        float4 ssReflections = getSSRColor(ssr);
-        float horizon = min(1.0 + dot(ssr.rayDir.xyz, ssr.faceNormal), 1.0);
-        ssReflections.rgb *= horizon * horizon;
-        giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
+        // occlusion
+        #ifdef LIGHTMAP_ON
+            half specularOcclusion = lerp(1.0f, saturate(sqrt(dot(giData.IndirectDiffuse, 1.0)) * surfaceDescription.Occlusion), surfaceDescription.SpecularOcclusion);
+        #else
+            half specularOcclusion = surfaceDescription.Occlusion;
         #endif
+        giData.Reflections *= Filament::computeSpecularAO(sd.NoV, specularOcclusion, sd.perceptualRoughness * sd.perceptualRoughness);
+
 
         #if defined(LTCGI) && defined(LTCGI_EXISTS)
             float2 ltcgi_lmuv;
@@ -410,24 +391,40 @@ namespace CustomLighting
             giData.Reflections += ltcgiSpecular;
         #endif
 
+        #ifdef _SSR
+            float4 screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
+            float2 screenUVs = screenPos.xy / (screenPos.w+0.0000000001);
+            #if UNITY_SINGLE_PASS_STEREO || defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+                screenUVs.x *= 2;
+            #endif
+            SSRInput ssr;
+            ssr.wPos = float4(unpacked.positionWS.xyz, 1);
+            ssr.viewDir = sd.viewDirectionWS;
+            ssr.rayDir = float4(reflect(-sd.viewDirectionWS, sd.normalWS).xyz, 1);
+            ssr.faceNormal = sd.normalWS;
+            ssr.hitRadius = 0.02;
+            ssr.blur = 8;
+            ssr.maxSteps = 50;
+            ssr.smoothness = 1- sd.perceptualRoughness;
+            ssr.edgeFade = 0.2;
+            ssr.scrnParams = _CameraOpaqueTexture_TexelSize.zw; //TODO: fix for urp
+            ssr.NoiseTex = BlueNoise;
+            ssr.NoiseTex_dim = BlueNoise_TexelSize.zw;
+            float4 ssReflections = getSSRColor(ssr);
+            float horizon = min(1.0 + dot(ssr.rayDir.xyz, ssr.faceNormal), 1.0);
+            ssReflections.rgb *= horizon * horizon;
+            float3 giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
+        #endif
+
+        // fresnel
+        giData.Reflections *= sd.energyCompensation * sd.brdf;
+
+        giData.Specular *= PI;
 
         // modify lighting
         #ifdef USE_MODIFYLIGHTING
         ModifyLighting(giData, unpacked, sd, surfaceDescription);
         #endif
-
-
-        // occlusion
-        #ifdef LIGHTMAP_ON
-            half specularOcclusion = lerp(1.0f, saturate(sqrt(dot(giData.IndirectDiffuse, 1.0)) * surfaceDescription.Occlusion), surfaceDescription.SpecularOcclusion);
-        #else
-            half specularOcclusion = surfaceDescription.Occlusion;
-        #endif
-        giData.Reflections *= Filament::computeSpecularAO(sd.NoV, specularOcclusion, sd.perceptualRoughness * sd.perceptualRoughness);
-
-        // fresnel
-        giData.Reflections *= sd.energyCompensation * sd.brdf;
-        giData.Specular *= PI;
 
         #if defined(_ALPHAPREMULTIPLY_ON)
             surfaceDescription.Albedo.rgb *= surfaceDescription.Alpha;

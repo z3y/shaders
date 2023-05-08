@@ -22,6 +22,9 @@ DEFINES_START // Keywords, Defines
     //#define VARYINGS_NEED_CULLFACE
     // #pragma skip_variants _GLOSSYREFLECTIONS_OFF
     // #pragma skip_variants _SPECULARHIGHLIGHTS_OFF
+
+    // lower the smoothness in areas where theres less directionality in directional lightmaps
+    #define APPROXIMATE_AREALIGHT_SPECULAR
 DEFINES_END
 
 
