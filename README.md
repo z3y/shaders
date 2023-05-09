@@ -1,7 +1,7 @@
 # Shaders
 A Standard Shader and Surface Shaders replacement for Unity
 
-## Installation
+##  Installation
 ### Unity Package Manager
 
 - Have [git](https://git-scm.com/downloads) installed
@@ -11,7 +11,7 @@ A Standard Shader and Surface Shaders replacement for Unity
 https://github.com/z3y/shaders.git
 ```
 
-> To install a spefic version add `#v0.0.0` to the end of the url with the version number  from the release labels
+> To install a specific version add `#v0.0.0` to the end of the url with the version number  from the release labels
 
 ## Shader Features
 
@@ -32,11 +32,11 @@ https://github.com/z3y/shaders.git
 |Box Projection on Quest||
 |Anisotropy||
 
-## Scripted Surface Shaders
+## [Scripted Surface Shaders](/Documentation~/ScriptedSurfaceShaders.md)
 
 **This is now the recommended workflow**
 
-You can create surface-like shaders with code `Create > Shader > Lit Shader Variant`. Having just one bloated uber shader will fit everyone's workflow, this is now recommanded over using the Lit shader. With some basic shader knowledge you can create exactly what you need while still having all of the advanced lighting and shader features.
+You can create surface-like shaders `Create > Shader > Lit Shader Variant`. Having just one bloated uber shader will not fit everyone's workflow, this is now recommended over using the Lit shader. With some basic shader knowledge you can create exactly what you need while still having all of the advanced lighting and shader features.
 
 
 
@@ -52,5 +52,5 @@ https://github.com/z3y/ShaderGraph
 
 #
 
-### [Discrod Support](https://discord.gg/bw46tKgRFT)
+### [Discord Support](https://discord.gg/bw46tKgRFT)
 ### [Bug Reports](https://github.com/z3y/shaders/issues)
