@@ -33,6 +33,7 @@ namespace z3y.Shaders
                 material.DisableKeyword(keyword);
                 MaterialEditor.ApplyMaterialPropertyDrawers(material);
             }
+            SetupMaterialWithBlendMode(material, (int)_Mode.floatValue);
             ApplyChanges(material);
         }
 
@@ -48,14 +49,6 @@ namespace z3y.Shaders
             m.ToggleKeyword("_ALPHAFADE_ON", mode == 2);
             m.ToggleKeyword("_ALPHAPREMULTIPLY_ON", mode == 3);
             m.ToggleKeyword("_ALPHAMODULATE_ON", mode == 5);
-
-            if (m.FindPass("GrabPass") != -1 || (m.HasProperty("_GrabPass") && m.GetFloat("_GrabPass") > 0))
-            {
-                if (m.renderQueue <= 3000)
-                {
-                    m.renderQueue = 3001;
-                }
-            }
         }
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
