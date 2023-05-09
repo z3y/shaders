@@ -2,6 +2,12 @@
 To create a new shader variant use `Create > Shader > Lit Shader Variant`. The shader gets created from a template default shader. Some shader features are exposed in the importer UI and the rest can be defined in code.
 
 
+## Improvements over Unity Surface Shaders
+- More Features
+- Custom Interpolators
+- Uses CoreRP library
+- Not a Surface Shader
+
 ## Syntax
 The code syntax is very simple. It contains a few blocks that get copied over to the ShaderLab code.
 To preview the generated ShaderLab code use `Copy Generated Shader` on the importer
@@ -10,8 +16,10 @@ To preview the generated ShaderLab code use `Copy Generated Shader` on the impor
 | - | - |
 |PROPERTIES| Properties get copied over into the Properties {} of the ShaderLab code. Some default properties are added before and after|
 |DEFINES|Shader Features and Defines. Included after the CoreRP shader library and before all the code|
-|CBUFFER| Declare all Material properties excluding textures. Copied over after importing the CoreRP library and code used for ligting |
+|CBUFFER| Declare all Material properties excluding textures. Copied after importing the CoreRP library and code used for lighting |
 |CODE| Contains texture declarations and override functions for parts of the vertex and fragment shader. All existing override functions are included in the template|
+
+
 
 
 ## Importer Shader Defines
@@ -25,3 +33,5 @@ The importer sets some additional useful defines
 
 
 ## Custom Interpolators
+
+Reference Code [ShaderPass](/ShaderLibrary/ShaderPass.hlsl#L300)
