@@ -159,7 +159,7 @@ namespace z3y.Shaders
 #if VRCHAT_SDK
             shaderData.definesSb.AppendLine("#define VRCHAT_SDK");
 #endif
-
+            
             if (isAndroid)
             {
                 shaderData.definesSb.AppendLine("#pragma skip_variants " + ShaderSettings.GsaaKeyword);

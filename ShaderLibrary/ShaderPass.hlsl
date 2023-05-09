@@ -24,6 +24,10 @@
     #undef LTCGI
     #undef _GEOMETRICSPECULAR_AA
     #define BAKERY_SHNONLINEAR_OFF
+
+    #ifdef LIGHTMAP_ON
+    #undef DIRECTIONAL
+    #endif
 #endif
 
 
