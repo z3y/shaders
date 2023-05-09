@@ -25,7 +25,7 @@
     #undef _GEOMETRICSPECULAR_AA
     #define BAKERY_SHNONLINEAR_OFF
 
-    #ifdef LIGHTMAP_ON
+    #if defined(LIGHTMAP_ON) && !defined(SHADOWS_SHADOWMASK) && !defined(LIGHTMAP_SHADOW_MIXING)
     #undef DIRECTIONAL
     #endif
 #endif
