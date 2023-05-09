@@ -36,8 +36,17 @@ https://github.com/z3y/shaders.git
 
 **This is now the recommended workflow**
 
-You can create surface-like shaders `Create > Shader > Lit Shader Variant`. Having just one bloated uber shader will not fit everyone's workflow, this is now recommended over using the Lit shader. With some basic shader knowledge you can create exactly what you need while still having all of the advanced lighting and shader features.
+You can create surface-like shaders `Create > Shader > Lit Shader Variant`. Having just one bloated uber shader will not fit everyone's workflow, this is now recommended over using the Lit shader. With some basic shader knowledge you can create exactly what you need while still having all of the advanced lighting and shader features. 
 
+Some additional features are included:
+
+| Feature | Description |
+| - | - |
+|Screen-Space Reflections| |
+|Bakery Alpha Meta| Surface inputs used in the shader are properly passed to the meta pass for baking instead of just reading the main texture and main color|
+|Bakery Alpha Dither|Semi-Transparent baked shadows. Available only in Bakery L1 mode|
+|Baked Area Light Specular Approximation| Reduced smoothness in areas where there is less directionality for more accurate lightmapped specular|
+|URP Box Projection (Soon)||
 
 
 ## Shader Graph
