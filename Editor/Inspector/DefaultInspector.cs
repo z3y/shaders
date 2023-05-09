@@ -31,8 +31,8 @@ namespace z3y.Shaders
             foreach (var keyword in material.shaderKeywords)
             {
                 material.DisableKeyword(keyword);
-                MaterialEditor.ApplyMaterialPropertyDrawers(material);
             }
+            MaterialEditor.ApplyMaterialPropertyDrawers(material);
             SetupMaterialWithBlendMode(material, (int)_Mode.floatValue);
             ApplyChanges(material);
         }
