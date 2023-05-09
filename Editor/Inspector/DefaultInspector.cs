@@ -33,7 +33,7 @@ namespace z3y.Shaders
                 material.DisableKeyword(keyword);
             }
             MaterialEditor.ApplyMaterialPropertyDrawers(material);
-            SetupMaterialWithBlendMode(material, (int)_Mode.floatValue);
+            SetupMaterialWithBlendMode(material, (int)material.GetFloat("_Mode"));
             ApplyChanges(material);
         }
 
