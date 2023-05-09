@@ -14,12 +14,14 @@ namespace z3y.Shaders
         private MaterialProperty _SrcBlend;
         private MaterialProperty _Cull;
 
-        private MaterialProperty _LightmappedSpecular;
-        private MaterialProperty _NonLinearLightProbeSH;
         private MaterialProperty _BakeryAlphaDither;
         private MaterialProperty _GlossyReflections;
         private MaterialProperty _SpecularHighlights;
-
+        private MaterialProperty _BAKERY_MONOSH;
+        private MaterialProperty _BICUBIC_LIGHTMAP;
+        private MaterialProperty _GEOMETRICSPECULAR_AA;
+        private MaterialProperty _LIGHTMAPPED_SPECULAR;
+        private MaterialProperty _ANISOTROPY;
 
         private static bool _foldout0 = true;
         private static bool _foldout1 = true;
@@ -100,8 +102,11 @@ namespace z3y.Shaders
             
             if (Foldout(ref _foldout2, "Additional Settings"))
             {
-                Draw(_LightmappedSpecular);
-                Draw(_NonLinearLightProbeSH);
+                Draw(_BAKERY_MONOSH);
+                Draw(_BICUBIC_LIGHTMAP);
+                Draw(_GEOMETRICSPECULAR_AA);
+                Draw(_LIGHTMAPPED_SPECULAR);
+                Draw(_ANISOTROPY);
                 Draw(_BakeryAlphaDither);
                 Draw(_GlossyReflections);
                 Draw(_SpecularHighlights);

@@ -33,6 +33,7 @@ DEFINES_START // Keywords, Defines
     // #define _SSR // Screen-Space Reflections, expensive, requires Grab Pass enabled
     // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
     // #define UNITY_SPECCUBE_BOX_PROJECTION // force enable box projection on quest
+    // #define NONLINEAR_LIGHTPROBESH // used with L1 bakery probes, not recommended for VRChat
 DEFINES_END
 
 

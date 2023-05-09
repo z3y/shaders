@@ -123,7 +123,7 @@ namespace z3y.Shaders
             lastFolderPath = Path.GetDirectoryName(assetPath);
             var fileLines = File.ReadLines(assetPath);
 
-            var defaultProps = new StringBuilder(File.ReadAllText(DefaultPropertiesInclude));
+            var defaultProps = new StringBuilder();
             defaultProps.AppendLine(GetPropertyDeclaration(settings.bakeryMonoSH, ShaderSettings.MonoShKeyword, "Mono SH"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.bicubicLightmap, ShaderSettings.BicubicLightmapKeyword, "Bicubic Lightmap"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.gsaa, ShaderSettings.GsaaKeyword, "Geometric Specular AA"));
@@ -136,7 +136,9 @@ namespace z3y.Shaders
                 defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI_DIFFUSE_OFF", "Disable LTCGI Diffuse"));
             }
 
-            if (settings.grabPass) defaultProps.Append("[HideInInspector][ToggleUI]_GrabPass(\"GrabPass\", Float) = 1");
+            if (settings.grabPass) defaultProps.Append("[HideInInspector][ToggleUI]_GrabPass(\"GrabPass\", Float) = 1"); // just a property to detect if there is a grabpass
+
+            defaultProps.AppendLine(File.ReadAllText(DefaultPropertiesInclude));
 
             RenderPipeline rp = QualitySettings.renderPipeline == null ? RenderPipeline.BuiltIn : RenderPipeline.URP;
 
