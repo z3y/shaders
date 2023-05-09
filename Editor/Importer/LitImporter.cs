@@ -162,6 +162,7 @@ namespace z3y.Shaders
             
             if (isAndroid)
             {
+                shaderData.definesSb.AppendLine("#define BUILD_TARGET_ANDROID");
                 shaderData.definesSb.AppendLine("#pragma skip_variants " + ShaderSettings.GsaaKeyword);
                 shaderData.definesSb.AppendLine("#pragma skip_variants " + ShaderSettings.BicubicLightmapKeyword);
                 shaderData.definesSb.AppendLine("#pragma skip_variants SHADOWS_DEPTH");
@@ -173,6 +174,11 @@ namespace z3y.Shaders
                 shaderData.definesSb.AppendLine("#pragma skip_variants SPOT_COOKIE");
                 shaderData.definesSb.AppendLine("#pragma skip_variants POINT_COOKIE");
                 shaderData.definesSb.AppendLine("#pragma skip_variants DYNAMICLIGHTMAP_ON");
+
+            }
+            else
+            {
+                shaderData.definesSb.AppendLine("#define BUILD_TARGET_PC");
             }
 
             if (isAndroid || !_ltcgiIncluded)

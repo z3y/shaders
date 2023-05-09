@@ -9,6 +9,11 @@
     #define UNITY_STEREO_INSTANCING_ENABLED
 #endif
 
+#ifdef BUILD_TARGET_ANDROID
+#define UNITY_PBS_USE_BRDF1
+#define QUALITY_LOW
+#endif
+
 #ifndef UNITY_PBS_USE_BRDF1
     #define QUALITY_LOW
 #endif
@@ -24,6 +29,7 @@
     #undef LTCGI
     #undef _GEOMETRICSPECULAR_AA
     #define BAKERY_SHNONLINEAR_OFF
+    #undef UNITY_SPECCUBE_BLENDING
 
     #if defined(LIGHTMAP_ON) && !defined(SHADOWS_SHADOWMASK) && !defined(LIGHTMAP_SHADOW_MIXING)
     #undef DIRECTIONAL
