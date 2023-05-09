@@ -340,6 +340,10 @@ namespace CustomLighting
             LightPBR(giData.Light, giData.Specular, mainLightData, unpacked, surfaceDescription, sd);
         }
 
+        // non important lights per pixel
+        #if defined(VERTEXLIGHT_ON) && !defined(DISABLE_NONIMPORTANT_LIGHTS_PER_PIXEL)
+            NonImportantLightsPerPixel(giData.Light, giData.Specular, unpacked.positionWS, sd.normalWS, sd.viewDirectionWS, sd.NoV, sd.f0, sd);
+        #endif
 
         // additional light and specular (urp and non important lights)
         #if defined(_ADDITIONAL_LIGHTS) && defined(PIPELINE_URP)
@@ -364,7 +368,7 @@ namespace CustomLighting
             LIGHT_LOOP_END
         #endif
         
-        #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
+        #if defined(VERTEXLIGHT_ON) && defined(DISABLE_NONIMPORTANT_LIGHTS_PER_PIXEL)
             giData.Light += unpacked.vertexLight;
         #endif
 

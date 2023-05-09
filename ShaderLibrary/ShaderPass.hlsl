@@ -34,6 +34,7 @@
     #if defined(LIGHTMAP_ON) && !defined(SHADOWS_SHADOWMASK) && !defined(LIGHTMAP_SHADOW_MIXING)
     #undef DIRECTIONAL
     #endif
+    #define DISABLE_NONIMPORTANT_LIGHTS_PER_PIXEL
 #endif
 
 
