@@ -160,6 +160,12 @@ namespace z3y.Shaders
             shaderData.definesSb.AppendLine("#define VRCHAT_SDK");
 #endif
 
+            if (isAndroid)
+            {
+                shaderData.definesSb.AppendLine("#pragma skip_variants " + ShaderSettings.GsaaKeyword);
+                shaderData.definesSb.AppendLine("#pragma skip_variants " + ShaderSettings.BicubicLightmapKeyword);
+            }
+
             if (isAndroid || !_ltcgiIncluded)
             {
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI");
