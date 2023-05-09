@@ -2,9 +2,10 @@
     [MainTexture] _MainTex ("Albedo", 2D) = "white" {}
     [MainColor] _Color ("Color", Color) = (1,1,1,1)
     _AlbedoSaturation ("Saturation", Float) = 1
-    [NoScaleOffset] _MetallicGlossMap("Mask Map", 2D) = "white" {}
+    [NoScaleOffset] _MaskMap ("Mask Map - AO (R), Roughness (G), Metallic (B)", 2D) = "white" {}
     _Metallic ("Metallic", Range(0,1)) = 0
-    _Glossiness ("Smoothness", Range(0,1)) = 0.5
+    _Roughness ("Roughness", Range(0,1)) = 0.5
+    _OcclusionStrength ("Occlusion", Range(0,1)) = 1
     [NoScaleOffset] [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
     _BumpScale ("Normal Scale", Float) = 1
 
@@ -37,13 +38,14 @@ DEFINES_END
 CBUFFER_START // declare all Material properties excluding textures
     half4 _Color;
     half4 _MainTex_ST;
-    half _Glossiness;
+    half _Roughness;
     half _Metallic;
     half _BumpScale;
     half _AlbedoSaturation;
     half3 _EmissionColor;
     half _SpecularOcclusion;
     half _EmissionGIMultiplier;
+    half _OcclusionStrength;
 CBUFFER_END
 
 
@@ -51,11 +53,11 @@ CODE_START
 
     TEXTURE2D(_MainTex);
     TEXTURE2D(_BumpMap);
-    TEXTURE2D(_MetallicGlossMap);
+    TEXTURE2D(_MaskMap);
     TEXTURE2D(_EmissionMap);
     SAMPLER(sampler_MainTex);
     SAMPLER(sampler_BumpMap);
-    SAMPLER(sampler_MetallicGlossMap);
+    SAMPLER(sampler_MaskMap);
     SAMPLER(sampler_EmissionMap);
 
     #define USE_MODIFYATTRIBUTES // Modify attributes before the VertexDescription
@@ -87,14 +89,12 @@ CODE_START
         half4 normalMap = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
         surface.Normal = UnpackNormalScale(normalMap, _BumpScale);
 
-        half4 moas = SAMPLE_TEXTURE2D(_MetallicGlossMap, sampler_MetallicGlossMap, uv);
-        moas.r *= _Metallic;
-        moas.a *= _Glossiness;
+        half4 maskMap = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uv);
 
         surface.Albedo = mainTex.rgb;
-        surface.Metallic = moas.r;
-        surface.Smoothness = moas.a;
-        surface.Occlusion = moas.g;
+        surface.Metallic = maskMap.b * _Metallic;
+        surface.Smoothness = 1.0 - (maskMap.g * _Roughness);
+        surface.Occlusion = lerp(1.0, maskMap.r, _OcclusionStrength);
         surface.Alpha = mainTex.a;
 
         #ifdef _EMISSION
