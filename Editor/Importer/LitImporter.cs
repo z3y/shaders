@@ -193,6 +193,10 @@ namespace z3y.Shaders
                 shaderData.definesSb.AppendLine("#define LTCGI_EXISTS");
             }
 
+#if BAKERY_INCLUDED
+            shaderData.definesSb.AppendLine("#define BAKERY_INCLUDED");
+#endif
+
             for (int i = 0; i < template.Length; i++)
             {
                 var trimmed = template[i].Trim();
