@@ -453,7 +453,8 @@ namespace z3y.Shaders
             {
                 string value = toggleOff ? "1" : "0";
                 string off = toggleOff ? "Off" : string.Empty;
-                return $"[Toggle{off}({keyword})]_{keyword}(\"{displayName}\", Float) = {value}";
+                string propName = keyword.StartsWith("_", StringComparison.Ordinal) ? keyword :  "_" + keyword;
+                return $"[Toggle{off}({keyword})]{propName}(\"{displayName}\", Float) = {value}";
             }
             
             return string.Empty;
