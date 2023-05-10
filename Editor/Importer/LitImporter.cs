@@ -60,7 +60,6 @@ namespace z3y.Shaders
         public static void CreateVariantFile()
         {
             var defaultContent = File.ReadAllText(DefaultShaderPath);
-        private static string lastFolderPath = string.Empty;
             ProjectWindowUtil.CreateAssetWithContent($"Lit Shader Variant.{Ext}", defaultContent);
         }
 
@@ -445,7 +444,7 @@ namespace z3y.Shaders
             }
             else
             {
-                return prefix + settings.shaderName;
+                return settings.shaderName;
             }
         }
 
