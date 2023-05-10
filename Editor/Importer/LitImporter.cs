@@ -138,7 +138,12 @@ namespace z3y.Shaders
                         if (_ltcgiIncluded) sb.AppendLine("\"LTCGI\" = \"_LTCGI\"");
                     }
                     sb.AppendLine("}");
- //TODO: Insert grabpass here
+                    
+                    if (settings.grabPass && !isAndroid)
+                    {
+                        sb.AppendLine("GrabPass\n{\n Name \"GrabPass\" \n \"_CameraOpaqueTexture\" \n}");
+                    }
+                    
                     sb.AppendLine("Pass"); // FwdBase
                     sb.AppendLine("{");
                     {
@@ -169,7 +174,11 @@ namespace z3y.Shaders
                             sb.AppendLine("#pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF");
                             sb.AppendLine("#pragma shader_feature_local _GLOSSYREFLECTIONS_OFF");
                             sb.AppendLine("#pragma shader_feature_local _EMISSION");
-                            sb.AppendLine("");
+
+                            if (settings.grabPass && !isAndroid)
+                            {
+                                sb.AppendLine("#define REQUIRE_OPAQUE_TEXTURE");
+                            }
 
                             if (!isAndroid && _ltcgiIncluded)
                             {
@@ -206,9 +215,212 @@ namespace z3y.Shaders
                         sb.AppendLine("ENDHLSL");
                     }
                     sb.AppendLine("}");
+
+                    if (settings.materialType == ShaderSettings.MaterialType.Lit)
+                    {
+                        sb.AppendLine("Pass"); // FwdAdd
+                        sb.AppendLine("{");
+                        {
+                            sb.AppendLine("Name \"FORWARD_DELTA\"");
+                            sb.AppendLine("Tags { \"LightMode\" = \"ForwardAdd\"}");
+                            sb.AppendLine("Fog { Color (0,0,0,0) }");
+                            sb.AppendLine("Blend [_SrcBlend] One");
+                            sb.AppendLine("Cull [_Cull]");
+                            sb.AppendLine("// ZTest: <None>");
+                            sb.AppendLine("ZWrite Off");
+                            sb.AppendLine("ZTest LEqual");
+                            if (settings.alphaToCoverage) sb.AppendLine("AlphaToMask [_AlphaToMask]");
+
+                            sb.AppendLine("HLSLPROGRAM");
+                            sb.AppendLine("#define PIPELINE_BUILTIN");
+                            sb.AppendLine("#define GENERATION_CODE");
+                            sb.AppendLine("#pragma vertex vert");
+                            sb.AppendLine("#pragma fragment frag");
+
+                            sb.AppendLine("#pragma target 4.5");
+                            sb.AppendLine("#pragma multi_compile_fog");
+                            sb.AppendLine("#pragma multi_compile_instancing");
+
+                            sb.AppendLine("#pragma multi_compile_fwdadd_fullshadows");
+                            if (!isAndroid)
+                            {
+                                sb.AppendLine(GetDefineTypeDeclaration(settings.bicubicLightmap, ShaderSettings.BicubicLightmapKeyword));
+                                sb.AppendLine(GetDefineTypeDeclaration(settings.gsaa, ShaderSettings.GsaaKeyword));          
+                            }
+
+                            sb.AppendLine(GetDefineTypeDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword));
+
+                            sb.AppendLine("#pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
+
+                            sb.AppendLine("// DEFINES_START");
+                            sb.AppendLine(definesSbString);
+                            sb.AppendLine("// DEFINES_END");
+
+                            sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl\"");
+                            sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl\"");
+
+                            sb.AppendLine("// CBUFFER_START");
+                            sb.AppendLine(cbufferSbSbString);
+                            sb.AppendLine("// CBUFFER_END");
+
+                            sb.AppendLine("// CODE_START");
+                            sb.AppendLine(codeSbSbString);
+                            sb.AppendLine("// CODE_END");
+
+
+                            sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl\"");
+                            sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Fragment.hlsl\"");
+                            sb.AppendLine("ENDHLSL");
+                        }
+                        sb.AppendLine("}");
+                        
+                        sb.AppendLine("Pass"); // FwdAdd
+                        sb.AppendLine("{");
+                        {
+                            sb.AppendLine("Name \"FORWARD_DELTA\"");
+                            sb.AppendLine("Tags { \"LightMode\" = \"ForwardAdd\"}");
+                            sb.AppendLine("Fog { Color (0,0,0,0) }");
+                            sb.AppendLine("Blend [_SrcBlend] One");
+                            sb.AppendLine("Cull [_Cull]");
+                            sb.AppendLine("// ZTest: <None>");
+                            sb.AppendLine("ZWrite Off");
+                            sb.AppendLine("ZTest LEqual");
+                            if (settings.alphaToCoverage) sb.AppendLine("AlphaToMask [_AlphaToMask]");
+
+                            sb.AppendLine("HLSLPROGRAM");
+                            sb.AppendLine("#define PIPELINE_BUILTIN");
+                            sb.AppendLine("#define GENERATION_CODE");
+                            sb.AppendLine("#pragma vertex vert");
+                            sb.AppendLine("#pragma fragment frag");
+
+                            sb.AppendLine("#pragma target 4.5");
+                            sb.AppendLine("#pragma multi_compile_fog");
+                            sb.AppendLine("#pragma multi_compile_instancing");
+
+                            sb.AppendLine("#pragma multi_compile_fwdadd_fullshadows");
+                            if (!isAndroid)
+                            {
+                                sb.AppendLine(GetDefineTypeDeclaration(settings.bicubicLightmap, ShaderSettings.BicubicLightmapKeyword));
+                                sb.AppendLine(GetDefineTypeDeclaration(settings.gsaa, ShaderSettings.GsaaKeyword));          
+                            }
+
+                            sb.AppendLine(GetDefineTypeDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword));
+
+                            sb.AppendLine("#pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
+
+                            sb.AppendLine("// DEFINES_START");
+                            sb.AppendLine(definesSbString);
+                            sb.AppendLine("// DEFINES_END");
+
+                            sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl\"");
+                            sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl\"");
+
+                            sb.AppendLine("// CBUFFER_START");
+                            sb.AppendLine(cbufferSbSbString);
+                            sb.AppendLine("// CBUFFER_END");
+
+                            sb.AppendLine("// CODE_START");
+                            sb.AppendLine(codeSbSbString);
+                            sb.AppendLine("// CODE_END");
+
+
+                            sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl\"");
+                            sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Fragment.hlsl\"");
+                            sb.AppendLine("ENDHLSL");
+                        }
+                        sb.AppendLine("}");
+                    }
+                    
+                    sb.AppendLine("Pass"); // ShadowCaster
+                    sb.AppendLine("{");
+                    {
+                        sb.AppendLine("Name \"SHADOWCASTER\"");
+                        sb.AppendLine("Tags { \"LightMode\" = \"ShadowCaster\"}");
+                        sb.AppendLine("ZWrite On");
+                        sb.AppendLine("Cull [_Cull]");
+                        sb.AppendLine("ZTest LEqual");
+                        
+                        sb.AppendLine("HLSLPROGRAM");
+                        sb.AppendLine("#define PIPELINE_BUILTIN");
+                        sb.AppendLine("#define GENERATION_CODE");
+                        sb.AppendLine("#pragma vertex vert");
+                        sb.AppendLine("#pragma fragment frag");
+
+                        sb.AppendLine("#pragma target 4.5");
+                        sb.AppendLine("#pragma multi_compile_fog");
+                        sb.AppendLine("#pragma multi_compile_instancing");
+                        sb.AppendLine("#pragma multi_compile_shadowcaster");
+                        
+                        sb.AppendLine("#pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAFADE_ON");
+
+                        sb.AppendLine("// DEFINES_START");
+                        sb.AppendLine(definesSbString);
+                        sb.AppendLine("// DEFINES_END");
+
+                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl\"");
+                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl\"");
+
+                        sb.AppendLine("// CBUFFER_START");
+                        sb.AppendLine(cbufferSbSbString);
+                        sb.AppendLine("// CBUFFER_END");
+
+                        sb.AppendLine("// CODE_START");
+                        sb.AppendLine(codeSbSbString);
+                        sb.AppendLine("// CODE_END");
+
+
+                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl\"");
+                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/FragmentShadowCaster.hlsl\"");
+                        sb.AppendLine("ENDHLSL");
+                    }
+                    sb.AppendLine("}");
+                    
+                    
+                    sb.AppendLine("Pass"); // Meta
+                    sb.AppendLine("{");
+                    {
+                        sb.AppendLine("Name \"META_BAKERY\"");
+                        sb.AppendLine("Tags { \"LightMode\" = \"Meta\"}");
+                        sb.AppendLine("Cull Off");
+
+                        sb.AppendLine("HLSLPROGRAM");
+                        sb.AppendLine("#define PIPELINE_BUILTIN");
+                        sb.AppendLine("#define GENERATION_CODE");
+                        sb.AppendLine("#pragma vertex vert");
+                        sb.AppendLine("#pragma fragment frag");
+
+                        sb.AppendLine("#pragma target 4.5");
+                        sb.AppendLine("#pragma shader_feature EDITOR_VISUALIZATION");
+                        
+                        sb.AppendLine("#pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
+                        sb.AppendLine("#pragma shader_feature_local _EMISSION");
+
+                        sb.AppendLine("// DEFINES_START");
+                        sb.AppendLine(definesSbString);
+                        sb.AppendLine("// DEFINES_END");
+
+                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl\"");
+                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl\"");
+
+                        sb.AppendLine("// CBUFFER_START");
+                        sb.AppendLine(cbufferSbSbString);
+                        sb.AppendLine("// CBUFFER_END");
+
+                        sb.AppendLine("// CODE_START");
+                        sb.AppendLine(codeSbSbString);
+                        sb.AppendLine("// CODE_END");
+
+
+                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl\"");
+                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/FragmentMeta.hlsl\"");
+                        sb.AppendLine("ENDHLSL");
+                    }
+                    sb.AppendLine("}");
                 }
                 sb.AppendLine("}");
-
+                
+                sb.AppendLine(GetShaderInspectorLine(settings));
+                // sb.AppendLine("Fallback");
             }
             sb.AppendLine("}");
 
@@ -231,7 +443,7 @@ namespace z3y.Shaders
             }
         }
 
-        private static string GetShaderInspectorName(ShaderSettings settings)
+        private static string GetShaderInspectorLine(ShaderSettings settings)
         {
             string name;
             if (string.IsNullOrEmpty(settings.customEditorGUI))
@@ -252,6 +464,7 @@ namespace z3y.Shaders
 
             return name;
         }
+        
         internal static string ProcessFileLinesOld(ShaderSettings settings, string assetPath, BuildTarget buildTarget)
         {
             if (settings is null)
