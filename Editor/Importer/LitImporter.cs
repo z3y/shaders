@@ -194,11 +194,16 @@ namespace z3y.Shaders
                             sb.AppendLine(GetDefineTypeDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular));
                         }
                         sb.AppendLine("#pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
-
+                        
+                        if (settings.alphaToCoverage)
+                        {
+                            sb.AppendLine("#define ALPHATOCOVERAGE_ON");
+                        }
+                        
                         sb.AppendLine("// DEFINES_START");
                         sb.AppendLine(definesSbString);
                         sb.AppendLine("// DEFINES_END");
-                        
+
                         sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl\"");
                         sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl\"");
                         
@@ -254,9 +259,16 @@ namespace z3y.Shaders
 
                             sb.AppendLine("#pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
 
+                            if (settings.alphaToCoverage)
+                            {
+                                sb.AppendLine("#define ALPHATOCOVERAGE_ON");
+                            }
+                            
                             sb.AppendLine("// DEFINES_START");
                             sb.AppendLine(definesSbString);
                             sb.AppendLine("// DEFINES_END");
+                            
+                            
                             
                             sb.AppendLine("// DEFINES_FORWARDBASE_START");
                             sb.AppendLine(shaderBlocks.definesForwardBaseSb.ToString());
@@ -481,194 +493,6 @@ namespace z3y.Shaders
             return name;
         }
         
-        internal static string ProcessFileLinesOld(ShaderSettings settings, string assetPath, BuildTarget buildTarget)
-        {
-            if (settings is null)
-            {
-                settings = new ShaderSettings();
-            }
-
-
-            bool isAndroid = buildTarget == BuildTarget.Android;
-            lastFolderPath = Path.GetDirectoryName(assetPath);
-            var fileLines = File.ReadLines(assetPath);
-
-            string defaultProps = GetDefaultPropertiesInclude(settings, isAndroid);
-
-            RenderPipeline rp = QualitySettings.renderPipeline == null ? RenderPipeline.BuiltIn : RenderPipeline.URP;
-
-            string[] template = null;
-
-            if (settings.materialType == ShaderSettings.MaterialType.Lit)
-            {
-                if (rp == RenderPipeline.BuiltIn) template = File.ReadAllLines(TemplateLitBuiltIn);
-                if (rp == RenderPipeline.URP) template = File.ReadAllLines(TemplateLitURP);
-            }
-            else if (settings.materialType == ShaderSettings.MaterialType.Unlit)
-            {
-                template = File.ReadAllLines(TemplateUnlitBuiltIn);
-            }
-
-            var shaderData = new ShaderBlocks();
-
-
-            GetShaderBlocksRecursive(fileLines, shaderData);
-            AppendAdditionalDataToBlocks(isAndroid, shaderData);
-            for (int i = 0; i < template.Length; i++)
-            {
-                var trimmed = template[i].Trim();
-
-                if (string.IsNullOrEmpty(trimmed))
-                {
-                    continue;
-                }
-
-                if (trimmed.Equals("Name \"FORWARDBASE\""))
-                {
-                    _currentPass = CurrentPass.ForwardBase;
-                }
-                else if (trimmed.Equals("Name \"FORWARD_DELTA\""))
-                {
-                    _currentPass = CurrentPass.ForwardAdd;
-                }
-                else if (trimmed.Equals("Name \"SHADOWCASTER\""))
-                {
-                    _currentPass = CurrentPass.ShadowCaster;
-                }
-                else if (trimmed.Equals("Name \"META_BAKERY\""))
-                {
-                    _currentPass = CurrentPass.Meta;
-                }
-
-
-                if (trimmed.StartsWith("$Feature_GrabPass"))
-                {
-                    if (settings.grabPass && !isAndroid)
-                    {
-                        shaderData.definesSb.AppendLine("#define REQUIRE_OPAQUE_TEXTURE");
-                        template[i] = "GrabPass\n{\n Name \"GrabPass\" \n \"_CameraOpaqueTexture\" \n}";
-                    }
-                    else
-                    {
-                        template[i] = string.Empty;
-                    }
-
-                }
-
-                if (trimmed.StartsWith("$Feature_a2c"))
-                {
-                    if (settings.alphaToCoverage)
-                    {
-                        shaderData.definesSb.AppendLine("#define ALPHATOCOVERAGE_ON");
-                        template[i] = "AlphaToMask [_AlphaToMask]";
-                    }
-                    else
-                    {
-                        template[i] = string.Empty;
-                    }
-                }
-
-                if (trimmed.StartsWith("$DefaultPropertiesInclude"))
-                {
-                    template[i] = defaultProps;
-                }
-
-                else if (trimmed.StartsWith("$Feature_RenderQueue"))
-                {
-                    template[i] = settings.grabPass ? "\"Queue\"=\"Transparent+100\"" : "\"Queue\"=\"Geometry+0\"";
-                }
-
-                else if (trimmed.StartsWith("$PropertiesInclude"))
-                {
-                    template[i] = shaderData.propertiesSb.ToString();
-                }
-
-                else if (trimmed.StartsWith("$Defines"))
-                {
-                    template[i] = shaderData.definesSb.ToString();
-                    if (_currentPass == CurrentPass.ForwardBase)
-                    {
-                        template[i] += '\n' + shaderData.definesForwardBaseSb.ToString();
-                    }
-                    else if (_currentPass == CurrentPass.ForwardAdd)
-                    {
-                        template[i] += '\n' + shaderData.definesForwardAddSb.ToString();
-                    }
-                    else if (_currentPass == CurrentPass.ShadowCaster)
-                    {
-                        template[i] += '\n' + shaderData.definesShadowcasterSb.ToString();
-                    }
-                    else if (_currentPass == CurrentPass.Meta)
-                    {
-                        template[i] += '\n' + shaderData.definesMetaSb.ToString();
-                    }
-                }
-
-                else if (trimmed.StartsWith("$ShaderDescription"))
-                {
-                    template[i] = shaderData.codeSb.ToString();
-                }
-
-                else if (trimmed.StartsWith("$Cbuffer"))
-                {
-                    template[i] = shaderData.cbufferSb.ToString();
-                }
-
-                else if (trimmed.StartsWith("$Feature_MonoSH"))
-                {
-                    template[i] = GetDefineTypeDeclaration(settings.bakeryMonoSH, ShaderSettings.MonoShKeyword);
-                }
-
-                else if (trimmed.StartsWith("$Feature_BicubicLightmap"))
-                {
-                    template[i] = GetDefineTypeDeclaration(settings.bicubicLightmap, ShaderSettings.BicubicLightmapKeyword);
-                }
-                else if (trimmed.StartsWith("$Feature_GSAA"))
-                {
-                    template[i] = GetDefineTypeDeclaration(settings.gsaa, ShaderSettings.GsaaKeyword);
-                }
-                else if (trimmed.StartsWith("$Feature_Anisotropy"))
-                {
-                    template[i] = GetDefineTypeDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword);
-                }
-                else if (trimmed.StartsWith("$Feature_LightmappedSpecular"))
-                {
-                    template[i] = GetDefineTypeDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular);
-                }
-
-                else if (trimmed.Equals("$ShaderEditor"))
-                {
-                    if (string.IsNullOrEmpty(settings.customEditorGUI))
-                    {
-                        if (!string.IsNullOrEmpty(defaultShaderEditor))
-                        {
-                            template[i] = $"CustomEditor \"{defaultShaderEditor}\"";
-                        }
-                        else
-                        {
-                            template[i] = string.Empty;
-                        }
-                    }
-                    else
-                    {
-                        template[i] = $"CustomEditor \"{settings.customEditorGUI}\"";
-                    }
-                }
-            }
-
-            var fileName = Path.GetFileNameWithoutExtension(assetPath);
-            if (string.IsNullOrEmpty(settings.shaderName))
-            {
-                template[0] = $"Shader \"Lit Variants/{fileName}\"";
-            }
-            else
-            {
-                template[0] = $"Shader \"{settings.shaderName}\"";
-            }
-
-            return string.Join(Environment.NewLine, template);
-        }
-
         private static void AppendAdditionalDataToBlocks(bool isAndroid, ShaderBlocks shaderData)
         {
 #if VRCHAT_SDK
