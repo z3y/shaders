@@ -1,12 +1,20 @@
 ﻿PROPERTIES_START // Properties
     [MainTexture] _MainTex ("Albedo", 2D) = "white" {}
     [MainColor] _Color ("Color", Color) = (1,1,1,1)
+
     [sRGB] [NoScaleOffset] _MaskMap ("Mask Map - AO (R), Roughness (G), Metallic (B) sRGB", 2D) = "white" {}
     _Metallic ("Metallic", Range(0,1)) = 0
     _Roughness ("Roughness", Range(0,1)) = 0.5
     _OcclusionStrength ("Occlusion", Range(0,1)) = 1
+
     [NoScaleOffset] [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
     _BumpScale ("Normal Scale", Float) = 1
+
+    [Toggle(_PARALLAXMAP)] _ParallaxMapEnable ("Enable Height Map", Int) = 0
+    [NoScaleOffset] _ParallaxMap ("Height Map", 2D) = "white" {}
+    _Parallax ("Scale", Range (0, 0.2)) = 0.02
+    _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
+    [IntRange] _ParallaxSteps ("Steps", Range(1, 32)) = 16
 
     [Toggle(_EMISSION)] _EmissionToggle ("Enable Emission", Int) = 0
     [NoScaleOffset] _EmissionMap ("Emission Map", 2D) = "white" {}
@@ -15,6 +23,9 @@
     _EmissionMultiplyBase ("Emission Multiply Base", Range(0,1)) = 0
 
     _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
+
+    [PowerSlider(2)] _specularAntiAliasingVariance ("Variance", Range(0.0, 1.0)) = 0.15
+    [PowerSlider(2)] _specularAntiAliasingThreshold ("Threshold", Range(0.0, 1.0)) = 0.1
 PROPERTIES_END
 
 
@@ -35,6 +46,25 @@ DEFINES_START // Keywords, Defines
     // #define NONLINEAR_LIGHTPROBESH // used with L1 bakery probes, not recommended for VRChat
 DEFINES_END
 
+DEFINES_FORWARDBASE_START
+#pragma shader_feature_local _PARALLAXMAP
+DEFINES_FORWARDBASE_END
+
+
+DEFINES_FORWARDADD_START
+#pragma shader_feature_local _PARALLAXMAP
+DEFINES_FORWARDADD_END
+
+
+DEFINES_SHADOWCASTER_START
+
+DEFINES_SHADOWCASTER_END
+
+
+DEFINES_META_START
+
+DEFINES_META_END
+
 
 CBUFFER_START // declare all Material properties excluding textures
     half4 _Color;
@@ -47,6 +77,9 @@ CBUFFER_START // declare all Material properties excluding textures
     half _EmissionGIMultiplier;
     half _OcclusionStrength;
     half _EmissionMultiplyBase;
+
+    half _specularAntiAliasingVariance;
+    half _specularAntiAliasingThreshold;
 CBUFFER_END
 
 
@@ -109,6 +142,9 @@ CODE_START
         #endif
 
         surface.SpecularOcclusion = _SpecularOcclusion;
+
+        surface.GSAAVariance = _specularAntiAliasingVariance;
+        surface.GSAAThreshold = _specularAntiAliasingThreshold;
     }
 
     #if defined(UNITY_PASS_FORWARD)
@@ -127,23 +163,3 @@ CODE_START
 
 CODE_END
 
-
-// more specific defines/keywords per pass
-DEFINES_FORWARDBASE_START
-
-DEFINES_FORWARDBASE_END
-
-
-DEFINES_FORWARDADD_START
-
-DEFINES_FORWARDADD_END
-
-
-DEFINES_SHADOWCASTER_START
-
-DEFINES_SHADOWCASTER_END
-
-
-DEFINES_META_START
-
-DEFINES_META_END
