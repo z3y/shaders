@@ -58,11 +58,8 @@ namespace z3y.Shaders
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
-            if (_firstTime)
-            {
-                _shader = material.shader;
-                _firstTime = false;
-            }
+            _shader = material.shader;
+
             int startIndex = Array.FindIndex(materialProperties, x => x.name.Equals("_DFG", StringComparison.Ordinal)) + 1;
             if (Foldout(ref _foldout0, "Rendering Options"))
             {
@@ -93,8 +90,6 @@ namespace z3y.Shaders
                     {
                         continue;
                     }
-
-                    var attr = _shader.GetPropertyAttributes(i);
 
                     if (materialProperties[i].type == MaterialProperty.PropType.Texture)
                     {
