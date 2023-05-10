@@ -121,6 +121,7 @@ namespace z3y.Shaders
                 sb.AppendLine("Properties");
                 sb.AppendLine("{");
                 {
+                    sb.AppendLine("[HideInInspector]__LitShaderVariant(\"\", Float) = 0");
                     sb.AppendLine(GetDefaultPropertiesInclude(settings, isAndroid));
                     sb.AppendLine(shaderBlocks.propertiesSb.ToString());
                 }
@@ -208,10 +209,11 @@ namespace z3y.Shaders
                         sb.AppendLine("// CODE_START");
                         sb.AppendLine(codeSbSbString);
                         sb.AppendLine("// CODE_END");
-                        
-                        
+
                         sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl\"");
-                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Fragment.hlsl\"");
+                        sb.AppendLine(settings.materialType == ShaderSettings.MaterialType.Lit
+                            ? "#include \"Packages/com.z3y.shaders/ShaderLibrary/Fragment.hlsl\""
+                            : "#include \"Packages/com.z3y.shaders/ShaderLibrary/FragmentUnlit.hlsl\"");
                         sb.AppendLine("ENDHLSL");
                     }
                     sb.AppendLine("}");
@@ -423,8 +425,6 @@ namespace z3y.Shaders
                 // sb.AppendLine("Fallback");
             }
             sb.AppendLine("}");
-
-            GUIUtility.systemCopyBuffer = sb.ToString();
 
             return sb.ToString();
         }
@@ -848,7 +848,7 @@ namespace z3y.Shaders
                 return $"[Toggle{off}({keyword})]{propName}(\"{displayName}\", Float) = {value}";
             }
             
-            return string.Empty;
+            return "// Keyword Disabled " + keyword;
         }
 
         public static Texture2D DFGLut()
