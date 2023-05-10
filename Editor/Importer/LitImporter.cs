@@ -212,13 +212,13 @@ namespace z3y.Shaders
                 }
                 else if (trimmed.Equals("Name \"FORWARD_DELTA\""))
                 {
-                    _currentPass = CurrentPass.ForwardBase;
+                    _currentPass = CurrentPass.ForwardAdd;
                 }
                 else if (trimmed.Equals("Name \"SHADOWCASTER\""))
                 {
                     _currentPass = CurrentPass.ShadowCaster;
                 }
-                else if (trimmed.Equals("Name \"META\""))
+                else if (trimmed.Equals("Name \"META_BAKERY\""))
                 {
                     _currentPass = CurrentPass.Meta;
                 }
