@@ -2,7 +2,7 @@
     [MainTexture] _MainTex ("Albedo", 2D) = "white" {}
     [MainColor] _Color ("Color", Color) = (1,1,1,1)
     _AlbedoSaturation ("Saturation", Float) = 1
-    [NoScaleOffset] _MaskMap ("Mask Map - AO (R), Roughness (G), Metallic (B)", 2D) = "white" {}
+    [sRGB] [NoScaleOffset] _MaskMap ("Mask Map - AO (R), Roughness (G), Metallic (B) sRGB", 2D) = "white" {}
     _Metallic ("Metallic", Range(0,1)) = 0
     _Roughness ("Roughness", Range(0,1)) = 0.5
     _OcclusionStrength ("Occlusion", Range(0,1)) = 1

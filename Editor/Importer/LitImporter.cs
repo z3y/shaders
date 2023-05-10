@@ -23,7 +23,7 @@ namespace z3y.Shaders
         private static readonly bool LtcgiIncluded = File.Exists(LtcgiIncludePath);
         private const string DefaultShaderEditor = "z3y.Shaders.DefaultInspector";
         
-        [SerializeField] public ShaderSettings settings;
+        [SerializeField] public ShaderSettings settings = new ShaderSettings();
 
         private static readonly List<string> SourceDependencies = new List<string>();
 

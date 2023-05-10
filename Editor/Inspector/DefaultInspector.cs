@@ -53,8 +53,16 @@ namespace z3y.Shaders
             m.ToggleKeyword("_ALPHAMODULATE_ON", mode == 5);
         }
 
+        private bool _firstTime = true;
+        private Shader _shader;
+
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
+            if (_firstTime)
+            {
+                _shader = material.shader;
+                _firstTime = false;
+            }
             int startIndex = Array.FindIndex(materialProperties, x => x.name.Equals("_DFG", StringComparison.Ordinal)) + 1;
             if (Foldout(ref _foldout0, "Rendering Options"))
             {
@@ -86,14 +94,27 @@ namespace z3y.Shaders
                         continue;
                     }
 
+                    var attr = _shader.GetPropertyAttributes(i);
+
                     if (materialProperties[i].type == MaterialProperty.PropType.Texture)
                     {
+                        bool isSrgb = materialProperties[i].displayName.Contains("sRGB");
+                        string displayName = materialProperties[i].displayName;
+                        if (isSrgb)
+                        {
+                            displayName = displayName.Replace("sRGB", string.Empty);
+                        }
                         float fieldWidth = EditorGUIUtility.fieldWidth;
                         float labelWidth = EditorGUIUtility.labelWidth;
                         materialEditor.SetDefaultGUIWidths();
-                        materialEditor.TextureProperty(materialProperties[i], materialProperties[i].displayName);
+                        materialEditor.TextureProperty(materialProperties[i], displayName);
                         EditorGUIUtility.fieldWidth = fieldWidth;
                         EditorGUIUtility.labelWidth = labelWidth;
+                        if (isSrgb)
+                        {
+                            sRGBWarning(materialProperties[i]);
+                        }
+                        
                         continue;
                     }
                     Draw(materialProperties[i]);
