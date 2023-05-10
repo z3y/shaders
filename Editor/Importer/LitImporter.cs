@@ -14,26 +14,15 @@ using Debug = UnityEngine.Debug;
 
 namespace z3y.Shaders
 {
-    [ScriptedImporter(1, EXT, 0)]
+    [ScriptedImporter(1, Ext, 0)]
     public class LitImporter : ScriptedImporter
     {
-        public const string EXT = "litshader";
-
-        public enum RenderPipeline
-        {
-            BuiltIn,
-            URP
-        }
-
-        private const string TemplateLitBuiltIn = "Packages/com.z3y.shaders/Editor/Importer/Templates/T_LitBuiltIn.template";
-        private const string TemplateLitURP = "Packages/com.z3y.shaders/Editor/Importer/Templates/T_LitURP.template";
-        private const string TemplateUnlitBuiltIn = "Packages/com.z3y.shaders/Editor/Importer/Templates/T_UnlitBuiltIn.template";
+        public const string Ext = "litshader";
         private const string DefaultShaderPath = "Packages/com.z3y.shaders/Shaders/Default.litshader";
-
-        private const string LTCGIIncludePath = "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc";
-        private static bool _ltcgiIncluded = File.Exists(LTCGIIncludePath);
-
-
+        private const string LtcgiIncludePath = "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc";
+        private static readonly bool LtcgiIncluded = File.Exists(LtcgiIncludePath);
+        private const string DefaultShaderEditor = "z3y.Shaders.DefaultInspector";
+        
         [SerializeField] public ShaderSettings settings;
 
         private static readonly List<string> SourceDependencies = new List<string>();
@@ -48,7 +37,7 @@ namespace z3y.Shaders
             var code = GetShaderLabCode(settings, ctx.assetPath, ctx.selectedBuildTarget);
             var shader = ShaderUtil.CreateShaderAsset(code, false);
 
-            EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG", "BlueNoise" }, new Texture[] { DFGLut(), BlueNoise() });
+            EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG" }, new Texture[] { DFGLut()});
             
             ctx.DependsOnSourceAsset("Assets/com.z3y.shaders/Editor/Importer/LitImporter.cs");
 
@@ -57,9 +46,9 @@ namespace z3y.Shaders
                 ctx.DependsOnSourceAsset(dependency);
             }
 
-            if (_ltcgiIncluded)
+            if (LtcgiIncluded)
             {
-                ctx.DependsOnSourceAsset(LTCGIIncludePath);
+                ctx.DependsOnSourceAsset(LtcgiIncludePath);
             }
 
 
@@ -71,22 +60,8 @@ namespace z3y.Shaders
         public static void CreateVariantFile()
         {
             var defaultContent = File.ReadAllText(DefaultShaderPath);
-            ProjectWindowUtil.CreateAssetWithContent($"Lit Shader Variant.{EXT}", defaultContent);
-        }
-
-        const string defaultShaderEditor = "z3y.Shaders.DefaultInspector";
-
-
         private static string lastFolderPath = string.Empty;
-
-        private static CurrentPass _currentPass = CurrentPass.ForwardBase;
-        
-        private enum CurrentPass
-        {
-            ForwardBase,
-            ForwardAdd,
-            ShadowCaster,
-            Meta
+            ProjectWindowUtil.CreateAssetWithContent($"Lit Shader Variant.{Ext}", defaultContent);
         }
 
         private class ShaderBlocks
@@ -101,8 +76,11 @@ namespace z3y.Shaders
             public StringBuilder definesShadowcasterSb = new StringBuilder();
             public StringBuilder definesMetaSb = new StringBuilder();
         }
+        
+        private static string _lastFolderPath = string.Empty;
         internal static string GetShaderLabCode(ShaderSettings settings, string assetPath, BuildTarget buildTarget)
         {
+            _lastFolderPath = Path.GetDirectoryName(assetPath);
             var shaderBlocks = new ShaderBlocks();
             var fileLines = File.ReadLines(assetPath);
             GetShaderBlocksRecursive(fileLines, shaderBlocks);
@@ -136,7 +114,7 @@ namespace z3y.Shaders
                         //sb.AppendLine("\"RenderPipeline\"=\"\""); // Always built-in
                         sb.AppendLine("\"RenderType\"=\"Opaque\"");
                         sb.AppendLine(settings.grabPass ? "\"Queue\"=\"Transparent+100\"" : "\"Queue\"=\"Geometry+0\"");
-                        if (_ltcgiIncluded) sb.AppendLine("\"LTCGI\" = \"_LTCGI\"");
+                        if (LtcgiIncluded) sb.AppendLine("\"LTCGI\" = \"_LTCGI\"");
                     }
                     sb.AppendLine("}");
                     
@@ -181,7 +159,7 @@ namespace z3y.Shaders
                                 sb.AppendLine("#define REQUIRE_OPAQUE_TEXTURE");
                             }
 
-                            if (!isAndroid && _ltcgiIncluded)
+                            if (!isAndroid && LtcgiIncluded)
                             {
                                 sb.AppendLine("#pragma shader_feature_local_fragment LTCGI");
                                 sb.AppendLine("#pragma shader_feature_local_fragment LTCGI_DIFFUSE_OFF");
@@ -476,9 +454,9 @@ namespace z3y.Shaders
             string name;
             if (string.IsNullOrEmpty(settings.customEditorGUI))
             {
-                if (!string.IsNullOrEmpty(defaultShaderEditor))
+                if (!string.IsNullOrEmpty(DefaultShaderEditor))
                 {
-                    name = $"CustomEditor \"{defaultShaderEditor}\"";
+                    name = $"CustomEditor \"{DefaultShaderEditor}\"";
                 }
                 else
                 {
@@ -520,12 +498,12 @@ namespace z3y.Shaders
                 shaderData.definesSb.AppendLine("#define BUILD_TARGET_PC");
             }
 
-            if (isAndroid || !_ltcgiIncluded)
+            if (isAndroid || !LtcgiIncluded)
             {
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI");
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");
             }
-            else if (_ltcgiIncluded)
+            else if (LtcgiIncluded)
             {
                 shaderData.definesSb.AppendLine("#define LTCGI_EXISTS");
             }
@@ -544,7 +522,7 @@ namespace z3y.Shaders
             defaultProps.AppendLine(GetPropertyDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword, "Anisotropy"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular, "Lightmapped Specular"));
 
-            if (!isAndroid && _ltcgiIncluded)
+            if (!isAndroid && LtcgiIncluded)
             {
                 defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI", "Enable LTCGI"));
                 defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI_DIFFUSE_OFF", "Disable LTCGI Diffuse"));
@@ -620,7 +598,7 @@ namespace z3y.Shaders
                     }
                     else
                     {
-                        includePath = lastFolderPath + "/" + includeFile.ToString();
+                        includePath = _lastFolderPath + "/" + includeFile.ToString();
                     }
 
                     if (includeFile.EndsWith(".litshader".AsSpan(), StringComparison.Ordinal))
@@ -696,11 +674,6 @@ namespace z3y.Shaders
             const string path = "Packages/com.z3y.shaders/ShaderLibrary/dfg-multiscatter.exr"; //TODO: replace the package path with const string
             return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
-        public static Texture2D BlueNoise()
-        {
-            const string path = "Packages/com.z3y.shaders/ShaderLibrary/LDR_LLL1_0.png";
-            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-        }
-        
+
     }
 }
