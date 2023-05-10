@@ -228,9 +228,9 @@ namespace z3y.Shaders
                             sb.AppendLine("#pragma target 4.5");
                             sb.AppendLine("#pragma multi_compile_fog");
                             sb.AppendLine("#pragma multi_compile_instancing");
-                            sb.AppendLine("#pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF");
-
                             sb.AppendLine("#pragma multi_compile_fwdadd_fullshadows");
+
+                            sb.AppendLine("#pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF");
                             if (!isAndroid)
                             {
                                 sb.AppendLine(GetDefineTypeDeclaration(settings.gsaa, ShaderSettings.GsaaKeyword));
