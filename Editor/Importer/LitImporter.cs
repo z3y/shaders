@@ -27,16 +27,8 @@ namespace z3y.Shaders
 
         private const string TemplateLitBuiltIn = "Packages/com.z3y.shaders/Editor/Importer/Templates/T_LitBuiltIn.template";
         private const string TemplateLitURP = "Packages/com.z3y.shaders/Editor/Importer/Templates/T_LitURP.template";
-
-
         private const string TemplateUnlitBuiltIn = "Packages/com.z3y.shaders/Editor/Importer/Templates/T_UnlitBuiltIn.template";
-
-
-
         private const string DefaultShaderPath = "Packages/com.z3y.shaders/Shaders/Default.litshader";
-
-        private const string DefaultPropertiesInclude = "Packages/com.z3y.shaders/Editor/Importer/Templates/Properties.txt";
-
 
         private const string LTCGIIncludePath = "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc";
         private static bool _ltcgiIncluded = File.Exists(LTCGIIncludePath);
@@ -44,23 +36,23 @@ namespace z3y.Shaders
 
         [SerializeField] public ShaderSettings settings;
 
-        private static List<string> _sourceDependencies = new List<string>();
+        private static readonly List<string> SourceDependencies = new List<string>();
 
         public override void OnImportAsset(AssetImportContext ctx)
         {
             var oldShader = AssetDatabase.LoadAssetAtPath<Shader>(ctx.assetPath);
             if (oldShader != null) ShaderUtil.ClearShaderMessages(oldShader);
 
-            _sourceDependencies.Clear();
+            SourceDependencies.Clear();
 
-            var code = ProcessFileLines(settings, ctx.assetPath, ctx.selectedBuildTarget);
+            var code = GetShaderLabCode(settings, ctx.assetPath, ctx.selectedBuildTarget);
             var shader = ShaderUtil.CreateShaderAsset(code, false);
 
             EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG", "BlueNoise" }, new Texture[] { DFGLut(), BlueNoise() });
             
             ctx.DependsOnSourceAsset("Assets/com.z3y.shaders/Editor/Importer/LitImporter.cs");
 
-            foreach (var dependency in _sourceDependencies)
+            foreach (var dependency in SourceDependencies)
             {
                 ctx.DependsOnSourceAsset(dependency);
             }
@@ -97,7 +89,7 @@ namespace z3y.Shaders
             Meta
         }
 
-        private class ShaderData
+        private class ShaderBlocks
         {
             public StringBuilder propertiesSb = new StringBuilder();
             public StringBuilder definesSb = new StringBuilder();
@@ -109,9 +101,158 @@ namespace z3y.Shaders
             public StringBuilder definesShadowcasterSb = new StringBuilder();
             public StringBuilder definesMetaSb = new StringBuilder();
         }
+        internal static string GetShaderLabCode(ShaderSettings settings, string assetPath, BuildTarget buildTarget)
+        {
+            var shaderBlocks = new ShaderBlocks();
+            var fileLines = File.ReadLines(assetPath);
+            GetShaderBlocksRecursive(fileLines, shaderBlocks);
+            string definesSbString = shaderBlocks.definesSb.ToString();
+            string codeSbSbString = shaderBlocks.codeSb.ToString();
+            string cbufferSbSbString = shaderBlocks.cbufferSb.ToString();
 
+            bool isAndroid = buildTarget == BuildTarget.Android;
+            AppendAdditionalDataToBlocks(isAndroid, shaderBlocks);
 
-        internal static string ProcessFileLines(ShaderSettings settings, string assetPath, BuildTarget buildTarget)
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"Shader \"{GetShaderName(settings, assetPath)}\" ");
+            sb.AppendLine("{");
+            {
+                sb.AppendLine("Properties");
+                sb.AppendLine("{");
+                {
+                    sb.AppendLine(GetDefaultPropertiesInclude(settings, isAndroid));
+                    sb.AppendLine(shaderBlocks.propertiesSb.ToString());
+                }
+                sb.AppendLine("}");
+
+                sb.AppendLine("SubShader");
+                sb.AppendLine("{");
+                {
+                    sb.AppendLine("Tags");
+                    sb.AppendLine("{");
+                    {
+                        //sb.AppendLine("\"RenderPipeline\"=\"\""); // Always built-in
+                        sb.AppendLine("\"RenderType\"=\"Opaque\"");
+                        sb.AppendLine(settings.grabPass ? "\"Queue\"=\"Transparent+100\"" : "\"Queue\"=\"Geometry+0\"");
+                        if (_ltcgiIncluded) sb.AppendLine("\"LTCGI\" = \"_LTCGI\"");
+                    }
+                    sb.AppendLine("}");
+ //TODO: Insert grabpass here
+                    sb.AppendLine("Pass"); // FwdBase
+                    sb.AppendLine("{");
+                    {
+                        sb.AppendLine("Name \"FORWARDBASE\"");
+                        
+                        sb.AppendLine("Tags { \"LightMode\" = \"ForwardBase\"}");
+
+                        sb.AppendLine("Blend [_SrcBlend] [_DstBlend]");
+                        sb.AppendLine("Cull [_Cull]");
+                        sb.AppendLine("// ZTest: <None>");
+                        sb.AppendLine("ZWrite [_ZWrite]");
+                        if (settings.alphaToCoverage) sb.AppendLine("AlphaToMask [_AlphaToMask]");
+
+                        sb.AppendLine("HLSLPROGRAM");
+                        sb.AppendLine("#define PIPELINE_BUILTIN");
+                        sb.AppendLine("#define GENERATION_CODE");
+                        sb.AppendLine("#pragma vertex vert");
+                        sb.AppendLine("#pragma fragment frag");
+
+                        sb.AppendLine("#pragma target 4.5");
+                        sb.AppendLine("#pragma multi_compile_fog");
+                        sb.AppendLine("#pragma multi_compile_instancing");
+                        if (settings.materialType == ShaderSettings.MaterialType.Lit)
+                        {
+                            sb.AppendLine("#pragma multi_compile_fwdbase");
+                            sb.AppendLine("#pragma multi_compile _ VERTEXLIGHT_ON");
+                            sb.AppendLine("#pragma skip_variants LIGHTPROBE_SH");
+                            sb.AppendLine("#pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF");
+                            sb.AppendLine("#pragma shader_feature_local _GLOSSYREFLECTIONS_OFF");
+                            sb.AppendLine("#pragma shader_feature_local _EMISSION");
+                            sb.AppendLine("");
+
+                            if (!isAndroid && _ltcgiIncluded)
+                            {
+                                sb.AppendLine("#pragma shader_feature_local_fragment LTCGI");
+                                sb.AppendLine("#pragma shader_feature_local_fragment LTCGI_DIFFUSE_OFF");
+                            }
+
+                            sb.AppendLine(GetDefineTypeDeclaration(settings.bakeryMonoSH, ShaderSettings.MonoShKeyword));
+                            if (!isAndroid) sb.AppendLine(GetDefineTypeDeclaration(settings.bicubicLightmap, ShaderSettings.BicubicLightmapKeyword));
+                            if (!isAndroid) sb.AppendLine(GetDefineTypeDeclaration(settings.gsaa, ShaderSettings.GsaaKeyword));
+                            sb.AppendLine(GetDefineTypeDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword));
+                            sb.AppendLine(GetDefineTypeDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular));
+                        }
+                        sb.AppendLine("#pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
+
+                        sb.AppendLine("// DEFINES_START");
+                        sb.AppendLine(definesSbString);
+                        sb.AppendLine("// DEFINES_END");
+                        
+                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl\"");
+                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl\"");
+                        
+                        sb.AppendLine("// CBUFFER_START");
+                        sb.AppendLine(cbufferSbSbString);
+                        sb.AppendLine("// CBUFFER_END");
+                        
+                        sb.AppendLine("// CODE_START");
+                        sb.AppendLine(codeSbSbString);
+                        sb.AppendLine("// CODE_END");
+                        
+                        
+                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl\"");
+                        sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Fragment.hlsl\"");
+                        sb.AppendLine("ENDHLSL");
+                    }
+                    sb.AppendLine("}");
+                }
+                sb.AppendLine("}");
+
+            }
+            sb.AppendLine("}");
+
+            GUIUtility.systemCopyBuffer = sb.ToString();
+
+            return sb.ToString();
+        }
+
+        private static string GetShaderName(ShaderSettings settings, string assetPath)
+        {
+            const string prefix = "Lit Variants/";
+            var fileName = Path.GetFileNameWithoutExtension(assetPath);
+            if (string.IsNullOrEmpty(settings.shaderName))
+            {
+                return prefix + fileName;
+            }
+            else
+            {
+                return prefix + settings.shaderName;
+            }
+        }
+
+        private static string GetShaderInspectorName(ShaderSettings settings)
+        {
+            string name;
+            if (string.IsNullOrEmpty(settings.customEditorGUI))
+            {
+                if (!string.IsNullOrEmpty(defaultShaderEditor))
+                {
+                    name = $"CustomEditor \"{defaultShaderEditor}\"";
+                }
+                else
+                {
+                    name = string.Empty;
+                }
+            }
+            else
+            {
+                name = $"CustomEditor \"{settings.customEditorGUI}\"";
+            }
+
+            return name;
+        }
+        internal static string ProcessFileLinesOld(ShaderSettings settings, string assetPath, BuildTarget buildTarget)
         {
             if (settings is null)
             {
@@ -123,22 +264,7 @@ namespace z3y.Shaders
             lastFolderPath = Path.GetDirectoryName(assetPath);
             var fileLines = File.ReadLines(assetPath);
 
-            var defaultProps = new StringBuilder();
-            defaultProps.AppendLine(GetPropertyDeclaration(settings.bakeryMonoSH, ShaderSettings.MonoShKeyword, "Mono SH"));
-            defaultProps.AppendLine(GetPropertyDeclaration(settings.bicubicLightmap, ShaderSettings.BicubicLightmapKeyword, "Bicubic Lightmap"));
-            defaultProps.AppendLine(GetPropertyDeclaration(settings.gsaa, ShaderSettings.GsaaKeyword, "Geometric Specular AA"));
-            defaultProps.AppendLine(GetPropertyDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword, "Anisotropy"));
-            defaultProps.AppendLine(GetPropertyDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular, "Lightmapped Specular"));
-
-            if (!isAndroid && _ltcgiIncluded)
-            {
-                defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI", "Enable LTCGI"));
-                defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI_DIFFUSE_OFF", "Disable LTCGI Diffuse"));
-            }
-
-            if (settings.grabPass) defaultProps.Append("[HideInInspector][ToggleUI]_GrabPass(\"GrabPass\", Float) = 1"); // just a property to detect if there is a grabpass
-
-            defaultProps.AppendLine(File.ReadAllText(DefaultPropertiesInclude));
+            string defaultProps = GetDefaultPropertiesInclude(settings, isAndroid);
 
             RenderPipeline rp = QualitySettings.renderPipeline == null ? RenderPipeline.BuiltIn : RenderPipeline.URP;
 
@@ -154,53 +280,15 @@ namespace z3y.Shaders
                 template = File.ReadAllLines(TemplateUnlitBuiltIn);
             }
 
-            var shaderData = new ShaderData();
+            var shaderData = new ShaderBlocks();
 
 
-            Parse(fileLines, shaderData);
-#if VRCHAT_SDK
-            shaderData.definesSb.AppendLine("#define VRCHAT_SDK");
-#endif
-            
-            if (isAndroid)
-            {
-                shaderData.definesSb.AppendLine("#define BUILD_TARGET_ANDROID");
-                shaderData.definesSb.AppendLine("#pragma skip_variants " + ShaderSettings.GsaaKeyword);
-                shaderData.definesSb.AppendLine("#pragma skip_variants " + ShaderSettings.BicubicLightmapKeyword);
-                shaderData.definesSb.AppendLine("#pragma skip_variants SHADOWS_DEPTH");
-                shaderData.definesSb.AppendLine("#pragma skip_variants SHADOWS_SCREEN");
-                shaderData.definesSb.AppendLine("#pragma skip_variants SHADOWS_CUBE");
-                shaderData.definesSb.AppendLine("#pragma skip_variants SHADOWS_SOFT");
-
-                shaderData.definesSb.AppendLine("#pragma skip_variants DIRECTIONAL_COOKIE");
-                shaderData.definesSb.AppendLine("#pragma skip_variants SPOT_COOKIE");
-                shaderData.definesSb.AppendLine("#pragma skip_variants POINT_COOKIE");
-                shaderData.definesSb.AppendLine("#pragma skip_variants DYNAMICLIGHTMAP_ON");
-
-            }
-            else
-            {
-                shaderData.definesSb.AppendLine("#define BUILD_TARGET_PC");
-            }
-
-            if (isAndroid || !_ltcgiIncluded)
-            {
-                shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI");
-                shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");
-            }
-            else if (_ltcgiIncluded)
-            {
-                shaderData.definesSb.AppendLine("#define LTCGI_EXISTS");
-            }
-
-#if BAKERY_INCLUDED
-            shaderData.definesSb.AppendLine("#define BAKERY_INCLUDED");
-#endif
-
+            GetShaderBlocksRecursive(fileLines, shaderData);
+            AppendAdditionalDataToBlocks(isAndroid, shaderData);
             for (int i = 0; i < template.Length; i++)
             {
                 var trimmed = template[i].Trim();
-                
+
                 if (string.IsNullOrEmpty(trimmed))
                 {
                     continue;
@@ -235,7 +323,7 @@ namespace z3y.Shaders
                     {
                         template[i] = string.Empty;
                     }
-                    
+
                 }
 
                 if (trimmed.StartsWith("$Feature_a2c"))
@@ -253,7 +341,7 @@ namespace z3y.Shaders
 
                 if (trimmed.StartsWith("$DefaultPropertiesInclude"))
                 {
-                    template[i] = defaultProps.ToString();
+                    template[i] = defaultProps;
                 }
 
                 else if (trimmed.StartsWith("$Feature_RenderQueue"))
@@ -291,17 +379,17 @@ namespace z3y.Shaders
                 {
                     template[i] = shaderData.codeSb.ToString();
                 }
-                
+
                 else if (trimmed.StartsWith("$Cbuffer"))
                 {
                     template[i] = shaderData.cbufferSb.ToString();
                 }
-                
+
                 else if (trimmed.StartsWith("$Feature_MonoSH"))
                 {
                     template[i] = GetDefineTypeDeclaration(settings.bakeryMonoSH, ShaderSettings.MonoShKeyword);
                 }
-                
+
                 else if (trimmed.StartsWith("$Feature_BicubicLightmap"))
                 {
                     template[i] = GetDefineTypeDeclaration(settings.bicubicLightmap, ShaderSettings.BicubicLightmapKeyword);
@@ -352,7 +440,70 @@ namespace z3y.Shaders
             return string.Join(Environment.NewLine, template);
         }
 
-        private static void Parse(IEnumerable<string> fileLines, ShaderData shaderData)
+        private static void AppendAdditionalDataToBlocks(bool isAndroid, ShaderBlocks shaderData)
+        {
+#if VRCHAT_SDK
+            shaderData.definesSb.AppendLine("#define VRCHAT_SDK");
+#endif
+
+            if (isAndroid)
+            {
+                shaderData.definesSb.AppendLine("#define BUILD_TARGET_ANDROID");
+                shaderData.definesSb.AppendLine("#pragma skip_variants " + ShaderSettings.GsaaKeyword);
+                shaderData.definesSb.AppendLine("#pragma skip_variants " + ShaderSettings.BicubicLightmapKeyword);
+                shaderData.definesSb.AppendLine("#pragma skip_variants SHADOWS_DEPTH");
+                shaderData.definesSb.AppendLine("#pragma skip_variants SHADOWS_SCREEN");
+                shaderData.definesSb.AppendLine("#pragma skip_variants SHADOWS_CUBE");
+                shaderData.definesSb.AppendLine("#pragma skip_variants SHADOWS_SOFT");
+
+                shaderData.definesSb.AppendLine("#pragma skip_variants DIRECTIONAL_COOKIE");
+                shaderData.definesSb.AppendLine("#pragma skip_variants SPOT_COOKIE");
+                shaderData.definesSb.AppendLine("#pragma skip_variants POINT_COOKIE");
+                shaderData.definesSb.AppendLine("#pragma skip_variants DYNAMICLIGHTMAP_ON");
+
+            }
+            else
+            {
+                shaderData.definesSb.AppendLine("#define BUILD_TARGET_PC");
+            }
+
+            if (isAndroid || !_ltcgiIncluded)
+            {
+                shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI");
+                shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");
+            }
+            else if (_ltcgiIncluded)
+            {
+                shaderData.definesSb.AppendLine("#define LTCGI_EXISTS");
+            }
+
+#if BAKERY_INCLUDED
+            shaderData.definesSb.AppendLine("#define BAKERY_INCLUDED");
+#endif
+        }
+
+        private static string GetDefaultPropertiesInclude(ShaderSettings settings, bool isAndroid)
+        {
+            var defaultProps = new StringBuilder();
+            defaultProps.AppendLine(GetPropertyDeclaration(settings.bakeryMonoSH, ShaderSettings.MonoShKeyword, "Mono SH"));
+            defaultProps.AppendLine(GetPropertyDeclaration(settings.bicubicLightmap, ShaderSettings.BicubicLightmapKeyword, "Bicubic Lightmap"));
+            defaultProps.AppendLine(GetPropertyDeclaration(settings.gsaa, ShaderSettings.GsaaKeyword, "Geometric Specular AA"));
+            defaultProps.AppendLine(GetPropertyDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword, "Anisotropy"));
+            defaultProps.AppendLine(GetPropertyDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular, "Lightmapped Specular"));
+
+            if (!isAndroid && _ltcgiIncluded)
+            {
+                defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI", "Enable LTCGI"));
+                defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI_DIFFUSE_OFF", "Disable LTCGI Diffuse"));
+            }
+
+            if (settings.grabPass) defaultProps.Append("[HideInInspector][ToggleUI]_GrabPass(\"GrabPass\", Float) = 1"); // just a property to detect if there is a grabpass
+
+            defaultProps.AppendLine(LitImporterConstants.DefaultPropertiesInclude);
+            return defaultProps.ToString();
+        }
+
+        private static void GetShaderBlocksRecursive(IEnumerable<string> fileLines, ShaderBlocks shaderData)
         {
             var ienum = fileLines.GetEnumerator();
             while (ienum.MoveNext())
@@ -422,8 +573,8 @@ namespace z3y.Shaders
                     if (includeFile.EndsWith(".litshader".AsSpan(), StringComparison.Ordinal))
                     {
                         var includeFileLines = File.ReadLines(includePath);
-                        _sourceDependencies.Add(includePath);
-                        Parse(includeFileLines, shaderData);
+                        SourceDependencies.Add(includePath);
+                        GetShaderBlocksRecursive(includeFileLines, shaderData);
                     }
 
                 }

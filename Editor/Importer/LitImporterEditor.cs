@@ -46,7 +46,7 @@ namespace z3y.Shaders
             var importer = (LitImporter)serializedObject.targetObject;
             var settings = importer.settings;
             var assetPath = AssetDatabase.GetAssetPath(importer);
-            var code = LitImporter.ProcessFileLines(settings, assetPath, EditorUserBuildSettings.activeBuildTarget);
+            var code = LitImporter.GetShaderLabCode(settings, assetPath, EditorUserBuildSettings.activeBuildTarget);
             GUIUtility.systemCopyBuffer = code;
         }
 
