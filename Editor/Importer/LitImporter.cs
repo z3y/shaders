@@ -257,6 +257,10 @@ namespace z3y.Shaders
                             sb.AppendLine("// DEFINES_START");
                             sb.AppendLine(definesSbString);
                             sb.AppendLine("// DEFINES_END");
+                            
+                            sb.AppendLine("// DEFINES_FORWARDBASE_START");
+                            sb.AppendLine(shaderBlocks.definesForwardBaseSb.ToString());
+                            sb.AppendLine("// DEFINES_FORWARDBASE_END");
 
                             sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl\"");
                             sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl\"");
@@ -313,7 +317,11 @@ namespace z3y.Shaders
                             sb.AppendLine("// DEFINES_START");
                             sb.AppendLine(definesSbString);
                             sb.AppendLine("// DEFINES_END");
-
+                            
+                            sb.AppendLine("// DEFINES_FORWARDADD_START");
+                            sb.AppendLine(shaderBlocks.definesForwardAddSb.ToString());
+                            sb.AppendLine("// DEFINES_FORWARDADD_END");
+                            
                             sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl\"");
                             sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl\"");
 
@@ -358,6 +366,10 @@ namespace z3y.Shaders
                         sb.AppendLine("// DEFINES_START");
                         sb.AppendLine(definesSbString);
                         sb.AppendLine("// DEFINES_END");
+                        
+                        sb.AppendLine("// DEFINES_SHADOWCASTER_START");
+                        sb.AppendLine(shaderBlocks.definesShadowcasterSb.ToString());
+                        sb.AppendLine("// DEFINES_SHADOWCASTER_END");
 
                         sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl\"");
                         sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl\"");
@@ -401,6 +413,10 @@ namespace z3y.Shaders
                         sb.AppendLine(definesSbString);
                         sb.AppendLine("// DEFINES_END");
 
+                        sb.AppendLine("// DEFINES_META_START");
+                        sb.AppendLine(shaderBlocks.definesMetaSb.ToString());
+                        sb.AppendLine("// DEFINES_META_END");
+                        
                         sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl\"");
                         sb.AppendLine("#include \"Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl\"");
 
