@@ -35,6 +35,7 @@ DEFINES_START // Keywords, Defines
     //#define VARYINGS_NEED_COLOR
     //#define VARYINGS_NEED_INTERPX (0-4)
     #define VARYINGS_NEED_INTERP0
+    // #define VARYINGS_NEED_INTERP1
     //#define VARYINGS_NEED_CULLFACE
 
     // #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // avoid unnecessary calculations and reduce the compiled size if LPPV arent used
@@ -80,19 +81,25 @@ CBUFFER_START // declare all Material properties excluding textures
 
     half _specularAntiAliasingVariance;
     half _specularAntiAliasingThreshold;
+    float4 _ParallaxMap_TexelSize;
+    uint _ParallaxSteps;
+    half _Parallax;
+    half _ParallaxOffset;
 CBUFFER_END
 
 
 CODE_START
 
     TEXTURE2D(_MainTex);
-    TEXTURE2D(_BumpMap);
-    TEXTURE2D(_MaskMap);
-    TEXTURE2D(_EmissionMap);
     SAMPLER(sampler_MainTex);
+    TEXTURE2D(_BumpMap);
     SAMPLER(sampler_BumpMap);
-    SAMPLER(sampler_MaskMap);
+    TEXTURE2D(_EmissionMap);
     SAMPLER(sampler_EmissionMap);
+    TEXTURE2D(_MaskMap);
+    SAMPLER(sampler_MaskMap);
+    TEXTURE2D(_ParallaxMap);
+    SAMPLER(sampler_ParallaxMap);
 
     #define USE_MODIFYATTRIBUTES // Modify attributes before the VertexDescription
     void ModifyAttributes(inout Attributes attributes)
@@ -110,12 +117,29 @@ CODE_START
     void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
     {
         varyings.interp0.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
+
+        #ifdef _LAYER2
+        varyings.interp0.zw = TRANSFORM_TEX(attributes.uv0.xy, _MainTex2);
+        #endif
     }
+
+    #if defined(_PARALLAXMAP) && defined(UNITY_PASS_FORWARD)
+    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/ParallaxMapping.hlsl"
+    #include "Packages/com.z3y.shaders/ShaderLibrary/Parallax.hlsl"
+    #endif
 
     #define USE_SURFACEDESCRIPTION // SurfaceDescription: Albedo, Normal, Metallic, Emission, Smoothness, Occlusion, Alpha, AlphaClipThreshold, Reflectance
     void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
     {
         float2 uv = IN.interp0.xy;
+
+        #if defined(_PARALLAXMAP) && defined(UNITY_PASS_FORWARD)
+            float3 viewDirectionWS = GetViewDirectionWS(IN.positionWS);
+            half3 viewDirectionTS = GetViewDirectionTangentSpace(IN.tangentWS, IN.normalWS, viewDirectionWS);
+            float2 parallaxOffset = ParallaxOcclusionMapping(_Parallax, uv, viewDirectionTS, _ParallaxMap, sampler_ParallaxMap, _ParallaxMap_TexelSize, _ParallaxSteps, _ParallaxOffset);
+            uv += parallaxOffset;
+        #endif
+
         half4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
         mainTex *= _Color;
 
