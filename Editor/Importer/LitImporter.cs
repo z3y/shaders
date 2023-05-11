@@ -90,6 +90,14 @@ namespace z3y.Shaders
             bool isAndroid = buildTarget == BuildTarget.Android;
             AppendAdditionalDataToBlocks(isAndroid, shaderBlocks);
 
+            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl");
+            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl");
+            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/Fragment.hlsl");
+            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/FragmentShadowCaster.hlsl");
+            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/FragmentMeta.hlsl");
+            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl");
+            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/CustomLighting.hlsl");
+
             var sb = new StringBuilder();
 
             sb.AppendLine($"Shader \"{GetShaderName(settings, assetPath)}\" ");
@@ -487,6 +495,7 @@ namespace z3y.Shaders
                 {
                     continue;
                 }
+                
 
                 if (trimmed.StartsWith("PROPERTIES_START".AsSpan()))
                 {
@@ -528,20 +537,12 @@ namespace z3y.Shaders
                 {
                     AppendLineBlockSpan(ienum, shaderData.cbufferSb, "CBUFFER_END".AsSpan());
                 }
-
+                
                 else if (trimmed.StartsWith("#include ".AsSpan()))
                 {
                     var includeFile = trimmed.Slice(9).TrimEnd('"').TrimStart('"');
-                    string includePath;
-                    if (includeFile.StartsWith("Assets/".AsSpan()) || includeFile.StartsWith("Packages/".AsSpan()))
-                    {
-                        includePath = includeFile.ToString();
-                    }
-                    else
-                    {
-                        includePath = _lastFolderPath + "/" + includeFile.ToString();
-                    }
-
+                    var includePath = GetFullIncludePath(includeFile);
+                    
                     if (includeFile.EndsWith(".litshader".AsSpan(), StringComparison.Ordinal))
                     {
                         var includeFileLines = File.ReadLines(includePath);
@@ -552,6 +553,21 @@ namespace z3y.Shaders
                 }
             }
             ienum.Dispose();
+        }
+
+        private static string GetFullIncludePath(ReadOnlySpan<char> includeFile)
+        {
+            string includePath;
+            if (includeFile.StartsWith("Assets/".AsSpan()) || includeFile.StartsWith("Packages/".AsSpan()))
+            {
+                includePath = includeFile.ToString();
+            }
+            else
+            {
+                includePath = _lastFolderPath + "/" + includeFile.ToString();
+            }
+
+            return includePath;
         }
 
         private static void AppendLineBlockSpan(IEnumerator<string> ienum, StringBuilder sb, ReadOnlySpan<char> breakName)
@@ -575,6 +591,21 @@ namespace z3y.Shaders
                 {
                     break;
                 }
+
+                if (trimmed.StartsWith("#include_optional ".AsSpan()))
+                {
+                    var includeFile = trimmed.Slice("#include_optional ".Length).TrimEnd('"').TrimStart('"');
+                    var includePath = GetFullIncludePath(includeFile);
+                    if (!File.Exists(includePath))
+                    {
+                        continue;
+                    }
+
+                    SourceDependencies.Add(includePath);
+                    sb.AppendLine("#include \"" + includePath + "\"");
+                    continue;
+                }
+
 
                 sb.AppendLine(ienum.Current);
             }
