@@ -33,6 +33,8 @@ DEFINES_START // Keywords, Defines
     // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
     #define UNITY_SPECCUBE_BOX_PROJECTION // force enable box projection on quest
     // #define NONLINEAR_LIGHTPROBESH // used with L1 bakery probes, not recommended for VRChat
+
+    #include_optional "Assets/Settings/LitShaderConfig.hlsl"
 DEFINES_END
 
 
