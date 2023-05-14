@@ -167,14 +167,14 @@ real3 UnpackNormalTetraEncode(real2 f, uint faceIndex)
 real3 UnpackNormalRGB(real4 packedNormal, real scale = 1.0)
 {
     real3 normal;
-    normal.xyz = real3(packedNormal.xy * 2.0 - 1.0, packedNormal.z);
+    normal.xyz = packedNormal.rgb * 2.0 - 1.0;
     normal.xy *= scale;
     return normal;
 }
 
 real3 UnpackNormalRGBNoScale(real4 packedNormal)
 {
-    return real3(packedNormal.xy * 2.0 - 1.0, packedNormal.z);
+    return packedNormal.rgb * 2.0 - 1.0;
 }
 
 real3 UnpackNormalAG(real4 packedNormal, real scale = 1.0)
