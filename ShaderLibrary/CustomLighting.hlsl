@@ -257,7 +257,9 @@ namespace CustomLighting
                 reflDir = lerp(reflDir, sd.normalWS, roughness * roughness);
             #endif
 
-            #ifdef PIPELINE_BUILTIN
+            #if defined(PIPELINE_BUILTIN) && defined(USE_URP_BOX_PROJECTION)
+                half3 reflectionSpecular = GlossyEnvironmentReflection(reflDir, unpacked.positionWS, sd.perceptualRoughness, 1.0f);
+            #elif defined(PIPELINE_BUILTIN)
                 Unity_GlossyEnvironmentData envData;
                 envData.roughness = sd.perceptualRoughness;
 
