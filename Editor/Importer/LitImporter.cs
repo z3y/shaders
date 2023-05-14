@@ -14,7 +14,7 @@ using Debug = UnityEngine.Debug;
 
 namespace z3y.Shaders
 {
-    [ScriptedImporter(1, Ext, 0)]
+    [ScriptedImporter(2, Ext, 0)]
     public class LitImporter : ScriptedImporter
     {
         public const string Ext = "litshader";
@@ -83,9 +83,7 @@ namespace z3y.Shaders
             var shaderBlocks = new ShaderBlocks();
             var fileLines = File.ReadLines(assetPath);
             GetShaderBlocksRecursive(fileLines, shaderBlocks);
-            string definesSbString = shaderBlocks.definesSb.ToString();
-            string codeSbSbString = shaderBlocks.codeSb.ToString();
-            string cbufferSbSbString = shaderBlocks.cbufferSb.ToString();
+
 
             bool isAndroid = buildTarget == BuildTarget.Android;
             AppendAdditionalDataToBlocks(isAndroid, shaderBlocks);
@@ -97,6 +95,10 @@ namespace z3y.Shaders
             SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/FragmentMeta.hlsl");
             SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl");
             SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/CustomLighting.hlsl");
+
+            string definesSbString = shaderBlocks.definesSb.ToString();
+            string codeSbSbString = shaderBlocks.codeSb.ToString();
+            string cbufferSbSbString = shaderBlocks.cbufferSb.ToString();
 
             var sb = new StringBuilder();
 
