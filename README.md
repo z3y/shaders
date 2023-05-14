@@ -47,6 +47,7 @@ Some additional features are included:
 |Bakery Alpha Dither|Semi-Transparent baked shadows. Available only in Bakery L1 mode|
 |Baked Area Light Specular Approximation| Reduced smoothness in areas where there is less directionality for more accurate lightmapped specular|
 |URP Box Projection (Soon)||
+|Centroid Lightmap UVs|Fix for lightmap bleeds with very tight packing|
 
 
 ## Shader Graph
