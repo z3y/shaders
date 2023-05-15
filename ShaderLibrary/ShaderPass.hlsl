@@ -22,6 +22,10 @@
     // #define VERTEXLIGHT_PS
 #endif
 
+#ifdef SHADER_API_MOBILE
+    #define QUALITY_LOW
+#endif
+
 #ifdef QUALITY_LOW
     #undef _SSR
     #undef REQUIRE_DEPTH_TEXTURE
