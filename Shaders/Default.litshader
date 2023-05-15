@@ -40,7 +40,7 @@ DEFINES_END
 
 CBUFFER_START // declare all Material properties excluding textures
     half4 _Color;
-    half4 _MainTex_ST;
+    float4 _MainTex_ST;
     half _Roughness;
     half _Metallic;
     half _BumpScale;
