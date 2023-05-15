@@ -1,5 +1,0 @@
-﻿#include "Default.litshader"
-
-DEFINES_START
-    #define _SSR
-DEFINES_END

@@ -14,12 +14,14 @@ namespace z3y.Shaders
         private MaterialProperty _SrcBlend;
         private MaterialProperty _Cull;
 
-        private MaterialProperty _LightmappedSpecular;
-        private MaterialProperty _NonLinearLightProbeSH;
         private MaterialProperty _BakeryAlphaDither;
         private MaterialProperty _GlossyReflections;
         private MaterialProperty _SpecularHighlights;
-
+        private MaterialProperty _BAKERY_MONOSH;
+        private MaterialProperty _BICUBIC_LIGHTMAP;
+        private MaterialProperty _GEOMETRICSPECULAR_AA;
+        private MaterialProperty _LIGHTMAPPED_SPECULAR;
+        private MaterialProperty _ANISOTROPY;
 
         private static bool _foldout0 = true;
         private static bool _foldout1 = true;
@@ -31,8 +33,9 @@ namespace z3y.Shaders
             foreach (var keyword in material.shaderKeywords)
             {
                 material.DisableKeyword(keyword);
-                MaterialEditor.ApplyMaterialPropertyDrawers(material);
             }
+            MaterialEditor.ApplyMaterialPropertyDrawers(material);
+            SetupMaterialWithBlendMode(material, (int)material.GetFloat("_Mode"));
             ApplyChanges(material);
         }
 
@@ -48,18 +51,15 @@ namespace z3y.Shaders
             m.ToggleKeyword("_ALPHAFADE_ON", mode == 2);
             m.ToggleKeyword("_ALPHAPREMULTIPLY_ON", mode == 3);
             m.ToggleKeyword("_ALPHAMODULATE_ON", mode == 5);
-
-            if (m.FindPass("GrabPass") != -1 || (m.HasProperty("_GrabPass") && m.GetFloat("_GrabPass") > 0))
-            {
-                if (m.renderQueue <= 3000)
-                {
-                    m.renderQueue = 3001;
-                }
-            }
         }
+
+        private bool _firstTime = true;
+        private Shader _shader;
 
         public override void OnGUIProperties(MaterialEditor materialEditor, MaterialProperty[] materialProperties, Material material)
         {
+            _shader = material.shader;
+
             int startIndex = Array.FindIndex(materialProperties, x => x.name.Equals("_DFG", StringComparison.Ordinal)) + 1;
             if (Foldout(ref _foldout0, "Rendering Options"))
             {
@@ -93,12 +93,23 @@ namespace z3y.Shaders
 
                     if (materialProperties[i].type == MaterialProperty.PropType.Texture)
                     {
+                        bool isSrgb = materialProperties[i].displayName.Contains("sRGB");
+                        string displayName = materialProperties[i].displayName;
+                        if (isSrgb)
+                        {
+                            displayName = displayName.Replace("sRGB", string.Empty);
+                        }
                         float fieldWidth = EditorGUIUtility.fieldWidth;
                         float labelWidth = EditorGUIUtility.labelWidth;
                         materialEditor.SetDefaultGUIWidths();
-                        materialEditor.TextureProperty(materialProperties[i], materialProperties[i].displayName);
+                        materialEditor.TextureProperty(materialProperties[i], displayName);
                         EditorGUIUtility.fieldWidth = fieldWidth;
                         EditorGUIUtility.labelWidth = labelWidth;
+                        if (isSrgb)
+                        {
+                            sRGBWarning(materialProperties[i]);
+                        }
+                        
                         continue;
                     }
                     Draw(materialProperties[i]);
@@ -107,8 +118,11 @@ namespace z3y.Shaders
             
             if (Foldout(ref _foldout2, "Additional Settings"))
             {
-                Draw(_LightmappedSpecular);
-                Draw(_NonLinearLightProbeSH);
+                Draw(_BAKERY_MONOSH);
+                Draw(_BICUBIC_LIGHTMAP);
+                Draw(_GEOMETRICSPECULAR_AA);
+                Draw(_LIGHTMAPPED_SPECULAR);
+                Draw(_ANISOTROPY);
                 Draw(_BakeryAlphaDither);
                 Draw(_GlossyReflections);
                 Draw(_SpecularHighlights);

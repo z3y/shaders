@@ -593,8 +593,16 @@ half3 BoxProjectedCubemapDirection(half3 reflectionWS, float3 positionWS, float4
         return reflectionWS;
     #endif
     // Is this probe using box projection?
+    
+    #ifdef USE_URP_BOX_PROJECTION
+    // Cursed way to get unity to send correct box min and max
+    if (cubemapPositionWS.w <= 0.0f)
+    {
+    #else
     if (cubemapPositionWS.w > 0.0f)
     {
+    #endif
+
         float3 boxMinMax = (reflectionWS > 0.0f) ? boxMax.xyz : boxMin.xyz;
         half3 rbMinMax = half3(boxMinMax - positionWS) / reflectionWS;
 

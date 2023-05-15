@@ -152,7 +152,7 @@ void EnvironmentBRDF(half NoV, half perceptualRoughness, half3 f0, out half3 brd
         energyCompensation = 1.0;
         brdf = EnvironmentBRDFApproximation(perceptualRoughness, NoV, f0);
     #else
-        float2 dfg = _DFG.SampleLevel(sampler_DFG, float2(NoV, perceptualRoughness), 0).rg;
+        float2 dfg = SAMPLE_TEXTURE2D_LOD(_DFG, sampler_DFG, float2(NoV, perceptualRoughness), 0).rg;
         brdf = lerp(dfg.xxx, dfg.yyy, f0);
         energyCompensation = 1.0 + f0 * (1.0 / dfg.y - 1.0);
     #endif
@@ -283,4 +283,190 @@ uint2 ComputeFadeMaskSeed(float3 V, uint2 positionSS)
     }
 
     return fadeMaskSeed;
+}
+
+#if defined(VERTEXLIGHT_ON)
+void NonImportantLightsPerPixel(inout half3 lightColor, inout half3 directSpecular, float3 positionWS, float3 normalWS, float3 viewDir, half NoV, half3 f0, ShaderData sd)
+{
+    half clampedRoughness = max(sd.perceptualRoughness * sd.perceptualRoughness, 0.002);
+
+    // Original code by Xiexe
+    // https://github.com/Xiexe/Xiexes-Unity-Shaders
+
+    // MIT License
+
+    // Copyright (c) 2019 Xiexe
+
+    // Permission is hereby granted, free of charge, to any person obtaining a copy
+    // of this software and associated documentation files (the "Software"), to deal
+    // in the Software without restriction, including without limitation the rights
+    // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    // copies of the Software, and to permit persons to whom the Software is
+    // furnished to do so, subject to the following conditions:
+
+    // The above copyright notice and this permission notice shall be included in all
+    // copies or substantial portions of the Software.
+
+    // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    // SOFTWARE.
+
+    float4 toLightX = unity_4LightPosX0 - positionWS.x;
+    float4 toLightY = unity_4LightPosY0 - positionWS.y;
+    float4 toLightZ = unity_4LightPosZ0 - positionWS.z;
+
+    float4 lengthSq = 0.0;
+    lengthSq += toLightX * toLightX;
+    lengthSq += toLightY * toLightY;
+    lengthSq += toLightZ * toLightZ;
+
+    float4 attenuation = 1.0 / (1.0 + lengthSq * unity_4LightAtten0);
+    float4 atten2 = saturate(1 - (lengthSq * unity_4LightAtten0 / 25.0));
+    attenuation = min(attenuation, atten2 * atten2);
+
+    [unroll(4)]
+    for (uint i = 0; i < 4; i++)
+    {
+        UNITY_BRANCH
+        if (attenuation[i] > 0.0)
+        {
+            float3 direction = normalize(float3(unity_4LightPosX0[i], unity_4LightPosY0[i], unity_4LightPosZ0[i]) - positionWS);
+            half NoL = saturate(dot(normalWS, direction));
+            half3 color = NoL * attenuation[i] * unity_LightColor[i];
+            lightColor += color;
+
+            #ifndef _SPECULARHIGHLIGHTS_OFF
+                float3 halfVector = Unity_SafeNormalize(direction + viewDir);
+                half vNoH = saturate(dot(normalWS, halfVector));
+                half vLoH = saturate(dot(direction, halfVector));
+
+                half3 Fv = Filament::F_Schlick(vLoH, f0);
+                half Dv = Filament::D_GGX(vNoH, clampedRoughness);
+                half Vv = Filament::V_SmithGGXCorrelatedFast(NoV, NoL, clampedRoughness);
+                directSpecular += max(0.0, (Dv * Vv) * Fv) * color;
+            #endif
+        }
+    }
+}
+#endif // #if defined(VERTEXLIGHT_ON)
+
+
+// Box Projection from URP
+// Copyright © 2020 Unity Technologies ApS
+// Licensed under the Unity Companion License for Unity-dependent projects--see Unity Companion License.
+// Unless expressly provided otherwise, the Software under this license is made available strictly on an “AS IS” BASIS WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Please review the license for details on these and other terms and conditions.
+real PerceptualRoughnessToMipmapLevel(real perceptualRoughness, uint maxMipLevel)
+{
+    perceptualRoughness = perceptualRoughness * (1.7 - 0.7 * perceptualRoughness);
+
+    return perceptualRoughness * maxMipLevel;
+}
+
+real PerceptualRoughnessToMipmapLevel(real perceptualRoughness)
+{
+    return PerceptualRoughnessToMipmapLevel(perceptualRoughness, UNITY_SPECCUBE_LOD_STEPS);
+}
+
+float CalculateProbeWeight(float3 positionWS, float4 probeBoxMin, float4 probeBoxMax)
+{
+    float blendDistance = probeBoxMax.w;
+    float3 weightDir = min(positionWS - probeBoxMin.xyz, probeBoxMax.xyz - positionWS) / blendDistance;
+    return saturate(min(weightDir.x, min(weightDir.y, weightDir.z)));
+}
+
+half CalculateProbeVolumeSqrMagnitude(float4 probeBoxMin, float4 probeBoxMax)
+{
+    half3 maxToMin = half3(probeBoxMax.xyz - probeBoxMin.xyz);
+    return dot(maxToMin, maxToMin);
+}
+
+real3 DecodeHDREnvironment(real4 encodedIrradiance, real4 decodeInstructions)
+{
+    // Take into account texture alpha if decodeInstructions.w is true(the alpha value affects the RGB channels)
+    real alpha = max(decodeInstructions.w * (encodedIrradiance.a - 1.0) + 1.0, 0.0);
+
+    // If Linear mode is not supported we can skip exponent part
+    return (decodeInstructions.x * PositivePow(alpha, decodeInstructions.y)) * encodedIrradiance.rgb;
+}
+
+half3 CalculateIrradianceFromReflectionProbes(half3 reflectVector, float3 positionWS, half perceptualRoughness)
+{
+    half3 irradiance = half3(0.0h, 0.0h, 0.0h);
+    half mip = PerceptualRoughnessToMipmapLevel(perceptualRoughness);
+    half probe0Volume = CalculateProbeVolumeSqrMagnitude(unity_SpecCube0_BoxMin, unity_SpecCube0_BoxMax);
+    half probe1Volume = CalculateProbeVolumeSqrMagnitude(unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax);
+
+    half volumeDiff = probe0Volume - probe1Volume;
+    float importanceSign = unity_SpecCube1_BoxMin.w;
+
+    // A probe is dominant if its importance is higher
+    // Or have equal importance but smaller volume
+    bool probe0Dominant = importanceSign > 0.0f || (importanceSign == 0.0f && volumeDiff < -0.0001h);
+    bool probe1Dominant = importanceSign < 0.0f || (importanceSign == 0.0f && volumeDiff > 0.0001h);
+
+    float desiredWeightProbe0 = CalculateProbeWeight(positionWS, unity_SpecCube0_BoxMin, unity_SpecCube0_BoxMax);
+    float desiredWeightProbe1 = CalculateProbeWeight(positionWS, unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax);
+
+    // Subject the probes weight if the other probe is dominant
+    float weightProbe0 = probe1Dominant ? min(desiredWeightProbe0, 1.0f - desiredWeightProbe1) : desiredWeightProbe0;
+    float weightProbe1 = probe0Dominant ? min(desiredWeightProbe1, 1.0f - desiredWeightProbe0) : desiredWeightProbe1;
+
+    float totalWeight = weightProbe0 + weightProbe1;
+
+    // If either probe 0 or probe 1 is dominant the sum of weights is guaranteed to be 1.
+    // If neither is dominant this is not guaranteed - only normalize weights if totalweight exceeds 1.
+    weightProbe0 /= max(totalWeight, 1.0f);
+    weightProbe1 /= max(totalWeight, 1.0f);
+
+    // Sample the first reflection probe
+    if (weightProbe0 > 0.01f)
+    {
+        half3 reflectVector0 = reflectVector;
+#ifdef UNITY_SPECCUBE_BOX_PROJECTION
+        reflectVector0 = BoxProjectedCubemapDirection(reflectVector, positionWS, unity_SpecCube0_ProbePosition, unity_SpecCube0_BoxMin, unity_SpecCube0_BoxMax);
+#endif // UNITY_SPECCUBE_BOX_PROJECTION
+
+        half4 encodedIrradiance = half4(SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, reflectVector0, mip));
+
+        irradiance += weightProbe0 * DecodeHDREnvironment(encodedIrradiance, unity_SpecCube0_HDR);
+    }
+
+    // Sample the second reflection probe
+#ifdef UNITY_SPECCUBE_BLENDING
+    UNITY_BRANCH
+    if (weightProbe1 > 0.01f)
+    {
+        half3 reflectVector1 = reflectVector;
+#ifdef UNITY_SPECCUBE_BOX_PROJECTION
+        reflectVector1 = BoxProjectedCubemapDirection(reflectVector, positionWS, unity_SpecCube1_ProbePosition, unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax);
+#endif // UNITY_SPECCUBE_BOX_PROJECTION
+        half4 encodedIrradiance = half4(SAMPLE_TEXTURECUBE_LOD(unity_SpecCube1, samplerunity_SpecCube0, reflectVector1, mip));
+
+        irradiance += weightProbe1 * DecodeHDREnvironment(encodedIrradiance, unity_SpecCube1_HDR);
+    }
+#endif
+
+    return irradiance;
+}
+
+half3 GlossyEnvironmentReflection(half3 reflectVector, float3 positionWS, half perceptualRoughness, half occlusion)
+{
+    half3 irradiance;
+
+#if defined(UNITY_SPECCUBE_BLENDING)
+    irradiance = CalculateIrradianceFromReflectionProbes(reflectVector, positionWS, perceptualRoughness);
+#else
+#ifdef UNITY_SPECCUBE_BOX_PROJECTION
+    reflectVector = BoxProjectedCubemapDirection(reflectVector, positionWS, unity_SpecCube0_ProbePosition, unity_SpecCube0_BoxMin, unity_SpecCube0_BoxMax);
+#endif // UNITY_SPECCUBE_BOX_PROJECTION
+    half mip = PerceptualRoughnessToMipmapLevel(perceptualRoughness);
+    half4 encodedIrradiance = half4(SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, reflectVector, mip));
+
+    irradiance = DecodeHDREnvironment(encodedIrradiance, unity_SpecCube0_HDR);
+#endif // UNITY_SPECCUBE_BLENDING
+    return irradiance * occlusion;
 }

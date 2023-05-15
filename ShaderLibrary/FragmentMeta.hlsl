@@ -43,15 +43,26 @@ half3 UnityLightmappingAlbedo (half3 diffuse, half3 specular, half smoothness)
 }
 
 
-half4 frag (Varyings input) : SV_Target
-{
+#ifdef GENERATION_CODE
+    half4 frag (Varyings unpacked) : SV_Target
+    {
+#else
+    half4 frag (PackedVaryings packedInput) : SV_Target
+    {
+        Varyings unpacked = UnpackVaryings(packedInput);
+#endif
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
 
-    SurfaceDescription surfaceDescription = InitializeSurfaceDescription();
-    #ifdef USE_SURFACEDESCRIPTION
-    SurfaceDescriptionFunction(input, surfaceDescription);
+    #ifdef GENERATION_CODE
+        SurfaceDescription surfaceDescription = InitializeSurfaceDescription();
+        #ifdef USE_SURFACEDESCRIPTION
+        SurfaceDescriptionFunction(unpacked, surfaceDescription);
+        #endif
+    #else
+        SurfaceDescriptionInputs surfaceDescriptionInputs = BuildSurfaceDescriptionInputs(unpacked);
+        SurfaceDescription surfaceDescription = SurfaceDescriptionFunction(surfaceDescriptionInputs);
     #endif
 
     UnityMetaInput o;
@@ -63,10 +74,11 @@ half4 frag (Varyings input) : SV_Target
 
     #ifdef EDITOR_VISUALIZATION
         o.Albedo = diffuseColor;
-        o.VizUV = input.vizUV;
-        o.LightCoord = input.lightCoord;
+        o.VizUV = unpacked.vizUV;
+        o.LightCoord = unpacked.lightCoord;
     #else
-        o.Albedo = UnityLightmappingAlbedo(diffuseColor, specColor, surfaceDescription.Smoothness);
+        // o.Albedo = UnityLightmappingAlbedo(diffuseColor, specColor, surfaceDescription.Smoothness);
+        o.Albedo = surfaceDescription.Albedo;
     #endif
         o.SpecularColor = specColor;
         o.Emission = surfaceDescription.Emission;
@@ -83,7 +95,7 @@ half4 frag (Varyings input) : SV_Target
         #ifdef _ALPHAPREMULTIPLY_ON
         if (_BakeryAlphaDither > 0.5)
         {
-            half dither = Unity_Dither(surfaceDescription.Alpha, input.positionCS.xy);
+            half dither = Unity_Dither(surfaceDescription.Alpha, unpacked.positionCS.xy);
             return dither < 0.0 ? 0 : 1;
         }
         #endif

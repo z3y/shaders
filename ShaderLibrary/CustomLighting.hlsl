@@ -1,13 +1,20 @@
 #include "Packages/com.z3y.shaders/ShaderLibrary/LightFunctions.hlsl"
 #include "Packages/com.z3y.shaders/ShaderLibrary/SSR.hlsl"
 
+#if defined(LTCGI_EXISTS) && defined(LTCGI) 
+    #define UNITY_PI PI
+    #define UNITY_HALF_PI PI/2.
+    #define UNITY_TWO_PI PI*2
+    #include "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc"
+#endif
+
 namespace CustomLighting
 {
 
     void ApplyAlphaClip(inout SurfaceDescription surfaceDescription)
     {
         #if defined(_ALPHATEST_ON) && defined(ALPHATOCOVERAGE_ON)
-            surfaceDescription.Alpha = (surfaceDescription.Alpha - surfaceDescription.AlphaClipThreshold) / max(fwidth(surfaceDescription.Alpha), 0.01f) + 0.5f;
+            surfaceDescription.Alpha = (surfaceDescription.Alpha - surfaceDescription.AlphaClipThreshold) / max(fwidth(surfaceDescription.Alpha), surfaceDescription.AlphaClipSharpness) + 0.5f;
         #endif
 
         #if defined(_ALPHATEST_ON) && !defined(ALPHATOCOVERAGE_ON)
@@ -22,7 +29,8 @@ namespace CustomLighting
 
         #if _NORMAL_DROPOFF_TS
             // IMPORTANT! If we ever support Flip on double sided materials ensure bitangent and tangent are NOT flipped.
-            float crossSign = (unpacked.tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale();
+            //float crossSign = (unpacked.tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale();// moved to vertex
+            float crossSign = unpacked.tangentWS.w;
             bitangentWS = crossSign * cross(unpacked.normalWS.xyz, unpacked.tangentWS.xyz);
             half3x3 tangentToWorld = half3x3(unpacked.tangentWS.xyz, bitangentWS, unpacked.normalWS.xyz);
             normalWS = TransformTangentToWorld(surfaceDescription.Normal, tangentToWorld);
@@ -82,7 +90,7 @@ namespace CustomLighting
         half3 lightColor = lightData.attenuation * lightData.color;
         half3 lightFinalColor = lightNoL * lightColor;
 
-        #ifndef QUALITY_LOW
+        #if !defined(QUALITY_LOW) && !defined(LIGHTMAP_ON)
             lightFinalColor *= Filament::Fd_Burley(sd.perceptualRoughness, sd.NoV, lightNoL, lightLoH);
         #endif
 
@@ -143,7 +151,7 @@ namespace CustomLighting
                 float4 lightmapTexelSize = BicubicSampling::GetTexelSize(unity_Lightmap);
                 half4 bakedColorTex = BicubicSampling::SampleBicubic(unity_Lightmap, custom_bilinear_clamp_sampler, lightmapUV, lightmapTexelSize);
             #else
-                half4 bakedColorTex = unity_Lightmap.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0);
+                half4 bakedColorTex = SAMPLE_TEXTURE2D_LOD(unity_Lightmap, custom_bilinear_clamp_sampler, lightmapUV, 0);
             #endif
 
             #if defined(PIPELINE_BUILTIN)
@@ -155,7 +163,7 @@ namespace CustomLighting
             #endif
 
             #if defined(DIRLIGHTMAP_COMBINED)
-                float4 lightMapDirection = unity_LightmapInd.SampleLevel(custom_bilinear_clamp_sampler, lightmapUV, 0);
+                float4 lightMapDirection = SAMPLE_TEXTURE2D_LOD(unity_LightmapInd, custom_bilinear_clamp_sampler, lightmapUV, 0);
                 #ifndef BAKERY_MONOSH
 
                     #if 0
@@ -249,7 +257,9 @@ namespace CustomLighting
                 reflDir = lerp(reflDir, sd.normalWS, roughness * roughness);
             #endif
 
-            #ifdef PIPELINE_BUILTIN
+            #if defined(PIPELINE_BUILTIN) && defined(USE_URP_BOX_PROJECTION)
+                half3 reflectionSpecular = GlossyEnvironmentReflection(reflDir, unpacked.positionWS, sd.perceptualRoughness, 1.0f);
+            #elif defined(PIPELINE_BUILTIN)
                 Unity_GlossyEnvironmentData envData;
                 envData.roughness = sd.perceptualRoughness;
 
@@ -311,26 +321,57 @@ namespace CustomLighting
         // lightmap and lightmapped specular
         giData.IndirectDiffuse = GetLightmap(unpacked, surfaceDescription, sd, mainLightData, giData.Reflections);
 
+        #if defined(PIPELINE_URP)
         //MixRealtimeAndBakedGI(mainLightData, unpacked.normalWS, giData.IndirectDiffuse);
+        uint meshRenderingLayers = GetMeshRenderingLightLayer();
+        #endif
 
         // main light and specular
-        LightPBR(giData.Light, giData.Specular, mainLightData, unpacked, surfaceDescription, sd);
+
+        #if defined(UNITY_PASS_FORWARDBASE) && !defined(DIRECTIONAL_COOKIE) && !defined(SHADOWS_SCREEN) && !defined(_SPECULARHIGHLIGHTS_OFF) && !defined(SHADOWS_SHADOWMASK) && !defined(LIGHTMAP_SHADOW_MIXING)
+            #ifdef DIRECTIONAL // always defined
+                bool lightEnabled = any(mainLightData.direction);
+                UNITY_BRANCH // avoid calculating directional light in some cases, used in the if statement below
+            #else
+                bool lightEnabled = false;
+            #endif
+        #else
+            bool lightEnabled = true;
+        #endif
+        if (lightEnabled)
+        {
+            LightPBR(giData.Light, giData.Specular, mainLightData, unpacked, surfaceDescription, sd);
+        }
+
+        // non important lights per pixel
+        #if defined(VERTEXLIGHT_ON) && !defined(DISABLE_NONIMPORTANT_LIGHTS_PER_PIXEL)
+            NonImportantLightsPerPixel(giData.Light, giData.Specular, unpacked.positionWS, sd.normalWS, sd.viewDirectionWS, sd.NoV, sd.f0, sd);
+        #endif
 
         // additional light and specular (urp and non important lights)
         #if defined(_ADDITIONAL_LIGHTS) && defined(PIPELINE_URP)
             uint pixelLightCount = GetAdditionalLightsCount();
-            for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
-            {
-                Light light = GetAdditionalLight(lightIndex, unpacked.positionWS);
+            #if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
+            half4 shadowMask = SAMPLE_SHADOWMASK(unpacked.lightmapUV.xy);
+            #else
+            half4 shadowMask = 0.0f;
+            #endif
+
+            LIGHT_LOOP_BEGIN(pixelLightCount)
+                Light light = GetAdditionalLight(lightIndex, unpacked.positionWS, shadowMask);
                 CustomLightData additionalLightData;
                 additionalLightData.color = light.color;
                 additionalLightData.direction = light.direction;
                 additionalLightData.attenuation = light.distanceAttenuation * light.shadowAttenuation;
-                LightPBR(giData.Light, giData.Specular, additionalLightData, unpacked, surfaceDescription, sd);
-            }
+
+                if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+                {
+                    LightPBR(giData.Light, giData.Specular, additionalLightData, unpacked, surfaceDescription, sd);
+                }
+            LIGHT_LOOP_END
         #endif
         
-        #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
+        #if defined(VERTEXLIGHT_ON) && defined(DISABLE_NONIMPORTANT_LIGHTS_PER_PIXEL)
             giData.Light += unpacked.vertexLight;
         #endif
 
@@ -340,52 +381,62 @@ namespace CustomLighting
         // reflection probes
         giData.Reflections += GetReflections(unpacked, surfaceDescription, sd);
 
-        #ifdef _SSR
-		float4 screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
-		float2 screenUVs = screenPos.xy / (screenPos.w+0.0000000001);
-		#if UNITY_SINGLE_PASS_STEREO || defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
-			screenUVs.x *= 2;
-		#endif
-        //float4 ssReflections = GetSSR(unpacked.positionWS, sd.viewDirectionWS, reflect(-sd.viewDirectionWS, sd.normalWS), sd.normalWS, 1- sd.perceptualRoughness, surfaceDescription.Albedo, surfaceDescription.Metallic, screenUVs, screenPos);
-        // return giData.Reflections.xyzz;
-        //giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
-        SSRInput ssr;
-        ssr.wPos = float4(unpacked.positionWS.xyz, 1);
-        ssr.viewDir = sd.viewDirectionWS;
-        ssr.rayDir = float4(reflect(-sd.viewDirectionWS, sd.normalWS).xyz, 1);
-        ssr.faceNormal = sd.normalWS;
-        ssr.hitRadius = 0.02;
-        ssr.blur = 8;
-        ssr.maxSteps = 50;
-        ssr.smoothness = 1- sd.perceptualRoughness;
-        ssr.edgeFade = 0.2;
-        ssr.scrnParams = _CameraOpaqueTexture_TexelSize.zw; //TODO: fix for urp
-        ssr.NoiseTex = BlueNoise;
-        ssr.NoiseTex_dim = BlueNoise_TexelSize.zw;
-        float4 ssReflections = getSSRColor(ssr);
-        float horizon = min(1.0 + dot(ssr.rayDir.xyz, ssr.faceNormal), 1.0);
-        ssReflections.rgb *= horizon * horizon;
-        giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
-        #endif
-
-
-        // modify lighting
-        #ifdef USE_MODIFYLIGHTING
-        ModifyLighting(giData, unpacked, sd, surfaceDescription);
-        #endif
-
-
         // occlusion
         #ifdef LIGHTMAP_ON
-            half specularOcclusion = saturate(sqrt(dot(giData.IndirectDiffuse, 1.0)) * surfaceDescription.Occlusion);
+            half specularOcclusion = lerp(1.0f, saturate(sqrt(dot(giData.IndirectDiffuse, 1.0)) * surfaceDescription.Occlusion), surfaceDescription.SpecularOcclusion);
         #else
             half specularOcclusion = surfaceDescription.Occlusion;
         #endif
         giData.Reflections *= Filament::computeSpecularAO(sd.NoV, specularOcclusion, sd.perceptualRoughness * sd.perceptualRoughness);
 
+
+        #if defined(LTCGI) && defined(LTCGI_EXISTS)
+            float2 ltcgi_lmuv;
+            #if defined(LIGHTMAP_ON)
+                ltcgi_lmuv = unpacked.texCoord1.xy;
+            #else
+                ltcgi_lmuv = float2(0, 0);
+            #endif
+
+            float3 ltcgiSpecular = 0;
+            LTCGI_Contribution(unpacked.positionWS.xyz, sd.normalWS, sd.viewDirectionWS, sd.perceptualRoughness, ltcgi_lmuv, giData.IndirectDiffuse, ltcgiSpecular);
+            giData.Reflections += ltcgiSpecular;
+        #endif
+
+        #ifdef _SSR
+            float4 screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
+            float2 screenUVs = screenPos.xy / (screenPos.w+0.0000000001);
+            #if UNITY_SINGLE_PASS_STEREO || defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+                screenUVs.x *= 2;
+            #endif
+            SSRInput ssr;
+            ssr.wPos = float4(unpacked.positionWS.xyz, 1);
+            ssr.viewDir = sd.viewDirectionWS;
+            ssr.rayDir = float4(reflect(-sd.viewDirectionWS, sd.normalWS).xyz, 1);
+            ssr.faceNormal = sd.normalWS;
+            ssr.hitRadius = 0.02;
+            ssr.blur = 8;
+            ssr.maxSteps = 50;
+            ssr.smoothness = 1- sd.perceptualRoughness;
+            ssr.edgeFade = 0.2;
+            ssr.scrnParams = _CameraOpaqueTexture_TexelSize.zw; //TODO: fix for urp
+            ssr.NoiseTex = BlueNoise;
+            ssr.NoiseTex_dim = BlueNoise_TexelSize.zw;
+            float4 ssReflections = getSSRColor(ssr);
+            float horizon = min(1.0 + dot(ssr.rayDir.xyz, ssr.faceNormal), 1.0);
+            ssReflections.rgb *= horizon * horizon;
+            giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
+        #endif
+
         // fresnel
         giData.Reflections *= sd.energyCompensation * sd.brdf;
+
         giData.Specular *= PI;
+
+        // modify lighting
+        #ifdef USE_MODIFYLIGHTING
+        ModifyLighting(giData, unpacked, sd, surfaceDescription);
+        #endif
 
         #if defined(_ALPHAPREMULTIPLY_ON)
             surfaceDescription.Albedo.rgb *= surfaceDescription.Alpha;
@@ -407,7 +458,22 @@ namespace CustomLighting
 
         // modify final color
         #ifdef USE_MODIFYFINALCOLOR
-        ModifyFinalColor(inout finalColor, giData, unpacked, sd, surfaceDescription);
+        ModifyFinalColor(finalColor, giData, unpacked, sd, surfaceDescription);
+        #endif
+
+        #define FIX_BLACK_LEVEL
+        #if !defined(SHADER_API_MOBILE) && defined(UNITY_PASS_FORWARDBASE)
+            #ifdef DITHERING
+                finalColor.rgb -= ditherNoiseFuncHigh(input.uv01.xy) * 0.001;
+            #else
+                #ifdef FIX_BLACK_LEVEL
+                // the reason why this exists is because post processing applies dithering additively with a noise in range [-1, 1]
+                // when applying dithering to 0 the visible range of the result is [0, 1]
+                // shifts the colors down one level so when the dithering gets applied black color will be in range [-2,0]
+                // doesnt fix color grading, it would require changes in post processing shaders
+                finalColor.rgb -= 0.0002;
+                #endif
+            #endif
         #endif
 
         #ifdef USE_DEBUGCOLOR

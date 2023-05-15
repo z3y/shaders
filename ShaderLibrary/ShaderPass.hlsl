@@ -1,4 +1,5 @@
 #pragma warning (disable : 1519)
+#undef BUILTIN_TARGET_API
 
 #if defined(UNITY_INSTANCING_ENABLED) || defined(STEREO_INSTANCING_ON) || defined(INSTANCING_ON)
     #define UNITY_ANY_INSTANCING_ENABLED 1
@@ -8,8 +9,12 @@
     #define UNITY_STEREO_INSTANCING_ENABLED
 #endif
 
+#ifdef BUILD_TARGET_ANDROID
+#define UNITY_PBS_USE_BRDF1
+#define QUALITY_LOW
+#endif
+
 #ifndef UNITY_PBS_USE_BRDF1
-    #define QUALITY_LOW
     #define QUALITY_LOW
 #endif
 
@@ -21,7 +26,22 @@
     #undef _SSR
     #undef REQUIRE_DEPTH_TEXTURE
     #undef REQUIRE_OPAQUE_TEXTURE
+    #undef LTCGI
+    #undef _GEOMETRICSPECULAR_AA
+    #define BAKERY_SHNONLINEAR_OFF
+    #undef UNITY_SPECCUBE_BLENDING
+    #undef NONLINEAR_LIGHTPROBESH
+    #define DISABLE_LIGHT_PROBE_PROXY_VOLUME
+    #undef _PARALLAXMAP
+
+    #if defined(LIGHTMAP_ON) && !defined(SHADOWS_SHADOWMASK) && !defined(LIGHTMAP_SHADOW_MIXING)
+    #undef DIRECTIONAL
+    #endif
+    #define DISABLE_NONIMPORTANT_LIGHTS_PER_PIXEL
 #endif
+
+
+
 
 #if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
     #define FOG_ANY
@@ -33,7 +53,7 @@
 
 #if defined(SHADOWS_SCREEN) || defined(SHADOWS_SHADOWMASK) || defined(LIGHTMAP_SHADOW_MIXING)
 #define VARYINGS_NEED_SHADOWCOORD
-#define VARYINGS_NEED_TEXCOORD1
+#define ATTRIBUTES_NEED_TEXCOORD1
 #endif
 
 #ifdef LIGHTMAP_ON
@@ -93,6 +113,11 @@ bool IsInMirror()
 #endif
 
 
+#if defined(LTCGI) && defined(LIGHTMAP_ON)
+    #define VARYINGS_NEED_TEXCOORD1
+#endif
+
+
 
 
 #ifdef PIPELINE_BUILTIN
@@ -108,7 +133,7 @@ bool IsInMirror()
     #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Color.hlsl"
     #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Packing.hlsl"
     // #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/EntityLighting.hlsl"
-// #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Texture.hlsl"
+    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Texture.hlsl"
 #endif
 
 
@@ -179,55 +204,6 @@ struct ShaderData
     half3 energyCompensation;
 };
 
-#ifdef GENERATION_CODE
-
-struct VertexDescription
-{
-    float3 VertexPosition;
-    float3 VertexNormal;
-    float3 VertexTangent;
-};
-
-struct SurfaceDescription
-{
-    half3 Albedo;
-    half3 Normal;
-    half Metallic;
-    half3 Emission;
-    half Smoothness;
-    half Occlusion;
-    half Alpha;
-    half AlphaClipThreshold;
-    half Reflectance;
-    half GSAAVariance;
-    half GSAAThreshold;
-    half3 Tangent;
-    half Anisotropy;
-};
-
-SurfaceDescription InitializeSurfaceDescription()
-{
-    SurfaceDescription surfaceDescription = (SurfaceDescription)0;
-    
-    surfaceDescription.Albedo = float(1);
-    surfaceDescription.Normal = float3(0,0,1);
-    surfaceDescription.Metallic = float(0);
-    surfaceDescription.Emission = float(0);
-    surfaceDescription.Smoothness = float(0.5);
-    surfaceDescription.Occlusion = float(1);
-    surfaceDescription.Alpha = float(1);
-    surfaceDescription.AlphaClipThreshold = float(0.5);
-    surfaceDescription.Reflectance = float(0.5);
-
-    surfaceDescription.GSAAVariance = float(0.15);
-    surfaceDescription.GSAAThreshold = float(0.1);
-
-    surfaceDescription.Anisotropy = float(0);
-    surfaceDescription.Tangent = float3(1,1,1);
-
-    return surfaceDescription;
-}
-
 struct GIData
 {
     half3 IndirectDiffuse;
@@ -247,6 +223,70 @@ struct LegacyVaryings
     float4 pos;
     float4 _ShadowCoord;
 };
+
+#ifdef GENERATION_GRAPH
+    #define Albedo BaseColor
+    #define NormalTS Normal
+
+    #define Position VertexPosition
+    #define Normal VertexNormal
+    #define Tangent VertexTangent
+#endif
+
+
+#ifdef GENERATION_CODE
+
+struct VertexDescription
+{
+    float3 VertexPosition;
+    float3 VertexNormal;
+    float3 VertexTangent;
+};
+
+
+struct SurfaceDescription
+{
+    half3 Albedo;
+    half3 Normal;
+    half Metallic;
+    half3 Emission;
+    half Smoothness;
+    half Occlusion;
+    half Alpha;
+    half AlphaClipThreshold;
+    half AlphaClipSharpness;
+    half Reflectance;
+    half GSAAVariance;
+    half GSAAThreshold;
+    half3 Tangent;
+    half Anisotropy;
+    half SpecularOcclusion;
+};
+
+SurfaceDescription InitializeSurfaceDescription()
+{
+    SurfaceDescription surfaceDescription = (SurfaceDescription)0;
+    
+    surfaceDescription.Albedo = float(1);
+    surfaceDescription.Normal = float3(0,0,1);
+    surfaceDescription.Metallic = float(0);
+    surfaceDescription.Emission = float(0);
+    surfaceDescription.Smoothness = float(0.5);
+    surfaceDescription.Occlusion = float(1);
+    surfaceDescription.Alpha = float(1);
+    surfaceDescription.AlphaClipThreshold = float(0.5);
+    surfaceDescription.AlphaClipSharpness = float(0.0001);
+    surfaceDescription.Reflectance = float(0.5);
+
+    surfaceDescription.GSAAVariance = float(0.15);
+    surfaceDescription.GSAAThreshold = float(0.1);
+
+    surfaceDescription.Anisotropy = float(0);
+    surfaceDescription.Tangent = float3(1,1,1);
+    surfaceDescription.SpecularOcclusion = float(1);
+
+    return surfaceDescription;
+}
 
 
 #ifdef VARYINGS_NEED_NORMAL
@@ -419,9 +459,9 @@ struct Varyings
     float4 lightCoord : LIGHTCOORD;
     #endif
     #if defined(LIGHTMAP_ON) && defined(DYNAMICLIGHTMAP_ON)
-    float4 lightmapUV : LIGHTMAPUV;
+    centroid float4 lightmapUV : LIGHTMAPUV;
     #elif defined(LIGHTMAP_ON)
-    float2 lightmapUV : LIGHTMAPUV;
+    centroid float2 lightmapUV : LIGHTMAPUV;
     #endif
 
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
@@ -430,59 +470,23 @@ struct Varyings
 };
 #endif // #ifdef GENERATION_CODE
 
-CustomLightData GetCustomMainLightData(Varyings unpacked)
+
+
+// Need to paste this here because its not included
+// Light falloff
+
+float ftLightFalloff(float4x4 ftUnityLightMatrix, float3 worldPos)
 {
-    CustomLightData data = (CustomLightData)0;
-
-    #if defined(PIPELINE_BUILTIN) && defined(USING_LIGHT_MULTI_COMPILE)
-        data.direction = Unity_SafeNormalize(UnityWorldSpaceLightDir(unpacked.positionWS));
-        data.color = _LightColor0.rgb;
-
-        // attenuation
-        // my favorite macro from UnityCG /s
-        LegacyVaryings legacyVaryings = (LegacyVaryings)0;
-        legacyVaryings.pos = unpacked.positionCS;
-        #ifdef VARYINGS_NEED_SHADOWCOORD
-        legacyVaryings._ShadowCoord = unpacked.shadowCoord;
-        #endif
-        UNITY_LIGHT_ATTENUATION(lightAttenuation, legacyVaryings, unpacked.positionWS.xyz);
-
-        #if defined(UNITY_PASS_FORWARDBASE) && !defined(SHADOWS_SCREEN)
-            lightAttenuation = 1.0;
-        #endif
-        data.attenuation = lightAttenuation;
-    
-        #if defined(LIGHTMAP_SHADOW_MIXING) && defined(LIGHTMAP_ON)
-            data.color *= UnityComputeForwardShadows(unpacked.lightmapUV.xy, unpacked.positionWS, unpacked.shadowCoord);
-        #endif
-    
-    #endif
-
-    #if defined(PIPELINE_URP)
-
-        #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-            float4 shadowCoord = unpacked.shadowCoord;
-        #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-            float4 shadowCoord = TransformWorldToShadowCoord(unpacked.positionWS);
-        #else
-            float4 shadowCoord = float4(0, 0, 0, 0);
-        #endif
-
-        Light mainLight = GetMainLight(shadowCoord);
-
-        data.color = mainLight.color;
-        data.direction = mainLight.direction;
-        data.attenuation = mainLight.distanceAttenuation * mainLight.shadowAttenuation;
-    #endif
-
-    return data;
+    float3 lightCoord = mul(ftUnityLightMatrix, float4(worldPos, 1)).xyz / ftUnityLightMatrix._11;
+    float distSq = dot(lightCoord, lightCoord);
+    float falloff = saturate(1.0f - pow(sqrt(distSq) * ftUnityLightMatrix._11, 4.0f)) / (distSq + 1.0f);
+    return falloff;
 }
 
-float3 GetViewDirectionWS(float3 positionWS)
+float ftLightFalloff(float4 lightPosRadius, float3 worldPos)
 {
-    #ifdef PIPELINE_BUILTIN
-        return normalize(UnityWorldSpaceViewDir(positionWS));
-    #else
-        return normalize(GetCameraPositionWS() - positionWS);
-    #endif
+    float3 lightCoord = worldPos - lightPosRadius.xyz;
+    float distSq = dot(lightCoord, lightCoord);
+    float falloff = saturate(1.0f - pow(sqrt(distSq * lightPosRadius.w), 4.0f)) / (distSq + 1.0f);
+    return falloff;
 }

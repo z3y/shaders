@@ -1,45 +1,32 @@
-PROPERTIES_START // Properties
-    _MainTex ("Texture", 2D) = "white" {}
-    _Color ("Color", Color) = (1,1,1,1)
-    _Metallic ("Metallic", Range(0,1)) = 0
-    _Glossiness ("Smoothness", Range(0,1)) = 0.5
-    [NoScaleOffset] [Normal] _BumpMap ("Normal Map", 2D) = "bump" {}
-    _BumpScale ("Normal Scale", Float) = 1
+﻿PROPERTIES_START // Properties
+    [MainTexture] _MainTex ("Albedo", 2D) = "white" {}
+    [MainColor] _Color ("Color", Color) = (1,1,1,1)
+    _AlbedoSaturation ("Saturation", Float) = 1
 PROPERTIES_END
 
 
 DEFINES_START // Keywords, Defines
-    #define VARYINGS_NEED_TEXCOORD0
-    //#define VARYINGS_NEED_TEXCOORD1
-    //#define VARYINGS_NEED_TEXCOORD2
-    //#define VARYINGS_NEED_TEXCOORD3
+    //#define VARYINGS_NEED_TEXCOORDX (0-3)
+    #define ATTRIBUTES_NEED_TEXCOORD0
     //#define VARYINGS_NEED_COLOR
-    //#define VARYINGS_NEED_INTERP0
-    //#define VARYINGS_NEED_INTERP1
-    //#define VARYINGS_NEED_INTERP2
-    //#define VARYINGS_NEED_INTERP3
-    //#define VARYINGS_NEED_INTERP4
+    //#define VARYINGS_NEED_INTERPX (0-4)
+    #define VARYINGS_NEED_INTERP0
     //#define VARYINGS_NEED_CULLFACE
-    // #pragma skip_variants _GLOSSYREFLECTIONS_OFF
-    // #pragma skip_variants _SPECULARHIGHLIGHTS_OFF
+    #define DISABLE_LIGHT_PROBE_PROXY_VOLUME
 DEFINES_END
 
 
 CBUFFER_START // declare all Material properties excluding textures
     half4 _Color;
     half4 _MainTex_ST;
-    half _Glossiness;
-    half _Metallic;
-    half _BumpScale;
+    half _AlbedoSaturation;
 CBUFFER_END
 
 
 CODE_START
 
     TEXTURE2D(_MainTex);
-    TEXTURE2D(_BumpMap);
     SAMPLER(sampler_MainTex);
-    SAMPLER(sampler_BumpMap);
 
     // Modify attributes before the VertexDescription
     #define USE_MODIFYATTRIBUTES
@@ -60,7 +47,7 @@ CODE_START
     #define USE_MODIFYVARYINGS
     void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
     {
-        
+        varyings.interp0.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
     }
 
 
@@ -70,16 +57,12 @@ CODE_START
     #define USE_SURFACEDESCRIPTION
     void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
     {
-        float2 uv = TRANSFORM_TEX(IN.texCoord0.xy, _MainTex);
+        float2 uv = IN.interp0.xy;
         half4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
+        mainTex.rgb = lerp(dot(mainTex.rgb, half3(0.2125, 0.7154, 0.0721)), mainTex.rgb, _AlbedoSaturation);
         mainTex *= _Color;
-
-        half4 normalMap = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
-        surface.Normal = UnpackNormalScale(normalMap, _BumpScale);
-
+        
         surface.Albedo = mainTex.rgb;
-        surface.Metallic = _Metallic;
-        surface.Smoothness = _Glossiness;
         surface.Alpha = mainTex.a;
     }
 

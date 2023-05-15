@@ -48,7 +48,7 @@ Properties
     [IntRange] _ParallaxSteps ("Steps", Range(1, 32)) = 16
 
 
-    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 0
+    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
 
 
     Foldout_Emission ("Emission", Float) = 0
@@ -142,12 +142,17 @@ CGINCLUDE
     #include "UnityMetaPass.cginc"
 #endif
 
-#ifdef _SPECULARHIGHLIGHTS_OFF
-    #define LTCGI_SPECULAR_OFF
-#endif
+// #ifdef _SPECULARHIGHLIGHTS_OFF
+//     #define LTCGI_SPECULAR_OFF
+// #endif
 
 //ConfigStart
+#pragma skip_variants BAKERY_SHNONLINEAR_OFF
+#pragma skip_variants _BICUBICLIGHTMAP
+#pragma skip_variants NONLINEAR_LIGHTPROBESH
 #define FIX_BLACK_LEVEL
+#pragma skip_variants VERTEXLIGHT_ON
+#pragma skip_variants LOD_FADE_CROSSFADE
 #pragma skip_variants LTCGI
 #pragma skip_variants LTCGI_DIFFUSE_OFF
 
@@ -182,23 +187,28 @@ SubShader
         #pragma multi_compile_fragment _ VERTEXLIGHT_ON
 
         #pragma shader_feature_local _ BAKERY_SH BAKERY_RNM BAKERY_MONOSH
-        #pragma shader_feature_local_fragment NONLINEAR_LIGHTPROBESH
-        #pragma shader_feature_local_fragment BAKERY_SHNONLINEAR_OFF
+
+        #ifndef SHADER_API_MOBILE
+            #pragma shader_feature_local_fragment _BICUBICLIGHTMAP
+            #pragma shader_feature_local_fragment NONLINEAR_LIGHTPROBESH
+            #pragma shader_feature_local_fragment BAKERY_SHNONLINEAR_OFF
+
+            #pragma shader_feature_local_fragment LTCGI
+            #pragma shader_feature_local_fragment LTCGI_DIFFUSE_OFF
+
+            #pragma shader_feature_local _PARALLAXMAP
+        #endif
+        #ifdef SHADER_API_MOBILE
+            #pragma shader_feature_local FORCE_SPECCUBE_BOX_PROJECTION
+        #endif
 
         #pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
-        #pragma shader_feature_local FORCE_SPECCUBE_BOX_PROJECTION
         #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
         #pragma shader_feature_local _GLOSSYREFLECTIONS_OFF
-        #pragma shader_feature_local_fragment _BICUBICLIGHTMAP
         #pragma shader_feature_local _GEOMETRICSPECULAR_AA
         #pragma shader_feature_local _LIGHTMAPPED_SPECULAR
         #pragma shader_feature_local _EMISSION
-        #pragma shader_feature_local _REFRACTION
-
-        #pragma shader_feature_local_fragment LTCGI
-        #pragma shader_feature_local_fragment LTCGI_DIFFUSE_OFF
-
-        #pragma shader_feature_local _PARALLAXMAP
+        //#pragma shader_feature_local _REFRACTION
         #pragma shader_feature_local _MASKMAP
         #pragma shader_feature_local _NORMALMAP
         #pragma shader_feature_local _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
@@ -237,7 +247,9 @@ SubShader
         #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
         #pragma shader_feature_local _GEOMETRICSPECULAR_AA
 
-        #pragma shader_feature_local _PARALLAXMAP
+        #ifndef SHADER_API_MOBILE
+            #pragma shader_feature_local _PARALLAXMAP
+        #endif
         #pragma shader_feature_local _MASKMAP
         #pragma shader_feature_local _NORMALMAP
         #pragma shader_feature_local _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A

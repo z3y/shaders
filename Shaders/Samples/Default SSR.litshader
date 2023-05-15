@@ -1,0 +1,5 @@
+﻿#include "Packages/com.z3y.shaders/Shaders/Default.litshader"
+
+DEFINES_START
+    #define _SSR
+DEFINES_END

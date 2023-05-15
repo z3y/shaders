@@ -57,7 +57,7 @@ namespace BicubicSampling
     half4 SampleBicubic(Texture2D t, SamplerState s, float2 uv, float4 texelSize, float lod = 0)
     {
         #if defined(QUALITY_LOW) || !defined(BICUBIC_LIGHTMAP)
-            return t.SampleLevel(s, uv, lod);
+            return SAMPLE_TEXTURE2D_LOD(t, s, uv, lod);
         #else
             float2 xy = uv * texelSize.xy - 0.5;
             float2 pxy = floor(xy);
@@ -73,10 +73,10 @@ namespace BicubicSampling
 
             //float lod = ComputeTextureLOD(uv);
 
-            float4 t0 = bicubicg0x * t.SampleLevel(s, float2(pxy.x + bicubich0x, pxy.y + bicubich0y) * texelSize.zw, lod);
-            float4 t1 = bicubicg1x * t.SampleLevel(s, float2(pxy.x + bicubich1x, pxy.y + bicubich0y) * texelSize.zw, lod);
-            float4 t2 = bicubicg0x * t.SampleLevel(s, float2(pxy.x + bicubich0x, pxy.y + bicubich1y) * texelSize.zw, lod);
-            float4 t3 = bicubicg1x * t.SampleLevel(s, float2(pxy.x + bicubich1x, pxy.y + bicubich1y) * texelSize.zw, lod);
+            float4 t0 = bicubicg0x * SAMPLE_TEXTURE2D_LOD(t, s, float2(pxy.x + bicubich0x, pxy.y + bicubich0y) * texelSize.zw, lod);
+            float4 t1 = bicubicg1x * SAMPLE_TEXTURE2D_LOD(t, s, float2(pxy.x + bicubich1x, pxy.y + bicubich0y) * texelSize.zw, lod);
+            float4 t2 = bicubicg0x * SAMPLE_TEXTURE2D_LOD(t, s, float2(pxy.x + bicubich0x, pxy.y + bicubich1y) * texelSize.zw, lod);
+            float4 t3 = bicubicg1x * SAMPLE_TEXTURE2D_LOD(t, s, float2(pxy.x + bicubich1x, pxy.y + bicubich1y) * texelSize.zw, lod);
 
             return bicubicg0(fxy.y) * (t0 + t1) + bicubicg1(fxy.y) * (t2 + t3);
         #endif

@@ -12,18 +12,29 @@ float Unity_Dither(float In, float2 ScreenPosition)
     return In - DITHER_THRESHOLDS[uint(uv.x) % 4][uint(uv.y) % 4];
 }
 
-half4 frag (Varyings input) : SV_Target
-{
-    UNITY_SETUP_INSTANCE_ID(input);
-    UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+#ifdef GENERATION_CODE
+    half4 frag (Varyings unpacked) : SV_Target
+    {
+#else
+    half4 frag (PackedVaryings packedInput) : SV_Target
+    {
+        Varyings unpacked = UnpackVaryings(packedInput);
+#endif
+    UNITY_SETUP_INSTANCE_ID(unpacked);
+    UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(unpacked);
 
     #ifdef LOD_FADE_CROSSFADE
-    LODDitheringTransition(input.positionCS.xy, unity_LODFade.x);
+    LODDitheringTransition(unpacked.positionCS.xy, unity_LODFade.x);
     #endif
 
-    SurfaceDescription surfaceDescription = InitializeSurfaceDescription();
-    #ifdef USE_SURFACEDESCRIPTION
-    SurfaceDescriptionFunction(input, surfaceDescription);
+    #ifdef GENERATION_CODE
+        SurfaceDescription surfaceDescription = InitializeSurfaceDescription();
+        #ifdef USE_SURFACEDESCRIPTION
+        SurfaceDescriptionFunction(unpacked, surfaceDescription);
+        #endif
+    #else
+        SurfaceDescriptionInputs surfaceDescriptionInputs = BuildSurfaceDescriptionInputs(unpacked);
+        SurfaceDescription surfaceDescription = SurfaceDescriptionFunction(surfaceDescriptionInputs);
     #endif
 
     #if defined(_ALPHATEST_ON)
@@ -35,7 +46,7 @@ half4 frag (Varyings input) : SV_Target
     #endif
 
     #if defined(_ALPHAPREMULTIPLY_ON) || defined(_ALPHAFADE_ON)
-        half dither = Unity_Dither(surfaceDescription.Alpha, input.positionCS.xy);
+        half dither = Unity_Dither(surfaceDescription.Alpha, unpacked.positionCS.xy);
         if (dither < 0.0) discard;
     #endif
 

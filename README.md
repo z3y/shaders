@@ -1,55 +1,66 @@
-### Lit Shader
-An optimized Standard shader replacement for Unity
+# Shaders
+A Standard Shader and Surface Shaders replacement for Unity
+
+##  Installation
+### Unity Package Manager
+
+- Have [git](https://git-scm.com/downloads) installed
+- Open the Package Manager window `Window > Package Manager`
+- Press + in the top left and package from git url
+```
+https://github.com/z3y/shaders.git
+```
+
+> To install a specific version add `#v0.0.0` to the end of the url with the version number  from the release labels
+
+## Shader Features
+
+| Feature | Description |
+| - | - |
+|Accurate PBR Shading | More accurate fresnel calculations and updated lighting functions from [Filament](https://github.com/google/filament) |
+|Bakery Features| Mono SH, Lightmapped Specular, Non-Linear SH and Non-Linear Light Probe SH supported |
+|Geometric Specular AA| Reduced specular shimmering |
+|Antialiased Cutout | Alpha to Coverage |
+|Lightmap Specular Occlusion| Lightmap intensity used for occluding reflection probes for Reduced reflections in dark areas|
+|Bicubic Lightmap| Smoother lightmap at the small cost of sampling it multiple times and performing bilinear filering in the shader|
+|Improved Parallax | Inreased Parallax steps count |
+|Emission Multiply Base | Multiply Emission with Albedo|
+|Emission GI Multiplier| Adjusts emission intensity used for baking lightmaps in the Meta pass |
+|Transparency Modes | Cutout, Fade, Premultiply, Additive, Multiply|
+|Non-Important lights per pixel| Cheaper realtime lights done in one pass. Does not work with lightmapped object |
+|[LTCGI](https://github.com/PiMaker/ltcgi)||
+|Box Projection on Quest||
+|Anisotropy||
+
+## [Scripted Surface Shaders](/Documentation~/ScriptedSurfaceShaders.md)
+
+**This is now the recommended workflow**
+
+You can create surface-like shaders `Create > Shader > Lit Shader Variant`. Having just one bloated uber shader will not fit everyone's workflow, this is now recommended over using the Lit shader. With some basic shader knowledge you can create exactly what you need while still having all of the advanced lighting and shader features. 
+
+Some additional features are included:
+
+| Feature | Description |
+| - | - |
+|Screen-Space Reflections| |
+|Bakery Alpha Meta| Surface inputs used in the shader are properly passed to the meta pass for baking instead of just reading the main texture and main color|
+|Bakery Alpha Dither|Semi-Transparent baked shadows. Available only in Bakery L1 mode|
+|Baked Area Light Specular Approximation| Reduced smoothness in areas where there is less directionality for more accurate lightmapped specular|
+|URP Box Projection (Soon)||
+|Centroid Lightmap UVs|Fix for lightmap bleeds with very tight packing|
 
 
-### Installation
-- Add the git url `https://github.com/z3y/shaders.git` with the [Package Manager](https://user-images.githubusercontent.com/33181641/210658098-851627b9-c67d-4fab-a493-94e2c8bb53e3.png) (Requires [git](https://git-scm.com/downloads))
+## Shader Graph
+Most of the features supported in the modified shader graph version:
 
-Or [Clone](https://github.com/z3y/shaders/archive/refs/heads/main.zip) the repository and add the package from disk in the Package Manager
-
-### Features
-
-- Accurate PBR Shading
-- Bakery Features
-- Geometric Specular AA
-- Antialiased Cutout (A2C)
-- Lightmap Specular Occlusion
-- Bicubic Lightmap
-- Improved Parallax
-- Emission Multiply Base
-- Emission GI Multiplier
-- Detail Blending: Overlay, Screen, Multiply X2, Replace
-- Detail Height Blending
-- Decal
-- Transparency Modes: Cutout, Fade, Premultiply, Additive, Multiply
-- GPU Instanced Properties
-- Non-Important lights per pixel
-- ACES
-- [LTCGI](https://github.com/PiMaker/ltcgi)
-- Simple Wind
-- Texture Packing
-- Box Projection on Quest
-- Anisotropy
-
-- Custom shaders from template
-
-### Custom Shaders with Code and Graph
-
-You can create surface-like shaders with code `Create > Shader > Lit Shader Variant` or graph https://github.com/z3y/ShaderGraph 
-using the same lighting as the main shader
+https://github.com/z3y/ShaderGraph 
 
 
-If you want to ask something add me z3y#3214 or join the [Discord](https://discord.gg/bw46tKgRFT). Please report bugs if you find them https://github.com/z3y/shaders/issues
+## Included Tools 
+### [Texture Packing](/Documentation~/TexturePacking.md)
+
+
 #
 
-
-### Inspector
-![Unity_eZEBLyHWuP](https://user-images.githubusercontent.com/33181641/195345116-f24babd0-add7-4427-bc7f-c17e3068a351.png)
-
-
-### Texture Packing
-![image](https://user-images.githubusercontent.com/33181641/202446428-07b45383-a9f0-45dc-a1ea-f6635755a9b1.png)
-
-
-### Project Settings
-![image](https://user-images.githubusercontent.com/33181641/202446159-f67bca06-c777-4f12-a3fa-62d18990683d.png)
+### [Discord Support](https://discord.gg/bw46tKgRFT)
+### [Bug Reports](https://github.com/z3y/shaders/issues)

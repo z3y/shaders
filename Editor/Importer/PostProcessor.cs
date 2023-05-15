@@ -12,7 +12,7 @@ namespace z3y.Shaders
         {
             foreach (var path in importedAssets)
             {
-                if (!path.EndsWith(LitImporter.EXT))
+                if (!path.EndsWith(LitImporter.Ext))
                 {
                     continue;
                 }

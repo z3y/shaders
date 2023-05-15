@@ -16,8 +16,6 @@ namespace z3y.Shaders
             return 2;
         }
 
-        private static Shader DefaultShader = Shader.Find("Lit/Default");
-
         public void OnPreprocessMaterialDescription(MaterialDescription description, Material material, AnimationClip[] materialAnimation)
         {
             if (!ProjectSettings.ShaderSettings.defaultShader)
@@ -25,7 +23,7 @@ namespace z3y.Shaders
                 return;
             }
 
-            material.shader = DefaultShader;
+            material.shader = ProjectSettings.lit;
 
 
             if (description.TryGetProperty("DiffuseColor", out Vector4 color))
@@ -67,16 +65,11 @@ namespace z3y.Shaders
 
             if (description.TryGetProperty("EmissiveColor", out Vector4 emissiveColor))
             {
-                if (description.TryGetProperty("EmissiveColor", out TexturePropertyDescription emissionTex))
-                {
-                    material.SetFloat("_EmissionToggle", 1f);
-                    material.EnableKeyword("_EMISSION");
-                }
-
                 if (description.TryGetProperty("EmissiveFactor", out float emissiveFactor) && emissiveFactor > 0 && (emissiveColor.x + emissiveColor.y + emissiveColor.z) > 0)
                 {
-                    material.SetFloat("_EmissionToggle", 1f);
                     material.EnableKeyword("_EMISSION");
+                    material.SetFloat("_EmissionToggle", 1f);
+                    material.SetFloat("Foldout_Emission", 1f);
                     material.SetColor("_EmissionColor", emissiveColor * emissiveFactor);
                 }
             }
@@ -86,21 +79,21 @@ namespace z3y.Shaders
                 material.SetFloat("_Metallic", metallic);
             }
 
-            /*
             if (description.TryGetProperty("SpecularFactor", out float reflectance))
             {
                 material.SetFloat("_Reflectance", reflectance * 2);
             }
-            */
 
             if (description.TryGetProperty("Shininess", out float shininessFactor))
             {
                 var smoothness = Mathf.Sqrt(shininessFactor * 0.01f);
                 material.SetFloat("_Glossiness", smoothness);
             }
-            
+
 
             BaseShaderGUI.SetupMaterialWithBlendMode(material, (int)material.GetFloat("_Mode"));
+            LitGUI.ApplyChanges(material);
         }
+
     }
 }

@@ -531,7 +531,8 @@ half3 GetReflections(float3 normalWS, float3 positionWS, float3 viewDir, half3 f
         indirectSpecular *= horizon * horizon;
         
         //#if defined(LIGHTMAP_ON) || defined(DYNAMICLIGHTMAP_ON)
-            surf.occlusion *= lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
+            // surf.occlusion *= lerp(1.0, saturate(dot(indirectDiffuse, 1.0)), _SpecularOcclusion);
+            surf.occlusion *= lerp(1.0, saturate(sqrt(dot(indirectDiffuse, 1.0))), _SpecularOcclusion);
         //#endif
 
         indirectSpecular *= computeSpecularAO(NoV, surf.occlusion, surf.perceptualRoughness * surf.perceptualRoughness);

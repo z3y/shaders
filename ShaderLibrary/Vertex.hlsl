@@ -4,7 +4,11 @@
 float3 _LightDirection;
 #endif
 
+#ifdef GENERATION_CODE
 Varyings vert(Attributes input)
+#else
+Varyings BuildVaryings(Attributes input)
+#endif
 {
     Varyings output = (Varyings)0;
 
@@ -33,9 +37,15 @@ Varyings vert(Attributes input)
     #ifdef ATTRIBUTES_NEED_TANGENT
     description.VertexTangent = tangentWS.xyz;
     #endif
-    #ifdef USE_VERTEXDESCRIPTION
-    VertexDescriptionFunction(input, description);
+
+    #if defined(GENERATION_GRAPH)
+        description = VertexDescriptionFunction(BuildVertexDescriptionInputs(input));
+    #else 
+        #if defined(USE_VERTEXDESCRIPTION)
+        VertexDescriptionFunction(input, description);
+        #endif
     #endif
+
     positionWS = description.VertexPosition;
     #ifdef ATTRIBUTES_NEED_NORMAL
     normalWS = description.VertexNormal;
@@ -80,9 +90,14 @@ Varyings vert(Attributes input)
     #endif
     #ifdef VARYINGS_NEED_TANGENT
     output.tangentWS = tangentWS;
+    float crossSign = (tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale();
+    output.tangentWS.w = crossSign;
     #endif
+
+    #if defined(VARYINGS_NEED_POSITION) || defined(GENERATION_CODE)
     output.positionWS = positionWS;
-    
+    #endif
+
     #if defined(VARYINGS_NEED_TEXCOORD0)
         output.texCoord0 = input.uv0;
     #endif
@@ -156,3 +171,14 @@ Varyings vert(Attributes input)
 
     return output;
 }
+
+
+#ifdef GENERATION_GRAPH
+PackedVaryings vert(Attributes input)
+{
+    Varyings output = (Varyings)0;
+    output = BuildVaryings(input);
+    PackedVaryings packedOutput = PackVaryings(output);
+    return packedOutput;
+}
+#endif
