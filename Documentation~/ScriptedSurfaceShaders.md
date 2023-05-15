@@ -20,7 +20,8 @@ To preview the generated ShaderLab code use `Copy Generated Shader` on the impor
 |CODE| Contains texture declarations and override functions for parts of the vertex and fragment shader. All existing override functions are included in the template|
 
 
-
+## Configuring VSCode
+To have proper hlsl syntax highlighting you can set a language mode to be associated with this file extension. Bottom right click on "Plain Text" and "Set file association for .litshader" and select hlsl.
 
 ## Importer Shader Defines
 
