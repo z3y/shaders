@@ -15,6 +15,8 @@
     _EmissionMultiplyBase ("Emission Multiply Base", Range(0,1)) = 0
 
     _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
+    _Cutoff ("Alpha Cuttoff", Range(0.001, 1)) = 0.5
+    _CutoutSharpness ("Cutoff Sharpness", Range(1, 0.0001)) = 0.0001
 PROPERTIES_END
 
 
@@ -49,6 +51,8 @@ CBUFFER_START // declare all Material properties excluding textures
     half _EmissionGIMultiplier;
     half _OcclusionStrength;
     half _EmissionMultiplyBase;
+    half _Cutoff;
+    half _CutoutSharpness;
 CBUFFER_END
 
 
@@ -111,6 +115,10 @@ CODE_START
         #endif
 
         surface.SpecularOcclusion = _SpecularOcclusion;
+
+        surface.AlphaClipThreshold = _Cutoff;
+        surface.AlphaClipSharpness = _CutoutSharpness;
+
     }
 
     #if defined(UNITY_PASS_FORWARD)
