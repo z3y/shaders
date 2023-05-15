@@ -9,9 +9,9 @@ namespace z3y.Shaders
     {
         [SerializeField] public string shaderName;
 
-        public MaterialType materialType;
-        public DefineType bicubicLightmap = DefineType.Disabled;
-        public DefineType gsaa = DefineType.Disabled;
+        public MaterialType materialType = MaterialType.Lit;
+        public DefineType bicubicLightmap = DefineType.LocalKeyword;
+        public DefineType gsaa = DefineType.LocalKeyword;
         public DefineType anisotropy = DefineType.Disabled;
         // fragment normal space option?
         public DefineType bakeryMonoSH = DefineType.LocalKeyword;
