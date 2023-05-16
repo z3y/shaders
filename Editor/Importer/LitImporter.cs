@@ -14,7 +14,7 @@ using Debug = UnityEngine.Debug;
 
 namespace z3y.Shaders
 {
-    [ScriptedImporter(2, Ext, 0)]
+    [ScriptedImporter(3, Ext, 0)]
     public class LitImporter : ScriptedImporter
     {
         public const string Ext = "litshader";
@@ -82,7 +82,7 @@ namespace z3y.Shaders
             _lastFolderPath = Path.GetDirectoryName(assetPath);
             var shaderBlocks = new ShaderBlocks();
             var fileLines = File.ReadLines(assetPath);
-            GetShaderBlocksRecursive(fileLines, shaderBlocks);
+            GetShaderBlocksRecursive(fileLines, shaderBlocks, assetPath);
 
 
             bool isAndroid = buildTarget == BuildTarget.Android;
@@ -485,7 +485,7 @@ namespace z3y.Shaders
             return defaultProps.ToString();
         }
 
-        private static void GetShaderBlocksRecursive(IEnumerable<string> fileLines, ShaderBlocks shaderData)
+        private static void GetShaderBlocksRecursive(IEnumerable<string> fileLines, ShaderBlocks shaderData, string currentPath)
         {
             var ienum = fileLines.GetEnumerator();
             while (ienum.MoveNext())
@@ -540,16 +540,44 @@ namespace z3y.Shaders
                     AppendLineBlockSpan(ienum, shaderData.cbufferSb, "CBUFFER_END".AsSpan());
                 }
                 
+                else if (trimmed.StartsWith("#include_optional ".AsSpan()))
+                {
+                    var includeFile = trimmed.Slice("#include_optional ".Length).TrimEnd('"').TrimStart('"');
+                    var includePath = GetFullIncludePath(includeFile);
+                                        
+                    if (includePath.Equals(currentPath))
+                    {
+                        continue;
+                    }
+                    
+                    if (!File.Exists(includePath))
+                    {
+                        continue;
+                    }
+
+                    if (includeFile.EndsWith(".litshader".AsSpan(), StringComparison.Ordinal))
+                    {
+                        var includeFileLines = File.ReadLines(includePath);
+                        SourceDependencies.Add(includePath);
+                        GetShaderBlocksRecursive(includeFileLines, shaderData, currentPath);
+                    }
+                }
+
                 else if (trimmed.StartsWith("#include ".AsSpan()))
                 {
-                    var includeFile = trimmed.Slice(9).TrimEnd('"').TrimStart('"');
+                    var includeFile = trimmed.Slice("#include ".Length).TrimEnd('"').TrimStart('"');
                     var includePath = GetFullIncludePath(includeFile);
+
+                    if (includePath.Equals(currentPath))
+                    {
+                        continue;
+                    }
                     
                     if (includeFile.EndsWith(".litshader".AsSpan(), StringComparison.Ordinal))
                     {
                         var includeFileLines = File.ReadLines(includePath);
                         SourceDependencies.Add(includePath);
-                        GetShaderBlocksRecursive(includeFileLines, shaderData);
+                        GetShaderBlocksRecursive(includeFileLines, shaderData, currentPath);
                     }
 
                 }

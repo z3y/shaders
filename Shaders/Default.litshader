@@ -36,7 +36,6 @@ DEFINES_START // Keywords, Defines
     #define UNITY_SPECCUBE_BOX_PROJECTION // force enable box projection on quest
     // #define NONLINEAR_LIGHTPROBESH // used with L1 bakery probes, not recommended for VRChat
 
-    #include_optional "Assets/Settings/LitShaderConfig.hlsl"
 DEFINES_END
 
 
@@ -137,23 +136,4 @@ CODE_START
 
 CODE_END
 
-
-// more specific defines/keywords per pass
-DEFINES_FORWARDBASE_START
-
-DEFINES_FORWARDBASE_END
-
-
-DEFINES_FORWARDADD_START
-
-DEFINES_FORWARDADD_END
-
-
-DEFINES_SHADOWCASTER_START
-
-DEFINES_SHADOWCASTER_END
-
-
-DEFINES_META_START
-
-DEFINES_META_END
+#include_optional "Assets/Settings/LitShaderConfig.litshader"
