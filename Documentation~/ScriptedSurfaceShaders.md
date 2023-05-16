@@ -36,3 +36,11 @@ The importer sets some additional useful defines
 ## Custom Interpolators
 
 Reference Code [ShaderPass](/ShaderLibrary/ShaderPass.hlsl#L300)
+
+## Including Other Shaders
+
+It is possible to stack other shaders by including a `.litshader` outside of any code blocks. To stack an output of a previous function you can redefine it and access the previous function inside it. [Example](/Shaders/Samples/Stacked.litshader)
+
+## Optional Includes
+
+using `#include_optional ""` instead of `#include ""` will only include the file if it exists so it doesnt cause errors. This also works on .litshader file types. With this it is possible to make a global include with code that will be included in all shaders. The default template will include file at path `Assets/Settings/LitShaderConfig.litshader`.

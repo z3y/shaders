@@ -1,0 +1,39 @@
+﻿#include "Custom Interpolator.litshader"
+
+PROPERTIES_START // Properties
+    _Brightness ("Brightness", Float) = 1
+PROPERTIES_END
+
+
+DEFINES_START // Keywords, Defines
+
+DEFINES_END
+
+
+CBUFFER_START // declare all Material properties excluding textures
+    half _Brightness;
+CBUFFER_END
+
+
+CODE_START
+
+    // While this might seem a bit convoluted it gives the most flexibility without creating anything custom to handle it
+    // it is just regular hlsl code with defines
+    
+    // Create a unique function name
+    void ModifyFinalColorBrightnessFunction(inout half4 finalColor, GIData giData, Varyings unpacked, ShaderData sd, SurfaceDescription surfaceDescription)
+    {
+        // access the previous function and pass in all the same parameters if it exists
+        #ifdef USE_MODIFYFINALCOLOR
+        ModifyFinalColor(finalColor, giData, unpacked, sd, surfaceDescription);
+        #endif
+
+        finalColor *= _Brightness;
+    }
+    // override it
+    #define USE_MODIFYFINALCOLOR
+    #define ModifyFinalColor ModifyFinalColorBrightnessFunction
+
+CODE_END
+
+#include_optional "Assets/Settings/LitShaderConfig.litshader"
