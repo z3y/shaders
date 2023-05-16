@@ -138,7 +138,6 @@ bool IsInMirror()
     #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Packing.hlsl"
     // #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/EntityLighting.hlsl"
     #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Texture.hlsl"
-    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/CommonMaterial.hlsl"
 #endif
 
 

@@ -557,10 +557,10 @@ inline half3 SubtractMainLightWithRealtimeAttenuationFromLightmap (half3 lightma
 // Helper to convert smoothness to roughness
 //-----------------------------------------------------------------------------
 
-// float PerceptualRoughnessToRoughness(float perceptualRoughness)
-// {
-//     return perceptualRoughness * perceptualRoughness;
-// }
+float PerceptualRoughnessToRoughness(float perceptualRoughness)
+{
+    return perceptualRoughness * perceptualRoughness;
+}
 
 half RoughnessToPerceptualRoughness(half roughness)
 {
