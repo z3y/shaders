@@ -108,9 +108,18 @@ namespace z3y.Shaders
                 sb.AppendLine("Properties");
                 sb.AppendLine("{");
                 {
-                    sb.AppendLine("[HideInInspector]__LitShaderVariant(\"\", Float) = 0");
-                    sb.AppendLine(GetDefaultPropertiesInclude(settings, isAndroid));
+                    sb.AppendLine("FoldoutMainStart_RenderingOptions (\"Rendering Options\", Float) = 1");
+                    sb.AppendLine(LitImporterConstants.DefaultPropertiesInclude);
+                    sb.AppendLine("FoldoutMainEnd_RenderingOptions (\"\", Float) = 0");
+
+                    sb.AppendLine("FoldoutMainStart_Properties (\"Properties\", Float) = 1");
                     sb.AppendLine(shaderBlocks.propertiesSb.ToString());
+                    sb.AppendLine("FoldoutMainEnd_Properties (\"\", Float) = 0");
+
+                    sb.AppendLine("FoldoutMainStart_AdditionalSettings (\"Additional Settings\", Float) = 1");
+                    sb.AppendLine(GetDefaultPropertiesIncludeAfter(settings, isAndroid));
+                    sb.AppendLine(LitImporterConstants.DefaultPropertiesIncludeAfter);
+                    sb.AppendLine("FoldoutMainEnd_AdditionalSettings (\"\", Float) = 0");
                 }
                 sb.AppendLine("}");
 
@@ -464,7 +473,7 @@ namespace z3y.Shaders
 #endif
         }
 
-        private static string GetDefaultPropertiesInclude(ShaderSettings settings, bool isAndroid)
+        private static string GetDefaultPropertiesIncludeAfter(ShaderSettings settings, bool isAndroid)
         {
             var defaultProps = new StringBuilder();
             defaultProps.AppendLine(GetPropertyDeclaration(settings.bakeryMonoSH, ShaderSettings.MonoShKeyword, "Mono SH"));
@@ -480,8 +489,6 @@ namespace z3y.Shaders
             }
 
             if (settings.grabPass) defaultProps.Append("[HideInInspector][ToggleUI]_GrabPass(\"GrabPass\", Float) = 1"); // just a property to detect if there is a grabpass
-
-            defaultProps.AppendLine(LitImporterConstants.DefaultPropertiesInclude);
             return defaultProps.ToString();
         }
 
