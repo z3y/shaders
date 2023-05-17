@@ -106,7 +106,7 @@ CODE_START
             half3 emissionMap = SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, uv).rgb;
             surface.Emission = emissionMap * _EmissionColor;
 
-            surface.Emission = lerp(1.0, surface.Albedo, _EmissionMultiplyBase);
+            surface.Emission *= lerp(1.0, surface.Albedo, _EmissionMultiplyBase);
 
             #ifdef UNITY_PASS_META
             surface.Emission *= _EmissionGIMultiplier;
