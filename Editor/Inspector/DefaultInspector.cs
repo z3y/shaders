@@ -156,6 +156,12 @@ namespace z3y.Shaders
                 {
                     p.drawAction = DrawHelpBox;
                 }
+                else if (prop.name.EndsWith("_ScaleOffset"))
+                {
+                    var texturePropName = prop.name.Replace("_ScaleOffset", string.Empty);
+                    p.index = Array.FindIndex(materialProperties, x => x.name.EndsWith(texturePropName));
+                    p.drawAction = DrawShaderTextureScaleOffsetProperty;
+                }
                 else if (prop.name.Equals("_Mode"))
                 {
                     p.drawAction = DrawTransparencyModeProperty;
@@ -201,7 +207,7 @@ namespace z3y.Shaders
 
                 if (prop.type == MaterialProperty.PropType.Texture && (flags & MaterialProperty.PropFlags.NoScaleOffset) != MaterialProperty.PropFlags.NoScaleOffset)
                 {
-                    p.drawAction += DrawShaderTextureTileOffsetProperty;
+                    p.drawAction += DrawShaderTextureScaleOffsetProperty;
                 }
 
                 if (propertyVisible)
@@ -322,7 +328,7 @@ namespace z3y.Shaders
         public void DrawShaderProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.ShaderProperty(unityProperty[property.index], property.guiContent);
         public void DrawShaderTextureProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.TexturePropertySingleLine(property.guiContent, unityProperty[property.index]);
         public void DrawShaderTexturePropertyExtra(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => TexturePropertySingleLineExtraProp(editor, property.guiContent, unityProperty[property.index+1]);
-        public void DrawShaderTextureTileOffsetProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.TextureScaleOffsetProperty(unityProperty[property.index]);
+        public void DrawShaderTextureScaleOffsetProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.TextureScaleOffsetProperty(unityProperty[property.index]);
         public void ToggleGroup(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => property.childrenVisible = unityProperty[property.index].floatValue > 0f;
         public void ToggleGroupTexture(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => property.childrenVisible = unityProperty[property.index].textureValue != null;
         public void DrawHelpBox(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUILayout.HelpBox(property.displayName, MessageType.Info);

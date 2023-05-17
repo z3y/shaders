@@ -1,5 +1,5 @@
 ﻿PROPERTIES_START // Properties
-    [MainTexture] [ExtraProperty] _MainTex ("Albedo", 2D) = "white" {}
+    [MainTexture] [NoScaleOffset] [ExtraProperty] _MainTex ("Albedo", 2D) = "white" {}
     [MainColor] _Color ("Color", Color) = (1,1,1,1)
     [Linear] [NoScaleOffset] [Tooltip(AO (R), Roughness (G), Metallic (B))] [Toggle(_MASKMAP)] _MaskMap ("Mask Map", 2D) = "white" {}
     _Metallic ("Metallic", Range(0,1)) = 0
@@ -14,6 +14,9 @@
     [HDR] _EmissionColor ("Emission Color", Color) = (1,1,1)
     _EmissionMultiplyBase ("Emission Multiply Base", Range(0,1)) = 0
     _EmissionGIMultiplier ("Emission GI Multiplier", Float) = 1
+
+    [Space(10)]
+    _MainTex_ScaleOffset ("", Float) = 0
 
     [Space(10)]
     _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
@@ -101,7 +104,7 @@ CODE_START
             half4 normalMap = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
             surface.Normal = UnpackNormalScale(normalMap, _BumpScale);
         #endif
-        
+
         #ifdef _MASKMAP
             half4 maskMap = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uv);
             surface.Metallic = maskMap.b * _Metallic;
