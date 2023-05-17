@@ -1,11 +1,11 @@
 ﻿PROPERTIES_START // Properties
     [MainTexture] [ExtraProperty] _MainTex ("Albedo", 2D) = "white" {}
     [MainColor] _Color ("Color", Color) = (1,1,1,1)
-    [Linear] [NoScaleOffset] [Tooltip(AO (R), Roughness (G), Metallic (B))] _MaskMap ("Mask Map", 2D) = "white" {}
+    [Linear] [NoScaleOffset] [Tooltip(AO (R), Roughness (G), Metallic (B))] [Toggle(_MASKMAP)] _MaskMap ("Mask Map", 2D) = "white" {}
     _Metallic ("Metallic", Range(0,1)) = 0
     _Roughness ("Roughness", Range(0,1)) = 0.5
     _OcclusionStrength ("Occlusion", Range(0,1)) = 1
-    [NoScaleOffset] [Normal] [ExtraProperty] _BumpMap ("Normal Map", 2D) = "bump" {}
+    [NoScaleOffset] [Normal] [ExtraProperty] [Toggle(_NORMALMAP)] _BumpMap ("Normal Map", 2D) = "bump" {}
     _BumpScale ("Normal Scale", Float) = 1
 
     [Space(10)]
@@ -38,6 +38,8 @@ DEFINES_START // Keywords, Defines
     #define UNITY_SPECCUBE_BOX_PROJECTION // force enable box projection on quest
     // #define NONLINEAR_LIGHTPROBESH // used with L1 bakery probes, not recommended for VRChat
 
+    #pragma shader_feature_local _MASKMAP
+    #pragma shader_feature_local _NORMALMAP
 DEFINES_END
 
 
@@ -92,17 +94,24 @@ CODE_START
         float2 uv = IN.interp0.xy;
         half4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
         mainTex *= _Color;
-
-        half4 normalMap = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
-        surface.Normal = UnpackNormalScale(normalMap, _BumpScale);
-
-        half4 maskMap = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uv);
-
         surface.Albedo = mainTex.rgb;
-        surface.Metallic = maskMap.b * _Metallic;
-        surface.Smoothness = 1.0 - (maskMap.g * _Roughness);
-        surface.Occlusion = lerp(1.0, maskMap.r, _OcclusionStrength);
         surface.Alpha = mainTex.a;
+
+        #ifdef _NORMALMAP
+            half4 normalMap = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
+            surface.Normal = UnpackNormalScale(normalMap, _BumpScale);
+        #endif
+        
+        #ifdef _MASKMAP
+            half4 maskMap = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uv);
+            surface.Metallic = maskMap.b * _Metallic;
+            surface.Smoothness = 1.0 - (maskMap.g * _Roughness);
+            surface.Occlusion = lerp(1.0, maskMap.r, _OcclusionStrength);
+        #else
+            surface.Metallic = _Metallic;
+            surface.Smoothness = 1.0 - _Roughness;
+        #endif
+
 
         #ifdef _EMISSION
             half3 emissionMap = SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, uv).rgb;
