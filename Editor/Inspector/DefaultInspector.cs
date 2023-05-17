@@ -9,12 +9,29 @@ namespace z3y.Shaders
     public class DefaultInspector : ShaderGUI
     {
         private bool _firstTime = true;
+        private static bool _reset = false;
+        public static void ReinitializeInspector() => _reset = true;
 
         private List<Property> _properties = new List<Property>();
+        private Shader _curentShader = null;
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] materialProperties)
         {
+            if (_reset)
+            {
+                _firstTime = true;
+                _reset = false;
+            }
+            var material = (Material)materialEditor.target;
+            var shader = material.shader;
+            if (_curentShader != shader)
+            {
+                _firstTime = true;
+                _curentShader = shader;
+            }
+
             if (_firstTime)
             {
+                Debug.Log("Initialize");
                 InitializeEditor(materialEditor, materialProperties);
                 _firstTime = false;
                 OnValidate(materialEditor, materialProperties);

@@ -23,6 +23,8 @@ namespace z3y.Shaders
                     ShaderUtil.RegisterShader(shader);
                     ShaderUtil.ClearShaderMessages(shader);
                 }
+
+                DefaultInspector.ReinitializeInspector();
             }
         }
     }
