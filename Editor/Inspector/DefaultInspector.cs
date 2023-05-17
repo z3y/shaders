@@ -554,18 +554,23 @@ namespace z3y.Shaders
             }
         }
 
-        private void ExtraPropertyAfterTexture(MaterialEditor editor, Rect r, MaterialProperty property)
+        private void ExtraPropertyAfterTexture(MaterialEditor materialEditor, Rect r, MaterialProperty property)
         {
             if ((property.type == MaterialProperty.PropType.Float || property.type == MaterialProperty.PropType.Color) && r.width > EditorGUIUtility.fieldWidth)
             {
                 float labelWidth = EditorGUIUtility.labelWidth;
-                EditorGUIUtility.labelWidth = r.width - EditorGUIUtility.fieldWidth;
-                editor.ShaderProperty(r, property, " ");
+                EditorGUIUtility.labelWidth = r.width - EditorGUIUtility.fieldWidth - 2f;
+
+                var labelRect = new Rect(r.x, r.y, r.width - EditorGUIUtility.fieldWidth - 4f, r.height);
+                var style = new GUIStyle("label");
+                style.alignment = TextAnchor.MiddleRight;
+                EditorGUI.LabelField(labelRect, property.displayName, style);
+                materialEditor.ShaderProperty(r, property, " ");
                 EditorGUIUtility.labelWidth = labelWidth;
             }
             else
             {
-                editor.ShaderProperty(r, property, string.Empty);
+                materialEditor.ShaderProperty(r, property, string.Empty);
             }
         }
 
