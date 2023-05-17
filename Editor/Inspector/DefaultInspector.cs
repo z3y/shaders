@@ -578,6 +578,13 @@ namespace z3y.Shaders
         {
             Rect controlRectForSingleLine = GUILayoutUtility.GetLastRect();
 
+            if (controlRectForSingleLine.height > 20)
+            {
+                // fix offset when there is a normal map fix button
+                var pos = controlRectForSingleLine.position;
+                controlRectForSingleLine.position = new Vector2(pos.x, pos.y - 42);
+            }
+
             int indentLevel = EditorGUI.indentLevel;
             EditorGUI.indentLevel = 0;
             if (extraProperty1 == null || extraProperty2 == null)
