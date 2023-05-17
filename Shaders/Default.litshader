@@ -2,18 +2,18 @@
     [MainTexture] [NoScaleOffset] [ExtraProperty] _MainTex ("Albedo", 2D) = "white" {}
     [MainColor] _Color ("Color", Color) = (1,1,1,1)
     [Linear] [NoScaleOffset] [Tooltip(AO (R), Roughness (G), Metallic (B))] [Toggle(_MASKMAP)] _MaskMap ("Mask Map", 2D) = "white" {}
-    _Metallic ("Metallic", Range(0,1)) = 0
+    [Indent] _Metallic ("Metallic", Range(0,1)) = 0
     _Roughness ("Roughness", Range(0,1)) = 0.5
-    _OcclusionStrength ("Occlusion", Range(0,1)) = 1
+    [UnIndent] _OcclusionStrength ("Occlusion", Range(0,1)) = 1
     [NoScaleOffset] [Normal] [ExtraProperty] [Toggle(_NORMALMAP)] _BumpMap ("Normal Map", 2D) = "bump" {}
     _BumpScale ("Normal Scale", Float) = 1
 
     [Space(10)]
-    [Toggle(_EMISSION)] _EmissionToggle ("Enable Emission", Int) = 0
+    [Toggle(_EMISSION)] [ToggleGroupStart] _EmissionToggle ("Enable Emission", Int) = 0
     [NoScaleOffset] [ExtraProperty] _EmissionMap ("Emission Map", 2D) = "white" {}
     [HDR] _EmissionColor ("Emission Color", Color) = (1,1,1)
     _EmissionMultiplyBase ("Emission Multiply Base", Range(0,1)) = 0
-    _EmissionGIMultiplier ("Emission GI Multiplier", Float) = 1
+    [ToggleGroupEnd] _EmissionGIMultiplier ("Emission GI Multiplier", Float) = 1
 
     [Space(10)]
     _MainTex_ScaleOffset ("", Float) = 0

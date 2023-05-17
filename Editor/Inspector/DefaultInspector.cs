@@ -85,6 +85,8 @@ namespace z3y.Shaders
                 bool verticalScopeEnd = false;
                 bool helpBox = false;
                 bool extraProperty = false;
+                bool indentLevelAdd = false;
+                bool indentLevelRemove = false;
                 foreach (var attributeString in attributes)
                 {
                     var attribute = attributeString.AsSpan();
@@ -104,6 +106,15 @@ namespace z3y.Shaders
                     if (attribute.Equals("ExtraProperty".AsSpan(), StringComparison.Ordinal))
                     {
                         extraProperty = true;
+                    }
+
+                    if (attribute.Equals("Indent".AsSpan(), StringComparison.Ordinal))
+                    {
+                        indentLevelAdd = true;
+                    }
+                    else if (attribute.Equals("UnIndent".AsSpan(), StringComparison.Ordinal))
+                    {
+                        indentLevelRemove = true;
                     }
 
                     if (attribute.Equals("ToggleGroupStart".AsSpan(), StringComparison.Ordinal))
@@ -208,6 +219,15 @@ namespace z3y.Shaders
                 if (prop.type == MaterialProperty.PropType.Texture && (flags & MaterialProperty.PropFlags.NoScaleOffset) != MaterialProperty.PropFlags.NoScaleOffset)
                 {
                     p.drawAction += DrawShaderTextureScaleOffsetProperty;
+                }
+
+                if (indentLevelAdd)
+                {
+                    p.drawAction = IndentLevelAdd + p.drawAction;
+                }
+                else if (indentLevelRemove)
+                {
+                    p.drawAction += IndentLevelRemove;
                 }
 
                 if (propertyVisible)
@@ -332,6 +352,10 @@ namespace z3y.Shaders
         public void ToggleGroup(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => property.childrenVisible = unityProperty[property.index].floatValue > 0f;
         public void ToggleGroupTexture(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => property.childrenVisible = unityProperty[property.index].textureValue != null;
         public void DrawHelpBox(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUILayout.HelpBox(property.displayName, MessageType.Info);
+
+        public void IndentLevelAdd(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUI.indentLevel+=2;
+        public void IndentLevelRemove(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUI.indentLevel-=2;
+
         public void SmallFoldoutStart(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
         {
             bool enabled = unityProperty[property.index].floatValue > 0;
