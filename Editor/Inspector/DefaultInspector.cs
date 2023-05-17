@@ -129,7 +129,7 @@ namespace z3y.Shaders
                     {
                         indentLevelAdd = true;
                     }
-                    else if (attribute.Equals("UnIndent".AsSpan(), StringComparison.Ordinal))
+                    if (attribute.Equals("UnIndent".AsSpan(), StringComparison.Ordinal))
                     {
                         indentLevelRemove = true;
                     }
@@ -183,6 +183,10 @@ namespace z3y.Shaders
                 if (helpBox)
                 {
                     p.drawAction = DrawHelpBox;
+                }
+                else if (prop.name == "_Cutoff" || prop.name == "_CutoutSharpness")
+                {
+                    p.drawAction = DrawCutoutShaderProperty;
                 }
                 else if (prop.name.EndsWith("_ScaleOffset"))
                 {
@@ -242,7 +246,7 @@ namespace z3y.Shaders
                 {
                     p.drawAction = IndentLevelAdd + p.drawAction;
                 }
-                else if (indentLevelRemove)
+                if (indentLevelRemove)
                 {
                     p.drawAction += IndentLevelRemove;
                 }
@@ -372,6 +376,17 @@ namespace z3y.Shaders
 
         public void IndentLevelAdd(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUI.indentLevel+=2;
         public void IndentLevelRemove(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUI.indentLevel-=2;
+
+        // just hard code this for now
+        public void DrawCutoutShaderProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
+        {
+            bool cutoutEnabled = Array.Find(unityProperty, x => x.name.Equals("_Mode", StringComparison.Ordinal)).floatValue == 1;
+            if (!cutoutEnabled)
+            {
+                return;
+            }
+            editor.ShaderProperty(unityProperty[property.index], property.guiContent);
+        }
 
         public void SmallFoldoutStart(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
         {

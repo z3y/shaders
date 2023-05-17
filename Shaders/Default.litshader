@@ -11,8 +11,8 @@
     [Toggle(_EMISSION)] [ToggleGroupStart] _EmissionToggle ("Enable Emission", Int) = 0
     [NoScaleOffset] [ExtraProperty] _EmissionMap ("Emission Map", 2D) = "white" {}
     [HDR] _EmissionColor ("Emission Color", Color) = (1,1,1)
-    _EmissionMultiplyBase ("Emission Multiply Base", Range(0,1)) = 0
-    [ToggleGroupEnd] _EmissionGIMultiplier ("Emission GI Multiplier", Float) = 1
+    [Indent] _EmissionMultiplyBase ("Emission Multiply Base", Range(0,1)) = 0
+    [ToggleGroupEnd] [UnIndent] _EmissionGIMultiplier ("Emission GI Multiplier", Float) = 1
 
     _MainTex_ScaleOffset ("", Float) = 0
 
