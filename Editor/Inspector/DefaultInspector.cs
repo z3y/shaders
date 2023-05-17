@@ -45,6 +45,10 @@ namespace z3y.Shaders
             foreach (Material mat in materialEditor.targets)
             {
                 _onValidateAction(materialEditor, materialProperties, mat);
+                if (mat.HasProperty("_EmissionToggle"))
+                {
+                    SetupGIFlags(mat.GetFloat("_EmissionToggle"), mat);
+                }
             }
         }
 
@@ -164,7 +168,6 @@ namespace z3y.Shaders
                 else if (prop.name.StartsWith("FoldoutMainEnd_"))
                 {
                     p.drawAction = DrawSpace;
-                    propertyVisible = false;
                     toggleGroupEnd = true;
                 }
                 else if (prop.name.StartsWith("FoldoutStart_"))
@@ -598,5 +601,17 @@ namespace z3y.Shaders
             EditorGUI.indentLevel = indentLevel;
         }
 
+        public static void SetupGIFlags(float emissionEnabled, Material material)
+        {
+            MaterialGlobalIlluminationFlags flags = material.globalIlluminationFlags;
+            if ((flags & (MaterialGlobalIlluminationFlags.BakedEmissive | MaterialGlobalIlluminationFlags.RealtimeEmissive)) != 0)
+            {
+                flags &= ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+                if (emissionEnabled != 1)
+                    flags |= MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+
+                material.globalIlluminationFlags = flags;
+            }
+        }
     }
 }
