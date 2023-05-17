@@ -80,6 +80,7 @@ namespace z3y.Shaders
                 bool verticalScopeStart = false;
                 bool verticalScopeEnd = false;
                 bool helpBox = false;
+                bool extraProperty = false;
                 foreach (var attributeString in attributes)
                 {
                     var attribute = attributeString.AsSpan();
@@ -94,6 +95,11 @@ namespace z3y.Shaders
                     if (attribute.Equals("Linear".AsSpan(), StringComparison.Ordinal))
                     {
                         linear = true;
+                    }
+
+                    if (attribute.Equals("ExtraProperty".AsSpan(), StringComparison.Ordinal))
+                    {
+                        extraProperty = true;
                     }
 
                     if (attribute.Equals("ToggleGroupStart".AsSpan(), StringComparison.Ordinal))
@@ -141,6 +147,7 @@ namespace z3y.Shaders
                     tooltip = tooltip,
                 };
 
+
                 if (helpBox)
                 {
                     p.drawAction = DrawHelpBox;
@@ -156,6 +163,7 @@ namespace z3y.Shaders
                 }
                 else if (prop.name.StartsWith("FoldoutMainEnd_"))
                 {
+                    p.drawAction = DrawSpace;
                     propertyVisible = false;
                     toggleGroupEnd = true;
                 }
@@ -174,6 +182,10 @@ namespace z3y.Shaders
                 else if (type == MaterialProperty.PropType.Texture)
                 {
                     p.drawAction = DrawShaderTextureProperty;
+                    if (extraProperty)
+                    {
+                        p.drawAction += DrawShaderTexturePropertyExtra;
+                    }
                     if (linear)
                     {
                         p.drawAction += DrawLinearWarning;
@@ -228,6 +240,10 @@ namespace z3y.Shaders
                     parent = parent.Parent;
                 }
 
+                if (extraProperty)
+                {
+                    i++;
+                }
             }
         }
 
@@ -256,7 +272,7 @@ namespace z3y.Shaders
         }
         private void DrawPropertyRecursive(Property property, MaterialEditor materialEditor, MaterialProperty[] materialProperties)
         {
-            property.drawAction(property, materialEditor, materialProperties[property.index]);
+            property.drawAction(property, materialEditor, materialProperties);
 
             if (property.childrenVisible)
             {
@@ -271,7 +287,7 @@ namespace z3y.Shaders
 
         public class Property
         {
-            public Action<Property, MaterialEditor, MaterialProperty> drawAction;
+            public Action<Property, MaterialEditor, MaterialProperty[]> drawAction;
             public int index;
             public bool childrenVisible;
             public List<Property> children;
@@ -300,38 +316,39 @@ namespace z3y.Shaders
 
 
 
-        public void DrawShaderProperty(Property property, MaterialEditor editor, MaterialProperty unityProperty) => editor.ShaderProperty(unityProperty, property.guiContent);
-        public void DrawShaderTextureProperty(Property property, MaterialEditor editor, MaterialProperty unityProperty) => editor.TexturePropertySingleLine(property.guiContent, unityProperty);
-        public void DrawShaderTextureTileOffsetProperty(Property property, MaterialEditor editor, MaterialProperty unityProperty) => editor.TextureScaleOffsetProperty(unityProperty);
-        public void ToggleGroup(Property property, MaterialEditor editor, MaterialProperty unityProperty) => property.childrenVisible = unityProperty.floatValue > 0f;
-        public void ToggleGroupTexture(Property property, MaterialEditor editor, MaterialProperty unityProperty) => property.childrenVisible = unityProperty.textureValue != null;
-        public void DrawHelpBox(Property property, MaterialEditor editor, MaterialProperty unityProperty) => EditorGUILayout.HelpBox(property.displayName, MessageType.Info);
-        public void SmallFoldoutStart(Property property, MaterialEditor editor, MaterialProperty unityProperty)
+        public void DrawShaderProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.ShaderProperty(unityProperty[property.index], property.guiContent);
+        public void DrawShaderTextureProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.TexturePropertySingleLine(property.guiContent, unityProperty[property.index]);
+        public void DrawShaderTexturePropertyExtra(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => TexturePropertySingleLineExtraProp(editor, property.guiContent, unityProperty[property.index+1]);
+        public void DrawShaderTextureTileOffsetProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.TextureScaleOffsetProperty(unityProperty[property.index]);
+        public void ToggleGroup(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => property.childrenVisible = unityProperty[property.index].floatValue > 0f;
+        public void ToggleGroupTexture(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => property.childrenVisible = unityProperty[property.index].textureValue != null;
+        public void DrawHelpBox(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUILayout.HelpBox(property.displayName, MessageType.Info);
+        public void SmallFoldoutStart(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
         {
-            bool enabled = unityProperty.floatValue > 0;
+            bool enabled = unityProperty[property.index].floatValue > 0;
             enabled = EditorGUILayout.BeginFoldoutHeaderGroup(enabled, property.guiContent);
-            unityProperty.floatValue = enabled ? 1f : 0f;
+            unityProperty[property.index].floatValue = enabled ? 1f : 0f;
         }
-        public void SmallFoldoutEnd(Property property, MaterialEditor editor, MaterialProperty unityProperty) => EditorGUILayout.EndFoldoutHeaderGroup();
-        public void DrawSpace(Property property, MaterialEditor editor, MaterialProperty unityProperty) => EditorGUILayout.Space();
+        public void SmallFoldoutEnd(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUILayout.EndFoldoutHeaderGroup();
+        public void DrawSpace(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUILayout.Space();
 
-        public void VerticalScopeStart(Property property, MaterialEditor editor, MaterialProperty unityProperty)
+        public void VerticalScopeStart(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
         {
             GUILayout.Space(1);
             EditorGUILayout.BeginVertical("box");
         }
 
-        public void VerticalScopeEnd(Property property, MaterialEditor editor, MaterialProperty unityProperty)
+        public void VerticalScopeEnd(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
         {
             EditorGUILayout.EndVertical();
             GUILayout.Space(1);
         }
 
-        public void DrawTransparencyModeProperty(Property property, MaterialEditor editor, MaterialProperty unityProperty)
+        public void DrawTransparencyModeProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
         {
             EditorGUI.BeginChangeCheck();
 
-            editor.ShaderProperty(unityProperty, property.guiContent);
+            editor.ShaderProperty(unityProperty[property.index], property.guiContent);
             if (EditorGUI.EndChangeCheck())
             {
                 foreach (Material target in editor.targets)
@@ -365,7 +382,7 @@ namespace z3y.Shaders
             return buttonPress;
         }
 
-        public void DrawLinearWarning(Property property, MaterialEditor editor, MaterialProperty unityProperty) => sRGBWarning(unityProperty);
+        public void DrawLinearWarning(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => sRGBWarning(unityProperty[property.index]);
         public static void sRGBWarning(MaterialProperty tex)
         {
             if (!tex?.textureValue) return;
@@ -377,12 +394,12 @@ namespace z3y.Shaders
             importer.sRGBTexture = false;
             importer.SaveAndReimport();
         }
-        public static void DrawFoldoutMain(Property property, MaterialEditor editor, MaterialProperty unityProperty)
+        public static void DrawFoldoutMain(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
         {
-            bool isOpen = unityProperty.floatValue > 0;
+            bool isOpen = unityProperty[property.index].floatValue > 0;
             DrawSplitter();
             isOpen = DrawHeaderFoldout(property.guiContent, isOpen);
-            unityProperty.floatValue = isOpen ? 1 : 0;
+            unityProperty[property.index].floatValue = isOpen ? 1 : 0;
             if (isOpen)
             {
                 EditorGUILayout.Space();
@@ -533,5 +550,53 @@ namespace z3y.Shaders
                     break;
             }
         }
+
+        private void ExtraPropertyAfterTexture(MaterialEditor editor, Rect r, MaterialProperty property)
+        {
+            if ((property.type == MaterialProperty.PropType.Float || property.type == MaterialProperty.PropType.Color) && r.width > EditorGUIUtility.fieldWidth)
+            {
+                float labelWidth = EditorGUIUtility.labelWidth;
+                EditorGUIUtility.labelWidth = r.width - EditorGUIUtility.fieldWidth;
+                editor.ShaderProperty(r, property, " ");
+                EditorGUIUtility.labelWidth = labelWidth;
+            }
+            else
+            {
+                editor.ShaderProperty(r, property, string.Empty);
+            }
+        }
+
+        public void TexturePropertySingleLineExtraProp(MaterialEditor editor, GUIContent label, MaterialProperty extraProperty1, MaterialProperty extraProperty2 = null)
+        {
+            Rect controlRectForSingleLine = GUILayoutUtility.GetLastRect();
+
+            int indentLevel = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = 0;
+            if (extraProperty1 == null || extraProperty2 == null)
+            {
+                MaterialProperty materialProperty = extraProperty1 ?? extraProperty2;
+                if (materialProperty.type == MaterialProperty.PropType.Color)
+                {
+                    ExtraPropertyAfterTexture(editor, MaterialEditor.GetLeftAlignedFieldRect(controlRectForSingleLine), materialProperty);
+                }
+                else
+                {
+                    ExtraPropertyAfterTexture(editor, MaterialEditor.GetRectAfterLabelWidth(controlRectForSingleLine), materialProperty);
+                }
+            }
+            else if (extraProperty1.type == MaterialProperty.PropType.Color)
+            {
+                ExtraPropertyAfterTexture(editor, MaterialEditor.GetFlexibleRectBetweenFieldAndRightEdge(controlRectForSingleLine), extraProperty2);
+                ExtraPropertyAfterTexture(editor, MaterialEditor.GetLeftAlignedFieldRect(controlRectForSingleLine), extraProperty1);
+            }
+            else
+            {
+                ExtraPropertyAfterTexture(editor, MaterialEditor.GetRightAlignedFieldRect(controlRectForSingleLine), extraProperty2);
+                ExtraPropertyAfterTexture(editor, MaterialEditor.GetFlexibleRectBetweenLabelAndField(controlRectForSingleLine), extraProperty1);
+            }
+
+            EditorGUI.indentLevel = indentLevel;
+        }
+
     }
 }
