@@ -1,7 +1,6 @@
 ﻿PROPERTIES_START // Properties
-    [MainTexture] _MainTex ("Albedo", 2D) = "white" {}
+    [MainTexture] [ExtraProperty] _MainTex ("Albedo", 2D) = "white" {}
     [MainColor] _Color ("Color", Color) = (1,1,1,1)
-    _AlbedoSaturation ("Saturation", Float) = 1
 PROPERTIES_END
 
 
@@ -12,14 +11,12 @@ DEFINES_START // Keywords, Defines
     //#define VARYINGS_NEED_INTERPX (0-4)
     #define VARYINGS_NEED_INTERP0
     //#define VARYINGS_NEED_CULLFACE
-    #define DISABLE_LIGHT_PROBE_PROXY_VOLUME
 DEFINES_END
 
 
 CBUFFER_START // declare all Material properties excluding textures
     half4 _Color;
-    half4 _MainTex_ST;
-    half _AlbedoSaturation;
+    float4 _MainTex_ST;
 CBUFFER_END
 
 
@@ -59,7 +56,6 @@ CODE_START
     {
         float2 uv = IN.interp0.xy;
         half4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
-        mainTex.rgb = lerp(dot(mainTex.rgb, half3(0.2125, 0.7154, 0.0721)), mainTex.rgb, _AlbedoSaturation);
         mainTex *= _Color;
         
         surface.Albedo = mainTex.rgb;

@@ -31,7 +31,6 @@ namespace z3y.Shaders
 
             if (_firstTime)
             {
-                Debug.Log("Initialize");
                 InitializeEditor(materialEditor, materialProperties);
                 _firstTime = false;
                 OnValidate(materialEditor, materialProperties);
