@@ -1,0 +1,238 @@
+﻿PROPERTIES_START // Properties
+    _Cutoff ("Alpha Cuttoff", Range(0.001, 1)) = 0.5
+    _CutoutSharpness ("Cutoff Sharpness", Range(1, 0.0001)) = 0.0001
+
+    [MainTexture] [ExtraProperty] [NoScaleOffset] _MainTex ("Albedo", 2D) = "white" {}
+    [MainColor] _Color ("Color", Color) = (1,1,1,1)
+    [Tooltip(AO (R), Normal Y (G),Roughness (B), Normal X (A))]
+    [Linear] [NoScaleOffset] [ExtraProperty] [Toggle(_PACKEDTEXTURE)] _PackedTexture ("Packed Texture", 2D) = "linearGray" {}
+    BumpScale ("Normal Scale", Float) = 1
+    [Indent]_Metallic ("Metallic", Range(0,1)) = 0
+    _Roughness ("Roughness", Range(0,1)) = 0.5
+    [UnIndent]_OcclusionStrength1 ("Occlusion", Range(0,1)) = 0
+    
+    [Toggle(_EMISSION)] [ToggleGroupStart] _EmissionToggle ("Enable Emission", Int) = 0
+    [NoScaleOffset] [ExtraProperty] _EmissionMap ("Emission Map", 2D) = "white" {}
+    [HDR] _EmissionColor ("Emission Color", Color) = (1,1,1)
+    [Indent] _EmissionMultiplyBase ("Emission Multiply Base", Range(0,1)) = 0
+    [ToggleGroupEnd] [UnIndent] _EmissionGIMultiplier ("Emission GI Multiplier", Float) = 1
+
+    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _Layer1_UV ("UV", Int) = 0
+    _MainTex_ScaleOffset ("", Float) = 0
+
+    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
+
+    FoldoutMainEnd_PropertiesLocal ("", Float) = 0
+    
+    FoldoutMainStart_Details ("Layer 2", Float) = 0
+    // layer 2
+    [Toggle(_LAYER2_MASK)] [NoScaleOffset] _Layer2_Mask ("Layer Blend Mask", 2D) = "black" {}
+    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _Layer2_Mask_UV ("UV", Int) = 0
+    _Layer2_Mask_ScaleOffset ("", Float) = 0
+    [Space(10)]
+    [NoScaleOffset] [ExtraProperty] _Layer2_MainTex ("Albedo", 2D) = "white" {}
+    _Color2 ("Color", Color) = (1,1,1,1)
+    [Tooltip(AO (R), Normal Y (G),Roughness (B), Normal X (A))]
+    [Linear] [NoScaleOffset] [ExtraProperty] [Toggle(_LAYER2_PACKEDTEXTURE)] _Layer2_PackedTexture ("Packed Texture", 2D) = "linearGray" {}
+    _Layer2_BumpScale ("Normal Scale", Float) = 1
+    [Indent]_Layer2_Metallic ("Metallic", Range(0,1)) = 0
+    _Layer2_Roughness ("Roughness", Range(0,1)) = 0.5
+    [UnIndent]_Layer2_OcclusionStrength ("Occlusion", Range(0,1)) = 0
+    [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _Layer2_UV ("UV", Int) = 0
+    _Layer2_MainTex_ScaleOffset ("", Float) = 0
+
+
+PROPERTIES_END
+
+
+DEFINES_START // Keywords, Defines
+    //#define VARYINGS_NEED_TEXCOORDX (0-3)
+    #define ATTRIBUTES_NEED_TEXCOORD0
+    #define ATTRIBUTES_NEED_TEXCOORD1
+    #define ATTRIBUTES_NEED_TEXCOORD2
+    #define ATTRIBUTES_NEED_TEXCOORD3
+    // #define VARYINGS_NEED_COLOR
+    // #define ATTRIBUTES_NEED_COLOR
+    //#define VARYINGS_NEED_INTERPX (0-4)
+    #define VARYINGS_NEED_INTERP0
+    #define VARYINGS_NEED_INTERP1
+    //#define VARYINGS_NEED_CULLFACE
+
+    // #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // avoid unnecessary calculations and reduce the compiled size if LPPV arent used
+    #define APPROXIMATE_AREALIGHT_SPECULAR // lower the smoothness in areas where theres less directionality in directional lightmaps
+    // #pragma multi_compile _ LOD_FADE_CROSSFADE // disabled by defualt, too many variants
+    // #define _SSR // Screen-Space Reflections, expensive, requires Grab Pass enabled
+    // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
+    #define UNITY_SPECCUBE_BOX_PROJECTION // force enable box projection on quest
+    // #define NONLINEAR_LIGHTPROBESH // used with L1 bakery probes, not recommended for VRChat
+
+    #pragma shader_feature_local _PACKEDTEXTURE
+    #pragma shader_feature_local _LAYER2_PACKEDTEXTURE
+DEFINES_END
+
+
+CBUFFER_START // declare all Material properties excluding textures
+    half4 _Color;
+    half4 _Color2;
+    float4 _MainTex_ST;
+    float4 _Layer2_MainTex_ST;
+    half _Roughness;
+    half _Layer2_Roughness;
+    half _Metallic;
+    half _Layer2_Metallic;
+    half _BumpScale;
+    half _Layer2_BumpScale;
+    half3 _EmissionColor;
+    half _SpecularOcclusion;
+    half _EmissionGIMultiplier;
+    half _OcclusionStrength1;
+    half _Layer2_OcclusionStrength;
+    half _EmissionMultiplyBase;
+    float4 _Layer2_Mask_ST;
+    uint _Layer2_Mask_UV;
+    uint _Layer2_UV;
+    uint _Layer1_UV;
+    half _Cutoff;
+    half _CutoutSharpness;
+CBUFFER_END
+
+
+CODE_START
+
+    TEXTURE2D(_MainTex);
+    SAMPLER(sampler_MainTex);
+    TEXTURE2D(_PackedTexture);
+    SAMPLER(sampler_PackedTexture);
+
+    TEXTURE2D(_Layer2_Mask);
+    SAMPLER(sampler_Layer2_Mask);
+
+    TEXTURE2D(_Layer2_MainTex);
+    SAMPLER(sampler_Layer2_MainTex);
+    TEXTURE2D(_Layer2_PackedTexture);
+    SAMPLER(sampler_Layer2_PackedTexture);
+
+    TEXTURE2D(_EmissionMap);
+    SAMPLER(sampler_EmissionMap);
+
+    #define USE_MODIFYATTRIBUTES // Modify attributes before the VertexDescription
+    void ModifyAttributes(inout Attributes attributes)
+    {
+
+    }
+
+    #define USE_VERTEXDESCRIPTION // VertexDescription (World Space): VertexPosition, VertexNormal, VertexTangent
+    void VertexDescriptionFunction(Attributes attributes, inout VertexDescription description)
+    {
+        
+    }
+
+    #define USE_MODIFYVARYINGS // Modify varyings at the end of vertex shader
+    void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
+    {
+
+        float2 uvs[] = { attributes.uv0.xy, attributes.uv1.xy, attributes.uv2.xy, attributes.uv3.xy };
+        varyings.interp0.xy = TRANSFORM_TEX(uvs[_Layer1_UV], _MainTex);
+        varyings.interp1.xy = TRANSFORM_TEX(uvs[_Layer2_UV], _Layer2_MainTex);
+
+        varyings.interp1.zw = TRANSFORM_TEX(uvs[_Layer2_Mask_UV], _Layer2_Mask);
+
+    }
+
+    #define USE_SURFACEDESCRIPTION // SurfaceDescription: Albedo, Normal, Metallic, Emission, Smoothness, Occlusion, Alpha, AlphaClipThreshold, Reflectance
+    void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
+    {
+        // layer 1
+        float2 uv = IN.interp0.xy;
+        half4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
+        mainTex *= _Color;
+        surface.Albedo = mainTex.rgb;
+        surface.Alpha = mainTex.a;
+
+        #ifdef _PACKEDTEXTURE
+            half4 packedTexture = SAMPLE_TEXTURE2D(_PackedTexture, sampler_PackedTexture, uv);
+            surface.Normal = UnpackNormalAG(packedTexture, _BumpScale);
+
+            surface.Metallic = _Metallic;
+            surface.Smoothness = 1.0 - (packedTexture.b * _Roughness);
+            surface.Occlusion = lerp(1.0, packedTexture.r, _OcclusionStrength1);
+        #else
+            surface.Metallic = _Metallic;
+            surface.Smoothness = 1.0 - _Roughness;
+        #endif
+
+        // layer 2
+        float2 maskUV = IN.interp1.zw;
+        half layerMask = SAMPLE_TEXTURE2D(_Layer2_Mask, sampler_Layer2_Mask, maskUV);
+
+        float2 layer2UV = IN.interp1.xy;
+        half4 mainTex2 = SAMPLE_TEXTURE2D(_Layer2_MainTex, sampler_Layer2_MainTex, layer2UV);
+        mainTex2 *= _Color2;
+        surface.Albedo = lerp(surface.Albedo, mainTex2, layerMask);
+
+        #ifdef _LAYER2_PACKEDTEXTURE
+            half4 packedTexture2 = SAMPLE_TEXTURE2D(_Layer2_PackedTexture, sampler_Layer2_PackedTexture, layer2UV);
+            surface.Metallic = lerp(surface.Metallic, _Layer2_Metallic, layerMask);
+            surface.Smoothness = lerp(surface.Smoothness, 1.0 - (packedTexture2.b * _Layer2_Roughness), layerMask);
+            surface.Occlusion = lerp(surface.Occlusion, lerp(1.0, packedTexture2.r, _Layer2_OcclusionStrength), layerMask);
+            surface.Normal = lerp(surface.Normal, UnpackNormalAG(packedTexture2, _Layer2_BumpScale), layerMask);
+        #else
+            surface.Metallic = lerp(surface.Metallic, _Layer2_Metallic, layerMask);
+            surface.Smoothness = lerp(surface.Smoothness, (1.0 - _Layer2_Roughness), layerMask);
+        #endif
+
+        #ifdef _EMISSION
+            half3 emissionMap = SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, uv).rgb;
+            surface.Emission = emissionMap * _EmissionColor;
+
+            surface.Emission = lerp(1.0, surface.Albedo, _EmissionMultiplyBase);
+
+            #ifdef UNITY_PASS_META
+            surface.Emission *= _EmissionGIMultiplier;
+            #endif
+        #endif
+
+        surface.SpecularOcclusion = _SpecularOcclusion;
+
+        surface.AlphaClipThreshold = _Cutoff;
+        surface.AlphaClipSharpness = _CutoutSharpness;
+    }
+
+    #if defined(UNITY_PASS_FORWARD)
+    #define USE_MODIFYLIGHTING
+    void ModifyLighting(inout GIData giData, Varyings IN, ShaderData sd, SurfaceDescription surfaceDescription)
+    {
+
+    }
+    #endif
+    
+    #define USE_MODIFYFINALCOLOR
+    void ModifyFinalColor(inout half4 finalColor, GIData giData, Varyings unpacked, ShaderData sd, SurfaceDescription surfaceDescription)
+    {
+
+    }
+
+CODE_END
+
+
+// more specific defines/keywords per pass
+DEFINES_FORWARDBASE_START
+
+DEFINES_FORWARDBASE_END
+
+
+DEFINES_FORWARDADD_START
+
+DEFINES_FORWARDADD_END
+
+
+DEFINES_SHADOWCASTER_START
+
+DEFINES_SHADOWCASTER_END
+
+
+DEFINES_META_START
+
+DEFINES_META_END
+
+#include_optional "Assets/Settings/LitShaderConfig.litshader"

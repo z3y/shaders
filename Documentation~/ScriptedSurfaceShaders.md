@@ -31,6 +31,10 @@ The importer sets some additional useful defines
 | - | - |
 |VRCHAT_SDK|Defined if the VRChat SDK is imported in the project.|
 |LTCGI_EXISTS|Defined if LTCGI is imported in the project. Used internally for disabling LTCGI.|
+BUILD_TARGET_PC | Defined if the current platform is PC/Windows
+BUILD_TARGET_ANDROID | Defined if the current platform is Android/Quest
+BAKERY_INCLUDED | Same as the C# define, defined if bakery is imported in the project
+
 
 
 ## Custom Interpolators
