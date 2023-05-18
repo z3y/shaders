@@ -1,0 +1,216 @@
+﻿PROPERTIES_START // Properties
+    [MainTexture] [NoScaleOffset] _MainTex ("Albedo", 2D) = "black" {}
+    // [MainColor] _Color ("Color", Color) = (1,1,1,1)
+    [Linear] [NoScaleOffset] [Tooltip(AO (R), Roughness (G), Metallic (B))] [Toggle(_MASKMAP)] _MaskMap ("Mask Map", 2D) = "white" {}
+    [Indent] _Metallic ("Metallic", Range(0,1)) = 0
+    _Roughness ("Roughness", Range(0,1)) = 0.5
+    [UnIndent] _OcclusionStrength ("Occlusion", Range(0,1)) = 1
+
+    [HideInInspector] _EmissionToggle ("Enable Emission", Int) = 1
+    [NoScaleOffset] [ExtraProperty] _EmissionMap ("Emission Map", 2D) = "black" {}
+    [HDR] _EmissionColor ("Emission Color", Color) = (1,1,1)
+    [Indent] [UnIndent] _EmissionGIMultiplier ("Emission GI Multiplier", Float) = 1
+    
+    _MainTex_ScaleOffset ("", Float) = 0
+
+    [Toggle(_FLIPBOOK)] [ToggleGroupStart] [Tooltip(Use a texture array instead of the emission map)]_EnableFlipBook ("Enable Flip Book", Float) = 0
+    [NoScaleOffset] _EmissionMapArray ("Emission Map Array", 2DArray) = "black" {}
+    [ToggleGroupEnd] [Indent] [UnIndent] _Speed ("Loop Speed", Float) = 1
+
+    [Toggle(_PIXELMAP)] [ToggleGroupStart] _EnablePixelMap ("Enable Pixel Map", Float) = 0
+    [ToggleGroupEnd] _PixelMap ("LED Pixel Map", 2D) = "white" {}
+
+    [HideInInspector] [ToggleUI] _IsAVProInput("IsAVProInput", Float) = 0
+    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
+PROPERTIES_END
+
+
+DEFINES_START // Keywords, Defines
+    //#define VARYINGS_NEED_TEXCOORDX (0-3)
+    #define ATTRIBUTES_NEED_TEXCOORD0
+    //#define VARYINGS_NEED_COLOR
+    //#define VARYINGS_NEED_INTERPX (0-4)
+    #define VARYINGS_NEED_INTERP0
+    #define VARYINGS_NEED_INTERP1
+    //#define VARYINGS_NEED_CULLFACE
+
+    // #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // avoid unnecessary calculations and reduce the compiled size if LPPV arent used
+    #define APPROXIMATE_AREALIGHT_SPECULAR // lower the smoothness in areas where theres less directionality in directional lightmaps
+    // #pragma multi_compile _ LOD_FADE_CROSSFADE // disabled by defualt, too many variants
+    // #define _SSR // Screen-Space Reflections, expensive, requires Grab Pass enabled
+    // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
+    #define UNITY_SPECCUBE_BOX_PROJECTION // force enable box projection on quest
+    // #define NONLINEAR_LIGHTPROBESH // used with L1 bakery probes, not recommended for VRChat
+
+    #if defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_META)
+        #define _EMISSION
+    #endif
+
+    #pragma shader_feature_local _PIXELMAP
+    #pragma shader_feature_local _FLIPBOOK
+    #pragma shader_feature_local _MASKMAP
+DEFINES_END
+
+
+CBUFFER_START // declare all Material properties excluding textures
+    float4 _MainTex_ST;
+    float4 _PixelMap_ST;
+    half _Roughness;
+    half _Metallic;
+    half _BumpScale;
+    half3 _EmissionColor;
+    half _SpecularOcclusion;
+    half _EmissionGIMultiplier;
+    half _OcclusionStrength;
+    half _Speed;
+CBUFFER_END
+
+
+CODE_START
+
+    TEXTURE2D(_MainTex);
+    TEXTURE2D(_MaskMap);
+    TEXTURE2D(_PixelMap);
+    TEXTURE2D(_EmissionMap);
+    SAMPLER(sampler_MainTex);
+    SAMPLER(sampler_MaskMap);
+    SAMPLER(sampler_EmissionMap);
+    SAMPLER(sampler_PixelMap);
+
+    TEXTURE2D_ARRAY(_EmissionMapArray);
+    SAMPLER(sampler_EmissionMapArray);
+
+    #define USE_MODIFYATTRIBUTES // Modify attributes before the VertexDescription
+    void ModifyAttributes(inout Attributes attributes)
+    {
+
+    }
+
+    #define USE_VERTEXDESCRIPTION // VertexDescription (World Space): VertexPosition, VertexNormal, VertexTangent
+    void VertexDescriptionFunction(Attributes attributes, inout VertexDescription description)
+    {
+        
+    }
+
+    #define USE_MODIFYVARYINGS // Modify varyings at the end of vertex shader
+    void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
+    {
+        varyings.interp0.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
+
+        #ifdef _PIXELMAP
+            varyings.interp0.zw = TRANSFORM_TEX(attributes.uv0.xy, _PixelMap);
+
+            half3 pixelMapAverage = SAMPLE_TEXTURE2D_LOD(_PixelMap, sampler_PixelMap, varyings.interp0.zw, 10).rgb;
+            half3 pixelMapIntensity = max(0,(1.0 / pixelMapAverage));
+            varyings.interp1.rgb = pixelMapIntensity; // cold be converted to grayscale if more interpolators are needed
+        #endif
+
+        #ifdef _FLIPBOOK
+            uint3 dimensions;
+            _EmissionMapArray.GetDimensions(dimensions.x, dimensions.y, dimensions.z);
+            uint indexLoop = frac(_Time.x * _Speed) * dimensions.z;
+            varyings.interp1.w = indexLoop;
+        #endif
+    }
+
+    // from silent
+    float2 SharpSample(float4 texelSize, float2 uv)
+    {
+        uv = uv * texelSize.zw;
+        float2 c = max(0.0, abs(fwidth(uv)));
+        uv = uv + abs(c);
+        uv = floor(uv) + saturate(frac(uv) / c);
+        uv = (uv - 0.5) * texelSize.xy;
+        return uv;
+    }
+
+    #define USE_SURFACEDESCRIPTION // SurfaceDescription: Albedo, Normal, Metallic, Emission, Smoothness, Occlusion, Alpha, AlphaClipThreshold, Reflectance
+    void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
+    {
+        float2 uv = IN.interp0.xy;
+        half4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
+        surface.Albedo = mainTex.rgb;
+        surface.Alpha = mainTex.a;
+
+        #ifdef _MASKMAP
+            half4 maskMap = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uv);
+            surface.Metallic = maskMap.b * _Metallic;
+            surface.Smoothness = 1.0 - (maskMap.g * _Roughness);
+            surface.Occlusion = lerp(1.0, maskMap.r, _OcclusionStrength);
+        #else
+            surface.Metallic = _Metallic;
+            surface.Smoothness = 1.0 - _Roughness;
+        #endif
+
+
+        #ifdef _EMISSION
+            #ifdef _PIXELMAP
+            float2 emissionUV = SharpSample(float4(1.0 / _PixelMap_ST.xy, _PixelMap_ST.xy), uv);
+            #else
+            float2 emissionUV = uv;
+            #endif
+
+
+            #ifdef _FLIPBOOK
+                half3 emissionMap = SAMPLE_TEXTURE2D_ARRAY(_EmissionMapArray, sampler_EmissionMapArray, emissionUV, IN.interp1.w).rgb;
+            #else
+                half3 emissionMap = SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, emissionUV).rgb;
+            #endif
+
+            surface.Emission = emissionMap * _EmissionColor;
+            #ifdef UNITY_PASS_META
+            surface.Emission *= _EmissionGIMultiplier;
+            #endif
+            float2 uvPixelMap = IN.interp0.zw;
+#ifdef _PIXELMAP
+            half3 pixelMapIntensity = IN.interp1.rgb;
+            half3 pixelMap = SAMPLE_TEXTURE2D(_PixelMap, sampler_PixelMap, uvPixelMap).rgb;
+            surface.Emission *= pixelMap * pixelMapIntensity;
+#endif
+
+        #endif
+        
+
+
+
+        surface.SpecularOcclusion = _SpecularOcclusion;
+    }
+
+    #if defined(UNITY_PASS_FORWARD)
+    #define USE_MODIFYLIGHTING
+    void ModifyLighting(inout GIData giData, Varyings IN, ShaderData sd, SurfaceDescription surfaceDescription)
+    {
+
+    }
+    #endif
+    
+    #define USE_MODIFYFINALCOLOR
+    void ModifyFinalColor(inout half4 finalColor, GIData giData, Varyings unpacked, ShaderData sd, SurfaceDescription surfaceDescription)
+    {
+
+    }
+
+CODE_END
+
+
+// more specific defines/keywords per pass
+DEFINES_FORWARDBASE_START
+
+DEFINES_FORWARDBASE_END
+
+
+DEFINES_FORWARDADD_START
+
+DEFINES_FORWARDADD_END
+
+
+DEFINES_SHADOWCASTER_START
+
+DEFINES_SHADOWCASTER_END
+
+
+DEFINES_META_START
+
+DEFINES_META_END
+
+#include_optional "Assets/Settings/LitShaderConfig.litshader"

@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: f0cfadc14d82d1849bf162c1af7412ca
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: c6b508151abe0a040a11a4b72bff5b69, type: 3}
+  settings:
+    shaderName: 
+    materialType: 0
+    bicubicLightmap: 0
+    gsaa: 0
+    anisotropy: 3
+    bakeryMonoSH: 0
+    lightmappedSpecular: 0
+    grabPass: 0
+    alphaToCoverage: 1
+    customEditorGUI: 
