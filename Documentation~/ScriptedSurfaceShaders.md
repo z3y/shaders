@@ -47,4 +47,37 @@ It is possible to stack other shaders by including a `.litshader` outside of any
 
 ## Optional Includes
 
-using `#include_optional ""` instead of `#include ""` will only include the file if it exists so it doesnt cause errors. This also works on .litshader file types. With this it is possible to make a global include with code that will be included in all shaders. The default template will include file at path `Assets/Settings/LitShaderConfig.litshader`.
+Using `#include_optional ""` instead of `#include ""` will only include the file if it exists so it doesnt cause errors. This also works on .litshader file types. With this it is possible to make a global include with code that will be included in all shaders, it works as stacked shader. 
+The default template will include file at path `Assets/Settings/LitShaderConfig.litshader`.
+
+### Config Example
+
+> Enabling Mono SH globally
+```
+DEFINES_START
+    #define BAKERY_MONOSH // force enable mono sh on all shader variants
+DEFINES_END
+```
+
+> Global brightness slider
+```
+CBUFFER_START
+    half _UdonBrightness; // global property set with udon
+CBUFFER_END
+
+CODE_START
+    // Unique function name
+    void ModifyFinalColorGlobalBrightness(inout half4 finalColor, GIData giData, Varyings unpacked, ShaderData sd, SurfaceDescription surfaceDescription)
+    {
+        #ifdef USE_MODIFYFINALCOLOR
+            // access the previous function and pass in all the same parameters if it exists
+            ModifyFinalColor(finalColor, giData, unpacked, sd, surfaceDescription);
+        #endif
+
+        finalColor *= _UdonBrightness;
+    }
+    // override it
+    #define USE_MODIFYFINALCOLOR
+    #define ModifyFinalColor ModifyFinalColorGlobalBrightness
+CODE_END
+```
