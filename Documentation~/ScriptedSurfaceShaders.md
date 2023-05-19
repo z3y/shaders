@@ -2,6 +2,7 @@
 To create a new shader variant use `Create > Shader > Lit Shader Variant`. The shader gets created from a template default shader. Some shader features are exposed in the importer UI and the rest can be defined in code.
 
 
+
 ## Improvements over Unity Surface Shaders
 - More Features
 - Custom Interpolators
@@ -35,7 +36,14 @@ BUILD_TARGET_PC | Defined if the current platform is PC/Windows
 BUILD_TARGET_ANDROID | Defined if the current platform is Android/Quest
 BAKERY_INCLUDED | Same as the C# define, defined if bakery is imported in the project
 
+## Packing
+ Most of the included shaders created with this system use a different texture packing format for the mask map. Using this format not require DXT5 (no alpha), saving space.
 
+| Channel | Description |
+| - | - |
+Red|Ambient Occlusion
+Green|Roughness
+Blue|Metallic
 
 ## Custom Interpolators
 
