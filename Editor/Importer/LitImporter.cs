@@ -14,7 +14,7 @@ using Debug = UnityEngine.Debug;
 
 namespace z3y.Shaders
 {
-    [ScriptedImporter(3, Ext, 0)]
+    [ScriptedImporter(4, Ext, 0)]
     public class LitImporter : ScriptedImporter
     {
         public const string Ext = "litshader";
@@ -108,6 +108,7 @@ namespace z3y.Shaders
                 sb.AppendLine("Properties");
                 sb.AppendLine("{");
                 {
+                    sb.AppendLine("[HideInInspector]__LitShaderVariant(\"\", Float) = 0");
                     sb.AppendLine("FoldoutMainStart_RenderingOptions (\"Rendering Options\", Float) = 1");
                     sb.AppendLine(LitImporterConstants.DefaultPropertiesInclude);
                     sb.AppendLine("FoldoutMainEnd_RenderingOptions (\"\", Float) = 0");

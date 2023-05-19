@@ -4,7 +4,6 @@ namespace z3y
     public static class LitImporterConstants
     {
         public const string DefaultPropertiesInclude = @"
-[HideInInspector]__LitShaderVariant("""", Float) = 0
 [Enum(Opaque, 0, Cutout, 1, Fade, 2, Transparent, 3, Additive, 4, Multiply, 5)]_Mode(""Rendering Mode"", Float) = 0
 [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend(""Source Blend"", Float) = 1
 [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend(""Destination Blend"", Float) = 0
