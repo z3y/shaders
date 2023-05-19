@@ -375,11 +375,13 @@ namespace CustomLighting
             giData.Light += unpacked.vertexLight;
         #endif
 
-        // light probes
-        #ifdef VARYINGS_NEED_SH
-            giData.IndirectDiffuse += ShadeSHPerPixel(sd.normalWS, unpacked.sh, unpacked.positionWS);
-        #else
-            giData.IndirectDiffuse += ShadeSHPerPixel(sd.normalWS, 0, unpacked.positionWS);
+        #ifndef LIGHTMAP_ON
+            // light probes
+            #ifdef VARYINGS_NEED_SH
+                giData.IndirectDiffuse += GetLightProbes(sd.normalWS, unpacked.positionWS, unpacked.sh);
+            #else
+                giData.IndirectDiffuse += GetLightProbes(sd.normalWS, unpacked.positionWS, 0);
+            #endif
         #endif
 
         // reflection probes
