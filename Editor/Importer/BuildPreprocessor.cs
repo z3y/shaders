@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿//TODO: figure out if its stripping correctly
+/*using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.Build;
@@ -48,3 +49,4 @@ namespace z3y
         }
     }
 }
+*/
