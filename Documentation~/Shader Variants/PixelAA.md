@@ -1,6 +1,6 @@
 # Pixel AA
 
-Antialiased replacement for point filtering mode. Requres the texture to be set as bilinear
+Antialiased replacement for point filtering mode. Requires the texture to be set as bilinear
 
 # Pixel AA
 ![image](/Documentation~//Images/pixelaa.png)
