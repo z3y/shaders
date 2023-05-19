@@ -891,3 +891,71 @@ half3 Unity_GlossyEnvironment (UNITY_ARGS_TEXCUBE(tex), half4 hdr, Unity_GlossyE
     // Vertex shader part, legacy. No support for normal offset shadows - because
     // that would require vertex normals, which might not be present in user-written shaders.
     #define TRANSFER_SHADOW_CASTER(o) TRANSFER_SHADOW_CASTER_NOPOS_LEGACY(o,o.pos)
+
+half3 ShadeSHPerVertex (half3 normal, half3 ambient)
+{
+    #if UNITY_SAMPLE_FULL_SH_PER_PIXEL
+        // Completely per-pixel
+        // nothing to do here
+    #elif (SHADER_TARGET < 30) || UNITY_STANDARD_SIMPLE
+        // Completely per-vertex
+        ambient += max(half3(0,0,0), ShadeSH9 (half4(normal, 1.0)));
+    #else
+        // L2 per-vertex, L0..L1 & gamma-correction per-pixel
+
+        // NOTE: SH data is always in Linear AND calculation is split between vertex & pixel
+        // Convert ambient to Linear and do final gamma-correction at the end (per-pixel)
+        #ifdef UNITY_COLORSPACE_GAMMA
+            ambient = GammaToLinearSpace (ambient);
+        #endif
+        ambient += SHEvalLinearL2 (half4(normal, 1.0));     // no max since this is only L2 contribution
+    #endif
+
+    return ambient;
+}
+
+half3 ShadeSHPerPixel(half3 normal, half3 ambient, float3 worldPos)
+{
+    half3 ambient_contrib = 0.0;
+
+    #if UNITY_SAMPLE_FULL_SH_PER_PIXEL
+        // Completely per-pixel
+        #if UNITY_LIGHT_PROBE_PROXY_VOLUME
+            if (unity_ProbeVolumeParams.x == 1.0)
+                ambient_contrib = SHEvalLinearL0L1_SampleProbeVolume(half4(normal, 1.0), worldPos);
+            else
+                ambient_contrib = SHEvalLinearL0L1(half4(normal, 1.0));
+        #else
+            ambient_contrib = SHEvalLinearL0L1(half4(normal, 1.0));
+        #endif
+
+            ambient_contrib += SHEvalLinearL2(half4(normal, 1.0));
+
+            ambient += max(half3(0, 0, 0), ambient_contrib);
+
+        #ifdef UNITY_COLORSPACE_GAMMA
+            ambient = LinearToGammaSpace(ambient);
+        #endif
+    #elif (SHADER_TARGET < 30) || UNITY_STANDARD_SIMPLE
+        // Completely per-vertex
+        // nothing to do here. Gamma conversion on ambient from SH takes place in the vertex shader, see ShadeSHPerVertex.
+    #else
+        // L2 per-vertex, L0..L1 & gamma-correction per-pixel
+        // Ambient in this case is expected to be always Linear, see ShadeSHPerVertex()
+        #if UNITY_LIGHT_PROBE_PROXY_VOLUME
+            if (unity_ProbeVolumeParams.x == 1.0)
+                ambient_contrib = SHEvalLinearL0L1_SampleProbeVolume (half4(normal, 1.0), worldPos);
+            else
+                ambient_contrib = SHEvalLinearL0L1 (half4(normal, 1.0));
+        #else
+            ambient_contrib = SHEvalLinearL0L1 (half4(normal, 1.0));
+        #endif
+
+        ambient = max(half3(0, 0, 0), ambient+ambient_contrib);     // include L2 contribution in vertex shader before clamp.
+        #ifdef UNITY_COLORSPACE_GAMMA
+            ambient = LinearToGammaSpace (ambient);
+        #endif
+    #endif
+
+    return ambient;
+}

@@ -119,6 +119,10 @@ Varyings BuildVaryings(Attributes input)
         output.lightmapUV.zw = input.uv2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;;
     #endif
 
+    #if defined(VARYINGS_NEED_SH)
+        output.sh = ShadeSHPerVertex(output.normalWS, 0);
+    #endif
+
     #if defined(VARYINGS_NEED_COLOR)
         output.color = input.color;
     #endif

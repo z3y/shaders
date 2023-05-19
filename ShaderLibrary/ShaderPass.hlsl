@@ -68,6 +68,13 @@
 #define ATTRIBUTES_NEED_TEXCOORD2
 #endif
 
+#if defined(UNITY_PASS_FORWARDBASE) && !defined(LIGHTMAP_ON) && defined(QUALITY_LOW)
+    #define VARYINGS_NEED_SH
+    #define UNITY_SAMPLE_FULL_SH_PER_PIXEL 0
+#elif !defined(LIGHTMAP_ON)
+    #define UNITY_SAMPLE_FULL_SH_PER_PIXEL 1
+#endif
+
 #if (defined(UNITY_PASS_FORWARD) || defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_FORWARDADD)) && !defined(SHADING_UNLIT)
 #define VARYINGS_NEED_NORMAL
 #define VARYINGS_NEED_TANGENT
@@ -466,6 +473,10 @@ struct Varyings
     centroid float4 lightmapUV : LIGHTMAPUV;
     #elif defined(LIGHTMAP_ON)
     centroid float2 lightmapUV : LIGHTMAPUV;
+    #endif
+
+    #ifdef VARYINGS_NEED_SH
+        half3 sh : SHCOORD;
     #endif
 
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)

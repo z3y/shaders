@@ -376,7 +376,11 @@ namespace CustomLighting
         #endif
 
         // light probes
-        giData.IndirectDiffuse += GetLightProbes(sd.normalWS, unpacked.positionWS);
+        #ifdef VARYINGS_NEED_SH
+            giData.IndirectDiffuse += ShadeSHPerPixel(sd.normalWS, unpacked.sh, unpacked.positionWS);
+        #else
+            giData.IndirectDiffuse += ShadeSHPerPixel(sd.normalWS, 0, unpacked.positionWS);
+        #endif
 
         // reflection probes
         giData.Reflections += GetReflections(unpacked, surfaceDescription, sd);

@@ -209,34 +209,25 @@ float shEvaluateDiffuseL1Geomerics(float L0, float3 L1, float3 n)
     #define UNITY_LIGHT_PROBE_PROXY_VOLUME 0
 #endif
 
-half3 GetLightProbes(float3 normalWS, float3 positionWS)
+half3 GetLightProbes(float3 normalWS, float3 positionWS, half3 ambient)
 {
     #if !defined(UNITY_PASS_FORWARDBASE) && defined(PIPELINE_BUILTIN)
         return 0.0f;
     #endif
 
+    #ifdef LIGHTMAP_ON
+        return 0.0f;
+    #endif
+
     half3 indirectDiffuse = 0;
-    #if !defined(DYNAMICLIGHTMAP_ON) && !defined(LIGHTMAP_ON) && defined(UNITY_PASS_FORWARDBASE)
-        #if UNITY_LIGHT_PROBE_PROXY_VOLUME
-            UNITY_BRANCH
-            if (unity_ProbeVolumeParams.x == 1.0)
-            {
-                indirectDiffuse = SHEvalLinearL0L1_SampleProbeVolume(float4(normalWS, 1.0), positionWS);
-            }
-            else
-            {
-        #endif
-                #ifdef NONLINEAR_LIGHTPROBESH
-                    float3 L0 = float3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
-                    indirectDiffuse.r = shEvaluateDiffuseL1Geomerics(L0.r, unity_SHAr.xyz, normalWS);
-                    indirectDiffuse.g = shEvaluateDiffuseL1Geomerics(L0.g, unity_SHAg.xyz, normalWS);
-                    indirectDiffuse.b = shEvaluateDiffuseL1Geomerics(L0.b, unity_SHAb.xyz, normalWS);
-                #else
-                indirectDiffuse = ShadeSH9(float4(normalWS, 1.0));
-                #endif
-        #if UNITY_LIGHT_PROBE_PROXY_VOLUME
-            }
-        #endif
+
+    #ifdef NONLINEAR_LIGHTPROBESH
+        float3 L0 = float3(unity_SHAr.w, unity_SHAg.w, unity_SHAb.w);
+        indirectDiffuse.r = shEvaluateDiffuseL1Geomerics(L0.r, unity_SHAr.xyz, normalWS);
+        indirectDiffuse.g = shEvaluateDiffuseL1Geomerics(L0.g, unity_SHAg.xyz, normalWS);
+        indirectDiffuse.b = shEvaluateDiffuseL1Geomerics(L0.b, unity_SHAb.xyz, normalWS);
+    #else
+        indirectDiffuse = ShadeSHPerPixel(normalWS, ambient, positionWS);
     #endif
 
     #if defined(PIPELINE_URP)
