@@ -25,6 +25,8 @@ namespace z3y.Shaders
         
         [SerializeField] public ShaderSettings settings = new ShaderSettings();
 
+        public bool generateUnityShader = false;
+
         private static readonly List<string> SourceDependencies = new List<string>();
 
         public override void OnImportAsset(AssetImportContext ctx)
@@ -37,8 +39,8 @@ namespace z3y.Shaders
             var code = GetShaderLabCode(settings, ctx.assetPath, ctx.selectedBuildTarget);
             var shader = ShaderUtil.CreateShaderAsset(code, false);
 
-            EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG" }, new Texture[] { DFGLut()});
-            
+            SetDefaultTextures(shader);
+
             ctx.DependsOnSourceAsset("Assets/com.z3y.shaders/Editor/Importer/LitImporter.cs");
 
             foreach (var dependency in SourceDependencies)
@@ -52,8 +54,23 @@ namespace z3y.Shaders
             }
 
 
-            ctx.AddObjectToAsset("MainAsset", shader);
-            ctx.SetMainObject(shader);
+            if (generateUnityShader)
+            {
+                var directory = Path.GetDirectoryName(ctx.assetPath);
+                var path = directory + "/Shader.shader";
+                File.WriteAllText(path, code);
+                AssetDatabase.ImportAsset(path);
+            }
+            else
+            {
+                ctx.AddObjectToAsset("MainAsset", shader);
+                ctx.SetMainObject(shader);
+            }
+        }
+
+        private static void SetDefaultTextures(Shader shader)
+        {
+            EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG" }, new Texture[] { DFGLut() });
         }
 
         [MenuItem("Assets/Create/Shader/Lit Shader Variant")]
