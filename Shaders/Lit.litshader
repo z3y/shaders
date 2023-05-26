@@ -52,6 +52,7 @@ PROPERTIES_START // Properties
     _WindScale ("Noise Scale", Float) = 0.02
     [PowerSlider(2)] _WindSpeed ("Speed", Range(0,5)) = 0.05
     _WindIntensity ("Intensity XYZ", Vector) = (0.1,0.1,0.1,0)
+    [HelpBox] WindInfo ("Vertex Colors RGB used for wind intensity XYZ mask. Black = Intensity 0, White = Intensity 1", Float) = 0
 
 PROPERTIES_END
 
