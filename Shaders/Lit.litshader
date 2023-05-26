@@ -173,8 +173,8 @@ CODE_START
     {
         #ifdef _WIND
             // very simple but enough to make things less static
-            half3 windNoise = _WindNoise.SampleLevel(sampler_WindNoise, (description.VertexPosition.xz * _WindScale) + (_Time.y * _WindSpeed), 0);
-            windNoise = windNoise * 2 - 1;
+            half3 windNoise = SAMPLE_TEXTURE2D_LOD(_WindNoise, sampler_WindNoise, (description.VertexPosition.xz * _WindScale) + (_Time.y * _WindSpeed), 0);
+            windNoise = windNoise * 2.0 - 1.0;
             description.VertexPosition += windNoise * _WindIntensity * attributes.color;
         #endif
     }
