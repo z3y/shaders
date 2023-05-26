@@ -1,4 +1,4 @@
-Shader "Lit"
+Shader "Lit Variants/Legacy/Lit v2"
 {
 
 Properties

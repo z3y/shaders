@@ -11,8 +11,7 @@ namespace z3y.Shaders
         public static Shader lit => Shader.Find("Lit");
 
 
-        public const string ShaderVersion = "v2.2.1";
-        public const string ShaderName = "Lit";
+        public const string ShaderName = "Lit Variants/Legacy/Lit v2";
 
         [SettingsProvider]
         public static SettingsProvider CreateProvider()
@@ -22,8 +21,6 @@ namespace z3y.Shaders
                 label = "Lit Shader",
                 guiHandler = (searchContext) =>
                 {
-
-                    EditorGUILayout.LabelField("  " + ShaderVersion, EditorStyles.boldLabel);
 
                     EditorGUI.BeginChangeCheck();
                     _shaderSettingsEditorWindow = (LitShaderSettings)EditorGUILayout.ObjectField(_shaderSettingsEditorWindow, typeof(LitShaderSettings), false);

@@ -13,7 +13,7 @@ namespace z3y.Shaders
         {
             get
             {
-                return "UpdateLitShaderFile" + ProjectSettings.ShaderVersion;
+                return "UpdateLitShaderFile_v2";
             }
         }
 
