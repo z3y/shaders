@@ -106,6 +106,10 @@
 #endif
 #endif
 
+#ifdef UNITY_PASS_SHADOWCASTER
+    #undef _PARALLAXMAP
+#endif
+
 
 //should get moved to a separate file eventually
 #ifdef VRCHAT_SDK

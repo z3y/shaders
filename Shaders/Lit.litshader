@@ -44,7 +44,15 @@ PROPERTIES_START // Properties
     _DetailBumpScale ("Normal Scale", Float) = 1
     [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _Detail_UV ("Detail UV", Int) = 0
     _DetailAlbedo_ScaleOffset ("", Float) = 0
-    //FoldoutMainEnd_Details ("", Float) = 0 // closed by the the property in the importer
+    FoldoutMainEnd_Details ("", Float) = 0 // closed by the the property in the importer
+
+    FoldoutMainStart_Wind ("Wind", Float) = 0
+    [Toggle(_WIND)] _WindToggle ("Enable Wind", Float) = 0
+    [ExtraProperty] [NoScaleOffset] _WindNoise ("Noise RGB", 2D) = "black" {}
+    _WindScale ("Noise Scale", Float) = 0.02
+    [PowerSlider(2)] _WindSpeed ("Speed", Range(0,5)) = 0.05
+    _WindIntensity ("Intensity XYZ", Vector) = (0.1,0.1,0.1,0)
+
 PROPERTIES_END
 
 
@@ -55,6 +63,10 @@ DEFINES_START // Keywords, Defines
     //#define VARYINGS_NEED_INTERPX (0-4)
     #define VARYINGS_NEED_INTERP0
     //#define VARYINGS_NEED_CULLFACE
+
+    #if defined(_WIND)
+        #define ATTRIBUTES_NEED_COLOR
+    #endif
 
     #if defined(_DETAIL_ALBEDO) || defined(_DETAIL_NORMAL)
         #define _DETAILS_ENABLED
@@ -79,6 +91,7 @@ DEFINES_START // Keywords, Defines
     #pragma shader_feature_local _DETAIL_ALBEDO
     #pragma shader_feature_local _DETAIL_NORMAL
     #pragma shader_feature_local _ANISOTROPY
+    #pragma shader_feature_local _WIND
 DEFINES_END
 
 
@@ -110,6 +123,11 @@ CBUFFER_START // declare all Material properties excluding textures
     half _Reflectance;
 
     half _Anisotropy;
+
+        
+    half _WindSpeed;
+    half _WindScale;
+    half3 _WindIntensity;
 CBUFFER_END
 
 DEFINES_FORWARDBASE_START
@@ -141,6 +159,8 @@ CODE_START
     TEXTURE2D(_AnisotropyMap);
     SAMPLER(sampler_AnisotropyMap);
 
+    TEXTURE2D(_WindNoise);
+    SAMPLER(sampler_WindNoise);
 
     #define USE_MODIFYATTRIBUTES // Modify attributes before the VertexDescription
     void ModifyAttributes(inout Attributes attributes)
@@ -151,7 +171,12 @@ CODE_START
     #define USE_VERTEXDESCRIPTION // VertexDescription (World Space): VertexPosition, VertexNormal, VertexTangent
     void VertexDescriptionFunction(Attributes attributes, inout VertexDescription description)
     {
-        
+        #ifdef _WIND
+            // very simple but enough to make things less static
+            half3 windNoise = _WindNoise.SampleLevel(sampler_WindNoise, (description.VertexPosition.xz * _WindScale) + (_Time.y * _WindSpeed), 0);
+            windNoise = windNoise * 2 - 1;
+            description.VertexPosition += windNoise * _WindIntensity * attributes.color;
+        #endif
     }
 
     #define USE_MODIFYVARYINGS // Modify varyings at the end of vertex shader
@@ -303,7 +328,11 @@ DEFINES_FORWARDADD_END
 
 
 DEFINES_SHADOWCASTER_START
-
+#pragma skip_variants _MASKMAP
+#pragma skip_variants _NORMALMAP
+#pragma skip_variants _DETAIL_ALBEDO
+#pragma skip_variants _DETAIL_NORMAL
+#pragma skip_variants _ANISOTROPY
 DEFINES_SHADOWCASTER_END
 
 
