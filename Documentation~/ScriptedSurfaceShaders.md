@@ -55,8 +55,9 @@ It is possible to stack other shaders by including a `.litshader` outside of any
 
 ## Optional Includes
 
-Using `#include_optional ""` instead of `#include ""` will only include the file if it exists so it doesnt cause errors. This also works on .litshader file types. With this it is possible to make a global include with code that will be included in all shaders, it works as stacked shader. 
-The default template will include file at path `Assets/Settings/LitShaderConfig.litshader`.
+Using `#include_optional ""` instead of `#include ""` will only include the file if it exists so it doesnt cause errors. This also works on .litshader file types. With this it is possible to make a global include with code that will be included in all shaders, it works as stacked shader. The default template will include file at path `Assets/Settings/LitShaderConfig.litshader`.
+
+If the include didnt exist at first, the shader needs to be reimported.
 
 ### Config Example
 
@@ -89,3 +90,11 @@ CODE_START
     #define ModifyFinalColor ModifyFinalColorGlobalBrightness
 CODE_END
 ```
+
+
+### Material Description
+Add `SetupLitShader` to the model importer and switch the Material Creation Mode to MaterialDecription to setup materials with the default shader. The roughness, metallic, color and emission values, transparency, normal map and albedo map will be transferred properly from Blender materials.
+
+![Image](/Documentation~/Images/MaterialDescription.png)
+
+![Image](/Documentation~/Images/label.png)
