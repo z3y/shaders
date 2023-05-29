@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace z3y
@@ -8,18 +7,24 @@ namespace z3y
     {
         private void OnPreprocessTexture()
         {
-            var importer = assetImporter as TextureImporter;
-            if (importer == null)
+            if (!FreeImagePackingEditor.settingsNeedApply)
             {
                 return;
             }
 
-            var path = importer.assetPath;
-            var fileName = System.IO.Path.GetFileNameWithoutExtension(path);
-            if (fileName.EndsWith("_linear"))
+            var textureImporter = assetImporter as TextureImporter;
+            if (textureImporter == null)
             {
-                importer.sRGBTexture = false;
+                return;
             }
+
+            textureImporter.sRGBTexture = !FreeImagePackingEditor.Linear;
+
+            textureImporter.alphaSource = FreeImagePackingEditor.ChannelA.UnityTexture == null
+                ? TextureImporterAlphaSource.None : TextureImporterAlphaSource.FromInput;
+
+            FreeImagePackingEditor.settingsNeedApply = false;
+            Debug.Log("Applied");
         }
     }
 }

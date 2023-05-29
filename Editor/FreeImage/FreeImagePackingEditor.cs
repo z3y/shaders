@@ -27,6 +27,8 @@ namespace z3y
         private static Material _preview2;
         private static Material _preview3;
         private static Texture2D whiteTexture;
+
+        public static bool settingsNeedApply = false;
         
         private void OnEnable()
         {
@@ -152,7 +154,7 @@ namespace z3y
 
                 
                 var referenceTexture = ChannelG.UnityTexture ?? ChannelA.UnityTexture ?? ChannelR.UnityTexture ?? ChannelB.UnityTexture;
-                if (referenceTexture is null) return;
+                if (referenceTexture == null) return;
                 
                 var path = AssetDatabase.GetAssetPath(referenceTexture);
                 var fullPath = Path.GetFullPath(path);
@@ -175,6 +177,8 @@ namespace z3y
                 }
 
                 PackCustom(absolutePath, ChannelR.Channel, ChannelG.Channel, ChannelB.Channel, ChannelA.Channel, (width, height), PackingFormat);
+
+                settingsNeedApply = true;
                 AssetDatabase.ImportAsset(unityPath, ImportAssetOptions.ForceUpdate);
 
                 if (_packingMaterial)
@@ -208,10 +212,6 @@ namespace z3y
             var fileName = Path.GetFileNameWithoutExtension(referencePath);
             
             var newPath = directory + @"\" + fileName + "_packed";
-            if (Linear)
-            {
-                newPath += "_linear";
-            }
             var extension = PackingFormat.GetExtension();
 
             newPath = newPath + "." + extension;
