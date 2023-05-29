@@ -314,11 +314,17 @@ namespace z3y.Shaders
 
             int mode = (int)material.GetFloat("_Mode");
             SetupMaterialWithBlendMode(material, mode);
+            SetupTransparencyKeywords(material, mode);
+        }
+
+        public static void SetupTransparencyKeywords(Material material, int mode)
+        {
             ToggleKeyword(material, "_ALPHATEST_ON", mode == 1);
             ToggleKeyword(material, "_ALPHAFADE_ON", mode == 2);
             ToggleKeyword(material, "_ALPHAPREMULTIPLY_ON", mode == 3);
             ToggleKeyword(material, "_ALPHAMODULATE_ON", mode == 5);
         }
+
         private void DrawPropertyRecursive(Property property, MaterialEditor materialEditor, MaterialProperty[] materialProperties)
         {
             property.drawAction(property, materialEditor, materialProperties);

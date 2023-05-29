@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
@@ -16,14 +12,34 @@ namespace z3y.Shaders
             return 2;
         }
 
+        public static Shader _defaultShader;
+        private static Shader DefaultShader
+        {
+            get
+            {
+                if (_defaultShader == null)
+                {
+                    _defaultShader = Shader.Find("Lit Variants/Default");
+                }
+                return _defaultShader;
+            }
+        }
+
         public void OnPreprocessMaterialDescription(MaterialDescription description, Material material, AnimationClip[] materialAnimation)
         {
-            if (!ProjectSettings.ShaderSettings.defaultShader)
+            var labels = AssetDatabase.GetLabels(assetImporter);
+            bool useScriptedImporterShader = false;
+            if (Array.Exists(labels, x => x.Equals("SetupLitShader", StringComparison.OrdinalIgnoreCase)))
+            {
+                useScriptedImporterShader = true;
+            }
+
+            if (!ProjectSettings.ShaderSettings.defaultShader && !useScriptedImporterShader)
             {
                 return;
             }
 
-            material.shader = ProjectSettings.lit;
+            material.shader = useScriptedImporterShader ? DefaultShader : ProjectSettings.lit;
 
 
             if (description.TryGetProperty("DiffuseColor", out Vector4 color))
@@ -87,12 +103,32 @@ namespace z3y.Shaders
             if (description.TryGetProperty("Shininess", out float shininessFactor))
             {
                 var smoothness = Mathf.Sqrt(shininessFactor * 0.01f);
-                material.SetFloat("_Glossiness", smoothness);
+                if (useScriptedImporterShader)
+                {
+                    material.SetFloat("_Roughness", 1.0f - smoothness);
+                }
+                else
+                {
+                    material.SetFloat("_Glossiness", smoothness);
+                }
             }
 
+            int mode = (int)material.GetFloat("_Mode");
+            if (useScriptedImporterShader)
+            {
+                DefaultInspector.SetupMaterialWithBlendMode(material, mode);
+                DefaultInspector.SetupTransparencyKeywords(material, mode);
 
-            BaseShaderGUI.SetupMaterialWithBlendMode(material, (int)material.GetFloat("_Mode"));
-            LitGUI.ApplyChanges(material);
+                if (material.GetTexture("_BumpMap") != null)
+                {
+                    material.EnableKeyword("_NORMALMAP");
+                }
+            }
+            else
+            {
+                BaseShaderGUI.SetupMaterialWithBlendMode(material, mode);
+                LitGUI.ApplyChanges(material);
+            }
         }
 
     }
