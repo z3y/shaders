@@ -24,7 +24,6 @@ namespace z3y
                 ? TextureImporterAlphaSource.None : TextureImporterAlphaSource.FromInput;
 
             FreeImagePackingEditor.settingsNeedApply = false;
-            Debug.Log("Applied");
         }
     }
 }
