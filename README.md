@@ -1,5 +1,5 @@
 # Shaders
-A Standard Shader and Surface Shaders replacement for Unity
+A Standard Shader and Surface Shaders replacement for Unity for Built-In pipeline and forward rendering (VRChat)
 
 ##  Installation
 ### Unity Package Manager
