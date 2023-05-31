@@ -148,7 +148,7 @@ SAMPLER(sampler_DFG);
 
 void EnvironmentBRDF(half NoV, half perceptualRoughness, half3 f0, out half3 brdf, out half3 energyCompensation)
 {
-    #ifdef QUALITY_LOW
+    #if defined(QUALITY_LOW) || defined(GENERATION_GRAPH) // cant set dfg lut
         energyCompensation = 1.0;
         brdf = EnvironmentBRDFApproximation(perceptualRoughness, NoV, f0);
     #else

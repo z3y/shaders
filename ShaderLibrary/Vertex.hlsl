@@ -20,6 +20,13 @@ Varyings BuildVaryings(Attributes input)
     ModifyAttributes(input);
     #endif
 
+    #if defined(GENERATION_GRAPH)
+        VertexDescription description = VertexDescriptionFunction(BuildVertexDescriptionInputs(input));
+        input.positionOS = description.VertexPosition;
+        input.normalOS = description.VertexNormal;
+        input.tangentOS.xyz = description.VertexTangent.xyz;
+    #endif
+
     float3 positionWS = TransformObjectToWorld(input.positionOS);
     #ifdef ATTRIBUTES_NEED_NORMAL
     float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
@@ -28,30 +35,28 @@ Varyings BuildVaryings(Attributes input)
     float4 tangentWS = float4(TransformObjectToWorldDir(input.tangentOS.xyz), input.tangentOS.w);
     #endif
 
-    // apply vertex position modifiers
-    VertexDescription description = (VertexDescription)0;
-    description.VertexPosition = positionWS;
-    #ifdef ATTRIBUTES_NEED_NORMAL
-    description.VertexNormal = normalWS;
-    #endif
-    #ifdef ATTRIBUTES_NEED_TANGENT
-    description.VertexTangent = tangentWS.xyz;
-    #endif
+    #if defined(GENERATION_CODE)
+        // apply vertex position modifiers
+        VertexDescription description = (VertexDescription)0;
+        description.VertexPosition = positionWS;
+        #ifdef ATTRIBUTES_NEED_NORMAL
+        description.VertexNormal = normalWS;
+        #endif
+        #ifdef ATTRIBUTES_NEED_TANGENT
+        description.VertexTangent = tangentWS.xyz;
+        #endif
 
-    #if defined(GENERATION_GRAPH)
-        description = VertexDescriptionFunction(BuildVertexDescriptionInputs(input));
-    #else 
         #if defined(USE_VERTEXDESCRIPTION)
         VertexDescriptionFunction(input, description);
         #endif
-    #endif
 
-    positionWS = description.VertexPosition;
-    #ifdef ATTRIBUTES_NEED_NORMAL
-    normalWS = description.VertexNormal;
-    #endif
-    #ifdef ATTRIBUTES_NEED_TANGENT
-    tangentWS.xyz = description.VertexTangent;
+        positionWS = description.VertexPosition;
+        #ifdef ATTRIBUTES_NEED_NORMAL
+        normalWS = description.VertexNormal;
+        #endif
+        #ifdef ATTRIBUTES_NEED_TANGENT
+        tangentWS.xyz = description.VertexTangent;
+        #endif
     #endif
 
 
