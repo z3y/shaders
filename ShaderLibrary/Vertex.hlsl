@@ -23,7 +23,7 @@ Varyings BuildVaryings(Attributes input)
     #if defined(GENERATION_GRAPH)
         VertexDescription description = VertexDescriptionFunction(BuildVertexDescriptionInputs(input));
         input.positionOS = description.VertexPosition;
-        input.normalOS = description.VertexNormal;
+        input.normalOS.xyz = description.VertexNormal.xyz;
         input.tangentOS.xyz = description.VertexTangent.xyz;
     #endif
 
@@ -99,7 +99,7 @@ Varyings BuildVaryings(Attributes input)
     output.tangentWS.w = crossSign;
     #endif
 
-    #if defined(VARYINGS_NEED_POSITION) || defined(GENERATION_CODE)
+    #if defined(UNITY_PASS_FORWARD) || defined(GENERATION_CODE)
     output.positionWS = positionWS;
     #endif
 
