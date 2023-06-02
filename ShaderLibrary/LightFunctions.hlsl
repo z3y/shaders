@@ -315,9 +315,16 @@ void NonImportantLightsPerPixel(inout half3 lightColor, inout half3 directSpecul
     lengthSq += toLightY * toLightY;
     lengthSq += toLightZ * toLightZ;
 
-    float4 attenuation = 1.0 / (1.0 + lengthSq * unity_4LightAtten0);
-    float4 atten2 = saturate(1 - (lengthSq * unity_4LightAtten0 / 25.0));
-    attenuation = min(attenuation, atten2 * atten2);
+    #if 0
+        float4 attenuation = 1.0 / (1.0 + lengthSq * unity_4LightAtten0);
+        float4 atten2 = saturate(1 - (lengthSq * unity_4LightAtten0 / 25.0));
+        attenuation = min(attenuation, atten2 * atten2);
+    #else
+        // https://forum.unity.com/threads/point-light-in-v-f-shader.499717/
+        float4 range = 5.0 * (1.0 / sqrt(unity_4LightAtten0));
+        float4 attenUV = sqrt(lengthSq) / range;
+        float4 attenuation = saturate(1.0 / (1.0 + 25.0 * attenUV * attenUV) * saturate((1 - attenUV) * 5.0));
+    #endif
 
     [unroll(4)]
     for (uint i = 0; i < 4; i++)

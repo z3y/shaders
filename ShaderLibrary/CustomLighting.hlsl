@@ -90,9 +90,11 @@ namespace CustomLighting
         half3 lightColor = lightData.attenuation * lightData.color;
         half3 lightFinalColor = lightNoL * lightColor;
 
+#ifdef UNITY_PASS_FORWARDBASE
         #if !defined(QUALITY_LOW) && !defined(LIGHTMAP_ON)
             lightFinalColor *= Filament::Fd_Burley(sd.perceptualRoughness, sd.NoV, lightNoL, lightLoH);
         #endif
+#endif
 
         color += lightFinalColor;
 
