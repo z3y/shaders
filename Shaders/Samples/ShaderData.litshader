@@ -19,7 +19,7 @@ CODE_START
     #define USE_SURFACEDESCRIPTION
     void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
     {
-        // Light Data
+        // Light Data struct
         // directional light in forward base
         // point/spot light in forward add
         // 0 in shadowcaster and meta
@@ -46,7 +46,7 @@ CODE_START
         #endif
 
         float3 positionWS = IN.positionWS;
-
+        
         surface.Albedo = 0;
         surface.Smoothness = 0;
         switch(_Return)

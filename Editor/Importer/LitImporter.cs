@@ -22,7 +22,7 @@ namespace z3y.Shaders
         private const string LtcgiIncludePath = "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc";
         private static readonly bool LtcgiIncluded = File.Exists(LtcgiIncludePath);
         private const string DefaultShaderEditor = "z3y.Shaders.DefaultInspector";
-        
+
         [SerializeField] public ShaderSettings settings = new ShaderSettings();
 
         public bool generateUnityShader = false;
@@ -92,7 +92,42 @@ namespace z3y.Shaders
             public StringBuilder definesShadowcasterSb = new StringBuilder();
             public StringBuilder definesMetaSb = new StringBuilder();
         }
-        
+
+        private class IEnumeratorWrapper : IDisposable
+        {
+            private IEnumerator<string> _enumerator;
+            private int _index = -1;
+            public IEnumeratorWrapper(IEnumerable<string> lines)
+            {
+                _enumerator = lines.GetEnumerator();
+            }
+            public int Index
+            {
+                get => _index;
+            }
+            public bool MoveNext()
+            {
+                _index++;
+                return _enumerator.MoveNext();
+            }
+            public string Current
+            {
+                get => _enumerator.Current;
+            }
+
+            public void Reset()
+            {
+                _enumerator.Reset();
+                _index = -1;
+            }
+
+            public void Dispose()
+            {
+                _enumerator.Dispose();
+            }
+        }
+
+
         private static string _lastFolderPath = string.Empty;
         internal static string GetShaderLabCode(ShaderSettings settings, string assetPath, BuildTarget buildTarget)
         {
@@ -514,7 +549,9 @@ namespace z3y.Shaders
 
         private static void GetShaderBlocksRecursive(IEnumerable<string> fileLines, ShaderBlocks shaderData, string currentPath)
         {
-            var ienum = fileLines.GetEnumerator();
+            var ienum = new IEnumeratorWrapper(fileLines);
+            string fileName = Path.GetFileName(currentPath);
+
             while (ienum.MoveNext())
             {
                 var variantSpan = ienum.Current.AsSpan();
@@ -528,43 +565,43 @@ namespace z3y.Shaders
 
                 if (trimmed.StartsWith("PROPERTIES_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.propertiesSb, "PROPERTIES_END".AsSpan());
+                    AppendLineBlockSpan(ienum, shaderData.propertiesSb, "PROPERTIES_END".AsSpan(), fileName);
                 }
 
                 else if (trimmed.StartsWith("DEFINES_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.definesSb, "DEFINES_END".AsSpan());
+                    AppendLineBlockSpan(ienum, shaderData.definesSb, "DEFINES_END".AsSpan(), fileName);
                 }
 
                 else if (trimmed.StartsWith("DEFINES_FORWARDBASE_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.definesForwardBaseSb, "DEFINES_FORWARDBASE_END".AsSpan());
+                    AppendLineBlockSpan(ienum, shaderData.definesForwardBaseSb, "DEFINES_FORWARDBASE_END".AsSpan(), fileName);
                 }
 
                 else if (trimmed.StartsWith("DEFINES_FORWARDADD_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.definesForwardAddSb, "DEFINES_FORWARDADD_END".AsSpan());
+                    AppendLineBlockSpan(ienum, shaderData.definesForwardAddSb, "DEFINES_FORWARDADD_END".AsSpan(), fileName);
                 }
 
                 else if (trimmed.StartsWith("DEFINES_SHADOWCASTER_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.definesShadowcasterSb, "DEFINES_SHADOWCASTER_END".AsSpan());
+                    AppendLineBlockSpan(ienum, shaderData.definesShadowcasterSb, "DEFINES_SHADOWCASTER_END".AsSpan(), fileName);
                 }
 
                 else if (trimmed.StartsWith("DEFINES_META_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.definesMetaSb, "DEFINES_META_END".AsSpan());
+                    AppendLineBlockSpan(ienum, shaderData.definesMetaSb, "DEFINES_META_END".AsSpan(), fileName);
                 }
 
 
                 else if (trimmed.StartsWith("CODE_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.codeSb, "CODE_END".AsSpan());
+                    AppendLineBlockSpan(ienum, shaderData.codeSb, "CODE_END".AsSpan(), fileName);
                 }
 
                 else if (trimmed.StartsWith("CBUFFER_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.cbufferSb, "CBUFFER_END".AsSpan());
+                    AppendLineBlockSpan(ienum, shaderData.cbufferSb, "CBUFFER_END".AsSpan(), fileName);
                 }
                 
                 else if (trimmed.StartsWith("#include_optional ".AsSpan()))
@@ -627,14 +664,17 @@ namespace z3y.Shaders
             return includePath;
         }
 
-        private static void AppendLineBlockSpan(IEnumerator<string> ienum, StringBuilder sb, ReadOnlySpan<char> breakName)
+        private static void AppendLineBlockSpan(IEnumeratorWrapper ienum, StringBuilder sb, ReadOnlySpan<char> breakName, string fileName)
         {
+            //sb.AppendLine("#line " + (ienum.Index + 2) + " \"" + fileName + "\"");
+            sb.AppendLine("#line " + (ienum.Index + 2));
             while (ienum.MoveNext())
             {
+
                 var line = ienum.Current.AsSpan();
                 var trimmed = line.TrimStart();
 
-                if (trimmed.IsEmpty)
+             /*   if (trimmed.IsEmpty)
                 {
                     continue;
                 }
@@ -642,7 +682,7 @@ namespace z3y.Shaders
                 if (trimmed.StartsWith("//".AsSpan()))
                 {
                     continue;
-                }
+                }*/
 
                 if (trimmed.StartsWith(breakName))
                 {
@@ -655,6 +695,7 @@ namespace z3y.Shaders
                     var includePath = GetFullIncludePath(includeFile);
                     if (!File.Exists(includePath))
                     {
+                        sb.AppendLine(string.Empty); // for the line directive
                         continue;
                     }
 
