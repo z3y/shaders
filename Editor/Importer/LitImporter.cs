@@ -9,6 +9,7 @@ using UnityEditor.AssetImporters;
 using UnityEditor.Experimental.AssetImporters;
 #endif
 using UnityEngine;
+using static UnityScript.UnityScriptCompiler;
 using Debug = UnityEngine.Debug;
 
 
@@ -95,35 +96,35 @@ namespace z3y.Shaders
 
         private class IEnumeratorWrapper : IDisposable
         {
-            private IEnumerator<string> _enumerator;
-            private int _index = -1;
-            public IEnumeratorWrapper(IEnumerable<string> lines)
+            public IEnumerator<string> enumerator { get; private set; }
+            public string FileName { get; private set; }
+            public int Index { get; private set; }
+
+            public IEnumeratorWrapper(IEnumerable<string> lines, string fileName)
             {
-                _enumerator = lines.GetEnumerator();
-            }
-            public int Index
-            {
-                get => _index;
+                enumerator = lines.GetEnumerator();
+                FileName = fileName;
+                Index = -1;
             }
             public bool MoveNext()
             {
-                _index++;
-                return _enumerator.MoveNext();
+                Index++;
+                return enumerator.MoveNext();
             }
             public string Current
             {
-                get => _enumerator.Current;
+                get => enumerator.Current;
             }
 
             public void Reset()
             {
-                _enumerator.Reset();
-                _index = -1;
+                enumerator.Reset();
+                Index = -1;
             }
 
             public void Dispose()
             {
-                _enumerator.Dispose();
+                enumerator.Dispose();
             }
         }
 
@@ -134,7 +135,9 @@ namespace z3y.Shaders
             _lastFolderPath = Path.GetDirectoryName(assetPath);
             var shaderBlocks = new ShaderBlocks();
             var fileLines = File.ReadLines(assetPath);
-            GetShaderBlocksRecursive(fileLines, shaderBlocks, assetPath);
+            string fileName = Path.GetFileName(assetPath);
+            var enumeratorWrapper = new IEnumeratorWrapper(fileLines, fileName);
+            GetShaderBlocksRecursive(enumeratorWrapper, shaderBlocks, assetPath);
 
 
             bool isAndroid = buildTarget == BuildTarget.Android;
@@ -547,11 +550,8 @@ namespace z3y.Shaders
             return defaultProps.ToString();
         }
 
-        private static void GetShaderBlocksRecursive(IEnumerable<string> fileLines, ShaderBlocks shaderData, string currentPath)
+        private static void GetShaderBlocksRecursive(IEnumeratorWrapper ienum, ShaderBlocks shaderData, string currentPath)
         {
-            var ienum = new IEnumeratorWrapper(fileLines);
-            string fileName = Path.GetFileName(currentPath);
-
             while (ienum.MoveNext())
             {
                 var variantSpan = ienum.Current.AsSpan();
@@ -565,43 +565,43 @@ namespace z3y.Shaders
 
                 if (trimmed.StartsWith("PROPERTIES_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.propertiesSb, "PROPERTIES_END".AsSpan(), fileName);
+                    AppendLineBlockSpan(ienum, shaderData.propertiesSb, "PROPERTIES_END".AsSpan(), false);
                 }
 
                 else if (trimmed.StartsWith("DEFINES_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.definesSb, "DEFINES_END".AsSpan(), fileName);
+                    AppendLineBlockSpan(ienum, shaderData.definesSb, "DEFINES_END".AsSpan());
                 }
 
                 else if (trimmed.StartsWith("DEFINES_FORWARDBASE_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.definesForwardBaseSb, "DEFINES_FORWARDBASE_END".AsSpan(), fileName);
+                    AppendLineBlockSpan(ienum, shaderData.definesForwardBaseSb, "DEFINES_FORWARDBASE_END".AsSpan());
                 }
 
                 else if (trimmed.StartsWith("DEFINES_FORWARDADD_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.definesForwardAddSb, "DEFINES_FORWARDADD_END".AsSpan(), fileName);
+                    AppendLineBlockSpan(ienum, shaderData.definesForwardAddSb, "DEFINES_FORWARDADD_END".AsSpan());
                 }
 
                 else if (trimmed.StartsWith("DEFINES_SHADOWCASTER_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.definesShadowcasterSb, "DEFINES_SHADOWCASTER_END".AsSpan(), fileName);
+                    AppendLineBlockSpan(ienum, shaderData.definesShadowcasterSb, "DEFINES_SHADOWCASTER_END".AsSpan());
                 }
 
                 else if (trimmed.StartsWith("DEFINES_META_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.definesMetaSb, "DEFINES_META_END".AsSpan(), fileName);
+                    AppendLineBlockSpan(ienum, shaderData.definesMetaSb, "DEFINES_META_END".AsSpan());
                 }
 
 
                 else if (trimmed.StartsWith("CODE_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.codeSb, "CODE_END".AsSpan(), fileName);
+                    AppendLineBlockSpan(ienum, shaderData.codeSb, "CODE_END".AsSpan());
                 }
 
                 else if (trimmed.StartsWith("CBUFFER_START".AsSpan()))
                 {
-                    AppendLineBlockSpan(ienum, shaderData.cbufferSb, "CBUFFER_END".AsSpan(), fileName);
+                    AppendLineBlockSpan(ienum, shaderData.cbufferSb, "CBUFFER_END".AsSpan());
                 }
                 
                 else if (trimmed.StartsWith("#include_optional ".AsSpan()))
@@ -623,7 +623,10 @@ namespace z3y.Shaders
                     {
                         var includeFileLines = File.ReadLines(includePath);
                         SourceDependencies.Add(includePath);
-                        GetShaderBlocksRecursive(includeFileLines, shaderData, currentPath);
+
+                        string fileName = Path.GetFileName(includePath);
+                        var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName);
+                        GetShaderBlocksRecursive(enumeratorWrapper, shaderData, currentPath);
                     }
                 }
 
@@ -641,7 +644,9 @@ namespace z3y.Shaders
                     {
                         var includeFileLines = File.ReadLines(includePath);
                         SourceDependencies.Add(includePath);
-                        GetShaderBlocksRecursive(includeFileLines, shaderData, currentPath);
+                        string fileName = Path.GetFileName(includePath);
+                        var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName);
+                        GetShaderBlocksRecursive(enumeratorWrapper, shaderData, currentPath);
                     }
 
                 }
@@ -664,10 +669,15 @@ namespace z3y.Shaders
             return includePath;
         }
 
-        private static void AppendLineBlockSpan(IEnumeratorWrapper ienum, StringBuilder sb, ReadOnlySpan<char> breakName, string fileName)
+        private static void AppendLineBlockSpan(IEnumeratorWrapper ienum, StringBuilder sb, ReadOnlySpan<char> breakName, bool appendFileLine = true)
         {
-            //sb.AppendLine("#line " + (ienum.Index + 2) + " \"" + fileName + "\"");
-            sb.AppendLine("#line " + (ienum.Index + 2));
+            if (appendFileLine)
+            {
+                //sb.AppendLine("#line " + (ienum.Index + 2));
+                string lineDirective = "#line " + (ienum.Index + 2) + " \"" + ienum.FileName + "\"";
+                sb.AppendLine(lineDirective);
+            }
+
             while (ienum.MoveNext())
             {
 
