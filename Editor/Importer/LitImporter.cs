@@ -82,14 +82,36 @@ namespace z3y.Shaders
             ProjectWindowUtil.CreateAssetWithContent($"Lit Shader Variant.{Ext}", defaultContent);
         }
 
-        /*[MenuItem("Tools/Lit/Create Lit Config File")]
+        [MenuItem("Tools/Lit/Create Lit Config File")]
         public static void CreateConfigFile()
         {
-            var defaultContent = File.ReadAllText(DefaultShaderPath);
-            ProjectWindowUtil.CreateAssetWithContent($"Lit Shader Variant.{Ext}", defaultContent);
-        }*/
+            const string folder = "Assets/Settings/";
+            const string fileName = "LitShaderConfig.litshader";
+            const string fullPath = folder + fileName;
+
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+
+            if (File.Exists(fullPath))
+            {
+                EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Shader>(fullPath));
+                return;
+            }
+
+            const string defaultContent = @"//test";
+            using (StreamWriter sw = File.CreateText(fullPath))
+            {
+                sw.WriteLine(defaultContent);
+            }
+
+            AssetDatabase.Refresh();
+            ReimportShaders();
+            EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Shader>(fullPath));
+        }
         [MenuItem("Tools/Lit/Reimport Shaders")]
-        public static void CreateConfigFile()
+        public static void ReimportShaders()
         {
             var guids = AssetDatabase.FindAssets("t:shader");
             foreach(var guid in guids)

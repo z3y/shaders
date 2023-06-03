@@ -66,3 +66,10 @@ https://github.com/z3y/ShaderGraph
 
 ### [Discord Support](https://discord.gg/bw46tKgRFT)
 ### [Bug Reports](https://github.com/z3y/shaders/issues)
+
+### License
+Core RP Licensed under the [Unity Companion License](/ShaderLibrary//CoreRP/LICENSE.md)
+
+Some additional code from Google Filament Licensed under [Apache License 2.0](/ShaderLibrary//FilamentLicense.md)
+
+The rest under MIT

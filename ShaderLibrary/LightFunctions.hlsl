@@ -1,5 +1,6 @@
 namespace Filament
 {
+    // License included at FilamentLicense.md
     float pow5(float x)
     {
         float x2 = x * x;
