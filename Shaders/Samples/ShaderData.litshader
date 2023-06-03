@@ -3,6 +3,10 @@ PROPERTIES_START // Properties
     _Return ("Return", Int) = 0
 PROPERTIES_END
 
+DEFINES_START
+    #define VARYINGS_NEED_COLOR // enable attribute and varying for vertex color;
+DEFINES_END
+
 CBUFFER_START
     uint _Return;
 CBUFFER_END
@@ -28,12 +32,20 @@ CODE_START
         float3 viewDirectionWS = GetViewDirectionWS(IN.positionWS);
 
         // View Direction (Tangent Space)
-        // Attributes not available in shadowcaster and meta
+        // Varyings parameters not available in shadowcaster and meta
         #if defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_FORWARDADD)
             half3 viewDirectionTS = GetViewDirectionTangentSpace(IN.tangentWS, IN.normalWS, viewDirectionWS);
         #else
             half3 viewDirectionTS = 0;
         #endif
+
+        #if defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_FORWARDADD)
+            float3 normalWS = IN.normalWS;
+        #else
+            float3 normalWS = 0;
+        #endif
+
+        float3 positionWS = IN.positionWS;
 
         surface.Albedo = 0;
         surface.Smoothness = 0;
@@ -44,6 +56,9 @@ CODE_START
             case 2: surface.Emission = lightAttenuation; return;
             case 3: surface.Emission = viewDirectionWS; return;
             case 4: surface.Emission = viewDirectionTS; return;
+            case 5: surface.Emission = normalWS; return;
+            case 6: surface.Emission = positionWS; return;
+            case 7: surface.Emission = IN.color; return;
         }
     }
 CODE_END
