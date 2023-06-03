@@ -1,4 +1,5 @@
 
+#define GetCustomMainLightData GetUnityLightData
 CustomLightData GetCustomMainLightData(Varyings unpacked)
 {
     CustomLightData data = (CustomLightData)0;

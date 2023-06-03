@@ -27,7 +27,7 @@ inline half OneMinusReflectivityFromMetallic(half metallic)
     return oneMinusDielectricSpec - metallic * oneMinusDielectricSpec;
 }
 
-inline half3 DiffuseAndSpecularFromMetallic (half3 albedo, half metallic, out half3 specColor, out half oneMinusReflectivity)
+inline half3 DiffuseAndSpecularFromMetallic(half3 albedo, half metallic, out half3 specColor, out half oneMinusReflectivity)
 {
     specColor = lerp (unity_ColorSpaceDielectricSpec.rgb, albedo, metallic);
     oneMinusReflectivity = OneMinusReflectivityFromMetallic(metallic);

@@ -198,6 +198,7 @@ bool IsInMirror()
 
 static float3 DebugColor = 0;
 
+#define CustomLightData UnityLightData
 struct CustomLightData
 {
     half3 color;

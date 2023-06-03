@@ -362,6 +362,8 @@ namespace z3y.Shaders
                     sb.AppendLine("{");
                     {
                         sb.AppendLine("Name \"META_BAKERY\"");
+                        //sb.AppendLine("Name \"META_BAKERY\"");
+
                         sb.AppendLine("Tags { \"LightMode\" = \"Meta\"}");
                         sb.AppendLine("Cull Off");
 
