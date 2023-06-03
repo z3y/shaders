@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 #if UNITY_2020_3_OR_NEWER
@@ -79,6 +80,29 @@ namespace z3y.Shaders
         {
             var defaultContent = File.ReadAllText(DefaultShaderPath);
             ProjectWindowUtil.CreateAssetWithContent($"Lit Shader Variant.{Ext}", defaultContent);
+        }
+
+        /*[MenuItem("Tools/Lit/Create Lit Config File")]
+        public static void CreateConfigFile()
+        {
+            var defaultContent = File.ReadAllText(DefaultShaderPath);
+            ProjectWindowUtil.CreateAssetWithContent($"Lit Shader Variant.{Ext}", defaultContent);
+        }*/
+        [MenuItem("Tools/Lit/Reimport Shaders")]
+        public static void CreateConfigFile()
+        {
+            var guids = AssetDatabase.FindAssets("t:shader");
+            foreach(var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+
+                if (!path.EndsWith("." + Ext))
+                {
+                    continue;
+                }
+
+                AssetDatabase.ImportAsset(path);
+            }
         }
 
         private class ShaderBlocks
