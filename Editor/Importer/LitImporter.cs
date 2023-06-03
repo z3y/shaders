@@ -82,7 +82,7 @@ namespace z3y.Shaders
             ProjectWindowUtil.CreateAssetWithContent($"Lit Shader Variant.{Ext}", defaultContent);
         }
 
-        [MenuItem("Tools/Lit/Create Lit Config File")]
+        [MenuItem("Tools/Lit/Create Config File")]
         public static void CreateConfigFile()
         {
             const string folder = "Assets/Settings/";
@@ -100,10 +100,9 @@ namespace z3y.Shaders
                 return;
             }
 
-            const string defaultContent = @"//test";
             using (StreamWriter sw = File.CreateText(fullPath))
             {
-                sw.WriteLine(defaultContent);
+                sw.WriteLine(LitImporterConstants.DefaultConfigFile);
             }
 
             AssetDatabase.Refresh();
@@ -492,6 +491,7 @@ namespace z3y.Shaders
                 sb.AppendLine("}");
                 
                 sb.AppendLine(GetShaderInspectorLine(settings));
+                sb.AppendLine("Fallback \"Mobile/Quest Lite\"");
                 // sb.AppendLine("Fallback");
             }
             sb.AppendLine("}");

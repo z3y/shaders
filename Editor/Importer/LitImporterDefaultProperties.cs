@@ -20,6 +20,12 @@ namespace z3y
 [HideInInspector] [NonModifiableTextureData] [NoScaleOffset] _DFG(""DFG"", 2D) = ""white"" {}
 ";
 
+        public const string DefaultConfigFile = @"
+DEFINES_START
+    // #define BAKERY_MONOSH // enable mono sh globally
+DEFINES_END
+
+";
     }
 
 }
