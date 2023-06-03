@@ -34,7 +34,7 @@ DEFINES_START // Keywords, Defines
 
     // #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // avoid unnecessary calculations and reduce the compiled size if LPPV arent used
     #define APPROXIMATE_AREALIGHT_SPECULAR // lower the smoothness in areas where theres less directionality in directional lightmaps
-    // #pragma multi_compile _ LOD_FADE_CROSSFADE // disabled by defualt, too many variants
+    // #pragma multi_compile _ LOD_FADE_CROSSFADE // disabled by default, too many variants
     // #define _SSR // Screen-Space Reflections, expensive, requires Grab Pass enabled
     // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
     #define UNITY_SPECCUBE_BOX_PROJECTION // force enable box projection on quest

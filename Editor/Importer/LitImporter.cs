@@ -113,7 +113,7 @@ namespace z3y.Shaders
         public static void ReimportShaders()
         {
             var guids = AssetDatabase.FindAssets("t:shader");
-            foreach(var guid in guids)
+            foreach (var guid in guids)
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
 
