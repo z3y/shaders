@@ -1,6 +1,6 @@
 ﻿
 PROPERTIES_START // Properties
-    [Enum(Light Direction 0, Light Color, 1, Light Attenuation, 2)] _Return ("Return", Int) = 0
+    _Return ("Return", Int) = 0
 PROPERTIES_END
 
 CBUFFER_START
@@ -8,6 +8,9 @@ CBUFFER_START
 CBUFFER_END
 
 CODE_START
+    
+    // for GetViewDirectionTangentSpace
+    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/ParallaxMapping.hlsl"
 
     #define USE_SURFACEDESCRIPTION
     void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
@@ -24,6 +27,14 @@ CODE_START
         // View Direction (World Space)
         float3 viewDirectionWS = GetViewDirectionWS(IN.positionWS);
 
+        // View Direction (Tangent Space)
+        // Attributes not available in shadowcaster and meta
+        #if defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_FORWARDADD)
+            half3 viewDirectionTS = GetViewDirectionTangentSpace(IN.tangentWS, IN.normalWS, viewDirectionWS);
+        #else
+            half3 viewDirectionTS = 0;
+        #endif
+
         surface.Albedo = 0;
         surface.Smoothness = 0;
         switch(_Return)
@@ -31,6 +42,8 @@ CODE_START
             case 0: surface.Emission = lightDirection * 0.5 + 0.5; return;
             case 1: surface.Emission = lightColor; return;
             case 2: surface.Emission = lightAttenuation; return;
+            case 3: surface.Emission = viewDirectionWS; return;
+            case 4: surface.Emission = viewDirectionTS; return;
         }
     }
 CODE_END
