@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using UnityEditor;
 #if UNITY_2020_3_OR_NEWER
@@ -10,9 +9,6 @@ using UnityEditor.AssetImporters;
 using UnityEditor.Experimental.AssetImporters;
 #endif
 using UnityEngine;
-using static UnityScript.UnityScriptCompiler;
-using Debug = UnityEngine.Debug;
-
 
 namespace z3y.Shaders
 {
