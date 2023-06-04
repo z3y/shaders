@@ -68,7 +68,7 @@ namespace z3y.Shaders
 
         private static void SetDefaultTextures(Shader shader)
         {
-            EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG" }, new Texture[] { DFGLut() });
+            EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG", "BlueNoise" }, new Texture[] { DFGLut(), BlueNoise() });
         }
 
         [MenuItem("Assets/Create/Shader/Lit Shader Variant")]
@@ -797,5 +797,10 @@ namespace z3y.Shaders
             return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
 
+        public static Texture2D BlueNoise()
+        {
+            const string path = "Packages/com.z3y.shaders/ShaderLibrary/LDR_LLL1_0.png";
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        }
     }
 }
