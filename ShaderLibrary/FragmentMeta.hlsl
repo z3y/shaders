@@ -51,8 +51,8 @@ half3 UnityLightmappingAlbedo (half3 diffuse, half3 specular, half smoothness)
     {
         Varyings unpacked = UnpackVaryings(packedInput);
 #endif
-    UNITY_SETUP_INSTANCE_ID(input);
-    UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+    UNITY_SETUP_INSTANCE_ID(unpacked);
+    UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(unpacked);
 
 
     #ifdef GENERATION_CODE

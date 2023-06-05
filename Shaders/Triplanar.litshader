@@ -72,7 +72,7 @@ CODE_START
         uvZ += (1.0 / 3.0) * 2.0;
         
         half4 albedo_X = 0, albedo_Y = 0, albedo_Z = 0;
-        half3 normalTS_X = half3(0.5,0.5,1), normalTS_Y  = half3(0.5,0.5,1), normalTS_Z = half3(0.5,0.5,1);
+        half3 normalTS_X = half3(0,0,1), normalTS_Y  = half3(0,0,1), normalTS_Z = half3(0,0,1);
         half4 maskMap_X = 1, maskMap_Y = 1, maskMap_Z = 1;
 
         UNITY_BRANCH
