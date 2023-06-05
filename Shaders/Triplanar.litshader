@@ -68,8 +68,8 @@ CODE_START
         float3 scaledPosition = _TriplanarScale * IN.positionWS;
         float2 uvX, uvY, uvZ;
         GetTriplanarCoordinate(IN.positionWS * _TriplanarScale, uvY, uvZ, uvX);
-        // uvY += 0.33;
-        // uvZ += 0.67;
+        uvY += (1.0 /3.0);
+        uvZ += (1.0 /3.0) * 2.2;
         
         half4 albedo_X = 0, albedo_Y = 0, albedo_Z = 0;
         half3 normalTS_X = half3(0.5,0.5,1), normalTS_Y  = half3(0.5,0.5,1), normalTS_Z = half3(0.5,0.5,1);
@@ -149,8 +149,7 @@ CODE_START
                 surface.Normal = normalize(normalTS_X.xyz * weight.x + normalTS_Y.xyz * weight.y + normalTS_Z.xyz * weight.z + IN.normalWS);
             #endif
         #else
-            float renormFactor = 1.0 / max(FLT_MIN, length(IN.normalWS));
-            surface.Normal = IN.normalWS * renormFactor;
+            surface.Normal = normalize(IN.normalWS);
         #endif
 
         #ifdef _MASKMAP

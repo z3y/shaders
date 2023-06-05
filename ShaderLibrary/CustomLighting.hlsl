@@ -37,6 +37,12 @@ namespace CustomLighting
 
         #if _NORMAL_DROPOFF_TS
 
+            #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE) && defined(GENERATION_CODE) && !defined(LIGHTMAP_ON)
+                if (!unpacked.cullFace)
+                {
+                    surfaceDescription.Normal.xy *= -1;
+                }
+            #endif
 
             half3x3 tangentToWorld = half3x3(unpacked.tangentWS.xyz, bitangentWS, unpacked.normalWS.xyz);
             normalWS = TransformTangentToWorld(surfaceDescription.Normal, tangentToWorld);
@@ -65,7 +71,7 @@ namespace CustomLighting
         #endif
 
         
-        #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE) && defined(GENERATION_CODE)
+        #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE) && defined(GENERATION_CODE) && !defined(LIGHTMAP_ON)
             if (!unpacked.cullFace)
             {
                 normalWS *= -1;
