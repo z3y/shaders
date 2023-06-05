@@ -31,7 +31,7 @@ namespace CustomLighting
         #endif
 
         float3 unnormalizedNormalWS = unpacked.normalWS;
-        float renormFactor = 1.0 / length(unnormalizedNormalWS);
+        float renormFactor = 1.0 / max(FLT_MIN, length(unnormalizedNormalWS));
 
         // IMPORTANT! If we ever support Flip on double sided materials ensure bitangent and tangent are NOT flipped.
         //float crossSign = (unpacked.tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale(); // moved to vertex
