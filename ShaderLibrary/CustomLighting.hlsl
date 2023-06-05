@@ -24,17 +24,21 @@ namespace CustomLighting
 
     void GetBTN(Varyings unpacked, SurfaceDescription surfaceDescription, out float3 normalWS, out float3 bitangentWS, out float3 tangentWS)
     {
-        //TODO: define in generator when it gets properly supported
-        #define _NORMAL_DROPOFF_TS 1
+        #if !defined(_NORMAL_DROPOFF_OS) && !defined(_NORMAL_DROPOFF_WS)
+            #define _NORMAL_DROPOFF_TS 1
+        #else
+            #define _NORMAL_DROPOFF_TS 0
+        #endif
+
+        // IMPORTANT! If we ever support Flip on double sided materials ensure bitangent and tangent are NOT flipped.
+        //float crossSign = (unpacked.tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale();// moved to vertex
+        float crossSign = unpacked.tangentWS.w;
+        bitangentWS = crossSign * cross(unpacked.normalWS.xyz, unpacked.tangentWS.xyz);
+        half3x3 tangentToWorld = half3x3(unpacked.tangentWS.xyz, bitangentWS, unpacked.normalWS.xyz);
+        tangentWS = unpacked.tangentWS.xyz;
 
         #if _NORMAL_DROPOFF_TS
-            // IMPORTANT! If we ever support Flip on double sided materials ensure bitangent and tangent are NOT flipped.
-            //float crossSign = (unpacked.tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale();// moved to vertex
-            float crossSign = unpacked.tangentWS.w;
-            bitangentWS = crossSign * cross(unpacked.normalWS.xyz, unpacked.tangentWS.xyz);
-            half3x3 tangentToWorld = half3x3(unpacked.tangentWS.xyz, bitangentWS, unpacked.normalWS.xyz);
             normalWS = TransformTangentToWorld(surfaceDescription.Normal, tangentToWorld);
-            tangentWS = unpacked.tangentWS.xyz;
 
             #ifdef _ANISOTROPY
                 tangentWS = TransformTangentToWorld(surfaceDescription.Tangent, tangentToWorld);
@@ -45,9 +49,17 @@ namespace CustomLighting
             normalWS = normalize(normalWS);
 
         #elif _NORMAL_DROPOFF_OS
-            normalWS = TransformObjectToWorldNormal(surfaceDescription.Normal);
+            #ifdef GENERATION_GRAPH
+                normalWS = TransformObjectToWorldNormal(surfaceDescription.NormalOS);
+            #else
+                normalWS = TransformObjectToWorldNormal(surfaceDescription.Normal);
+            #endif
         #elif _NORMAL_DROPOFF_WS
-            normalWS = surfaceDescription.Normal;
+            #ifdef GENERATION_GRAPH
+                normalWS = surfaceDescription.NormalWS;
+            #else
+                normalWS = surfaceDescription.Normal;
+            #endif
         #endif
     }
 
