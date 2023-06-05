@@ -76,24 +76,56 @@ CODE_START
         GetTriplanarCoordinate(IN.positionWS * _TriplanarScale, uvY, uvZ, uvX);
 
         half4 albedo_X = 0, albedo_Y = 0, albedo_Z = 0;
-        UNITY_BRANCH if (weight.x > 0) albedo_X = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvX);
-        UNITY_BRANCH if (weight.y > 0) albedo_Y = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvY);
-        UNITY_BRANCH if (weight.z > 0) albedo_Z = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvZ);
-        float4 albedo = albedo_X * weight.x + albedo_Y * weight.y + albedo_Z * weight.z;
+        half3 normalTSX = half3(0,0,1), normalTSY  = half3(0,0,1), normalTSZ = half3(0,0,1);
+        half4 maskMap_X = 1, maskMap_Y = 1, maskMap_Z = 1;
+
+        UNITY_BRANCH
+        if (weight.x > 0)
+        {
+            albedo_X = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvX);
+            #ifdef _NORMALMAP
+                normalTSX = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvX), _BumpScale);
+            #endif
+            #ifdef _MASKMAP
+                maskMap_X = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uvX);
+            #endif
+        }
+
+        UNITY_BRANCH
+        if (weight.y > 0)
+        {
+            albedo_Y = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvY);
+            #ifdef _NORMALMAP
+                UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvY), _BumpScale);
+            #endif
+            #ifdef _MASKMAP
+                maskMap_Y = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uvY);
+            #endif
+        }
+
+        UNITY_BRANCH
+        if (weight.z > 0)
+        {
+            albedo_Z = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvZ);
+            #ifdef _NORMALMAP
+                UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvZ), _BumpScale);
+            #endif
+            #ifdef _MASKMAP
+                maskMap_Z = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uvZ);
+            #endif
+        }
+
+
+
+
+
+        half4 albedo = albedo_X * weight.x + albedo_Y * weight.y + albedo_Z * weight.z;
         albedo *= _Color;
         surface.Albedo = albedo.rgb;
-        // surface.Albedo = 0;
         surface.Alpha = albedo.a;
-        // surface.Smoothness = 0;
 
         // UDN blend from bgolus https://bgolus.medium.com/normal-mapping-for-a-triplanar-shader-10bf39dca05a#6d4d
         #ifdef _NORMALMAP
-
-            // Tangent space normal maps
-            half3 normalTSX = half3(0,0,1), normalTSY  = half3(0,0,1), normalTSZ = half3(0,0,1);
-            UNITY_BRANCH if (weight.x > 0) normalTSX = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvX), _BumpScale);
-            UNITY_BRANCH if (weight.y > 0) normalTSY = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvY), _BumpScale);
-            UNITY_BRANCH if (weight.z > 0) normalTSZ = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvZ), _BumpScale);
 
             // Swizzle world normals into tangent space and apply UDN blend.
             // These should get normalized, but it's very a minor visual
@@ -111,7 +143,11 @@ CODE_START
         #endif
 
         #ifdef _MASKMAP
-            half4 maskMap = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uv);
+
+            half4 maskMap = maskMap_X * weight.x + maskMap_Y * weight.y + maskMap_Z * weight.z;
+
+            //half4 maskMap = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uv);
+
             surface.Metallic = maskMap.b * _Metallic;
             surface.Smoothness = 1.0 - (maskMap.g * _Roughness);
             surface.Occlusion = lerp(1.0, maskMap.r, _OcclusionStrength);
