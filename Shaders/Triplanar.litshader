@@ -58,12 +58,6 @@ CODE_START
     SAMPLER(sampler_BumpMap);
     SAMPLER(sampler_MaskMap);
 
-    #define USE_MODIFYVARYINGS // Modify varyings at the end of vertex shader
-    void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
-    {
-        
-    }
-
     #define USE_SURFACEDESCRIPTION // SurfaceDescription: Albedo, Normal, Metallic, Emission, Smoothness, Occlusion, Alpha, AlphaClipThreshold, Reflectance
     void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
     {
@@ -76,7 +70,7 @@ CODE_START
         GetTriplanarCoordinate(IN.positionWS * _TriplanarScale, uvY, uvZ, uvX);
 
         half4 albedo_X = 0, albedo_Y = 0, albedo_Z = 0;
-        half3 normalTSX = half3(0,0,1), normalTSY  = half3(0,0,1), normalTSZ = half3(0,0,1);
+        half3 normalTS_X = half3(0,0,1), normalTS_Y  = half3(0,0,1), normalTS_Z = half3(0,0,1);
         half4 maskMap_X = 1, maskMap_Y = 1, maskMap_Z = 1;
 
         UNITY_BRANCH
@@ -84,7 +78,7 @@ CODE_START
         {
             albedo_X = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvX);
             #ifdef _NORMALMAP
-                normalTSX = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvX), _BumpScale);
+                normalTS_X = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvX), _BumpScale);
             #endif
             #ifdef _MASKMAP
                 maskMap_X = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uvX);
@@ -96,7 +90,7 @@ CODE_START
         {
             albedo_Y = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvY);
             #ifdef _NORMALMAP
-                normalTSY = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvY), _BumpScale);
+                normalTS_Y = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvY), _BumpScale);
             #endif
             #ifdef _MASKMAP
                 maskMap_Y = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uvY);
@@ -108,7 +102,7 @@ CODE_START
         {
             albedo_Z = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvZ);
             #ifdef _NORMALMAP
-                normalTSZ = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvZ), _BumpScale);
+                normalTS_Z = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvZ), _BumpScale);
             #endif
             #ifdef _MASKMAP
                 maskMap_Z = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uvZ);
@@ -121,17 +115,18 @@ CODE_START
         surface.Alpha = albedo.a;
 
         // UDN blend from bgolus https://bgolus.medium.com/normal-mapping-for-a-triplanar-shader-10bf39dca05a#6d4d
+        // _NORMAL_DROPOFF_WS enabled
         #ifdef _NORMALMAP
 
             // Swizzle world normals into tangent space and apply UDN blend.
             // These should get normalized, but it's very a minor visual
             // difference to skip it until after the blend.
-            normalTSX = half3(normalTSX.xy + IN.normalWS.zy, IN.normalWS.x);
-            normalTSY = half3(normalTSY.xy + IN.normalWS.xz, IN.normalWS.y);
-            normalTSZ = half3(normalTSZ.xy + IN.normalWS.xy, IN.normalWS.z);
+            normalTS_X = half3(normalTS_X.xy + IN.normalWS.zy, IN.normalWS.x);
+            normalTS_Y = half3(normalTS_Y.xy + IN.normalWS.xz, IN.normalWS.y);
+            normalTS_Z = half3(normalTS_Z.xy + IN.normalWS.xy, IN.normalWS.z);
 
             // Swizzle tangent normals to match world orientation and triblend
-            half3 worldNormal = normalTSX.zyx * weight.x + normalTSY.xzy * weight.y + normalTSZ.xyz * weight.z;
+            half3 worldNormal = normalTS_X.zyx * weight.x + normalTS_Y.xzy * weight.y + normalTS_Z.xyz * weight.z;
             surface.Normal = normalize(worldNormal);
         #else
             float renormFactor = 1.0 / max(FLT_MIN, length(IN.normalWS));
@@ -139,10 +134,7 @@ CODE_START
         #endif
 
         #ifdef _MASKMAP
-
             half4 maskMap = maskMap_X * weight.x + maskMap_Y * weight.y + maskMap_Z * weight.z;
-
-            //half4 maskMap = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uv);
 
             surface.Metallic = maskMap.b * _Metallic;
             surface.Smoothness = 1.0 - (maskMap.g * _Roughness);
