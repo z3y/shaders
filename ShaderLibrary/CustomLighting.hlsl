@@ -54,7 +54,6 @@ namespace CustomLighting
                 bitangentWS = normalize(cross(normalWS, tangentWS));
             #endif
 
-            normalWS = SafeNormalize(normalWS);
 
         #elif _NORMAL_DROPOFF_OS
             #ifdef GENERATION_GRAPH
@@ -70,6 +69,7 @@ namespace CustomLighting
             #endif
         #endif
 
+        normalWS = SafeNormalize(normalWS);
         
         #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE) && defined(GENERATION_CODE) && !defined(LIGHTMAP_ON)
             if (!unpacked.cullFace)
