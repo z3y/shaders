@@ -210,12 +210,6 @@ CODE_START
     {
         return 1.0 - (1.0 - Blend) * (1.0 - Base);
     }
-
-    // assume compositing in tangent space
-    real3 BlendNormal(real3 n1, real3 n2)
-    {
-        return normalize(real3(n1.xy * n2.z + n2.xy * n1.z, n1.z * n2.z));
-    }
     
     #define USE_SURFACEDESCRIPTION // SurfaceDescription: Albedo, Normal, Metallic, Emission, Smoothness, Occlusion, Alpha, AlphaClipThreshold, Reflectance
     void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
