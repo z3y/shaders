@@ -31,13 +31,13 @@ namespace CustomLighting
         #endif
 
         // IMPORTANT! If we ever support Flip on double sided materials ensure bitangent and tangent are NOT flipped.
-        //float crossSign = (unpacked.tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale();// moved to vertex
+        //float crossSign = (unpacked.tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale(); // moved to vertex
         float crossSign = unpacked.tangentWS.w;
         bitangentWS = crossSign * cross(unpacked.normalWS.xyz, unpacked.tangentWS.xyz);
-        half3x3 tangentToWorld = half3x3(unpacked.tangentWS.xyz, bitangentWS, unpacked.normalWS.xyz);
         tangentWS = unpacked.tangentWS.xyz;
 
         #if _NORMAL_DROPOFF_TS
+            half3x3 tangentToWorld = half3x3(unpacked.tangentWS.xyz, bitangentWS, unpacked.normalWS.xyz);
             normalWS = TransformTangentToWorld(surfaceDescription.Normal, tangentToWorld);
 
             #ifdef _ANISOTROPY
