@@ -96,7 +96,7 @@ CODE_START
         {
             albedo_Y = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvY);
             #ifdef _NORMALMAP
-                UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvY), _BumpScale);
+                normalTSY = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvY), _BumpScale);
             #endif
             #ifdef _MASKMAP
                 maskMap_Y = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uvY);
@@ -108,16 +108,12 @@ CODE_START
         {
             albedo_Z = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvZ);
             #ifdef _NORMALMAP
-                UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvZ), _BumpScale);
+                normalTSZ = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvZ), _BumpScale);
             #endif
             #ifdef _MASKMAP
                 maskMap_Z = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uvZ);
             #endif
         }
-
-
-
-
 
         half4 albedo = albedo_X * weight.x + albedo_Y * weight.y + albedo_Z * weight.z;
         albedo *= _Color;
