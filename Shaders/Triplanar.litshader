@@ -11,7 +11,7 @@
     [NoScaleOffset] [Normal] [ExtraProperty] [Toggle(_NORMALMAP)] _BumpMap ("Normal Map", 2D) = "bump" {}
     _BumpScale ("Normal Scale", Float) = 1
 
-    _MainTex_ScaleOffset ("", Float) = 0
+    _TriplanarScale ("Triplanar Scale", Float) = 1
     _TriplanarBlend ("Triplanar Blend", Float) = 5
 
     [Space(10)]
@@ -37,7 +37,7 @@ DEFINES_END
 
 CBUFFER_START
     half4 _Color;
-    float4 _MainTex_ST;
+    float _TriplanarScale;
     half _Roughness;
     half _Metallic;
     half _BumpScale;
@@ -71,15 +71,14 @@ CODE_START
         weight /= (weight.x + weight.y + weight.z).xxx;
         weight = saturate(weight);
 
-        float2 uvXZ, uvXY, uvZY;
-        GetTriplanarCoordinate(IN.positionWS, uvXZ, uvXY, uvZY);
-        uvXZ *= _MainTex_ST.xy;
-        uvXY *= _MainTex_ST.xy;
-        uvZY *= _MainTex_ST.xy;
+        float3 scaledPosition = _TriplanarScale * IN.positionWS;
+        float2 uvX, uvY, uvZ;
+        GetTriplanarCoordinate(IN.positionWS * _TriplanarScale, uvY, uvZ, uvX);
 
-        float4 albedo_X = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvZY);
-        float4 albedo_Y = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvXZ);
-        float4 albedo_Z = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvXY);
+        half4 albedo_X = 0, albedo_Y = 0, albedo_Z = 0;
+        UNITY_BRANCH if (weight.x > 0) albedo_X = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvX);
+        UNITY_BRANCH if (weight.y > 0) albedo_Y = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvY);
+        UNITY_BRANCH if (weight.z > 0) albedo_Z = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvZ);
         float4 albedo = albedo_X * weight.x + albedo_Y * weight.y + albedo_Z * weight.z;
         albedo *= _Color;
         surface.Albedo = albedo.rgb;
@@ -87,13 +86,29 @@ CODE_START
         surface.Alpha = albedo.a;
         // surface.Smoothness = 0;
 
-        surface.Normal = normalize(IN.normalWS);
-        // surface.Emission = saturate(weight);
+        // UDN blend from bgolus https://bgolus.medium.com/normal-mapping-for-a-triplanar-shader-10bf39dca05a#6d4d
+        #ifdef _NORMALMAP
 
-        // #ifdef _NORMALMAP
-        //     half4 normalMap = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
-        //     surface.Normal = UnpackNormalScale(normalMap, _BumpScale);
-        // #endif
+            // Tangent space normal maps
+            half3 normalTSX = half3(0,0,1), normalTSY  = half3(0,0,1), normalTSZ = half3(0,0,1);
+            UNITY_BRANCH if (weight.x > 0) normalTSX = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvX), _BumpScale);
+            UNITY_BRANCH if (weight.y > 0) normalTSY = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvY), _BumpScale);
+            UNITY_BRANCH if (weight.z > 0) normalTSZ = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvZ), _BumpScale);
+
+            // Swizzle world normals into tangent space and apply UDN blend.
+            // These should get normalized, but it's very a minor visual
+            // difference to skip it until after the blend.
+            normalTSX = half3(normalTSX.xy + IN.normalWS.zy, IN.normalWS.x);
+            normalTSY = half3(normalTSY.xy + IN.normalWS.xz, IN.normalWS.y);
+            normalTSZ = half3(normalTSZ.xy + IN.normalWS.xy, IN.normalWS.z);
+
+            // Swizzle tangent normals to match world orientation and triblend
+            half3 worldNormal = normalTSX.zyx * weight.x + normalTSY.xzy * weight.y + normalTSZ.xyz * weight.z;
+            surface.Normal = normalize(worldNormal);
+        #else
+            float renormFactor = 1.0 / max(FLT_MIN, length(IN.normalWS));
+            surface.Normal = IN.normalWS * renormFactor;
+        #endif
 
         #ifdef _MASKMAP
             half4 maskMap = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uv);

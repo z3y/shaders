@@ -47,6 +47,7 @@ namespace CustomLighting
             normalWS = TransformTangentToWorld(surfaceDescription.Normal, tangentToWorld);
 
             #ifdef _ANISOTROPY
+                // TODO: do properly
                 tangentWS = TransformTangentToWorld(surfaceDescription.Tangent, tangentToWorld);
                 tangentWS = Orthonormalize(tangentWS, normalWS);
                 bitangentWS = normalize(cross(normalWS, tangentWS));
