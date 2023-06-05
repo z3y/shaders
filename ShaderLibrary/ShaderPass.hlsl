@@ -465,9 +465,7 @@ struct Varyings
     #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
     uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
     #endif
-    #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-    uint cullFace : VFACE;
-    #endif
+
 
     #if defined(EDITOR_VISUALIZATION)
     float2 vizUV : VIZUV;
@@ -487,6 +485,10 @@ struct Varyings
 
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
         half3 vertexLight : VERTEXLIGHT;
+    #endif
+
+    #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
+        uint cullFace : SV_IsFrontFace;
     #endif
 };
 #endif // #ifdef GENERATION_CODE

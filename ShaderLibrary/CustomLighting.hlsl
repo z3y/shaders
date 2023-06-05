@@ -30,19 +30,14 @@ namespace CustomLighting
             #define _NORMAL_DROPOFF_TS 0
         #endif
 
-        float3 unnormalizedNormalWS = unpacked.normalWS;
-        float renormFactor = 1.0 / max(FLT_MIN, length(unnormalizedNormalWS));
-
-        // IMPORTANT! If we ever support Flip on double sided materials ensure bitangent and tangent are NOT flipped.
         //float crossSign = (unpacked.tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale(); // moved to vertex
         float crossSign = unpacked.tangentWS.w;
         bitangentWS = crossSign * cross(unpacked.normalWS.xyz, unpacked.tangentWS.xyz);
         tangentWS = unpacked.tangentWS.xyz;
 
-        bitangentWS *= renormFactor;
-        tangentWS *= renormFactor;
-        
         #if _NORMAL_DROPOFF_TS
+
+
             half3x3 tangentToWorld = half3x3(unpacked.tangentWS.xyz, bitangentWS, unpacked.normalWS.xyz);
             normalWS = TransformTangentToWorld(surfaceDescription.Normal, tangentToWorld);
 
@@ -53,7 +48,7 @@ namespace CustomLighting
                 bitangentWS = normalize(cross(normalWS, tangentWS));
             #endif
 
-            normalWS = normalWS * renormFactor;
+            normalWS = SafeNormalize(normalWS);
 
         #elif _NORMAL_DROPOFF_OS
             #ifdef GENERATION_GRAPH
@@ -67,6 +62,14 @@ namespace CustomLighting
             #else
                 normalWS = surfaceDescription.Normal;
             #endif
+        #endif
+
+        
+        #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE) && defined(GENERATION_CODE)
+            if (!unpacked.cullFace)
+            {
+                normalWS *= -1;
+            }
         #endif
     }
 
