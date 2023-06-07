@@ -1,4 +1,4 @@
-﻿PROPERTIES_START // Properties
+﻿PROPERTIES_START
     _Cutoff ("Alpha Cuttoff", Range(0.001, 1)) = 0.5
     _CutoutSharpness ("Cutoff Sharpness", Range(1, 0.0001)) = 0.0001
     
@@ -24,18 +24,16 @@
 PROPERTIES_END
 
 
-DEFINES_START // Keywords, Defines
-    //#define VARYINGS_NEED_TEXCOORDX (0-3)
+DEFINES_START
+    // #define VARYINGS_NEED_TEXCOORDX (0-3)
+    // #define VARYINGS_NEED_COLOR
+    // #define VARYINGS_NEED_CULLFACE
+
     #define ATTRIBUTES_NEED_TEXCOORD0
-    //#define VARYINGS_NEED_COLOR
-    //#define VARYINGS_NEED_INTERPX (0-4)
-    #define VARYINGS_NEED_INTERP0
-    //#define VARYINGS_NEED_CULLFACE
+    #define CUSTOM_VARYING0 float2 mainUV : VARYING0;
 
     // #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // avoid unnecessary calculations and reduce the compiled size if LPPV arent used
     #define APPROXIMATE_AREALIGHT_SPECULAR // lower the smoothness in areas where theres less directionality in directional lightmaps
-    // #pragma multi_compile _ LOD_FADE_CROSSFADE // disabled by default, too many variants
-    // #define _SSR // Screen-Space Reflections, expensive, requires Grab Pass enabled
     // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
     #define UNITY_SPECCUBE_BOX_PROJECTION // force enable box projection on quest
     // #define NONLINEAR_LIGHTPROBESH // used with L1 bakery probes, not recommended for VRChat
@@ -45,7 +43,7 @@ DEFINES_START // Keywords, Defines
 DEFINES_END
 
 
-CBUFFER_START // declare all Material properties excluding textures
+CBUFFER_START // material properties excluding textures
     half4 _Color;
     float4 _MainTex_ST;
     half _Roughness;
@@ -87,13 +85,13 @@ CODE_START
     #define USE_MODIFYVARYINGS // Modify varyings at the end of vertex shader
     void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
     {
-        varyings.interp0.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
+        varyings.mainUV.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
     }
 
     #define USE_SURFACEDESCRIPTION // SurfaceDescription: Albedo, Normal, Metallic, Emission, Smoothness, Occlusion, Alpha, AlphaClipThreshold, Reflectance
     void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
     {
-        float2 uv = IN.interp0.xy;
+        float2 uv = IN.mainUV.xy;
         half4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
         mainTex *= _Color;
         surface.Albedo = mainTex.rgb;

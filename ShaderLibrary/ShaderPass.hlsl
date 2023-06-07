@@ -477,6 +477,7 @@ struct Varyings
     CUSTOM_VARYING3
     CUSTOM_VARYING4
     CUSTOM_VARYING5
+    CUSTOM_VARYING6
 
     #if defined(FOG_ANY)
     float fogCoord : FOG_COORD;
