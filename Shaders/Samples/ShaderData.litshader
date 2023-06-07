@@ -5,6 +5,10 @@ PROPERTIES_END
 
 DEFINES_START
     #define VARYINGS_NEED_COLOR // enable attribute and varying for vertex color;
+
+    // completely custom varying
+    #define CUSTOM_VARYING0 centroid float3 example0: EXAMPLE0;
+    #define CUSTOM_VARYING1 nointerpolation float3 example1: EXAMPLE1;
 DEFINES_END
 
 CBUFFER_START
@@ -12,7 +16,15 @@ CBUFFER_START
 CBUFFER_END
 
 CODE_START
-    
+
+
+    #define USE_MODIFYVARYINGS
+    void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
+    {
+        varyings.example0 = attributes.positionOS;
+        varyings.example1 = attributes.positionOS;
+    }
+
     // for GetViewDirectionTangentSpace
     #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/ParallaxMapping.hlsl"
 
@@ -59,6 +71,8 @@ CODE_START
             case 5: surface.Emission = normalWS; return;
             case 6: surface.Emission = positionWS; return;
             case 7: surface.Emission = IN.color; return;
+            case 8: surface.Emission = IN.example0; return;
+            case 9: surface.Emission = IN.example1; return;
         }
     }
 CODE_END
