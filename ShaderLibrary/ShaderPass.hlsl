@@ -260,6 +260,27 @@ struct VertexDescription
     float3 VertexTangent;
 };
 
+#ifndef CUSTOM_VARYING0
+#define CUSTOM_VARYING0
+#endif
+#ifndef CUSTOM_VARYING1
+#define CUSTOM_VARYING1
+#endif
+#ifndef CUSTOM_VARYING2
+#define CUSTOM_VARYING2
+#endif
+#ifndef CUSTOM_VARYING3
+#define CUSTOM_VARYING3
+#endif
+#ifndef CUSTOM_VARYING4
+#define CUSTOM_VARYING4
+#endif
+#ifndef CUSTOM_VARYING5
+#define CUSTOM_VARYING5
+#endif
+#ifndef CUSTOM_VARYING6
+#define CUSTOM_VARYING6
+#endif
 
 struct SurfaceDescription
 {
@@ -449,6 +470,13 @@ struct Varyings
         #endif
     float4 interp4 : CUSTOMINTERP4;
     #endif
+
+    CUSTOM_VARYING0
+    CUSTOM_VARYING1
+    CUSTOM_VARYING2
+    CUSTOM_VARYING3
+    CUSTOM_VARYING4
+    CUSTOM_VARYING5
 
     #if defined(FOG_ANY)
     float fogCoord : FOG_COORD;
