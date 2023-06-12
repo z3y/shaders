@@ -64,14 +64,14 @@ If the include didnt exist at first, the shader needs to be reimported.
 ### Config Example
 
 > Enabling Mono SH globally
-```c
+```cpp
 DEFINES_START
     #define BAKERY_MONOSH // force enable mono sh on all shader variants
 DEFINES_END
 ```
 
 > Global brightness slider
-```c
+```cpp
 CBUFFER_START
     half _UdonBrightness; // global property set with udon
 CBUFFER_END
@@ -103,3 +103,24 @@ Add `SetupLitShader` to the model importer and switch the Material Creation Mode
 
 ### LTCGI
 Ltcgi is automatically added if found in the project. To re-detect if ltcgi is included reimport shaders `Tools/Lit/Reimport Shaders`
+
+### Custom Interpolators
+You can set fully custom varyings to access in the vertex and fragment shaders.
+[Example](/Shaders/Samples/ShaderData.litshader#10)
+```cpp
+#define CUSTOM_VARYING0 float2 uvData : VARYING0;
+
+...
+
+void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
+{
+    varyings.uvData.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
+}
+
+...
+
+void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
+{
+    float4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
+}
+```
