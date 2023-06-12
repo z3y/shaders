@@ -26,7 +26,9 @@ To have proper hlsl syntax highlighting you can set a language mode to be associ
 
 ## Importer Shader Defines
 
-The importer sets some additional useful defines
+The importer sets some additional useful defines.
+
+> To update defines reimport all shaders `Tools/Lit/Reimport Shaders`
 
 | Define | Description |
 | - | - |
@@ -62,14 +64,14 @@ If the include didnt exist at first, the shader needs to be reimported.
 ### Config Example
 
 > Enabling Mono SH globally
-```
+```c
 DEFINES_START
     #define BAKERY_MONOSH // force enable mono sh on all shader variants
 DEFINES_END
 ```
 
 > Global brightness slider
-```
+```c
 CBUFFER_START
     half _UdonBrightness; // global property set with udon
 CBUFFER_END
