@@ -18,7 +18,7 @@ namespace z3y.Shaders
         public const string Ext = "litshader";
         private const string DefaultShaderPath = "Packages/com.z3y.shaders/Shaders/Default.litshader";
         private const string LtcgiIncludePath = "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc";
-        private static readonly bool LtcgiIncluded = File.Exists(LtcgiIncludePath);
+        private static readonly bool ltcgiIncluded = File.Exists(LtcgiIncludePath);
         private const string DefaultShaderEditor = "z3y.Shaders.DefaultInspector";
 
         [SerializeField] public ShaderSettings settings = new ShaderSettings();
@@ -46,7 +46,7 @@ namespace z3y.Shaders
                 ctx.DependsOnSourceAsset(dependency);
             }
 
-            if (LtcgiIncluded)
+            if (ltcgiIncluded)
             {
                 ctx.DependsOnSourceAsset(LtcgiIncludePath);
             }
@@ -182,6 +182,7 @@ namespace z3y.Shaders
 
 
             bool isAndroid = buildTarget == BuildTarget.Android;
+            bool ltcgiAllowed = !isAndroid && ltcgiIncluded;
             AppendAdditionalDataToBlocks(isAndroid, shaderBlocks);
 
             SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl");
@@ -229,7 +230,7 @@ namespace z3y.Shaders
                         //sb.AppendLine("\"RenderPipeline\"=\"\""); // Always built-in
                         sb.AppendLine("\"RenderType\"=\"Opaque\"");
                         sb.AppendLine(settings.grabPass ? "\"Queue\"=\"Transparent+100\"" : "\"Queue\"=\"Geometry+0\"");
-                        if (LtcgiIncluded) sb.AppendLine("\"LTCGI\" = \"_LTCGI\"");
+                        if (ltcgiAllowed) sb.AppendLine("\"LTCGI\" = \"_LTCGI\"");
                     }
                     sb.AppendLine("}");
                     
@@ -274,10 +275,10 @@ namespace z3y.Shaders
                                 sb.AppendLine("#define REQUIRE_OPAQUE_TEXTURE");
                             }
 
-                            if (!isAndroid && LtcgiIncluded)
+                            if (ltcgiAllowed)
                             {
-                                sb.AppendLine("#pragma shader_feature_local_fragment LTCGI");
-                                sb.AppendLine("#pragma shader_feature_local_fragment LTCGI_DIFFUSE_OFF");
+                                sb.AppendLine("#pragma shader_feature_local LTCGI");
+                                sb.AppendLine("#pragma shader_feature_local LTCGI_DIFFUSE_OFF");
                             }
 
                             sb.AppendLine(GetDefineTypeDeclaration(settings.bakeryMonoSH, ShaderSettings.MonoShKeyword));
@@ -558,12 +559,12 @@ namespace z3y.Shaders
                 shaderData.definesSb.AppendLine("#define BUILD_TARGET_PC");
             }
 
-            if (isAndroid || !LtcgiIncluded)
+            if (isAndroid || !ltcgiIncluded)
             {
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI");
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");
             }
-            else if (LtcgiIncluded)
+            else if (ltcgiIncluded)
             {
                 shaderData.definesSb.AppendLine("#define LTCGI_EXISTS");
             }
@@ -582,7 +583,7 @@ namespace z3y.Shaders
             defaultProps.AppendLine(GetPropertyDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword, "Anisotropy"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular, "Lightmapped Specular"));
 
-            if (!isAndroid && LtcgiIncluded)
+            if (!isAndroid && ltcgiIncluded)
             {
                 defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI", "Enable LTCGI"));
                 defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI_DIFFUSE_OFF", "Disable LTCGI Diffuse"));

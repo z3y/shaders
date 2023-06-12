@@ -60,10 +60,7 @@ PROPERTIES_END
 
 DEFINES_START // Keywords, Defines
     //#define VARYINGS_NEED_TEXCOORDX (0-3)
-    #define ATTRIBUTES_NEED_TEXCOORD0
     //#define VARYINGS_NEED_COLOR
-    //#define VARYINGS_NEED_INTERPX (0-4)
-    #define VARYINGS_NEED_INTERP0
     //#define VARYINGS_NEED_CULLFACE
 
     #if defined(_WIND)
@@ -79,6 +76,14 @@ DEFINES_START // Keywords, Defines
         #define ATTRIBUTES_NEED_TEXCOORD2
         #define ATTRIBUTES_NEED_TEXCOORD3
     #endif
+
+    #define ATTRIBUTES_NEED_TEXCOORD0
+    #ifndef _DETAILS_ENABLED
+        #define CUSTOM_VARYING0 float2 uvData : VARYING0;
+    #else
+        #define CUSTOM_VARYING0 float4 uvData : VARYING0;
+    #endif
+
 
     // #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // avoid unnecessary calculations and reduce the compiled size if LPPV arent used
     #define APPROXIMATE_AREALIGHT_SPECULAR // lower the smoothness in areas where theres less directionality in directional lightmaps
@@ -185,11 +190,11 @@ CODE_START
     #define USE_MODIFYVARYINGS // Modify varyings at the end of vertex shader
     void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
     {
-        varyings.interp0.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
+        varyings.uvData.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
 
         #if defined(_DETAILS_ENABLED)
             float2 uvs[] = { attributes.uv0.xy, attributes.uv1.xy, attributes.uv2.xy, attributes.uv3.xy };
-            varyings.interp0.zw = TRANSFORM_TEX(uvs[_Detail_UV], _DetailAlbedo);
+            varyings.uvData.zw = TRANSFORM_TEX(uvs[_Detail_UV], _DetailAlbedo);
         #endif
     }
 
@@ -215,7 +220,7 @@ CODE_START
     void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
     {
         
-        float2 uv = IN.interp0.xy;
+        float2 uv = IN.uvData.xy;
 
         #if defined(_PARALLAXMAP) && defined(UNITY_PASS_FORWARD)
             float3 viewDirectionWS = GetViewDirectionWS(IN.positionWS);
@@ -255,7 +260,7 @@ CODE_START
         #endif
 
         #if defined(_DETAILS_ENABLED)
-            float2 detailUV = IN.interp0.zw;
+            float2 detailUV = IN.uvData.zw;
         #endif
 
         #if defined(_DETAIL_ALBEDO)

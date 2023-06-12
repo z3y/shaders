@@ -73,7 +73,11 @@ real GetOddNegativeScale()
     // FIXME: We should be able to just return unity_WorldTransformParams.w, but it is not
     // properly set at the moment, when doing ray-tracing; once this has been fixed in cpp,
     // we can revert back to the former implementation.
+    #if defined(SHADER_STAGE_RAY_TRACING)
     return unity_WorldTransformParams.w >= 0.0 ? 1.0 : -1.0;
+    #else
+    return unity_WorldTransformParams.w;
+    #endif
 }
 
 float3 TransformObjectToWorld(float3 positionOS)
