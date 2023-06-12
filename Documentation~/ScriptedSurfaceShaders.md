@@ -100,3 +100,6 @@ Add `SetupLitShader` to the model importer and switch the Material Creation Mode
 ![Image](/Documentation~/Images/MaterialDescription.png)
 
 ![Image](/Documentation~/Images/label.png)
+
+### LTCGI
+Ltcgi is automatically added if found in the project. To re-detect if ltcgi is included reimport shaders `Tools/Lit/Reimport Shaders`
