@@ -75,39 +75,46 @@ CODE_START
         half3 normalTS_X = half3(0,0,1), normalTS_Y  = half3(0,0,1), normalTS_Z = half3(0,0,1);
         half4 maskMap_X = 1, maskMap_Y = 1, maskMap_Z = 1;
 
+        float2 dxX = ddx(uvX);
+        float2 dyX = ddy(uvX);
+        float2 dxY = ddx(uvY);
+        float2 dyY = ddy(uvY);
+        float2 dxZ = ddx(uvZ);
+        float2 dyZ = ddy(uvZ);
+
         UNITY_BRANCH
         if (weight.x > 0)
         {
-            albedo_X = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvX);
+            albedo_X = SAMPLE_TEXTURE2D_GRAD(_MainTex, sampler_MainTex, uvX, dxX, dyX);
             #ifdef _NORMALMAP
-                normalTS_X = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvX), _BumpScale);
+                normalTS_X = UnpackNormalScale(SAMPLE_TEXTURE2D_GRAD(_BumpMap, sampler_BumpMap, uvX, dxX, dyX), _BumpScale);
             #endif
             #ifdef _MASKMAP
-                maskMap_X = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uvX);
+                maskMap_X = SAMPLE_TEXTURE2D_GRAD(_MaskMap, sampler_MaskMap, uvX, dxX, dyX);
             #endif
         }
 
         UNITY_BRANCH
         if (weight.y > 0)
         {
-            albedo_Y = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvY);
+            albedo_Y = SAMPLE_TEXTURE2D_GRAD(_MainTex, sampler_MainTex, uvY, dxY, dyY);
             #ifdef _NORMALMAP
-                normalTS_Y = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvY), _BumpScale);
+                normalTS_Y = UnpackNormalScale(SAMPLE_TEXTURE2D_GRAD(_BumpMap, sampler_BumpMap, uvY, dxY, dyY), _BumpScale);
             #endif
             #ifdef _MASKMAP
-                maskMap_Y = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uvY);
+                maskMap_Y = SAMPLE_TEXTURE2D_GRAD(_MaskMap, sampler_MaskMap, uvY, dxY, dyY);
             #endif
         }
 
         UNITY_BRANCH
         if (weight.z > 0)
         {
-            albedo_Z = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uvZ);
+            albedo_Z = SAMPLE_TEXTURE2D_GRAD(_MainTex, sampler_MainTex, uvZ, dxZ, dyZ);
             #ifdef _NORMALMAP
-                normalTS_Z = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvZ), _BumpScale);
+                normalTS_Z = UnpackNormalScale(SAMPLE_TEXTURE2D_GRAD(_BumpMap, sampler_BumpMap, uvZ, dxZ, dyZ), _BumpScale);
             #endif
             #ifdef _MASKMAP
-                maskMap_Z = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uvZ);
+                maskMap_Z = SAMPLE_TEXTURE2D_GRAD(_MaskMap, sampler_MaskMap, uvZ, dxZ, dyZ);
             #endif
         }
 
