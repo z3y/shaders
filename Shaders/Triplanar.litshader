@@ -34,6 +34,10 @@ DEFINES_START
     #pragma shader_feature_local _NORMALMAP
 DEFINES_END
 
+DEFINES_SHADOWCASTER_START
+#pragma skip_variants _MASKMAP
+#pragma skip_variants _NORMALMAP
+DEFINES_SHADOWCASTER_END
 
 CBUFFER_START
     half4 _Color;
