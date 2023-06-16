@@ -742,7 +742,7 @@ namespace z3y.Shaders
                     break;
                 }
 
-                if (trimmed.StartsWith("#include_optional ".AsSpan()))
+                if (trimmed.StartsWith("#include_optional \"".AsSpan()))
                 {
                     var includeFile = trimmed.Slice("#include_optional ".Length).TrimEnd('"').TrimStart('"');
                     var includePath = GetFullIncludePath(includeFile);
@@ -754,6 +754,24 @@ namespace z3y.Shaders
 
                     SourceDependencies.Add(includePath);
                     sb.AppendLine("#include \"" + includePath + "\"");
+                    continue;
+                }
+
+                else if (trimmed.StartsWith("#include <".AsSpan()))
+                {
+                    var includeFile = trimmed.Slice("#include ".Length).TrimStart('<').TrimEnd('>');
+                    var includePath = "Packages/com.z3y.shaders/ShaderLibrary/" + includeFile.ToString();
+
+                    SourceDependencies.Add(includePath);
+                    sb.AppendLine("#include \"" + includePath + "\"");
+                    continue;
+                }
+
+                else if (trimmed.StartsWith("#include \"".AsSpan()))
+                {
+                    var includePath = trimmed.Slice("#include ".Length).TrimEnd('\"').TrimStart('\"');
+                    SourceDependencies.Add(includePath.ToString());
+                    sb.AppendLine(ienum.Current);
                     continue;
                 }
 
