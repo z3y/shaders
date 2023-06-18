@@ -20,6 +20,16 @@ namespace z3y
 [HideInInspector] [NonModifiableTextureData] [NoScaleOffset] _DFG(""DFG"", 2D) = ""white"" {}
 ";
 
+        public const string AreaLitProperties = @"
+[ToggleGroupStart] [Toggle(_AREALIT)] _AreaLitToggle (""Area Lit"", Float) = 0
+[Indent] [NoScaleOffset] _LightMesh(""Light Mesh"", 2D) = ""black"" {}
+[NoScaleOffset] _LightTex0(""Light Texture 0"", 2D) = ""white"" {}
+[NoScaleOffset] _LightTex1(""Light Texture 1"", 2D) = ""black"" {}
+[NoScaleOffset] _LightTex2(""Light Texture 2"", 2D) = ""black"" {}
+[NoScaleOffset] _LightTex3(""Light Texture 3"", 2DArray) = ""black"" {}
+[ToggleGroupEnd] [UnIndent] [ToggleOff] _OpaqueLights(""Opaque Lights"", Float) = 1.0
+";
+
         public const string DefaultConfigFile = @"
 DEFINES_START
     // #define BAKERY_MONOSH // enable mono sh globally

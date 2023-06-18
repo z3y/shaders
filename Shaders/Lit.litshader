@@ -199,8 +199,11 @@ CODE_START
     }
 
     #if defined(_PARALLAXMAP) && defined(UNITY_PASS_FORWARD)
-        #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/ParallaxMapping.hlsl"
-        #include "Packages/com.z3y.shaders/ShaderLibrary/Parallax.hlsl"
+        // #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/ParallaxMapping.hlsl"
+        // #include "Packages/com.z3y.shaders/ShaderLibrary/Parallax.hlsl"
+        // include relative to the shader library
+        #include <CoreRP/ParallaxMapping.hlsl>
+        #include <Parallax.hlsl>
     #endif
 
     half3 Unity_Blend_Overlay(half3 Base, half3 Blend)

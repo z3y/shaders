@@ -147,8 +147,6 @@ CGINCLUDE
 // #endif
 
 //ConfigStart
-#pragma skip_variants NONLINEAR_LIGHTPROBESH
-#define NONLINEAR_LIGHTPROBESH
 #define FIX_BLACK_LEVEL
 #pragma skip_variants LOD_FADE_CROSSFADE
 #pragma skip_variants LTCGI
