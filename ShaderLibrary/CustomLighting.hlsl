@@ -8,6 +8,10 @@
     #include "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc"
 #endif
 
+#ifdef _AREALIT
+    #include "Assets/AreaLit/Shader/Lighting.hlsl"
+#endif
+
 namespace CustomLighting
 {
 
@@ -462,6 +466,28 @@ namespace CustomLighting
             float horizon = min(1.0 + dot(ssr.rayDir.xyz, ssr.faceNormal), 1.0);
             ssReflections.rgb *= horizon * horizon;
             giData.Reflections = lerp(giData.Reflections, ssReflections.rgb, ssReflections.a);
+        #endif
+
+        #ifdef _AREALIT
+            AreaLightFragInput areaLitInput = (AreaLightFragInput)0;
+            half4 areaLitDiffuse;
+            half4 areaLitSpecular;
+            #ifdef _SPECULARHIGHLIGHTS_OFF
+                bool areaLitSpecularEnabled = false;
+            #else
+                bool areaLitSpecularEnabled = true;
+            #endif
+            areaLitInput.pos = float4(unpacked.positionWS.xyz, 1);
+            areaLitInput.normal = sd.normalWS;
+            areaLitInput.view = sd.viewDirectionWS;
+            areaLitInput.roughness = sd.perceptualRoughness * sd.perceptualRoughness;
+            areaLitInput.occlusion = 1;
+            areaLitInput.screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
+            float4 screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
+            areaLitInput.screenPos = screenPos.xy / (screenPos.w+0.0000000001);
+            ShadeAreaLights(areaLitInput, areaLitDiffuse, areaLitSpecular, true, areaLitSpecularEnabled);
+            giData.Reflections += areaLitSpecular;
+            giData.Light += areaLitDiffuse;
         #endif
 
         // fresnel

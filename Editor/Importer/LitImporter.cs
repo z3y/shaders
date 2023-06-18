@@ -21,6 +21,9 @@ namespace z3y.Shaders
         private static readonly bool ltcgiIncluded = File.Exists(LtcgiIncludePath);
         private const string DefaultShaderEditor = "z3y.Shaders.DefaultInspector";
 
+        private const string AreaLitIncludePath = "Assets/AreaLit/Shader/Lighting.hlsl";
+        private static readonly bool areaLitIncluded = File.Exists(AreaLitIncludePath);
+
         [SerializeField] public ShaderSettings settings = new ShaderSettings();
 
         public bool generateUnityShader = false;
@@ -49,6 +52,11 @@ namespace z3y.Shaders
             if (ltcgiIncluded)
             {
                 ctx.DependsOnSourceAsset(LtcgiIncludePath);
+            }
+
+            if (areaLitIncluded)
+            {
+                ctx.DependsOnSourceAsset(AreaLitIncludePath);
             }
 
 
@@ -183,6 +191,8 @@ namespace z3y.Shaders
 
             bool isAndroid = buildTarget == BuildTarget.Android;
             bool ltcgiAllowed = !isAndroid && ltcgiIncluded;
+            bool areaLitAllowed = !isAndroid && areaLitIncluded;
+
             AppendAdditionalDataToBlocks(isAndroid, shaderBlocks);
 
             SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl");
@@ -217,6 +227,7 @@ namespace z3y.Shaders
                     sb.AppendLine("FoldoutMainStart_AdditionalSettings (\"Additional Settings\", Float) = 1");
                     sb.AppendLine(GetDefaultPropertiesIncludeAfter(settings, isAndroid));
                     sb.AppendLine(LitImporterConstants.DefaultPropertiesIncludeAfter);
+                    if (areaLitAllowed) sb.AppendLine(LitImporterConstants.AreaLitProperties);
                     sb.AppendLine("FoldoutMainEnd_AdditionalSettings (\"\", Float) = 0");
                 }
                 sb.AppendLine("}");
@@ -279,6 +290,10 @@ namespace z3y.Shaders
                             {
                                 sb.AppendLine("#pragma shader_feature_local LTCGI");
                                 sb.AppendLine("#pragma shader_feature_local LTCGI_DIFFUSE_OFF");
+                            }
+                            if (areaLitAllowed)
+                            {
+                                sb.AppendLine("#pragma shader_feature_local _AREALIT");
                             }
 
                             sb.AppendLine(GetDefineTypeDeclaration(settings.bakeryMonoSH, ShaderSettings.MonoShKeyword));
@@ -552,7 +567,7 @@ namespace z3y.Shaders
                 shaderData.definesSb.AppendLine("#pragma skip_variants SPOT_COOKIE");
                 shaderData.definesSb.AppendLine("#pragma skip_variants POINT_COOKIE");
                 shaderData.definesSb.AppendLine("#pragma skip_variants DYNAMICLIGHTMAP_ON");
-
+                shaderData.definesSb.AppendLine("#pragma skip_variants _AREALIT");
             }
             else
             {

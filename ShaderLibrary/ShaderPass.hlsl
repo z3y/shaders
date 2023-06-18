@@ -37,6 +37,7 @@
     #undef NONLINEAR_LIGHTPROBESH
     #define DISABLE_LIGHT_PROBE_PROXY_VOLUME
     #undef _PARALLAXMAP
+    #undef _AREALIT
 
     #if defined(LIGHTMAP_ON) && !defined(SHADOWS_SHADOWMASK) && !defined(LIGHTMAP_SHADOW_MIXING)
     #undef DIRECTIONAL
