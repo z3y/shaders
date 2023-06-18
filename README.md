@@ -21,14 +21,15 @@ https://github.com/z3y/shaders.git
 |Bakery Features| Mono SH, Lightmapped Specular, Non-Linear SH and Non-Linear Light Probe SH supported |
 |Geometric Specular AA| Reduced specular shimmering |
 |Antialiased Cutout | Alpha to Coverage |
-|Lightmap Specular Occlusion| Lightmap intensity used for occluding reflection probes for Reduced reflections in dark areas|
-|Bicubic Lightmap| Smoother lightmap at the small cost of sampling it multiple times and performing bilinear filering in the shader|
+|Lightmap Specular Occlusion| Lightmap intensity used for occluding reflection probes for reduced reflections in dark areas|
+|Bicubic Lightmap| Smoother lightmap at the small cost of sampling it multiple times and performing bicubic filtering in the shader|
 |Improved Parallax | Inreased Parallax steps count |
 |Emission Multiply Base | Multiply Emission with Albedo|
 |Emission GI Multiplier| Adjusts emission intensity used for baking lightmaps in the Meta pass |
 |Transparency Modes | Cutout, Fade, Premultiply, Additive, Multiply|
 |Non-Important lights per pixel| Cheaper realtime lights done in one pass. Does not work with lightmapped object |
 |[LTCGI](https://github.com/PiMaker/ltcgi)||
+|Area Lit||
 |Box Projection on Quest||
 |Anisotropy||
 
