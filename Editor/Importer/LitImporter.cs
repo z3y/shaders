@@ -294,6 +294,7 @@ namespace z3y.Shaders
                             if (areaLitAllowed)
                             {
                                 sb.AppendLine("#pragma shader_feature_local _AREALIT");
+                                sb.AppendLine("#pragma shader_feature_local _OPAQUELIGHTS_OFF");
                             }
 
                             sb.AppendLine(GetDefineTypeDeclaration(settings.bakeryMonoSH, ShaderSettings.MonoShKeyword));

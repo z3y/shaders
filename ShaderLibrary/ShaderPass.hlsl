@@ -111,6 +111,10 @@
     #undef _PARALLAXMAP
 #endif
 
+#if defined(SHADER_STAGE_FRAGMENT) && defined(_AREALIT)
+#define VARYINGS_NEED_CULLFACE
+#endif
+
 
 //should get moved to a separate file eventually
 #ifdef VRCHAT_SDK
