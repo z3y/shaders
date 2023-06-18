@@ -27,8 +27,7 @@ namespace z3y
 [NoScaleOffset] _LightTex1(""Light Texture 1"", 2D) = ""black"" {}
 [NoScaleOffset] _LightTex2(""Light Texture 2"", 2D) = ""black"" {}
 [NoScaleOffset] _LightTex3(""Light Texture 3"", 2DArray) = ""black"" {}
-[ToggleOff] _OpaqueLights(""Opaque Lights"", Float) = 1.0
-[ToggleGroupEnd] [UnIndent] [Enum(UV0,0,UV1,1)] _OcclusionUVSet (""UV Set for occlusion map"", Float) = 0
+[ToggleGroupEnd] [UnIndent] [ToggleOff] _OpaqueLights(""Opaque Lights"", Float) = 1.0
 ";
 
         public const string DefaultConfigFile = @"
