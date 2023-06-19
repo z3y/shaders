@@ -243,10 +243,6 @@ namespace z3y
             }
             #endregion
 
-            material.SetTexture(mainTexName, null);
-            material.SetTexture(bumpMapName, null);
-            material.SetTexture(maskMapName, null);
-            material.SetTexture(emissionMapName, null);
         }
         bool LoadPrecomputedTexturesIfExist(Texture2D input, ref Texture2D Tinput, ref Texture2D invT)
         {

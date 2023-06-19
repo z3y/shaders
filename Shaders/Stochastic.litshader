@@ -4,11 +4,13 @@
     
     [MainTexture] [NoScaleOffset] [ExtraProperty] _MainTex ("Albedo", 2D) = "white" {}
     [MainColor] _Color ("Color", Color) = (1,1,1,1)
-    [Linear] [NoScaleOffset] [Tooltip(AO (R), Roughness (G), Metallic (B))] [Toggle(_MASKMAP)] _MaskMap ("Mask Map", 2D) = "white" {}
+    [Toggle(_MASKMAP)] _EnableMaskMap ("Enable Mask Map", Float) = 0 // no way to enable it with multiple properties
+    [Linear] [NoScaleOffset] [Tooltip(AO (R), Roughness (G), Metallic (B))] _MaskMap ("Mask Map", 2D) = "white" {}
     [Indent] _Metallic ("Metallic", Range(0,1)) = 0
     _Roughness ("Roughness", Range(0,1)) = 0.5
     [UnIndent] _OcclusionStrength ("Occlusion", Range(0,1)) = 1
-    [NoScaleOffset] [Normal] [ExtraProperty] [Toggle(_NORMALMAP)] _BumpMap ("Normal Map", 2D) = "bump" {}
+    [Toggle(_NORMALMAP)] _EnableNormalMap ("Enable Normal Map", Float) = 0 // no way to enable it with multiple properties
+    [NoScaleOffset] [Normal] [ExtraProperty]  _BumpMap ("Normal Map", 2D) = "bump" {}
     _BumpScale ("Normal Scale", Float) = 1
 
 
@@ -32,8 +34,8 @@
     [Space(10)]
     // ------------High Performance By-Example Noise Sampling----------------------
     [NoScaleOffset]_MainTexT("Albedo T", 2D) = "white" {}
-    [Toggle(_MASKMAP)] [NoScaleOffset]_MaskMapT("Mask Map T", 2D) = "white" {}
-    [Toggle(_NORMALMAP)] [NoScaleOffset]_BumpMapT("Normal Map T", 2D) = "bump" {}
+    [NoScaleOffset]_MaskMapT("Mask Map T", 2D) = "white" {}
+    [NoScaleOffset]_BumpMapT("Normal Map T", 2D) = "bump" {}
     [NoScaleOffset]_EmissionMapT("Emission T", 2D) = "white" {}
 
     [NoScaleOffset]_MainTexInvT("Albedo InvT", 2D) = "white" {}

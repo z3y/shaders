@@ -405,9 +405,18 @@ namespace z3y.Shaders
             {
                 var stp = new StochasticTexturingPreprocess();
                 stp.ApplyUserStochasticInputChoice((Material)editor.target);
+                MaterialEditor.ApplyMaterialPropertyDrawers((Material)editor.target);
             }
 
-            MaterialEditor.ApplyMaterialPropertyDrawers((Material)editor.target);
+            if (GUILayout.Button("Cleanup Unused Textures"))
+            {
+                var material = (Material)editor.target;
+                material.SetTexture("_MainTex", null);
+                material.SetTexture("_BumpMap", null);
+                material.SetTexture("_MaskMap", null);
+                material.SetTexture("_EmissionMap", null);
+                MaterialEditor.ApplyMaterialPropertyDrawers((Material)editor.target);
+            }
         }
 
         public void IndentLevelAdd(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUI.indentLevel+=2;
