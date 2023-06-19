@@ -11,6 +11,13 @@
     [NoScaleOffset] [Normal] [ExtraProperty] [Toggle(_NORMALMAP)] _BumpMap ("Normal Map", 2D) = "bump" {}
     _BumpScale ("Normal Scale", Float) = 1
 
+
+    [Toggle(_EMISSION)] [ToggleGroupStart] _EmissionToggle ("Enable Emission", Int) = 0
+    [NoScaleOffset] [ExtraProperty] _EmissionMap ("Emission Map", 2D) = "white" {}
+    [HDR] _EmissionColor ("Emission Color", Color) = (1,1,1)
+    [Indent] _EmissionMultiplyBase ("Emission Multiply Base", Range(0,1)) = 0
+    [ToggleGroupEnd] [UnIndent] _EmissionGIMultiplier ("Emission GI Multiplier", Float) = 1
+
     _MainTex_ScaleOffset ("", Float) = 0
 
     [Space(10)]
@@ -18,7 +25,9 @@
 
     FoldoutMainEnd_PropertiesLocal ("", Float) = 0
 
-    FoldoutMainStart_Debug ("Stochastic Debug", Float) = 0
+    FoldoutMainStart_Stochastic ("Advanced Stochastic", Float) = 0
+
+    [Space(10)]
     // ------------High Performance By-Example Noise Sampling----------------------
     [NoScaleOffset]_MainTexT("Albedo T", 2D) = "white" {}
     [NoScaleOffset]_MaskMapT("Mask Map T", 2D) = "white" {}
@@ -83,6 +92,9 @@ CBUFFER_START
     half _OcclusionStrength;
     half _Cutoff;
     half _CutoutSharpness;
+    half3 _EmissionColor;
+    half _EmissionGIMultiplier;
+    half _EmissionMultiplyBase;
 CBUFFER_END
 
 
@@ -91,9 +103,11 @@ CODE_START
     TEXTURE2D(_MainTex);
     TEXTURE2D(_BumpMap);
     TEXTURE2D(_MaskMap);
+    TEXTURE2D(_EmissionMap);
     SAMPLER(sampler_MainTex);
     SAMPLER(sampler_BumpMap);
     SAMPLER(sampler_MaskMap);
+    SAMPLER(sampler_EmissionMap);
 
     //hash for randomness
     float2 hash2D2D(float2 p)
@@ -162,6 +176,17 @@ CODE_START
         #else
             surface.Metallic = _Metallic;
             surface.Smoothness = 1.0 - _Roughness;
+        #endif
+
+        #ifdef _EMISSION
+            half3 emissionMap = SAMPLE_TEXTURE2D_STOCHASTIC(_EmissionMap, sampler_EmissionMap, uv).rgb;
+            surface.Emission = emissionMap * _EmissionColor;
+
+            surface.Emission *= lerp(1.0, surface.Albedo, _EmissionMultiplyBase);
+
+            #ifdef UNITY_PASS_META
+            surface.Emission *= _EmissionGIMultiplier;
+            #endif
         #endif
 
         surface.SpecularOcclusion = _SpecularOcclusion;
