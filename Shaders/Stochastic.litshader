@@ -1,0 +1,138 @@
+﻿PROPERTIES_START
+    _Cutoff ("Alpha Cuttoff", Range(0.001, 1)) = 0.5
+    _CutoutSharpness ("Cutoff Sharpness", Range(1, 0.0001)) = 0.0001
+    
+    [MainTexture] [NoScaleOffset] [ExtraProperty] _MainTex ("Albedo", 2D) = "white" {}
+    [MainColor] _Color ("Color", Color) = (1,1,1,1)
+    [Linear] [NoScaleOffset] [Tooltip(AO (R), Roughness (G), Metallic (B))] [Toggle(_MASKMAP)] _MaskMap ("Mask Map", 2D) = "white" {}
+    [Indent] _Metallic ("Metallic", Range(0,1)) = 0
+    _Roughness ("Roughness", Range(0,1)) = 0.5
+    [UnIndent] _OcclusionStrength ("Occlusion", Range(0,1)) = 1
+    [NoScaleOffset] [Normal] [ExtraProperty] [Toggle(_NORMALMAP)] _BumpMap ("Normal Map", 2D) = "bump" {}
+    _BumpScale ("Normal Scale", Float) = 1
+
+    _MainTex_ScaleOffset ("", Float) = 0
+
+    [Space(10)]
+    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
+PROPERTIES_END
+
+
+DEFINES_START
+    #define ATTRIBUTES_NEED_TEXCOORD0
+    #define CUSTOM_VARYING0 float2 mainUV : VARYING0;
+    // #define VARYINGS_NEED_INTERP0
+
+    #define APPROXIMATE_AREALIGHT_SPECULAR
+    #define UNITY_SPECCUBE_BOX_PROJECTION
+
+    #pragma shader_feature_local _MASKMAP
+    #pragma shader_feature_local _NORMALMAP
+DEFINES_END
+
+DEFINES_SHADOWCASTER_START
+#pragma skip_variants _MASKMAP
+#pragma skip_variants _NORMALMAP
+DEFINES_SHADOWCASTER_END
+
+CBUFFER_START
+    half4 _Color;
+    float4 _MainTex_ST;
+    half _Roughness;
+    half _Metallic;
+    half _BumpScale;
+    half _SpecularOcclusion;
+    half _OcclusionStrength;
+    half _Cutoff;
+    half _CutoutSharpness;
+CBUFFER_END
+
+
+CODE_START
+
+    TEXTURE2D(_MainTex);
+    TEXTURE2D(_BumpMap);
+    TEXTURE2D(_MaskMap);
+    SAMPLER(sampler_MainTex);
+    SAMPLER(sampler_BumpMap);
+    SAMPLER(sampler_MaskMap);
+
+    //hash for randomness
+    float2 hash2D2D(float2 s)
+    {
+        //magic numbers
+        return frac(sin(fmod(float2(dot(s, float2(127.1,311.7)), dot(s, float2(269.5,183.3))), 3.14159))*43758.5453);
+    }
+
+    // stochastic sampling
+    // from https://pastebin.com/Av1ZPQmC
+    // https://www.reddit.com/r/Unity3D/comments/dhr5g2/i_made_a_stochastic_texture_sampling_shader/
+    half4 SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_PARAM(tex, smp), float2 UV)
+    {
+        //triangle vertices and blend weights
+        //BW_vx[0...2].xyz = triangle verts
+        //BW_vx[3].xy = blend weights (z is unused)
+        half4x3 BW_vx;
+
+        //uv transformed into triangular grid space with UV scaled by approximation of 2*sqrt(3)
+        float2 skewUV = mul(float2x2 (1.0 , 0.0 , -0.57735027 , 1.15470054), UV * 3.464);
+
+        //vertex IDs and barycentric coords
+        float2 vxID = float2 (floor(skewUV));
+        float3 barry = float3 (frac(skewUV), 0);
+        barry.z = 1.0-barry.x-barry.y;
+
+        BW_vx = ((barry.z>0) ? 
+            float4x3(float3(vxID, 0), float3(vxID + float2(0, 1), 0), float3(vxID + float2(1, 0), 0), barry.zyx) :
+            float4x3(float3(vxID + float2 (1, 1), 0), float3(vxID + float2 (1, 0), 0), float3(vxID + float2 (0, 1), 0), float3(-barry.z, 1.0-barry.y, 1.0-barry.x)));
+
+        //calculate derivatives to avoid triangular grid artifacts
+        float2 dx = ddx(UV);
+        float2 dy = ddy(UV);
+
+        //blend samples with calculated weights
+        return mul(SAMPLE_TEXTURE2D_GRAD(tex, smp, UV + hash2D2D(BW_vx[0].xy), dx, dy), BW_vx[3].x) + 
+                mul(SAMPLE_TEXTURE2D_GRAD(tex, smp, UV + hash2D2D(BW_vx[1].xy), dx, dy), BW_vx[3].y) + 
+                mul(SAMPLE_TEXTURE2D_GRAD(tex, smp, UV + hash2D2D(BW_vx[2].xy), dx, dy), BW_vx[3].z);
+    }
+
+    #define USE_MODIFYVARYINGS // Modify varyings at the end of vertex shader
+    void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
+    {
+        varyings.mainUV.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
+    }
+
+    #define USE_SURFACEDESCRIPTION // SurfaceDescription: Albedo, Normal, Metallic, Emission, Smoothness, Occlusion, Alpha, AlphaClipThreshold, Reflectance
+    void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
+    {
+        float2 uv = IN.mainUV.xy;
+
+        half4 albedo = SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_ARGS(_MainTex, sampler_MainTex), uv);
+        albedo *= _Color;
+        surface.Albedo = albedo.rgb;
+        surface.Alpha = albedo.a;
+
+        #ifdef _NORMALMAP
+            half4 normalMap = SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), uv);
+            surface.Normal = UnpackNormalScale(normalMap, _BumpScale);
+        #endif
+
+        #ifdef _MASKMAP
+            half4 maskMap = SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_ARGS(_MaskMap, sampler_MaskMap), uv);
+            surface.Metallic = maskMap.b * _Metallic;
+            surface.Smoothness = 1.0 - (maskMap.g * _Roughness);
+            surface.Occlusion = lerp(1.0, maskMap.r, _OcclusionStrength);
+        #else
+            surface.Metallic = _Metallic;
+            surface.Smoothness = 1.0 - _Roughness;
+        #endif
+
+        surface.SpecularOcclusion = _SpecularOcclusion;
+
+        surface.AlphaClipThreshold = _Cutoff;
+        surface.AlphaClipSharpness = _CutoutSharpness;
+    }
+
+CODE_END
+
+#include_optional "Assets/Settings/LitShaderConfig.litshader"
