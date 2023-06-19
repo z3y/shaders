@@ -143,46 +143,7 @@ namespace z3y
                 material.SetTexture(texName + "T", texT);
                 material.SetTexture(texName + "InvT", texInvT);
             }
-
-
             #endregion
-            /*
-                        #region SPECULAR MAP
-                        if (m_WorkflowMode == WorkflowMode.Specular)
-                        {
-                            if (InputIsSelected(1) && specularMap.textureValue != null)
-                            {
-                                int stepCounter = 0;
-                                int totalSteps = 12;
-                                string inputName = "Specular + Smoothness Map";
-                                EditorUtility.DisplayProgressBar("Pre-processing textures for stochastic sampling", inputName, (float)stepCounter / totalSteps);
-
-                                // Perform precomputations if precomputed textures don't already exist
-                                if (LoadPrecomputedTexturesIfExist((Texture2D)specularMap.textureValue, ref texT, ref texInvT) == false)
-                                {
-                                    TextureData specularData = TextureToTextureData((Texture2D)specularMap.textureValue, ref inputFormat);
-
-                                    TextureData Tinput = new TextureData(specularData.width, specularData.height);
-                                    TextureData invT = new TextureData(LUT_WIDTH, (int)(Mathf.Log((float)Tinput.width) / Mathf.Log(2.0f))); // Height = Number of prefiltered LUT levels
-                                    Precomputations(ref specularData, new List<int> { 0, 1, 2, 3 }, ref Tinput, ref invT, inputName, ref stepCounter, totalSteps);
-
-                                    // Serialize precomputed data and setup material
-                                    SerializePrecomputedTextures((Texture2D)specularMap.textureValue, ref inputFormat, ref Tinput, ref invT, ref texT, ref texInvT);
-                                }
-                                EditorUtility.ClearProgressBar();
-
-                                // Apply to shader properties
-                                specularMapT.textureValue = texT;
-                                specularMapInvT.textureValue = texInvT;
-                                material.EnableKeyword("_STOCHASTIC_SPECMETAL");
-                            }
-                            else
-                            {
-                                specularMapT.textureValue = specularMap.textureValue;
-                                material.DisableKeyword("_STOCHASTIC_SPECMETAL");
-                            }
-                        }
-                        #endregion*/
 
             #region NORMAL MAP
             if (material.HasProperty(bumpMapName) && material.GetTexture(bumpMapName) != null)
