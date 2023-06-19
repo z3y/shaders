@@ -27,6 +27,7 @@
 
     FoldoutMainStart_Stochastic ("Advanced Stochastic", Float) = 0
 
+    [Toggle(_ADVANCED_STOCHASTIC)] _AdvancedStochasticToggle ("Enable Advanced Stochastic", Float) = 0
     [Space(10)]
     // ------------High Performance By-Example Noise Sampling----------------------
     [NoScaleOffset]_MainTexT("Albedo T", 2D) = "white" {}
@@ -75,6 +76,7 @@ DEFINES_START
 
     #pragma shader_feature_local _MASKMAP
     #pragma shader_feature_local _NORMALMAP
+    #pragma shader_feature_local _ADVANCED_STOCHASTIC
 DEFINES_END
 
 DEFINES_SHADOWCASTER_START
@@ -115,37 +117,41 @@ CODE_START
         return frac(sin(mul(float2x2(127.1, 311.7, 269.5, 183.3), p)) * 43758.5453);
     }
 
-    // stochastic sampling
-    // from https://pastebin.com/Av1ZPQmC
-    // https://www.reddit.com/r/Unity3D/comments/dhr5g2/i_made_a_stochastic_texture_sampling_shader/
-    half4 SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_PARAM(tex, smp), float2 UV)
-    {
-        //triangle vertices and blend weights
-        //BW_vx[0...2].xyz = triangle verts
-        //BW_vx[3].xy = blend weights (z is unused)
-        half4x3 BW_vx;
+    #ifdef _ADVANCED_STOCHASTIC
 
-        //uv transformed into triangular grid space with UV scaled by approximation of 2*sqrt(3)
-        float2 skewUV = mul(float2x2 (1.0 , 0.0 , -0.57735027 , 1.15470054), UV * 3.464);
+    #else
+        // stochastic sampling
+        // from https://pastebin.com/Av1ZPQmC
+        // https://www.reddit.com/r/Unity3D/comments/dhr5g2/i_made_a_stochastic_texture_sampling_shader/
+        half4 SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_PARAM(tex, smp), float2 UV)
+        {
+            //triangle vertices and blend weights
+            //BW_vx[0...2].xyz = triangle verts
+            //BW_vx[3].xy = blend weights (z is unused)
+            half4x3 BW_vx;
 
-        //vertex IDs and barycentric coords
-        float2 vxID = float2 (floor(skewUV));
-        float3 barry = float3 (frac(skewUV), 0);
-        barry.z = 1.0-barry.x-barry.y;
+            //uv transformed into triangular grid space with UV scaled by approximation of 2*sqrt(3)
+            float2 skewUV = mul(float2x2 (1.0 , 0.0 , -0.57735027 , 1.15470054), UV * 3.464);
 
-        BW_vx = ((barry.z>0) ? 
-            float4x3(float3(vxID, 0), float3(vxID + float2(0, 1), 0), float3(vxID + float2(1, 0), 0), barry.zyx) :
-            float4x3(float3(vxID + float2 (1, 1), 0), float3(vxID + float2 (1, 0), 0), float3(vxID + float2 (0, 1), 0), float3(-barry.z, 1.0-barry.y, 1.0-barry.x)));
+            //vertex IDs and barycentric coords
+            float2 vxID = float2 (floor(skewUV));
+            float3 barry = float3 (frac(skewUV), 0);
+            barry.z = 1.0-barry.x-barry.y;
 
-        //calculate derivatives to avoid triangular grid artifacts
-        float2 dx = ddx(UV);
-        float2 dy = ddy(UV);
+            BW_vx = ((barry.z>0) ? 
+                float4x3(float3(vxID, 0), float3(vxID + float2(0, 1), 0), float3(vxID + float2(1, 0), 0), barry.zyx) :
+                float4x3(float3(vxID + float2 (1, 1), 0), float3(vxID + float2 (1, 0), 0), float3(vxID + float2 (0, 1), 0), float3(-barry.z, 1.0-barry.y, 1.0-barry.x)));
 
-        //blend samples with calculated weights
-        return mul(SAMPLE_TEXTURE2D_GRAD(tex, smp, UV + hash2D2D(BW_vx[0].xy), dx, dy), BW_vx[3].x) + 
-                mul(SAMPLE_TEXTURE2D_GRAD(tex, smp, UV + hash2D2D(BW_vx[1].xy), dx, dy), BW_vx[3].y) + 
-                mul(SAMPLE_TEXTURE2D_GRAD(tex, smp, UV + hash2D2D(BW_vx[2].xy), dx, dy), BW_vx[3].z);
-    }
+            //calculate derivatives to avoid triangular grid artifacts
+            float2 dx = ddx(UV);
+            float2 dy = ddy(UV);
+
+            //blend samples with calculated weights
+            return mul(SAMPLE_TEXTURE2D_GRAD(tex, smp, UV + hash2D2D(BW_vx[0].xy), dx, dy), BW_vx[3].x) + 
+                    mul(SAMPLE_TEXTURE2D_GRAD(tex, smp, UV + hash2D2D(BW_vx[1].xy), dx, dy), BW_vx[3].y) + 
+                    mul(SAMPLE_TEXTURE2D_GRAD(tex, smp, UV + hash2D2D(BW_vx[2].xy), dx, dy), BW_vx[3].z);
+        }
+    #endif
 
     #define USE_MODIFYVARYINGS // Modify varyings at the end of vertex shader
     void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
