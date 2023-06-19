@@ -197,6 +197,10 @@ namespace z3y.Shaders
                 {
                     p.drawAction = DrawTransparencyModeProperty;
                 }
+                else if (prop.name.StartsWith("StochasticPreprocessButton"))
+                {
+                    p.drawAction = DrawStochasticPreprocessButton;
+                }
                 else if (prop.name.StartsWith("FoldoutMainStart_"))
                 {
                     p.drawAction = DrawFoldoutMain;
@@ -389,6 +393,20 @@ namespace z3y.Shaders
         public void ToggleGroup(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => property.childrenVisible = unityProperty[property.index].floatValue > 0f;
         public void ToggleGroupTexture(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => property.childrenVisible = unityProperty[property.index].textureValue != null;
         public void DrawHelpBox(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUILayout.HelpBox(property.displayName, MessageType.Info);
+
+        public void DrawStochasticPreprocessButton(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
+        {
+            if (editor.targets.Length > 1)
+            {
+                return;
+            }
+
+            if (GUILayout.Button("Stochastic Preprocess"))
+            {
+                var stp = new StochasticTexturingPreprocess();
+                stp.ApplyUserStochasticInputChoice((Material)editor.target);
+            }
+        }
 
         public void IndentLevelAdd(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUI.indentLevel+=2;
         public void IndentLevelRemove(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUI.indentLevel-=2;

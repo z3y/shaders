@@ -28,6 +28,7 @@
     FoldoutMainStart_Stochastic ("Advanced Stochastic", Float) = 0
 
     [Toggle(_ADVANCED_STOCHASTIC)] _AdvancedStochasticToggle ("Enable Advanced Stochastic", Float) = 0
+    StochasticPreprocessButton ("", Float) = 0
     [Space(10)]
     // ------------High Performance By-Example Noise Sampling----------------------
     [NoScaleOffset]_MainTexT("Albedo T", 2D) = "white" {}
