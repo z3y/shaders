@@ -132,7 +132,7 @@ namespace z3y
 
                     TextureData Tinput = new TextureData(metallicData.width, metallicData.height);
                     TextureData invT = new TextureData(LUT_WIDTH, (int)(Mathf.Log((float)Tinput.width) / Mathf.Log(2.0f))); // Height = Number of prefiltered LUT levels
-                    Precomputations(ref metallicData, new List<int> { 0, 3 }, ref Tinput, ref invT, inputName, ref stepCounter, totalSteps);
+                    Precomputations(ref metallicData, new List<int> { 0,1,2 }, ref Tinput, ref invT, inputName, ref stepCounter, totalSteps);
 
                     // Serialize precomputed data and setup material
                     SerializePrecomputedTextures((Texture2D)maskMap, ref inputFormat, ref Tinput, ref invT, ref texT, ref texInvT);
