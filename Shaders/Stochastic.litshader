@@ -62,10 +62,10 @@
     _MaskMapColorSpaceVector1("MaskMapColorSpaceVector1", Vector) = (0,0,0,0)
     _MaskMapColorSpaceVector2("MaskMapColorSpaceVector2", Vector) = (0,0,0,0)
     _MaskMapColorSpaceVector3("MaskMapColorSpaceVector3", Vector) = (0,0,0,0)
-    _EmissionColorSpaceOrigin("EmissionColorSpaceOrigin", Vector) = (0,0,0,0)
-    _EmissionColorSpaceVector1("EmissionColorSpaceVector1", Vector) = (0,0,0,0)
-    _EmissionColorSpaceVector2("EmissionColorSpaceVector2", Vector) = (0,0,0,0)
-    _EmissionColorSpaceVector3("EmissionColorSpaceVector3", Vector) = (0,0,0,0)
+    _EmissionMapColorSpaceOrigin("EmissionColorSpaceOrigin", Vector) = (0,0,0,0)
+    _EmissionMapColorSpaceVector1("EmissionColorSpaceVector1", Vector) = (0,0,0,0)
+    _EmissionMapColorSpaceVector2("EmissionColorSpaceVector2", Vector) = (0,0,0,0)
+    _EmissionMapColorSpaceVector3("EmissionColorSpaceVector3", Vector) = (0,0,0,0)
 PROPERTIES_END
 
 
@@ -116,10 +116,10 @@ CBUFFER_START
     float3 _BumpMapColorSpaceVector1;
     float3 _BumpMapColorSpaceVector2;
     float3 _BumpMapColorSpaceVector3;
-    float3 _EmissionColorSpaceOrigin;
-    float3 _EmissionColorSpaceVector1;
-    float3 _EmissionColorSpaceVector2;
-    float3 _EmissionColorSpaceVector3;
+    float3 _EmissionMapColorSpaceOrigin;
+    float3 _EmissionMapColorSpaceVector1;
+    float3 _EmissionMapColorSpaceVector2;
+    float3 _EmissionMapColorSpaceVector3;
     float3 _MaskMapColorSpaceOrigin;
     float3 _MaskMapColorSpaceVector1;
     float3 _MaskMapColorSpaceVector2;
@@ -401,7 +401,7 @@ CODE_START
         #ifdef _EMISSION
             #ifdef _ADVANCED_STOCHASTIC
                 half3 emissionMap = DecorrelatedStochasticSample(uv, _EmissionMapT, sampler_EmissionMapT, _EmissionMapInvT, sampler_EmissionMapInvT, _EmissionMapDXTScalers,
-			        _EmissionColorSpaceOrigin, _EmissionColorSpaceVector1, _EmissionColorSpaceVector2, _EmissionColorSpaceVector3).rgb * _EmissionColor.rgb;;
+			        _EmissionMapColorSpaceOrigin, _EmissionMapColorSpaceVector1, _EmissionMapColorSpaceVector2, _EmissionMapColorSpaceVector3).rgb;
             #else
                 half3 emissionMap = SAMPLE_TEXTURE2D_STOCHASTIC(_EmissionMap, sampler_EmissionMap, uv).rgb;
             #endif

@@ -401,7 +401,7 @@ namespace z3y.Shaders
                 return;
             }
 
-            if (GUILayout.Button("Stochastic Preprocess"))
+            if (GUILayout.Button("Stochastic Preprocess (Slow)"))
             {
                 var stp = new StochasticTexturingPreprocess();
                 stp.ApplyUserStochasticInputChoice((Material)editor.target);
