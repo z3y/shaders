@@ -122,7 +122,7 @@ namespace z3y
                 var maskMap = material.GetTexture(maskMapName);
                 int stepCounter = 0;
                 int totalSteps = 6;
-                string inputName = "Metallic + Smoothness Map";
+                string inputName = "Mask Map";
                 EditorUtility.DisplayProgressBar("Pre-processing textures for stochastic sampling", inputName, (float)stepCounter / totalSteps);
 
                 // Perform precomputations if precomputed textures don't already exist
