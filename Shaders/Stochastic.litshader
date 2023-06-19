@@ -15,6 +15,44 @@
 
     [Space(10)]
     _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
+
+    FoldoutMainEnd_PropertiesLocal ("", Float) = 0
+
+    FoldoutMainStart_Debug ("Stochastic Debug", Float) = 0
+    // ------------High Performance By-Example Noise Sampling----------------------
+    [NoScaleOffset]_MainTexT("Albedo T", 2D) = "white" {}
+    [NoScaleOffset]_MaskMapT("Mask Map T", 2D) = "white" {}
+    [NoScaleOffset]_BumpMapT("Normal Map T", 2D) = "bump" {}
+    [NoScaleOffset]_EmissionMapT("Emission T", 2D) = "white" {}
+
+    [NoScaleOffset]_MainTexInvT("Albedo InvT", 2D) = "white" {}
+    [NoScaleOffset]_BumpMapInvT("Normal Map InvT", 2D) = "bump" {}
+    [NoScaleOffset]_MaskMapInvT("Mask Map InvT", 2D) = "white" {}
+    [NoScaleOffset]_EmissionMapInvT("Emission InvT", 2D) = "white" {}
+
+    // Only with DXT compression (Section 1.6)
+    _MainTexDXTScalers("_MainTexDXTScalers", Vector) = (0,0,0,0)
+    _BumpMapDXTScalers("_BumpMapDXTScalers", Vector) = (0,0,0,0)
+    _MaskMapDXTScalers("_BumpMapDXTScalers", Vector) = (0,0,0,0)
+    _EmissionMapDXTScalers("_EmissionMapDXTScalers", Vector) = (0,0,0,0)
+
+    //Decorrelated color space vectors and origins, used on albedo and normal maps
+    _MainTexColorSpaceOrigin("_MainTexColorSpaceOrigin", Vector) = (0,0,0,0)
+    _MainTexColorSpaceVector1("_MainTexColorSpaceVector1", Vector) = (0,0,0,0)
+    _MainTexColorSpaceVector2("_MainTexColorSpaceVector2", Vector) = (0,0,0,0)
+    _MainTexColorSpaceVector3("_MainTexColorSpaceVector3", Vector) = (0,0,0,0)
+    _BumpMapColorSpaceOrigin("_BumpMapColorSpaceOrigin", Vector) = (0,0,0,0)
+    _BumpMapColorSpaceVector1("_BumpMapColorSpaceVector1", Vector) = (0,0,0,0)
+    _BumpMapColorSpaceVector2("_BumpMapColorSpaceVector2", Vector) = (0,0,0,0)
+    _BumpMapColorSpaceVector3("_BumpMapColorSpaceVector3", Vector) = (0,0,0,0)
+    _MaskMapColorSpaceOrigin("_MaskMapColorSpaceOrigin", Vector) = (0,0,0,0)
+    _MaskMapColorSpaceVector1("_MaskMapColorSpaceVector1", Vector) = (0,0,0,0)
+    _MaskMapColorSpaceVector2("_MaskMapColorSpaceVector2", Vector) = (0,0,0,0)
+    _MaskMapColorSpaceVector3("_MaskMapColorSpaceVector3", Vector) = (0,0,0,0)
+    _EmissionColorSpaceOrigin("_EmissionColorSpaceOrigin", Vector) = (0,0,0,0)
+    _EmissionColorSpaceVector1("_EmissionColorSpaceVector1", Vector) = (0,0,0,0)
+    _EmissionColorSpaceVector2("_EmissionColorSpaceVector2", Vector) = (0,0,0,0)
+    _EmissionColorSpaceVector3("_EmissionColorSpaceVector3", Vector) = (0,0,0,0)
 PROPERTIES_END
 
 
@@ -58,10 +96,9 @@ CODE_START
     SAMPLER(sampler_MaskMap);
 
     //hash for randomness
-    float2 hash2D2D(float2 s)
+    float2 hash2D2D(float2 p)
     {
-        //magic numbers
-        return frac(sin(fmod(float2(dot(s, float2(127.1,311.7)), dot(s, float2(269.5,183.3))), 3.14159))*43758.5453);
+        return frac(sin(mul(float2x2(127.1, 311.7, 269.5, 183.3), p)) * 43758.5453);
     }
 
     // stochastic sampling

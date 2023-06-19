@@ -231,6 +231,10 @@ namespace z3y.Shaders
                         p.drawAction += DrawLinearWarning;
                     }
                 }
+                else if (type == MaterialProperty.PropType.Vector)
+                {
+                    p.drawAction = DrawShaderPropertyVector;
+                }
                 else
                 {
                     p.drawAction = DrawShaderProperty;
@@ -372,6 +376,13 @@ namespace z3y.Shaders
 
 
         public void DrawShaderProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.ShaderProperty(unityProperty[property.index], property.guiContent);
+        public void DrawShaderPropertyVector(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
+        {
+            var prop = unityProperty[property.index];
+            var vectorRect = EditorGUILayout.GetControlRect(true, MaterialEditor.GetDefaultPropertyHeight(prop) / 2, EditorStyles.layerMaskField);
+            editor.VectorProperty(vectorRect, prop, property.displayName);
+        }
+
         public void DrawShaderTextureProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.TexturePropertySingleLine(property.guiContent, unityProperty[property.index]);
         public void DrawShaderTexturePropertyExtra(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => TexturePropertySingleLineExtraProp(editor, property.guiContent, unityProperty[property.index+1]);
         public void DrawShaderTextureScaleOffsetProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.TextureScaleOffsetProperty(unityProperty[property.index]);
