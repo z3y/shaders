@@ -31,12 +31,12 @@
     [Space(10)]
     // ------------High Performance By-Example Noise Sampling----------------------
     [NoScaleOffset]_MainTexT("Albedo T", 2D) = "white" {}
-    [NoScaleOffset]_MaskMapT("Mask Map T", 2D) = "white" {}
+    [Toggle(_MASKMAP)] [NoScaleOffset]_MaskMapT("Mask Map T", 2D) = "white" {}
     [NoScaleOffset]_BumpMapT("Normal Map T", 2D) = "bump" {}
     [NoScaleOffset]_EmissionMapT("Emission T", 2D) = "white" {}
 
     [NoScaleOffset]_MainTexInvT("Albedo InvT", 2D) = "white" {}
-    [NoScaleOffset]_BumpMapInvT("Normal Map InvT", 2D) = "bump" {}
+    [Toggle(_NORMALMAP)] [NoScaleOffset]_BumpMapInvT("Normal Map InvT", 2D) = "bump" {}
     [NoScaleOffset]_MaskMapInvT("Mask Map InvT", 2D) = "white" {}
     [NoScaleOffset]_EmissionMapInvT("Emission InvT", 2D) = "white" {}
 
@@ -373,7 +373,7 @@ CODE_START
             #ifdef _ADVANCED_STOCHASTIC
                 half4 normalMap = DecorrelatedStochasticSample(uv, _BumpMapT, sampler_BumpMapT, _BumpMapInvT, sampler_BumpMapInvT, _BumpMapDXTScalers,
 		            _BumpMapColorSpaceOrigin, _BumpMapColorSpaceVector1, _BumpMapColorSpaceVector2, _BumpMapColorSpaceVector3).rgbb;
-            normalMap.a = 1;
+                normalMap.a = 1;
             #else
                 half4 normalMap = SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), uv);
             #endif
