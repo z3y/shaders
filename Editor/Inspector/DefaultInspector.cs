@@ -406,6 +406,8 @@ namespace z3y.Shaders
                 var stp = new StochasticTexturingPreprocess();
                 stp.ApplyUserStochasticInputChoice((Material)editor.target);
             }
+
+            MaterialEditor.ApplyMaterialPropertyDrawers((Material)editor.target);
         }
 
         public void IndentLevelAdd(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUI.indentLevel+=2;

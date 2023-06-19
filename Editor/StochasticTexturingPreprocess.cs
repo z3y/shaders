@@ -125,6 +125,13 @@ namespace z3y
                 string inputName = "Mask Map";
                 EditorUtility.DisplayProgressBar("Pre-processing textures for stochastic sampling", inputName, (float)stepCounter / totalSteps);
 
+                // Section 1.4 Improvement: using a decorrelated color space for Albedo RGB
+                TextureData normalData = TextureToTextureData((Texture2D)maskMap, ref inputFormat);
+                TextureData decorrelated = new TextureData(normalData);
+                DecorrelateColorSpace(ref normalData, ref decorrelated, ref colorSpaceVector1, ref colorSpaceVector2, ref colorSpaceVector3, ref colorSpaceOrigin);
+                EditorUtility.DisplayProgressBar("Pre-processing textures for stochastic sampling", inputName, (float)stepCounter++ / totalSteps);
+                ComputeDXTCompressionScalers((Texture2D)maskMap, ref dxtScalers, colorSpaceVector1, colorSpaceVector2, colorSpaceVector3);
+
                 // Perform precomputations if precomputed textures don't already exist
                 if (LoadPrecomputedTexturesIfExist((Texture2D)maskMap, ref texT, ref texInvT) == false)
                 {
@@ -142,6 +149,11 @@ namespace z3y
                 // Apply to shader properties
                 material.SetTexture(texName + "T", texT);
                 material.SetTexture(texName + "InvT", texInvT);
+                material.SetVector(texName + "ColorSpaceOrigin", colorSpaceOrigin);
+                material.SetVector(texName + "ColorSpaceVector1", colorSpaceVector1);
+                material.SetVector(texName + "ColorSpaceVector2", colorSpaceVector2);
+                material.SetVector(texName + "ColorSpaceVector3", colorSpaceVector3);
+                material.SetVector(texName + "DXTScalers", dxtScalers);
             }
             #endregion
 
@@ -230,6 +242,11 @@ namespace z3y
                 material.SetVector(texName + "DXTScalers", dxtScalers);
             }
             #endregion
+
+            material.SetTexture(mainTexName, null);
+            material.SetTexture(bumpMapName, null);
+            material.SetTexture(maskMapName, null);
+            material.SetTexture(emissionMapName, null);
         }
         bool LoadPrecomputedTexturesIfExist(Texture2D input, ref Texture2D Tinput, ref Texture2D invT)
         {
