@@ -1,0 +1,425 @@
+﻿PROPERTIES_START
+    _Cutoff ("Alpha Cuttoff", Range(0.001, 1)) = 0.5
+    _CutoutSharpness ("Cutoff Sharpness", Range(1, 0.0001)) = 0.0001
+    
+    [MainTexture] [NoScaleOffset] [ExtraProperty] _MainTex ("Albedo", 2D) = "white" {}
+    [MainColor] _Color ("Color", Color) = (1,1,1,1)
+    [Toggle(_MASKMAP)] _EnableMaskMap ("Enable Mask Map", Float) = 0 // no way to enable it with multiple properties
+    [Linear] [NoScaleOffset] [Tooltip(AO (R), Roughness (G), Metallic (B))] _MaskMap ("Mask Map", 2D) = "white" {}
+    [Indent] _Metallic ("Metallic", Range(0,1)) = 0
+    _Roughness ("Roughness", Range(0,1)) = 0.5
+    [UnIndent] _OcclusionStrength ("Occlusion", Range(0,1)) = 1
+    [Toggle(_NORMALMAP)] _EnableNormalMap ("Enable Normal Map", Float) = 0 // no way to enable it with multiple properties
+    [NoScaleOffset] [Normal] [ExtraProperty]  _BumpMap ("Normal Map", 2D) = "bump" {}
+    _BumpScale ("Normal Scale", Float) = 1
+
+
+    [Toggle(_EMISSION)] [ToggleGroupStart] _EmissionToggle ("Enable Emission", Int) = 0
+    [NoScaleOffset] [ExtraProperty] _EmissionMap ("Emission Map", 2D) = "white" {}
+    [HDR] _EmissionColor ("Emission Color", Color) = (1,1,1)
+    [Indent] _EmissionMultiplyBase ("Emission Multiply Base", Range(0,1)) = 0
+    [ToggleGroupEnd] [UnIndent] _EmissionGIMultiplier ("Emission GI Multiplier", Float) = 1
+
+    _MainTex_ScaleOffset ("", Float) = 0
+
+    [Space(10)]
+    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
+
+    FoldoutMainEnd_PropertiesLocal ("", Float) = 0
+
+    FoldoutMainStart_Stochastic ("Advanced Stochastic", Float) = 0
+
+    [Toggle(_ADVANCED_STOCHASTIC)] _AdvancedStochasticToggle ("Enable Advanced Stochastic", Float) = 0
+    StochasticPreprocessButton ("", Float) = 0
+    [Space(10)]
+    // ------------High Performance By-Example Noise Sampling----------------------
+    [NoScaleOffset]_MainTexT("Albedo T", 2D) = "white" {}
+    [NoScaleOffset]_MaskMapT("Mask Map T", 2D) = "white" {}
+    [NoScaleOffset]_BumpMapT("Normal Map T", 2D) = "bump" {}
+    [NoScaleOffset]_EmissionMapT("Emission T", 2D) = "white" {}
+
+    [NoScaleOffset]_MainTexInvT("Albedo InvT", 2D) = "white" {}
+    [NoScaleOffset]_BumpMapInvT("Normal Map InvT", 2D) = "bump" {}
+    [NoScaleOffset]_MaskMapInvT("Mask Map InvT", 2D) = "white" {}
+    [NoScaleOffset]_EmissionMapInvT("Emission InvT", 2D) = "white" {}
+
+    // Only with DXT compression (Section 1.6)
+    _MainTexDXTScalers("MainTexDXTScalers", Vector) = (0,0,0,0)
+    _BumpMapDXTScalers("BumpMapDXTScalers", Vector) = (0,0,0,0)
+    _MaskMapDXTScalers("BumpMapDXTScalers", Vector) = (0,0,0,0)
+    _EmissionMapDXTScalers("EmissionMapDXTScalers", Vector) = (0,0,0,0)
+
+    //Decorrelated color space vectors and origins, used on albedo and normal maps
+    _MainTexColorSpaceOrigin("MainTexColorSpaceOrigin", Vector) = (0,0,0,0)
+    _MainTexColorSpaceVector1("MainTexColorSpaceVector1", Vector) = (0,0,0,0)
+    _MainTexColorSpaceVector2("MainTexColorSpaceVector2", Vector) = (0,0,0,0)
+    _MainTexColorSpaceVector3("MainTexColorSpaceVector3", Vector) = (0,0,0,0)
+    _BumpMapColorSpaceOrigin("BumpMapColorSpaceOrigin", Vector) = (0,0,0,0)
+    _BumpMapColorSpaceVector1("BumpMapColorSpaceVector1", Vector) = (0,0,0,0)
+    _BumpMapColorSpaceVector2("BumpMapColorSpaceVector2", Vector) = (0,0,0,0)
+    _BumpMapColorSpaceVector3("BumpMapColorSpaceVector3", Vector) = (0,0,0,0)
+    _MaskMapColorSpaceOrigin("MaskMapColorSpaceOrigin", Vector) = (0,0,0,0)
+    _MaskMapColorSpaceVector1("MaskMapColorSpaceVector1", Vector) = (0,0,0,0)
+    _MaskMapColorSpaceVector2("MaskMapColorSpaceVector2", Vector) = (0,0,0,0)
+    _MaskMapColorSpaceVector3("MaskMapColorSpaceVector3", Vector) = (0,0,0,0)
+    _EmissionMapColorSpaceOrigin("EmissionColorSpaceOrigin", Vector) = (0,0,0,0)
+    _EmissionMapColorSpaceVector1("EmissionColorSpaceVector1", Vector) = (0,0,0,0)
+    _EmissionMapColorSpaceVector2("EmissionColorSpaceVector2", Vector) = (0,0,0,0)
+    _EmissionMapColorSpaceVector3("EmissionColorSpaceVector3", Vector) = (0,0,0,0)
+PROPERTIES_END
+
+
+DEFINES_START
+    #define ATTRIBUTES_NEED_TEXCOORD0
+    #define CUSTOM_VARYING0 float2 mainUV : VARYING0;
+    // #define VARYINGS_NEED_INTERP0
+
+    #define APPROXIMATE_AREALIGHT_SPECULAR
+    #define UNITY_SPECCUBE_BOX_PROJECTION
+
+    #pragma shader_feature_local _MASKMAP
+    #pragma shader_feature_local _NORMALMAP
+    #pragma shader_feature_local _ADVANCED_STOCHASTIC
+DEFINES_END
+
+DEFINES_SHADOWCASTER_START
+#pragma skip_variants _MASKMAP
+#pragma skip_variants _NORMALMAP
+DEFINES_SHADOWCASTER_END
+
+CBUFFER_START
+    half4 _Color;
+    float4 _MainTex_ST;
+    half _Roughness;
+    half _Metallic;
+    half _BumpScale;
+    half _SpecularOcclusion;
+    half _OcclusionStrength;
+    half _Cutoff;
+    half _CutoutSharpness;
+    half3 _EmissionColor;
+    half _EmissionGIMultiplier;
+    half _EmissionMultiplyBase;
+
+    // Only with DXT compression (Section 1.6)
+    float4 _MainTexDXTScalers;
+    float4 _BumpMapDXTScalers;
+    float4 _MaskMapDXTScalers;
+    float4 _EmissionMapDXTScalers;
+
+    // Decorrelated color space vectors and origins, used on albedo and normal maps
+    float3 _MainTexColorSpaceOrigin;
+    float3 _MainTexColorSpaceVector1;
+    float3 _MainTexColorSpaceVector2;
+    float3 _MainTexColorSpaceVector3;
+    float3 _BumpMapColorSpaceOrigin;
+    float3 _BumpMapColorSpaceVector1;
+    float3 _BumpMapColorSpaceVector2;
+    float3 _BumpMapColorSpaceVector3;
+    float3 _EmissionMapColorSpaceOrigin;
+    float3 _EmissionMapColorSpaceVector1;
+    float3 _EmissionMapColorSpaceVector2;
+    float3 _EmissionMapColorSpaceVector3;
+    float3 _MaskMapColorSpaceOrigin;
+    float3 _MaskMapColorSpaceVector1;
+    float3 _MaskMapColorSpaceVector2;
+    float3 _MaskMapColorSpaceVector3;
+CBUFFER_END
+
+
+CODE_START
+
+    TEXTURE2D(_MainTex);
+    TEXTURE2D(_BumpMap);
+    TEXTURE2D(_MaskMap);
+    TEXTURE2D(_EmissionMap);
+    SAMPLER(sampler_MainTex);
+    SAMPLER(sampler_BumpMap);
+    SAMPLER(sampler_MaskMap);
+    SAMPLER(sampler_EmissionMap);
+
+    TEXTURE2D(_MainTexT);
+    SAMPLER(sampler_MainTexT);
+    TEXTURE2D(_BumpMapT);
+    SAMPLER(sampler_BumpMapT);
+    TEXTURE2D(_MaskMapT);
+    SAMPLER(sampler_MaskMapT);
+    TEXTURE2D(_EmissionMapT);
+    SAMPLER(sampler_EmissionMapT);
+
+    TEXTURE2D(_MainTexInvT);
+    SAMPLER(sampler_MainTexInvT);
+    TEXTURE2D(_BumpMapInvT);
+    SAMPLER(sampler_BumpMapInvT);
+    TEXTURE2D(_MaskMapInvT);
+    SAMPLER(sampler_MaskMapInvT);
+    TEXTURE2D(_EmissionMapInvT);
+    SAMPLER(sampler_EmissionMapInvT);
+
+
+    //hash for randomness
+    float2 hash2D2D(float2 p)
+    {
+        return frac(sin(mul(float2x2(127.1, 311.7, 269.5, 183.3), p)) * 43758.5453);
+    }
+
+    #ifdef _ADVANCED_STOCHASTIC
+        // --------------Procedural Stochastic Texturing Functions---------------------
+        float3 ReturnToOriginalColorSpace(float3 color, float3 colorSpaceOrigin, float3 colorSpaceVector1, float3 colorSpaceVector2, float3 colorSpaceVector3)
+        {
+            float3 result =
+                colorSpaceOrigin +
+                colorSpaceVector1 * color.r +
+                colorSpaceVector2 * color.g +
+                colorSpaceVector3 * color.b;
+            return result;
+        }
+
+        // Compute local triangle barycentric coordinates and vertex IDs
+        void TriangleGrid(float2 uv,
+            out float w1, out float w2, out float w3,
+            out int2 vertex1, out int2 vertex2, out int2 vertex3)
+        {
+            // Scaling of the input
+            uv *= 3.464; // 2 * sqrt(3)
+
+            // Skew input space into simplex triangle grid
+            const float2x2 gridToSkewedGrid = float2x2(1.0, 0.0, -0.57735027, 1.15470054);
+            float2 skewedCoord = mul(gridToSkewedGrid, uv);
+
+            // Compute local triangle vertex IDs and local barycentric coordinates
+            int2 baseId = int2(floor(skewedCoord));
+            float3 temp = float3(frac(skewedCoord), 0);
+            temp.z = 1.0 - temp.x - temp.y;
+            if (temp.z > 0.0)
+            {
+                w1 = temp.z;
+                w2 = temp.y;
+                w3 = temp.x;
+                vertex1 = baseId;
+                vertex2 = baseId + int2(0, 1);
+                vertex3 = baseId + int2(1, 0);
+            }
+            else
+            {
+                w1 = -temp.z;
+                w2 = 1.0 - temp.y;
+                w3 = 1.0 - temp.x;
+                vertex1 = baseId + int2(1, 1);
+                vertex2 = baseId + int2(1, 0);
+                vertex3 = baseId + int2(0, 1);
+            }
+        }
+
+        // Fast random hash function
+        float2 SimpleHash2(float2 p)
+        {
+            return frac(sin(mul(float2x2(127.1, 311.7, 269.5, 183.3), p)) * 43758.5453);
+        }
+
+        // Sample by-example procedural noise at uv on decorrelated input
+        float3 DecorrelatedStochasticSample(float2 uv, Texture2D Tinput, SamplerState samplerTinput, Texture2D invT, SamplerState samplerInvT,
+        float4 dxtScalers, float3 colorSpaceOrigin, float3 colorSpaceVector1, float3 colorSpaceVector2, float3 colorSpaceVector3)
+        {
+            // Get triangle info
+            float w1, w2, w3;
+            int2 vertex1, vertex2, vertex3;
+            TriangleGrid(uv, w1, w2, w3, vertex1, vertex2, vertex3);
+
+            // Assign random offset to each triangle vertex
+            float2 uv1 = uv + SimpleHash2(vertex1);
+            float2 uv2 = uv + SimpleHash2(vertex2);
+            float2 uv3 = uv + SimpleHash2(vertex3);
+
+            // Precompute UV derivatives 
+            float2 duvdx = ddx(uv);
+            float2 duvdy = ddy(uv);
+
+            // Fetch Gaussian input
+            float3 G1 = Tinput.SampleGrad(samplerTinput, uv1, duvdx, duvdy).rgb;
+            float3 G2 = Tinput.SampleGrad(samplerTinput, uv2, duvdx, duvdy).rgb;
+            float3 G3 = Tinput.SampleGrad(samplerTinput, uv3, duvdx, duvdy).rgb;
+
+            // Variance-preserving blending
+            float3 G = w1 * G1 + w2 * G2 + w3 * G3;
+            G = G - 0.5;
+            G = G * rsqrt(w1 * w1 + w2 * w2 + w3 * w3);
+            if (dxtScalers.x >= 0.0) G = G * dxtScalers; // Only with DXT compression (Section 1.6)
+            G = G + 0.5;
+
+            // Compute used LOD level to fetch the prefiltered look-up table invT
+            int dummy, lodLevels, widthT, heightT;
+            invT.GetDimensions(0, dummy, lodLevels, dummy);
+            Tinput.GetDimensions(0, widthT, heightT, dummy);
+            duvdx *= float2(widthT, heightT);
+            duvdy *= float2(widthT, heightT);
+            float delta_max_sqr = max(dot(duvdx, duvdx), dot(duvdy, duvdy));
+            float mml = 0.5 * log2(delta_max_sqr);
+            float LOD = max(0, mml) / float(lodLevels);
+
+            // Fetch prefiltered LUT (T^{-1})
+            float3 color;
+            color.r = invT.SampleLevel(samplerInvT, float2(G.r, LOD), 0).r;
+            color.g = invT.SampleLevel(samplerInvT, float2(G.g, LOD), 0).g;
+            color.b = invT.SampleLevel(samplerInvT, float2(G.b, LOD), 0).b;
+
+            // Original color space for albedo RGB and normal XYZ
+            color.rgb = ReturnToOriginalColorSpace(color.rgb, colorSpaceOrigin, colorSpaceVector1, colorSpaceVector2, colorSpaceVector3);
+
+            return color;
+        }
+
+        // Sample by-example procedural noise at uv
+        float4 StochasticSample(float2 uv, Texture2D Tinput, SamplerState samplerTinput, Texture2D invT, SamplerState samplerInvT)
+        {
+            // Get triangle info
+            float w1, w2, w3;
+            int2 vertex1, vertex2, vertex3;
+            TriangleGrid(uv, w1, w2, w3, vertex1, vertex2, vertex3);
+
+            // Assign random offset to each triangle vertex
+            float2 uv1 = uv + SimpleHash2(vertex1);
+            float2 uv2 = uv + SimpleHash2(vertex2);
+            float2 uv3 = uv + SimpleHash2(vertex3);
+
+            // Precompute UV derivatives 
+            float2 duvdx = ddx(uv);
+            float2 duvdy = ddy(uv);
+
+            // Fetch Gaussian input
+            float4 G1 = Tinput.SampleGrad(samplerTinput, uv1, duvdx, duvdy).rgba;
+            float4 G2 = Tinput.SampleGrad(samplerTinput, uv2, duvdx, duvdy).rgba;
+            float4 G3 = Tinput.SampleGrad(samplerTinput, uv3, duvdx, duvdy).rgba;
+
+            // Variance-preserving blending
+            float4 G = w1 * G1 + w2 * G2 + w3 * G3;
+            G = G - 0.5;
+            G = G * rsqrt(w1 * w1 + w2 * w2 + w3 * w3);
+            G = G + 0.5;
+
+            // Compute used LOD level to fetch the prefiltered look-up table invT
+            int dummy, lodLevels, widthT, heightT;
+            invT.GetDimensions(0, dummy, lodLevels, dummy);
+            Tinput.GetDimensions(0, widthT, heightT, dummy);
+            duvdx *= float2(widthT, heightT);
+            duvdy *= float2(widthT, heightT);
+            float delta_max_sqr = max(dot(duvdx, duvdx), dot(duvdy, duvdy));
+            float mml = 0.5 * log2(delta_max_sqr);
+            float LOD = max(0, mml) / float(lodLevels);
+
+            // Fetch prefiltered LUT (T^{-1})
+            float4 color;
+            color.r = invT.SampleLevel(samplerInvT, float2(G.r, LOD), 0).r;
+            color.g = invT.SampleLevel(samplerInvT, float2(G.g, LOD), 0).g;
+            color.b = invT.SampleLevel(samplerInvT, float2(G.b, LOD), 0).b;
+            color.a = invT.SampleLevel(samplerInvT, float2(G.a, LOD), 0).a;
+
+            return color;
+        }
+    #else
+        // stochastic sampling
+        // from https://pastebin.com/Av1ZPQmC
+        // https://www.reddit.com/r/Unity3D/comments/dhr5g2/i_made_a_stochastic_texture_sampling_shader/
+        half4 SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_PARAM(tex, smp), float2 UV)
+        {
+            //triangle vertices and blend weights
+            //BW_vx[0...2].xyz = triangle verts
+            //BW_vx[3].xy = blend weights (z is unused)
+            half4x3 BW_vx;
+
+            //uv transformed into triangular grid space with UV scaled by approximation of 2*sqrt(3)
+            float2 skewUV = mul(float2x2 (1.0 , 0.0 , -0.57735027 , 1.15470054), UV * 3.464);
+
+            //vertex IDs and barycentric coords
+            float2 vxID = float2 (floor(skewUV));
+            float3 barry = float3 (frac(skewUV), 0);
+            barry.z = 1.0-barry.x-barry.y;
+
+            BW_vx = ((barry.z>0) ? 
+                float4x3(float3(vxID, 0), float3(vxID + float2(0, 1), 0), float3(vxID + float2(1, 0), 0), barry.zyx) :
+                float4x3(float3(vxID + float2 (1, 1), 0), float3(vxID + float2 (1, 0), 0), float3(vxID + float2 (0, 1), 0), float3(-barry.z, 1.0-barry.y, 1.0-barry.x)));
+
+            //calculate derivatives to avoid triangular grid artifacts
+            float2 dx = ddx(UV);
+            float2 dy = ddy(UV);
+
+            //blend samples with calculated weights
+            return mul(SAMPLE_TEXTURE2D_GRAD(tex, smp, UV + hash2D2D(BW_vx[0].xy), dx, dy), BW_vx[3].x) + 
+                    mul(SAMPLE_TEXTURE2D_GRAD(tex, smp, UV + hash2D2D(BW_vx[1].xy), dx, dy), BW_vx[3].y) + 
+                    mul(SAMPLE_TEXTURE2D_GRAD(tex, smp, UV + hash2D2D(BW_vx[2].xy), dx, dy), BW_vx[3].z);
+        }
+    #endif
+
+    #define USE_MODIFYVARYINGS // Modify varyings at the end of vertex shader
+    void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
+    {
+        varyings.mainUV.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
+    }
+
+    #define USE_SURFACEDESCRIPTION // SurfaceDescription: Albedo, Normal, Metallic, Emission, Smoothness, Occlusion, Alpha, AlphaClipThreshold, Reflectance
+    void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
+    {
+        float2 uv = IN.mainUV.xy;
+
+        #ifdef _ADVANCED_STOCHASTIC
+            half4 albedo = DecorrelatedStochasticSample(uv, _MainTexT, sampler_MainTexT, _MainTexInvT, sampler_MainTexInvT, _MainTexDXTScalers,
+		        _MainTexColorSpaceOrigin, _MainTexColorSpaceVector1, _MainTexColorSpaceVector2, _MainTexColorSpaceVector3).rgbb;
+            albedo.a = StochasticSample(uv, _MainTexT, sampler_MainTexT, _MainTexInvT, sampler_MainTexInvT).a * _Color.a;
+        #else
+            half4 albedo = SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_ARGS(_MainTex, sampler_MainTex), uv);
+        #endif
+        albedo *= _Color;
+        surface.Albedo = albedo.rgb;
+        surface.Alpha = albedo.a;
+
+        #ifdef _NORMALMAP
+            #ifdef _ADVANCED_STOCHASTIC
+                half4 normalMap = DecorrelatedStochasticSample(uv, _BumpMapT, sampler_BumpMapT, _BumpMapInvT, sampler_BumpMapInvT, _BumpMapDXTScalers,
+		            _BumpMapColorSpaceOrigin, _BumpMapColorSpaceVector1, _BumpMapColorSpaceVector2, _BumpMapColorSpaceVector3).rgbb;
+                normalMap.a = 1;
+            #else
+                half4 normalMap = SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), uv);
+            #endif
+            surface.Normal = UnpackNormalScale(normalMap, _BumpScale);
+        #endif
+
+        #ifdef _MASKMAP
+            #ifdef _ADVANCED_STOCHASTIC
+                half4 maskMap = DecorrelatedStochasticSample(uv, _MaskMapT, sampler_MaskMapT, _MaskMapInvT, sampler_MaskMapInvT, _MaskMapDXTScalers,
+		        _MaskMapColorSpaceOrigin, _MaskMapColorSpaceVector1, _MaskMapColorSpaceVector2, _MaskMapColorSpaceVector3).rgbb;
+            #else
+                half4 maskMap = SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_ARGS(_MaskMap, sampler_MaskMap), uv);
+            #endif
+            surface.Metallic = maskMap.b * _Metallic;
+            surface.Smoothness = 1.0 - (maskMap.g * _Roughness);
+            surface.Occlusion = lerp(1.0, maskMap.r, _OcclusionStrength);
+        #else
+            surface.Metallic = _Metallic;
+            surface.Smoothness = 1.0 - _Roughness;
+        #endif
+
+        #ifdef _EMISSION
+            #ifdef _ADVANCED_STOCHASTIC
+                half3 emissionMap = DecorrelatedStochasticSample(uv, _EmissionMapT, sampler_EmissionMapT, _EmissionMapInvT, sampler_EmissionMapInvT, _EmissionMapDXTScalers,
+			        _EmissionMapColorSpaceOrigin, _EmissionMapColorSpaceVector1, _EmissionMapColorSpaceVector2, _EmissionMapColorSpaceVector3).rgb;
+            #else
+                half3 emissionMap = SAMPLE_TEXTURE2D_STOCHASTIC(_EmissionMap, sampler_EmissionMap, uv).rgb;
+            #endif
+            surface.Emission = emissionMap * _EmissionColor;
+
+            surface.Emission *= lerp(1.0, surface.Albedo, _EmissionMultiplyBase);
+
+            #ifdef UNITY_PASS_META
+            surface.Emission *= _EmissionGIMultiplier;
+            #endif
+        #endif
+
+        surface.SpecularOcclusion = _SpecularOcclusion;
+
+        surface.AlphaClipThreshold = _Cutoff;
+        surface.AlphaClipSharpness = _CutoutSharpness;
+    }
+
+CODE_END
+
+#include_optional "Assets/Settings/LitShaderConfig.litshader"

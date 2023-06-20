@@ -197,6 +197,10 @@ namespace z3y.Shaders
                 {
                     p.drawAction = DrawTransparencyModeProperty;
                 }
+                else if (prop.name.StartsWith("StochasticPreprocessButton"))
+                {
+                    p.drawAction = DrawStochasticPreprocessButton;
+                }
                 else if (prop.name.StartsWith("FoldoutMainStart_"))
                 {
                     p.drawAction = DrawFoldoutMain;
@@ -230,6 +234,10 @@ namespace z3y.Shaders
                     {
                         p.drawAction += DrawLinearWarning;
                     }
+                }
+                else if (type == MaterialProperty.PropType.Vector)
+                {
+                    p.drawAction = DrawShaderPropertyVector;
                 }
                 else
                 {
@@ -372,12 +380,44 @@ namespace z3y.Shaders
 
 
         public void DrawShaderProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.ShaderProperty(unityProperty[property.index], property.guiContent);
+        public void DrawShaderPropertyVector(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
+        {
+            var prop = unityProperty[property.index];
+            var vectorRect = EditorGUILayout.GetControlRect(true, MaterialEditor.GetDefaultPropertyHeight(prop) / 2, EditorStyles.layerMaskField);
+            editor.VectorProperty(vectorRect, prop, property.displayName);
+        }
+
         public void DrawShaderTextureProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.TexturePropertySingleLine(property.guiContent, unityProperty[property.index]);
         public void DrawShaderTexturePropertyExtra(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => TexturePropertySingleLineExtraProp(editor, property.guiContent, unityProperty[property.index+1]);
         public void DrawShaderTextureScaleOffsetProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => editor.TextureScaleOffsetProperty(unityProperty[property.index]);
         public void ToggleGroup(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => property.childrenVisible = unityProperty[property.index].floatValue > 0f;
         public void ToggleGroupTexture(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => property.childrenVisible = unityProperty[property.index].textureValue != null;
         public void DrawHelpBox(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUILayout.HelpBox(property.displayName, MessageType.Info);
+
+        public void DrawStochasticPreprocessButton(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
+        {
+            if (editor.targets.Length > 1)
+            {
+                return;
+            }
+
+            if (GUILayout.Button("Stochastic Preprocess (Slow)"))
+            {
+                var stp = new StochasticTexturingPreprocess();
+                stp.ApplyUserStochasticInputChoice((Material)editor.target);
+                MaterialEditor.ApplyMaterialPropertyDrawers((Material)editor.target);
+            }
+
+            if (GUILayout.Button("Cleanup Unused Textures"))
+            {
+                var material = (Material)editor.target;
+                material.SetTexture("_MainTex", null);
+                material.SetTexture("_BumpMap", null);
+                material.SetTexture("_MaskMap", null);
+                material.SetTexture("_EmissionMap", null);
+                MaterialEditor.ApplyMaterialPropertyDrawers((Material)editor.target);
+            }
+        }
 
         public void IndentLevelAdd(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUI.indentLevel+=2;
         public void IndentLevelRemove(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUI.indentLevel-=2;
