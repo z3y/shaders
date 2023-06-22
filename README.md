@@ -1,5 +1,5 @@
 # Shaders
-A Standard Shader and Surface Shaders replacement for Unity for Built-In pipeline and forward rendering (VRChat)
+A Standard Shader and Surface Shaders replacement for Unity's Built-In pipeline and forward rendering in linear color space, created for use in VRChat.
 
 ##  Installation
 ### Unity Package Manager
