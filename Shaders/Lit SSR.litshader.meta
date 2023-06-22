@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a825e0b90d3a9834b9772328ae7c2218
+guid: 0e960696e2935c4459c5e210b6935d7e
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -9,13 +9,14 @@ ScriptedImporter:
   assetBundleVariant: 
   script: {fileID: 11500000, guid: c6b508151abe0a040a11a4b72bff5b69, type: 3}
   settings:
-    shaderName: Lit Variants/Samples/SSR
+    shaderName: Lit Variants/Lit v3 SSR
     materialType: 0
     bicubicLightmap: 0
-    gsaa: 0
+    gsaa: 2
     anisotropy: 3
     bakeryMonoSH: 0
     lightmappedSpecular: 0
     grabPass: 1
     alphaToCoverage: 1
     customEditorGUI: 
+  generateUnityShader: 0

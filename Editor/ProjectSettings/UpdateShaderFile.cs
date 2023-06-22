@@ -21,6 +21,10 @@ namespace z3y.Shaders
 
         static UpdateLitShaderFile()
         {
+            if (ProjectSettings.SettingsDisabled)
+            {
+                return;
+            }
             var isApplied = SessionState.GetBool(SessionKey, false);
 
             if (isApplied)

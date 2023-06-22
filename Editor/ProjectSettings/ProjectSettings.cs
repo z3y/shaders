@@ -8,13 +8,20 @@ namespace z3y.Shaders
 {
     public class ProjectSettings
     {
-        public const string ShaderName = "Lit";
+        public const string ShaderName = "Lit Variants/Legacy/Lit v2";
 
         public static Shader lit => Shader.Find(ShaderName);
+
+        // remove this in new projects to avoid confusion without breaking older projects
+        public static bool SettingsDisabled => !File.Exists(ReferenceSettingsPath);
 
         [SettingsProvider]
         public static SettingsProvider CreateProvider()
         {
+            if (SettingsDisabled)
+            {
+                return null;
+            }
             var provider = new SettingsProvider("Project/Lit Shader", SettingsScope.Project)
             {
                 label = "Lit Shader",
@@ -73,7 +80,7 @@ namespace z3y.Shaders
                     }
                 },
             };
-
+            
             return provider;
         }
 
@@ -101,7 +108,6 @@ namespace z3y.Shaders
             if (File.Exists(ReferenceSettingsPath))
             {
                 return File.ReadAllText(ReferenceSettingsPath);
-
             }
             return null;
         }

@@ -368,6 +368,7 @@ CODE_START
         #else
             half4 albedo = SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_ARGS(_MainTex, sampler_MainTex), uv);
         #endif
+        albedo = saturate(albedo);
         albedo *= _Color;
         surface.Albedo = albedo.rgb;
         surface.Alpha = albedo.a;
@@ -390,6 +391,7 @@ CODE_START
             #else
                 half4 maskMap = SAMPLE_TEXTURE2D_STOCHASTIC(TEXTURE2D_ARGS(_MaskMap, sampler_MaskMap), uv);
             #endif
+            maskMap = saturate(maskMap);
             surface.Metallic = maskMap.b * _Metallic;
             surface.Smoothness = 1.0 - (maskMap.g * _Roughness);
             surface.Occlusion = lerp(1.0, maskMap.r, _OcclusionStrength);

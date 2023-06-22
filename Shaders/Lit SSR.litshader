@@ -1,0 +1,7 @@
+#include "Lit.litshader"
+
+DEFINES_START
+    #define _SSR
+DEFINES_END
+
+#include_optional "Assets/Settings/LitShaderConfig.litshader"
