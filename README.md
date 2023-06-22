@@ -45,6 +45,8 @@ https://github.com/z3y/shaders.git
 
 You can create surface-like shaders `Create > Shader > Lit Shader Variant`. Having just one  shader will not fit everyone's workflow. With some basic shader knowledge you can create exactly what you need while still having all of the advanced lighting and shader features.
 
+The default shader created with this system is `Lit v3` and other variants included at `Lit Variants/`
+
 Supports PC and Quest.
 
 ## [Shader Graph](https://github.com/z3y/ShaderGraph)
