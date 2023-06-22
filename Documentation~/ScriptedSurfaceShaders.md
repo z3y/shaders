@@ -29,7 +29,7 @@ To have proper hlsl syntax highlighting you can set a language mode to be associ
 
 The importer sets some additional useful defines.
 
-> To update defines reimport all shaders `Tools/Lit/Reimport Shaders`
+> To update defines reimport all shaders `Tools > Lit > Reimport Shaders`
 
 | Define | Description |
 | - | - |
@@ -61,7 +61,7 @@ If the include didnt exist at first, the shader needs to be reimported.
 
 ### Config Example
 
-Create a default config with `Tools/Lit/Create Config File`
+Create a default config with `Tools > Lit > Create Config File`
 
 > Enabling Mono SH globally
 
@@ -128,7 +128,7 @@ void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
 
 ## LTCGI
 
-Ltcgi is automatically added if found in the project. To re-detect if ltcgi is included reimport shaders `Tools/Lit/Reimport Shaders`
+LTCGI is automatically added if found in the project. To re-detect if LTCGI is included reimport shaders `Tools/Lit/Reimport Shaders`
 
 ## Area Lit
 
