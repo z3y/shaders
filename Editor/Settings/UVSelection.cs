@@ -1,9 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-
-namespace z3y
+﻿namespace z3y
 {
     public enum LitUVSelection
     {

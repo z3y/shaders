@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Text;
 using UnityEditor;
-using UnityEngine;
 
 namespace z3y.Shaders
 {

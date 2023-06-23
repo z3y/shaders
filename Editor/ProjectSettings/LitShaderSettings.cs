@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Presets;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace z3y.Shaders
 {
