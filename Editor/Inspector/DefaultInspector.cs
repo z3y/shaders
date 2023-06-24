@@ -249,6 +249,27 @@ namespace z3y.Shaders
                     {
                         p.drawAction += DrawShaderTexturePropertyExtra;
                     }
+                    if (texturePacking)
+                    {
+                        int index = i;
+                        p.drawAction += (property, editor, unityProperty) =>
+                        {
+                            Rect rect = GUILayoutUtility.GetLastRect();
+                            rect = MaterialEditor.GetRectAfterLabelWidth(rect);
+                            rect.width = 50;
+                            //rect.position = new Vector2(Screen.width / 2, rect.position.y);
+                            if (GUI.Button(rect, "Pack"))
+                            {
+                                FreeImagePackingEditor.Init();
+                                FreeImagePackingEditor.ChannelR.DisplayName = rName;
+                                FreeImagePackingEditor.ChannelG.DisplayName = gName;
+                                FreeImagePackingEditor.ChannelB.DisplayName = bName;
+                                FreeImagePackingEditor.ChannelA.DisplayName = aName;
+                                FreeImagePackingEditor.Linear = isLinear;
+                                FreeImagePackingEditor.AddPackingMaterial((Material)editor.target, unityProperty[property.index]);
+                            }
+                        };
+                    }
                     if (linear)
                     {
                         p.drawAction += DrawLinearWarning;
@@ -289,23 +310,7 @@ namespace z3y.Shaders
                     }
                 }
 
-                if (texturePacking)
-                {
-                    int index = i;
-                    p.drawAction = (property, editor, unityProperty) =>
-                    {
-                        if (GUILayout.Button("Pack " + property.displayName))
-                        {
-                            FreeImagePackingEditor.Init();
-                            FreeImagePackingEditor.ChannelR.DisplayName = rName;
-                            FreeImagePackingEditor.ChannelG.DisplayName = gName;
-                            FreeImagePackingEditor.ChannelB.DisplayName = bName;
-                            FreeImagePackingEditor.ChannelA.DisplayName = aName;
-                            FreeImagePackingEditor.Linear = isLinear;
-                            FreeImagePackingEditor.AddPackingMaterial((Material)editor.target, unityProperty[property.index]);
-                        }
-                    } + p.drawAction;
-                }
+
 
                 if (verticalScopeStart)
                 {
@@ -740,7 +745,10 @@ namespace z3y.Shaders
                 }
                 else
                 {
-                    ExtraPropertyAfterTexture(editor, MaterialEditor.GetRectAfterLabelWidth(controlRectForSingleLine), materialProperty);
+                    var r = MaterialEditor.GetRectAfterLabelWidth(controlRectForSingleLine);
+                    r.width -= 50;
+                    r.position = new Vector2(r.x + 50, r.y);
+                    ExtraPropertyAfterTexture(editor, r, materialProperty);
                 }
             }
             else if (extraProperty1.type == MaterialProperty.PropType.Color)
