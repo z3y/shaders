@@ -4,6 +4,7 @@
 
     [MainTexture] [ExtraProperty] [NoScaleOffset] _MainTex ("Albedo", 2D) = "white" {}
     [MainColor] _Color ("Color", Color) = (1,1,1,1)
+    [TexturePacking(AO, Normal Y, Roughness, Normal X, true)]
     [Tooltip(AO (R), Normal Y (G),Roughness (B), Normal X (A))]
     [Linear] [NoScaleOffset] [ExtraProperty] [Toggle(_PACKEDTEXTURE)] _PackedTexture ("Packed Texture", 2D) = "linearGray" {}
     BumpScale ("Normal Scale", Float) = 1
@@ -32,6 +33,7 @@
     [Space(10)]
     [NoScaleOffset] [ExtraProperty] _Layer2_MainTex ("Albedo", 2D) = "white" {}
     _Color2 ("Color", Color) = (1,1,1,1)
+    [TexturePacking(AO, Normal Y, Roughness, Normal X, true)]
     [Tooltip(AO (R), Normal Y (G),Roughness (B), Normal X (A))]
     [Linear] [NoScaleOffset] [ExtraProperty] [Toggle(_LAYER2_PACKEDTEXTURE)] _Layer2_PackedTexture ("Packed Texture", 2D) = "linearGray" {}
     _Layer2_BumpScale ("Normal Scale", Float) = 1

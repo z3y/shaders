@@ -5,6 +5,7 @@
     [MainTexture] [NoScaleOffset] [ExtraProperty] _MainTex ("Albedo", 2D) = "white" {}
     [MainColor] _Color ("Color", Color) = (1,1,1,1)
     [Toggle(_MASKMAP)] _EnableMaskMap ("Enable Mask Map", Float) = 0 // no way to enable it with multiple properties
+    [TexturePacking(AO, Roughness, Metallic, None, true)]
     [Linear] [NoScaleOffset] [Tooltip(AO (R), Roughness (G), Metallic (B))] _MaskMap ("Mask Map", 2D) = "white" {}
     [Indent] _Metallic ("Metallic", Range(0,1)) = 0
     _Roughness ("Roughness", Range(0,1)) = 0.5
