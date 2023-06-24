@@ -50,6 +50,11 @@ namespace z3y.Shaders
         private static int _cachedConfigHash = 0;
         public static void UpdateConfig()
         {
+            if (ProjectSettings.SettingsDisabled)
+            {
+                return;
+            }
+
             if (ProjectSettings.lit is null)
             {
                 return;

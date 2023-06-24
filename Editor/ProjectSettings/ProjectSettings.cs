@@ -91,6 +91,11 @@ namespace z3y.Shaders
 
         private static void SaveSettingsReference()
         {
+            if (SettingsDisabled)
+            {
+                return;
+            }
+
             ShaderSettings = _shaderSettingsEditorWindow;
             var path = AssetDatabase.GetAssetPath(ShaderSettings);
             var guid = AssetDatabase.AssetPathToGUID(path);
