@@ -172,7 +172,7 @@ namespace z3y.Shaders
                             };
                         }
                         var packingAttribute = "TexturePacking(";
-                        if (attribute.StartsWith(packingAttribute) && attribute.EndsWith(")"))
+                        if (attribute.StartsWith(packingAttribute.AsSpan()) && attribute.EndsWith(")".AsSpan()))
                         {
                             texturePacking = true;
                             var packingFieldNames = attribute.ToString().Split('(')[1].Split(')')[0].Split(',');
