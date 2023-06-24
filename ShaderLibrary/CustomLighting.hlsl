@@ -444,11 +444,6 @@ namespace CustomLighting
         #endif
 
         #ifdef _SSR
-            float4 screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
-            float2 screenUVs = screenPos.xy / (screenPos.w+0.0000000001);
-            #if UNITY_SINGLE_PASS_STEREO || defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
-                screenUVs.x *= 2;
-            #endif
             SSRInput ssr;
             ssr.wPos = float4(unpacked.positionWS.xyz, 1);
             ssr.viewDir = sd.viewDirectionWS;
@@ -482,7 +477,6 @@ namespace CustomLighting
             areaLitInput.view = sd.viewDirectionWS;
             areaLitInput.roughness = sd.perceptualRoughness * sd.perceptualRoughness;
             areaLitInput.occlusion = 1;
-            areaLitInput.screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
             float4 screenPos = ComputeGrabScreenPos(unpacked.positionCS).xyzz;
             areaLitInput.screenPos = screenPos.xy / (screenPos.w+0.0000000001);
             ShadeAreaLights(areaLitInput, areaLitDiffuse, areaLitSpecular, true, areaLitSpecularEnabled);

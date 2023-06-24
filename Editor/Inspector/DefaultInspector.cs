@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using static z3y.FreeImagePacking;
 
 namespace z3y.Shaders
 {
@@ -103,6 +104,13 @@ namespace z3y.Shaders
                 bool extraProperty = false;
                 bool indentLevelAdd = false;
                 bool indentLevelRemove = false;
+
+                bool texturePacking = false;
+                string rName = string.Empty;
+                string gName = string.Empty;
+                string bName = string.Empty;
+                string aName = string.Empty;
+                bool isLinear = false;
                 foreach (var attributeString in attributes)
                 {
                     var attribute = attributeString.AsSpan();
@@ -162,6 +170,17 @@ namespace z3y.Shaders
                             {
                                 ToggleKeyword(mat, toggleName, props[index].textureValue != null);
                             };
+                        }
+                        var packingAttribute = "TexturePacking(";
+                        if (attribute.StartsWith(packingAttribute.AsSpan()) && attribute.EndsWith(")".AsSpan()))
+                        {
+                            texturePacking = true;
+                            var packingFieldNames = attribute.ToString().Split('(')[1].Split(')')[0].Split(',');
+                            rName = packingFieldNames[0].Trim();
+                            gName = packingFieldNames[1].Trim();
+                            bName = packingFieldNames[2].Trim();
+                            aName = packingFieldNames[3].Trim();
+                            isLinear = packingFieldNames[4].Trim() == "true";
                         }
                     }
 
@@ -230,6 +249,27 @@ namespace z3y.Shaders
                     {
                         p.drawAction += DrawShaderTexturePropertyExtra;
                     }
+                    if (texturePacking)
+                    {
+                        int index = i;
+                        p.drawAction += (property, editor, unityProperty) =>
+                        {
+                            Rect rect = GUILayoutUtility.GetLastRect();
+                            rect = MaterialEditor.GetRectAfterLabelWidth(rect);
+                            rect.width = 50;
+                            //rect.position = new Vector2(Screen.width / 2, rect.position.y);
+                            if (GUI.Button(rect, "Pack"))
+                            {
+                                FreeImagePackingEditor.Init();
+                                FreeImagePackingEditor.ChannelR.DisplayName = rName;
+                                FreeImagePackingEditor.ChannelG.DisplayName = gName;
+                                FreeImagePackingEditor.ChannelB.DisplayName = bName;
+                                FreeImagePackingEditor.ChannelA.DisplayName = aName;
+                                FreeImagePackingEditor.Linear = isLinear;
+                                FreeImagePackingEditor.AddPackingMaterial((Material)editor.target, unityProperty[property.index]);
+                            }
+                        };
+                    }
                     if (linear)
                     {
                         p.drawAction += DrawLinearWarning;
@@ -269,6 +309,8 @@ namespace z3y.Shaders
                         parent.Add(p);
                     }
                 }
+
+
 
                 if (verticalScopeStart)
                 {
@@ -703,7 +745,10 @@ namespace z3y.Shaders
                 }
                 else
                 {
-                    ExtraPropertyAfterTexture(editor, MaterialEditor.GetRectAfterLabelWidth(controlRectForSingleLine), materialProperty);
+                    var r = MaterialEditor.GetRectAfterLabelWidth(controlRectForSingleLine);
+                    r.width -= 50;
+                    r.position = new Vector2(r.x + 50, r.y);
+                    ExtraPropertyAfterTexture(editor, r, materialProperty);
                 }
             }
             else if (extraProperty1.type == MaterialProperty.PropType.Color)

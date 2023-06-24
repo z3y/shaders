@@ -1,7 +1,4 @@
-﻿using System;
-using UnityEngine;
-
-namespace z3y.Shaders
+﻿namespace z3y.Shaders
 {
     public static class ExtensionMethods
     {

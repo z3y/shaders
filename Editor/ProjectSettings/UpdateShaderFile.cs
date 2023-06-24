@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Text;
 using UnityEditor;
-using UnityEngine;
 
 namespace z3y.Shaders
 {
@@ -21,6 +20,10 @@ namespace z3y.Shaders
 
         static UpdateLitShaderFile()
         {
+            if (ProjectSettings.SettingsDisabled)
+            {
+                return;
+            }
             var isApplied = SessionState.GetBool(SessionKey, false);
 
             if (isApplied)
@@ -47,6 +50,11 @@ namespace z3y.Shaders
         private static int _cachedConfigHash = 0;
         public static void UpdateConfig()
         {
+            if (ProjectSettings.SettingsDisabled)
+            {
+                return;
+            }
+
             if (ProjectSettings.lit is null)
             {
                 return;
