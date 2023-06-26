@@ -191,8 +191,9 @@ namespace z3y
                     }
                     else
                     {
-                        MaterialEditor.ApplyMaterialPropertyDrawers(_packingMaterial);
+                        DefaultInspector.RequestValidate();
                     }
+                    MaterialEditor.ApplyMaterialPropertyDrawers(_packingMaterial);
                 }
             }
             EditorGUILayout.EndHorizontal();

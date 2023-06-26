@@ -51,12 +51,14 @@ namespace z3y.Shaders
             materialEditor.EnableInstancingField();
             materialEditor.DoubleSidedGIField();
 
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck() || _requestValidate)
             {
                 OnValidate(materialEditor, materialProperties);
+                _requestValidate = false;
             }
         }
-
+        private static bool _requestValidate = false;
+        public static void RequestValidate() => _requestValidate = true;
         private void OnValidate(MaterialEditor materialEditor, MaterialProperty[] materialProperties)
         {
             foreach (Material mat in materialEditor.targets)
