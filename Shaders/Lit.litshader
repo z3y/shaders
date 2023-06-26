@@ -42,6 +42,7 @@ PROPERTIES_START // Properties
     FoldoutMainEnd_PropertiesLocal ("", Float) = 0
     
     FoldoutMainStart_Details ("Details", Float) = 0
+    [TexturePacking(Abledo R, Albedo G, Albedo B, Mask, false)]
     [NoScaleOffset] [Toggle(_DETAIL_ALBEDO)] [Tooltip(Albedo (RGB), Mask (A))] [ExtraProperty] _DetailAlbedo ("Detail Albedo", 2D) = "white" {}
     [Enum(Multiply X2, 0, Overlay, 1, Screen, 3)] [Indent] [UnIndent] _DetailAlbedoBlendMode ("Blend Mode", Int) = 0
     [NoScaleOffset] [Normal] [Toggle(_DETAIL_NORMAL)] [ExtraProperty] _DetailBumpMap ("Detail Normal Map", 2D) = "bump" {}

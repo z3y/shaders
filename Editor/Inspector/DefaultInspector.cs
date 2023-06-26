@@ -260,15 +260,18 @@ namespace z3y.Shaders
                             rect = MaterialEditor.GetRectAfterLabelWidth(rect);
                             rect.width = 50;
                             //rect.position = new Vector2(Screen.width / 2, rect.position.y);
-                            if (GUI.Button(rect, "Pack"))
+                            if (editor.targets.Length == 1)
                             {
-                                FreeImagePackingEditor.Init();
-                                FreeImagePackingEditor.ChannelR.DisplayName = rName;
-                                FreeImagePackingEditor.ChannelG.DisplayName = gName;
-                                FreeImagePackingEditor.ChannelB.DisplayName = bName;
-                                FreeImagePackingEditor.ChannelA.DisplayName = aName;
-                                FreeImagePackingEditor.Linear = isLinear;
-                                FreeImagePackingEditor.AddPackingMaterial((Material)editor.target, unityProperty[property.index]);
+                                if (GUI.Button(rect, "Pack"))
+                                {
+                                    FreeImagePackingEditor.Init();
+                                    FreeImagePackingEditor.ChannelR.DisplayName = rName;
+                                    FreeImagePackingEditor.ChannelG.DisplayName = gName;
+                                    FreeImagePackingEditor.ChannelB.DisplayName = bName;
+                                    FreeImagePackingEditor.ChannelA.DisplayName = aName;
+                                    FreeImagePackingEditor.Linear = isLinear;
+                                    FreeImagePackingEditor.AddPackingMaterial((Material)editor.target, unityProperty[property.index]);
+                                }
                             }
                         };
                     }
