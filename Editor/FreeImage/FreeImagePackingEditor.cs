@@ -185,7 +185,14 @@ namespace z3y
                 {
                     var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(unityPath);
                     _packingMaterial.SetTexture(_packingProperty.name, texture);
-                    LitGUI.ApplyChanges(_packingMaterial);
+                    if (_packingMaterial.shader.name == ProjectSettings.ShaderName)
+                    {
+                        LitGUI.ApplyChanges(_packingMaterial);
+                    }
+                    else
+                    {
+                        MaterialEditor.ApplyMaterialPropertyDrawers(_packingMaterial);
+                    }
                 }
             }
             EditorGUILayout.EndHorizontal();
