@@ -32,7 +32,16 @@ namespace z3y
 
         public const string DefaultConfigFile = @"
 DEFINES_START
-    // #define BAKERY_MONOSH // enable mono sh globally
+    // comment out to set globally
+    
+    // #define BAKERY_MONOSH // enable mono
+    // #define _LIGHTMAPPED_SPECULAR // enable lightmapped specular
+    // #undef APPROXIMATE_AREALIGHT_SPECULAR // lower the smoothness in areas where theres less directionality in directional lightmaps, defined by default
+    // #define BICUBIC_LIGHTMAP // enable bicubic lightmap
+    // #define BAKERY_SHNONLINEAR_OFF // disable non linear lightmap sh, enabled by default
+    // #define NONLINEAR_LIGHTPROBESH // enable non linear lightprobe sh
+    // #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // enable LPPV
+    // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
 DEFINES_END
 
 ";
