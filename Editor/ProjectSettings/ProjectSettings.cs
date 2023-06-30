@@ -7,7 +7,7 @@ namespace z3y.Shaders
 {
     public class ProjectSettings
     {
-        public const string ShaderName = "Lit Variants/Legacy/Lit v2";
+        public const string ShaderName = "Lit Variants/Lit v2";
 
         public static Shader lit => Shader.Find(ShaderName);
 
@@ -23,7 +23,7 @@ namespace z3y.Shaders
             }
             var provider = new SettingsProvider("Project/Lit Shader", SettingsScope.Project)
             {
-                label = "Lit Shader",
+                label = "Lit Shader v2 (Legacy)",
                 guiHandler = (searchContext) =>
                 {
 

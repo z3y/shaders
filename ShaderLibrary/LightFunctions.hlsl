@@ -1,3 +1,6 @@
+#ifndef LIGHTFUNCTIONS_INCLUDED
+#define LIGHTFUNCTIONS_INCLUDED
+
 namespace Filament
 {
     // License included at FilamentLicense.md
@@ -469,3 +472,5 @@ half3 GlossyEnvironmentReflection(half3 reflectVector, float3 positionWS, half p
 #endif // UNITY_SPECCUBE_BLENDING
     return irradiance * occlusion;
 }
+
+#endif

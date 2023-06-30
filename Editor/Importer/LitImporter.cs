@@ -201,7 +201,7 @@ namespace z3y.Shaders
             SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/FragmentShadowCaster.hlsl");
             SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/FragmentMeta.hlsl");
             SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl");
-            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/CustomLighting.hlsl");
+            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/ForwardLighting.hlsl");
 
             string definesSbString = shaderBlocks.definesSb.ToString();
             string codeSbSbString = shaderBlocks.codeSb.ToString();

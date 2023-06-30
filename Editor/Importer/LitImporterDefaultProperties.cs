@@ -40,7 +40,7 @@ DEFINES_START
     // #define BICUBIC_LIGHTMAP // enable bicubic lightmap
     // #define BAKERY_SHNONLINEAR_OFF // disable non linear lightmap sh, enabled by default
     // #define NONLINEAR_LIGHTPROBESH // enable non linear lightprobe sh
-    // #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // enable LPPV
+    // #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // disable LPPV
     // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
 DEFINES_END
 

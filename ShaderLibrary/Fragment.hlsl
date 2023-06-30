@@ -1,4 +1,4 @@
-#include "Packages/com.z3y.shaders/ShaderLibrary/CustomLighting.hlsl"
+#include "Packages/com.z3y.shaders/ShaderLibrary/ForwardLighting.hlsl"
 
 
 #ifdef GENERATION_CODE
