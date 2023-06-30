@@ -1,4 +1,4 @@
-Shader "Lit Variants/Legacy/Lit v2"
+Shader "Lit Variants/Lit v2"
 {
 
 Properties
@@ -147,6 +147,7 @@ CGINCLUDE
 // #endif
 
 //ConfigStart
+#define _ALLOW_LPPV
 #define FIX_BLACK_LEVEL
 #pragma skip_variants LOD_FADE_CROSSFADE
 #pragma skip_variants LTCGI

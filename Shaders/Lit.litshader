@@ -21,7 +21,7 @@ PROPERTIES_START // Properties
     _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
     [IntRange] [UnIndent] [ToggleGroupEnd] _ParallaxSteps ("Steps", Range(1, 32)) = 16
 
-
+    [Tooltip(Mask(R), Tangent(AG))]
     [Toggle(_ANISOTROPY)] [NoScaleOffset] [ExtraProperty] [Linear] _AnisotropyMap ("Anisotropy", 2D) = "black" {}
     _Anisotropy ("", Range(-1.0, 1.0)) = 0
 

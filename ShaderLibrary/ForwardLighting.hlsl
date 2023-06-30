@@ -503,7 +503,7 @@ namespace CustomLighting
             surfaceDescription.Albedo.rgb = lerp(1.0, surfaceDescription.Albedo.rgb, surfaceDescription.Alpha);
         #endif
 
-        half4 finalColor = half4(surfaceDescription.Albedo * (1.0 - surfaceDescription.Metallic) * (giData.IndirectDiffuse * surfaceDescription.Occlusion + (giData.Light))
+        half4 finalColor = half4(surfaceDescription.Albedo * (1.0 - surfaceDescription.Metallic) * (giData.IndirectDiffuse * surfaceDescription.Occlusion + giData.Light)
                         + giData.Reflections + giData.Specular + surfaceDescription.Emission, surfaceDescription.Alpha);
 
         // fog
