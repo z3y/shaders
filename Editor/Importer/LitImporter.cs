@@ -21,6 +21,8 @@ namespace z3y.Shaders
         private static readonly bool ltcgiIncluded = File.Exists(LtcgiIncludePath);
         private const string DefaultShaderEditor = "z3y.Shaders.DefaultInspector";
 
+        private static Texture2D Thumbnail => AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.z3y.shaders/Editor/lit.png");
+
         private const string AreaLitIncludePath = "Assets/AreaLit/Shader/Lighting.hlsl";
         private static readonly bool areaLitIncluded = File.Exists(AreaLitIncludePath);
 
@@ -69,7 +71,7 @@ namespace z3y.Shaders
             }
             else
             {
-                ctx.AddObjectToAsset("MainAsset", shader);
+                ctx.AddObjectToAsset("MainAsset", shader, Thumbnail);
                 ctx.SetMainObject(shader);
             }
         }
