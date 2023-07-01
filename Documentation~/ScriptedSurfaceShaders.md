@@ -61,7 +61,7 @@ If the include didnt exist at first, the shader needs to be reimported.
 
 ### Config Example
 
-Create a default config with `Tools > Lit > Create Config File`
+Create a default config with `Tools > Lit > Create Config File` and open it. The options on the importer itself are not used. To apply it after editing reload (Ctrl R)
 
 > Enabling Mono SH globally
 
