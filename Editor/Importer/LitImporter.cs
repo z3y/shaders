@@ -142,13 +142,16 @@ namespace z3y.Shaders
         {
             public IEnumerator<string> enumerator { get; private set; }
             public string FileName { get; private set; }
+            public string FilePath { get; private set; }
+
             public int Index { get; private set; }
 
-            public IEnumeratorWrapper(IEnumerable<string> lines, string fileName)
+            public IEnumeratorWrapper(IEnumerable<string> lines, string fileName, string filePath)
             {
                 enumerator = lines.GetEnumerator();
                 FileName = fileName;
                 Index = -1;
+                FilePath = filePath;
             }
             public bool MoveNext()
             {
@@ -180,7 +183,7 @@ namespace z3y.Shaders
             var shaderBlocks = new ShaderBlocks();
             var fileLines = File.ReadLines(assetPath);
             string fileName = Path.GetFileName(assetPath);
-            var enumeratorWrapper = new IEnumeratorWrapper(fileLines, fileName);
+            var enumeratorWrapper = new IEnumeratorWrapper(fileLines, fileName, assetPath);
             GetShaderBlocksRecursive(enumeratorWrapper, shaderBlocks, assetPath);
 
 
@@ -677,7 +680,7 @@ namespace z3y.Shaders
 
                     if (includeFile.EndsWith(".litshader".AsSpan(), StringComparison.Ordinal))
                     {
-                        if (SourceDependencies.Contains(includePath))
+                        if (includePath.Equals(ienum.FilePath, StringComparison.Ordinal))
                         {
                             Debug.LogError($"File {includePath} already included at line {ienum.Index} in {ienum.FileName}");
                             continue;
@@ -685,7 +688,7 @@ namespace z3y.Shaders
                         var includeFileLines = File.ReadLines(includePath);
 
                         string fileName = Path.GetFileName(includePath);
-                        var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName);
+                        var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName, includePath);
                         GetShaderBlocksRecursive(enumeratorWrapper, shaderData, currentPath);
                     }
                 }
@@ -705,7 +708,7 @@ namespace z3y.Shaders
                         var includeFileLines = File.ReadLines(includePath);
                         SourceDependencies.Add(includePath);
                         string fileName = Path.GetFileName(includePath);
-                        var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName);
+                        var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName, includePath);
                         GetShaderBlocksRecursive(enumeratorWrapper, shaderData, currentPath);
                     }
 
