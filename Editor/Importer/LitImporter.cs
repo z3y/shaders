@@ -17,14 +17,14 @@ namespace z3y.Shaders
     {
         public const string Ext = "litshader";
         private const string DefaultShaderPath = "Packages/com.z3y.shaders/Shaders/Default.litshader";
-        private const string LtcgiIncludePath = "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc";
-        private static readonly bool ltcgiIncluded = File.Exists(LtcgiIncludePath);
+        public const string LtcgiIncludePath = "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc";
+        private static bool _ltcgiIncluded => File.Exists(LtcgiIncludePath);
         private const string DefaultShaderEditor = "z3y.Shaders.DefaultInspector";
 
         private static Texture2D Thumbnail => AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.z3y.shaders/Editor/lit.png");
 
-        private const string AreaLitIncludePath = "Assets/AreaLit/Shader/Lighting.hlsl";
-        private static readonly bool areaLitIncluded = File.Exists(AreaLitIncludePath);
+        public const string AreaLitIncludePath = "Assets/AreaLit/Shader/Lighting.hlsl";
+        private static bool _areaLitIncluded => File.Exists(AreaLitIncludePath);
 
         [SerializeField] public ShaderSettings settings = new ShaderSettings();
 
@@ -46,14 +46,14 @@ namespace z3y.Shaders
 
             ctx.DependsOnSourceAsset("Assets/com.z3y.shaders/Editor/Importer/LitImporter.cs");
 
+            // this will make it reimport even if the file didnt exist
+            ctx.DependsOnSourceAsset(LtcgiIncludePath);
+            ctx.DependsOnSourceAsset(AreaLitIncludePath);
+
             foreach (var dependency in SourceDependencies)
             {
                 ctx.DependsOnSourceAsset(dependency);
             }
-
-            // this will make it reimport even if the file didnt exist
-            ctx.DependsOnSourceAsset(LtcgiIncludePath);
-            ctx.DependsOnSourceAsset(AreaLitIncludePath);
 
 
             if (generateUnityShader)
@@ -188,8 +188,8 @@ namespace z3y.Shaders
 
 
             bool isAndroid = buildTarget == BuildTarget.Android;
-            bool ltcgiAllowed = !isAndroid && ltcgiIncluded;
-            bool areaLitAllowed = !isAndroid && areaLitIncluded;
+            bool ltcgiAllowed = !isAndroid && _ltcgiIncluded;
+            bool areaLitAllowed = !isAndroid && _areaLitIncluded;
 
             AppendAdditionalDataToBlocks(isAndroid, shaderBlocks);
 
@@ -573,12 +573,12 @@ namespace z3y.Shaders
                 shaderData.definesSb.AppendLine("#define BUILD_TARGET_PC");
             }
 
-            if (isAndroid || !ltcgiIncluded)
+            if (isAndroid || !_ltcgiIncluded)
             {
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI");
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");
             }
-            else if (ltcgiIncluded)
+            else if (_ltcgiIncluded)
             {
                 shaderData.definesSb.AppendLine("#define LTCGI_EXISTS");
             }
@@ -597,7 +597,7 @@ namespace z3y.Shaders
             defaultProps.AppendLine(GetPropertyDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword, "Anisotropy"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular, "Lightmapped Specular"));
 
-            if (!isAndroid && ltcgiIncluded)
+            if (!isAndroid && _ltcgiIncluded)
             {
                 defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI", "Enable LTCGI"));
                 defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI_DIFFUSE_OFF", "Disable LTCGI Diffuse"));
