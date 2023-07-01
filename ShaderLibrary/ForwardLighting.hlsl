@@ -439,7 +439,11 @@ namespace CustomLighting
             #endif
 
             float3 ltcgiSpecular = 0;
-            LTCGI_Contribution(unpacked.positionWS.xyz, sd.normalWS, sd.viewDirectionWS, sd.perceptualRoughness, ltcgi_lmuv, giData.IndirectDiffuse, ltcgiSpecular);
+            float3 ltcgiDiffuse = 0;
+            LTCGI_Contribution(unpacked.positionWS.xyz, sd.normalWS, sd.viewDirectionWS, sd.perceptualRoughness, ltcgi_lmuv, ltcgiDiffuse, ltcgiSpecular);
+            #ifndef LTCGI_DIFFUSE_DISABLED   
+                giData.Light += ltcgiDiffuse;
+            #endif
             giData.Reflections += ltcgiSpecular;
         #endif
 
