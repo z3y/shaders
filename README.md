@@ -49,6 +49,8 @@ The default shader created with this system is `Lit v3` and other variants inclu
 
 Supports PC and Quest.
 
+[Documentation](/Documentation~/ScriptedSurfaceShaders.md)
+
 ## [Shader Graph](https://github.com/z3y/ShaderGraph)
 
 Most of the features supported in the modified shader graph version: <https://github.com/z3y/ShaderGraph>

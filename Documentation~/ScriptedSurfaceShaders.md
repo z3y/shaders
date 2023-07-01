@@ -126,10 +126,6 @@ void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
 }
 ```
 
-## LTCGI
+## LTCGI and Area Lit
 
-LTCGI is automatically added if found in the project. To re-detect if LTCGI is included reimport shaders `Tools/Lit/Reimport Shaders`
-
-## Area Lit
-
-Area Lit is automatically added if found in the project. To re-detect if ltcgi is included reimport shaders `Tools/Lit/Reimport Shaders`
+LTCGI and Area Lit toggles are automatically added if found in the project.

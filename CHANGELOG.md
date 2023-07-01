@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Added a [Changelog](/CHANGELOG.md)
+- Added a [Changelog](/CHANGELOG.md).
+- Area Lit and LTCGI are now automatically detected when imported, without needing to manually reimport all shaders.
 
 ## [3.2.4] - 2023-06-30
 ### Fixed

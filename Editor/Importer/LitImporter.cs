@@ -51,15 +51,9 @@ namespace z3y.Shaders
                 ctx.DependsOnSourceAsset(dependency);
             }
 
-            if (ltcgiIncluded)
-            {
-                ctx.DependsOnSourceAsset(LtcgiIncludePath);
-            }
-
-            if (areaLitIncluded)
-            {
-                ctx.DependsOnSourceAsset(AreaLitIncludePath);
-            }
+            // this will make it reimport even if the file didnt exist
+            ctx.DependsOnSourceAsset(LtcgiIncludePath);
+            ctx.DependsOnSourceAsset(AreaLitIncludePath);
 
 
             if (generateUnityShader)
@@ -112,7 +106,6 @@ namespace z3y.Shaders
             }
 
             AssetDatabase.Refresh();
-            ReimportShaders();
             EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Shader>(fullPath));
         }
         [MenuItem("Tools/Lit/Reimport Shaders")]
@@ -675,6 +668,8 @@ namespace z3y.Shaders
                         continue;
                     }
                     
+                    SourceDependencies.Add(includePath);
+
                     if (!File.Exists(includePath))
                     {
                         continue;
@@ -682,8 +677,12 @@ namespace z3y.Shaders
 
                     if (includeFile.EndsWith(".litshader".AsSpan(), StringComparison.Ordinal))
                     {
+                        if (SourceDependencies.Contains(includePath))
+                        {
+                            Debug.LogError($"File {includePath} already included at line {ienum.Index} in {ienum.FileName}");
+                            continue;
+                        }
                         var includeFileLines = File.ReadLines(includePath);
-                        SourceDependencies.Add(includePath);
 
                         string fileName = Path.GetFileName(includePath);
                         var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName);
@@ -764,13 +763,13 @@ namespace z3y.Shaders
                 {
                     var includeFile = trimmed.Slice("#include_optional ".Length).TrimEnd('"').TrimStart('"');
                     var includePath = GetFullIncludePath(includeFile);
+                    SourceDependencies.Add(includePath);
                     if (!File.Exists(includePath))
                     {
                         sb.AppendLine(string.Empty); // for the line directive
                         continue;
                     }
 
-                    SourceDependencies.Add(includePath);
                     sb.AppendLine("#include \"" + includePath + "\"");
                     continue;
                 }
