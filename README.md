@@ -26,7 +26,7 @@ https://github.com/z3y/shaders.git
 |Antialiased Cutout | Alpha to Coverage |
 |Lightmap Specular Occlusion| Lightmap intensity used for occluding reflection probes for reduced reflections in dark areas|
 |Bicubic Lightmap| Smoother lightmap at the small cost of sampling it multiple times and performing bicubic filtering in the shader|
-|Improved Parallax | Inreased Parallax steps count |
+|Improved Parallax | Increased Parallax steps count |
 |Emission Multiply Base | Multiply Emission with Albedo|
 |Emission GI Multiplier| Adjusts emission intensity used for baking lightmaps in the Meta pass |
 |Transparency Modes | Cutout, Fade, Premultiply, Additive, Multiply|
@@ -34,11 +34,11 @@ https://github.com/z3y/shaders.git
 |Bakery Alpha Meta| Surface inputs used in the shader are properly passed to the meta pass for baking instead of just reading the main texture and main color|
 |Bakery Alpha Dither|Semi-Transparent baked shadows. Available only in Bakery L1 mode|
 |Baked Area Light Specular Approximation| Reduced smoothness in areas where there is less directionality for more accurate lightmapped specular|
-|Centroid Lightmap UVs|Fix for lightmap bleeds with very tight packing|
-|[LTCGI](https://github.com/PiMaker/ltcgi)||
-|Area Lit||
-|Box Projection on Quest||
-|Anisotropy||
+|Centroid Lightmap UVs|Fix for lightmap bleeding with very tight packing|
+|[LTCGI](https://github.com/PiMaker/ltcgi), [Area Lit](https://booth.pm/en/items/3661829)|Realtime Area lights|
+|Box Projection on Quest| Force enables box projection even if its disabled in Unity|
+|Anisotropy| Supports Tangent maps|
+|[Shader Config](/Documentation~/ScriptedSurfaceShaders.md#config-example)| A very customizable way of enabling/disabling existing features and adding new ones to all included shaders|
 |Screen-Space Reflections| |
 
 ## [Scripted Surface Shaders](/Documentation~/ScriptedSurfaceShaders.md)
