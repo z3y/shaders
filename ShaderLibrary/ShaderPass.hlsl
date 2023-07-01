@@ -45,7 +45,10 @@
     #define DISABLE_NONIMPORTANT_LIGHTS_PER_PIXEL
 #endif
 
-
+#ifdef LTCGI_DIFFUSE_OFF
+    #define LTCGI_DIFFUSE_DISABLED
+    #undef LTCGI_DIFFUSE_OFF
+#endif
 
 
 #if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)

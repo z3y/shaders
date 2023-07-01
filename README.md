@@ -49,6 +49,7 @@ The default shader created with this system is `Lit v3` and other variants inclu
 
 Supports PC and Quest.
 
+
 ## [Shader Graph](https://github.com/z3y/ShaderGraph)
 
 Most of the features supported in the modified shader graph version: <https://github.com/z3y/ShaderGraph>
@@ -64,6 +65,8 @@ Core RP Licensed under the [Unity Companion License](/ShaderLibrary//CoreRP/LICE
 Some additional code from Google Filament Licensed under [Apache License 2.0](/ShaderLibrary//FilamentLicense.md)
 
 The rest under MIT
+
+### [Documentation](/Documentation~/ScriptedSurfaceShaders.md)
 
 [Patreon](https://www.patreon.com/z3y) |
 [Bug Reports](https://github.com/z3y/shaders/issues) |

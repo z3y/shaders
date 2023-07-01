@@ -17,12 +17,14 @@ namespace z3y.Shaders
     {
         public const string Ext = "litshader";
         private const string DefaultShaderPath = "Packages/com.z3y.shaders/Shaders/Default.litshader";
-        private const string LtcgiIncludePath = "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc";
-        private static readonly bool ltcgiIncluded = File.Exists(LtcgiIncludePath);
+        public const string LtcgiIncludePath = "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc";
+        private static bool _ltcgiIncluded => File.Exists(LtcgiIncludePath);
         private const string DefaultShaderEditor = "z3y.Shaders.DefaultInspector";
 
-        private const string AreaLitIncludePath = "Assets/AreaLit/Shader/Lighting.hlsl";
-        private static readonly bool areaLitIncluded = File.Exists(AreaLitIncludePath);
+        private static Texture2D Thumbnail => AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.z3y.shaders/Editor/lit.png");
+
+        public const string AreaLitIncludePath = "Assets/AreaLit/Shader/Lighting.hlsl";
+        private static bool _areaLitIncluded => File.Exists(AreaLitIncludePath);
 
         [SerializeField] public ShaderSettings settings = new ShaderSettings();
 
@@ -44,19 +46,13 @@ namespace z3y.Shaders
 
             ctx.DependsOnSourceAsset("Assets/com.z3y.shaders/Editor/Importer/LitImporter.cs");
 
+            // this will make it reimport even if the file didnt exist
+            ctx.DependsOnSourceAsset(LtcgiIncludePath);
+            ctx.DependsOnSourceAsset(AreaLitIncludePath);
+
             foreach (var dependency in SourceDependencies)
             {
                 ctx.DependsOnSourceAsset(dependency);
-            }
-
-            if (ltcgiIncluded)
-            {
-                ctx.DependsOnSourceAsset(LtcgiIncludePath);
-            }
-
-            if (areaLitIncluded)
-            {
-                ctx.DependsOnSourceAsset(AreaLitIncludePath);
             }
 
 
@@ -69,7 +65,7 @@ namespace z3y.Shaders
             }
             else
             {
-                ctx.AddObjectToAsset("MainAsset", shader);
+                ctx.AddObjectToAsset("MainAsset", shader, Thumbnail);
                 ctx.SetMainObject(shader);
             }
         }
@@ -110,7 +106,6 @@ namespace z3y.Shaders
             }
 
             AssetDatabase.Refresh();
-            ReimportShaders();
             EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Shader>(fullPath));
         }
         [MenuItem("Tools/Lit/Reimport Shaders")]
@@ -147,13 +142,16 @@ namespace z3y.Shaders
         {
             public IEnumerator<string> enumerator { get; private set; }
             public string FileName { get; private set; }
+            public string FilePath { get; private set; }
+
             public int Index { get; private set; }
 
-            public IEnumeratorWrapper(IEnumerable<string> lines, string fileName)
+            public IEnumeratorWrapper(IEnumerable<string> lines, string fileName, string filePath)
             {
                 enumerator = lines.GetEnumerator();
                 FileName = fileName;
                 Index = -1;
+                FilePath = filePath;
             }
             public bool MoveNext()
             {
@@ -185,13 +183,13 @@ namespace z3y.Shaders
             var shaderBlocks = new ShaderBlocks();
             var fileLines = File.ReadLines(assetPath);
             string fileName = Path.GetFileName(assetPath);
-            var enumeratorWrapper = new IEnumeratorWrapper(fileLines, fileName);
+            var enumeratorWrapper = new IEnumeratorWrapper(fileLines, fileName, assetPath);
             GetShaderBlocksRecursive(enumeratorWrapper, shaderBlocks, assetPath);
 
 
             bool isAndroid = buildTarget == BuildTarget.Android;
-            bool ltcgiAllowed = !isAndroid && ltcgiIncluded;
-            bool areaLitAllowed = !isAndroid && areaLitIncluded;
+            bool ltcgiAllowed = !isAndroid && _ltcgiIncluded;
+            bool areaLitAllowed = !isAndroid && _areaLitIncluded;
 
             AppendAdditionalDataToBlocks(isAndroid, shaderBlocks);
 
@@ -575,12 +573,12 @@ namespace z3y.Shaders
                 shaderData.definesSb.AppendLine("#define BUILD_TARGET_PC");
             }
 
-            if (isAndroid || !ltcgiIncluded)
+            if (isAndroid || !_ltcgiIncluded)
             {
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI");
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");
             }
-            else if (ltcgiIncluded)
+            else if (_ltcgiIncluded)
             {
                 shaderData.definesSb.AppendLine("#define LTCGI_EXISTS");
             }
@@ -599,7 +597,7 @@ namespace z3y.Shaders
             defaultProps.AppendLine(GetPropertyDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword, "Anisotropy"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular, "Lightmapped Specular"));
 
-            if (!isAndroid && ltcgiIncluded)
+            if (!isAndroid && _ltcgiIncluded)
             {
                 defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI", "Enable LTCGI"));
                 defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI_DIFFUSE_OFF", "Disable LTCGI Diffuse"));
@@ -673,6 +671,8 @@ namespace z3y.Shaders
                         continue;
                     }
                     
+                    SourceDependencies.Add(includePath);
+
                     if (!File.Exists(includePath))
                     {
                         continue;
@@ -680,11 +680,15 @@ namespace z3y.Shaders
 
                     if (includeFile.EndsWith(".litshader".AsSpan(), StringComparison.Ordinal))
                     {
+                        if (includePath.Equals(ienum.FilePath, StringComparison.Ordinal))
+                        {
+                            Debug.LogError($"File {includePath} already included at line {ienum.Index} in {ienum.FileName}");
+                            continue;
+                        }
                         var includeFileLines = File.ReadLines(includePath);
-                        SourceDependencies.Add(includePath);
 
                         string fileName = Path.GetFileName(includePath);
-                        var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName);
+                        var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName, includePath);
                         GetShaderBlocksRecursive(enumeratorWrapper, shaderData, currentPath);
                     }
                 }
@@ -704,7 +708,7 @@ namespace z3y.Shaders
                         var includeFileLines = File.ReadLines(includePath);
                         SourceDependencies.Add(includePath);
                         string fileName = Path.GetFileName(includePath);
-                        var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName);
+                        var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName, includePath);
                         GetShaderBlocksRecursive(enumeratorWrapper, shaderData, currentPath);
                     }
 
@@ -762,13 +766,13 @@ namespace z3y.Shaders
                 {
                     var includeFile = trimmed.Slice("#include_optional ".Length).TrimEnd('"').TrimStart('"');
                     var includePath = GetFullIncludePath(includeFile);
+                    SourceDependencies.Add(includePath);
                     if (!File.Exists(includePath))
                     {
                         sb.AppendLine(string.Empty); // for the line directive
                         continue;
                     }
 
-                    SourceDependencies.Add(includePath);
                     sb.AppendLine("#include \"" + includePath + "\"");
                     continue;
                 }

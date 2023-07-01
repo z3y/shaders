@@ -61,7 +61,7 @@ If the include didnt exist at first, the shader needs to be reimported.
 
 ### Config Example
 
-Create a default config with `Tools > Lit > Create Config File`
+Create a default config with `Tools > Lit > Create Config File` and open it. The options on the importer itself are not used. To apply it after editing reload (Ctrl R)
 
 > Enabling Mono SH globally
 
@@ -126,10 +126,6 @@ void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
 }
 ```
 
-## LTCGI
+## LTCGI and Area Lit
 
-LTCGI is automatically added if found in the project. To re-detect if LTCGI is included reimport shaders `Tools/Lit/Reimport Shaders`
-
-## Area Lit
-
-Area Lit is automatically added if found in the project. To re-detect if ltcgi is included reimport shaders `Tools/Lit/Reimport Shaders`
+LTCGI and Area Lit toggles are automatically added if found in the project.
