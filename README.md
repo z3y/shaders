@@ -4,6 +4,10 @@ A Standard Shader and Surface Shaders replacement for Unity's Built-In pipeline 
 
 ## Installation
 
+### VRChat Creator Companion
+- Add to VCC https://z3y.github.io/vpm-package-listing/
+    - Requires VCC v2.1.2+
+
 ### Unity Package Manager
 
 - Have [git](https://git-scm.com/downloads) installed
@@ -13,8 +17,7 @@ A Standard Shader and Surface Shaders replacement for Unity's Built-In pipeline 
 ```
 https://github.com/z3y/shaders.git
 ```
-
-> To install a specific version add `#v0.0.0` to the end of the url with the version number  from the release labels
+- To install a specific version add `#v(version)` to the end of the url with the version number  from the release labels
 
 ## Shader Features
 
