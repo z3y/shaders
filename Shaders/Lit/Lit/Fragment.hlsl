@@ -35,7 +35,6 @@ half4 frag (v2f input, uint facing : SV_IsFrontFace) : SV_Target
         AACutout(surf.alpha, _Cutoff);
     #endif
 
-    surf.tangentNormal.g *= -1;
     FlipBTN(facing, input.worldNormal, input.bitangent, input.tangent);
 
     half3 indirectSpecular = 0.0;

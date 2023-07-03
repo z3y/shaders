@@ -67,7 +67,7 @@ v2f vert (appdata_all v)
 
     o.worldNormal = UnityObjectToWorldNormal(v.normal);
     o.tangent = UnityObjectToWorldDir(v.tangent.xyz);
-    o.bitangent = cross(o.tangent, o.worldNormal) * v.tangent.w;
+    o.bitangent = cross(o.worldNormal, o.tangent) * v.tangent.w;
     o.worldPos = mul(unity_ObjectToWorld, v.vertex);
 
     #if defined(VERTEXLIGHT_ON) && !defined(VERTEXLIGHT_PS)
