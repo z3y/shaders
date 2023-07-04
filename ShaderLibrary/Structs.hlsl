@@ -62,34 +62,34 @@ float3 GetViewDirectionWS(float3 positionWS)
 
 struct SurfaceDescriptionInputs
 {
-    float3 normalWS;
-    float3 normalOS;
-    float3 normalVS;
-    float3 normalTS;
-    float3 tangentWS;
-    float3 bitangentWS;
-    float3 tangentOS;
-    float3 tangentVS;
-    float3 tangentTS;
-    float3 bitangentOS;
-    float3 bitangentVS;
-    float3 bitangentTS;
+    float3 normalWS; // VARYINGS_NEED_NORMAL
+    float3 normalOS; // VARYINGS_NEED_NORMAL
+    float3 normalVS; // VARYINGS_NEED_NORMAL
+    float3 normalTS; // VARYINGS_NEED_NORMAL
+    float3 tangentWS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL
+    float3 tangentOS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL
+    float3 tangentVS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL
+    float3 tangentTS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL
+    float3 bitangentWS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL && VARYINGS_NEED_BITANGENT
+    float3 bitangentOS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL && VARYINGS_NEED_BITANGENT
+    float3 bitangentVS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL && VARYINGS_NEED_BITANGENT
+    float3 bitangentTS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL && VARYINGS_NEED_BITANGENT
     float3 viewDirectionWS;
     float3 viewDirectionOS;
     float3 viewDirectionVS;
-    float3 viewDirectionTS;
+    float3 viewDirectionTS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL && VARYINGS_NEED_BITANGENT
     float3 positionWS;
     float3 positionOS;
     float3 positionVS;
     float3 positionTS;
     float3 absolutePositionWS;
     float4 screenPosition;
-    float4 uv0;
-    float4 uv1;
-    float4 uv2;
-    float4 uv3;
-    float3 vertexColor;
-    bool FaceSign;
+    float4 uv0; // VARYINGS_NEED_TEXCOORD0
+    float4 uv1; // VARYINGS_NEED_TEXCOORD1
+    float4 uv2; // VARYINGS_NEED_TEXCOORD2
+    float4 uv3; // VARYINGS_NEED_TEXCOORD3
+    float3 vertexColor; // VARYINGS_NEED_COLOR
+    bool faceSign; // VARYINGS_NEED_CULLFACE
 };
 
 SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
@@ -129,11 +129,11 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
         #endif
     #endif
 
-    #ifdef VARYINGS_NEED_TANGENT
-        output.viewDirectionWS = GetViewDirectionWS(input.positionWS);
-        output.viewDirectionOS = TransformWorldToObjectDir(output.viewDirectionWS);
-        output.viewDirectionVS = TransformWorldToViewDir(output.viewDirectionWS);
+    output.viewDirectionWS = GetViewDirectionWS(input.positionWS);
+    output.viewDirectionOS = TransformWorldToObjectDir(output.viewDirectionWS);
+    output.viewDirectionVS = TransformWorldToViewDir(output.viewDirectionWS);
 
+    #ifdef VARYINGS_NEED_TANGENT
         #if defined(VARYINGS_NEED_NORMAL) && defined(VARYINGS_NEED_BITANGENT)
             float3x3 tangentSpaceTransform = float3x3(output.tangentWS, output.bitangentWS, output.normalWS);
             output.viewDirectionTS = mul(tangentSpaceTransform, output.viewDirectionWS);
@@ -166,7 +166,9 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
     #endif
 
     #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-        output.FaceSign = IS_FRONT_VFACE(input.cullFace, true, false);
+        output.faceSign = IS_FRONT_VFACE(input.cullFace, true, false);
+    #else
+        output.faceSign = true;
     #endif
 
     return output;

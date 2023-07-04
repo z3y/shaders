@@ -391,7 +391,7 @@ struct Attributes
     #endif
 
     #if defined(ATTRIBUTES_NEED_VERTEXID)
-    uint vertexId : SV_VertexID;
+    uint vertexId : VERTEXID_SEMANTIC;
     #endif
 };
 
@@ -525,7 +525,7 @@ struct Varyings
     #endif
 
     #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-        uint cullFace : SV_IsFrontFace;
+        FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
     #endif
 };
 #endif // #ifdef GENERATION_CODE
