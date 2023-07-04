@@ -65,6 +65,105 @@ float3 GetViewDirectionWS(float3 positionWS)
 // TS - TangentSpace
 // VS - ViewSpace
 
+struct VertexDescriptionInputs
+{
+    float3 normalWS; // ATTRIBUTES_NEED_NORMAL
+    float3 normalOS; // ATTRIBUTES_NEED_NORMAL
+    float3 normalVS; // ATTRIBUTES_NEED_NORMAL
+    float3 normalTS; // ATTRIBUTES_NEED_NORMAL
+    float3 tangentWS; // ATTRIBUTES_NEED_TANGENT && ATTRIBUTES_NEED_NORMAL
+    float3 tangentOS; // ATTRIBUTES_NEED_TANGENT && ATTRIBUTES_NEED_NORMAL
+    float3 tangentVS; // ATTRIBUTES_NEED_TANGENT && ATTRIBUTES_NEED_NORMAL
+    float3 tangentTS; // ATTRIBUTES_NEED_TANGENT && ATTRIBUTES_NEED_NORMAL
+    float3 bitangentWS; // ATTRIBUTES_NEED_TANGENT && ATTRIBUTES_NEED_NORMAL
+    float3 bitangentOS; // ATTRIBUTES_NEED_TANGENT && ATTRIBUTES_NEED_NORMAL
+    float3 bitangentVS; // ATTRIBUTES_NEED_TANGENT && ATTRIBUTES_NEED_NORMAL
+    float3 bitangentTS; // ATTRIBUTES_NEED_TANGENT && ATTRIBUTES_NEED_NORMAL
+    float3 viewDirectionWS;
+    float3 viewDirectionOS;
+    float3 viewDirectionVS;
+    float3 viewDirectionTS; // ATTRIBUTES_NEED_TANGENT && ATTRIBUTES_NEED_NORMAL
+    float3 positionWS;
+    float3 positionOS;
+    float3 positionVS;
+    float3 positionTS;
+    float3 absolutePositionWS;
+    float4 screenPosition;
+    float4 uv0; // ATTRIBUTES_NEED_TEXCOORD0
+    float4 uv1; // ATTRIBUTES_NEED_TEXCOORD1
+    float4 uv2; // ATTRIBUTES_NEED_TEXCOORD2
+    float4 uv3; // ATTRIBUTES_NEED_TEXCOORD3
+    float3 vertexColor; // ATTRIBUTES_NEED_COLOR
+};
+
+VertexDescriptionInputs BuildVertexDescriptionInputs(Attributes input)
+{
+    VertexDescriptionInputs output = (VertexDescriptionInputs)0;
+
+    #if defined(SHADER_STAGE_VERTEX)
+        #if defined(ATTRIBUTES_NEED_NORMAL)
+            output.normalOS = input.normalOS;
+            output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+            output.normalVS = TransformWorldToViewDir(output.normalWS);
+            output.normalTS = float3(0.0f, 0.0f, 1.0f);
+
+            #if defined(ATTRIBUTES_NEED_TANGENT)
+                output.tangentOS = input.tangentOS;
+                output.tangentWS = TransformObjectToWorldDir(input.tangentOS.xyz);
+                output.tangentVS = TransformWorldToViewDir(output.tangentWS);
+                output.tangentTS = float3(1.0f, 0.0f, 0.0f);
+
+                output.bitangentOS = normalize(cross(input.normalOS, input.tangentOS) * (input.tangentOS.w > 0.0f ? 1.0f : -1.0f) * GetOddNegativeScale());
+                output.bitangentWS = TransformObjectToWorldDir(output.bitangentOS);
+                output.bitangentVS = TransformWorldToViewDir(output.bitangentWS);
+                output.bitangentTS = float3(0.0f, 1.0f, 0.0f);
+            #endif
+        #endif
+
+        output.positionOS = input.positionOS;
+        output.positionWS = TransformObjectToWorld(input.positionOS);
+        output.positionVS = TransformWorldToView(output.positionWS);
+        output.positionTS = float3(0.0f, 0.0f, 0.0f);
+        output.absolutePositionWS = GetAbsolutePositionWS(TransformObjectToWorld(input.positionOS));
+
+        output.viewDirectionWS = GetViewDirectionWS(output.positionWS);
+        output.viewDirectionOS = TransformWorldToObjectDir(output.viewDirectionWS);
+        output.viewDirectionVS = TransformWorldToViewDir(output.viewDirectionWS);
+
+        #ifdef ATTRIBUTES_NEED_TANGENT
+            #if defined(ATTRIBUTES_NEED_NORMAL)
+                float3x3 tangentSpaceTransform = float3x3(output.tangentWS, output.bitangentWS, output.normalWS);
+                output.viewDirectionTS = mul(tangentSpaceTransform, output.viewDirectionWS);
+            #endif
+        #endif
+
+        output.screenPosition = ComputeScreenPos(TransformWorldToHClip(output.positionWS), _ProjectionParams.x);
+
+        #if defined(ATTRIBUTES_NEED_TEXCOORD0)
+            output.uv0 = input.uv0;
+        #endif
+        #if defined(ATTRIBUTES_NEED_TEXCOORD1)
+            output.uv1 = input.uv1;
+        #endif
+        #if defined(ATTRIBUTES_NEED_TEXCOORD2)
+            output.uv2 = input.uv2;
+        #endif
+        #if defined(ATTRIBUTES_NEED_TEXCOORD3)
+            output.uv3 = input.uv3;
+        #endif
+
+        #if defined(ATTRIBUTES_NEED_COLOR)
+            output.vertexColor = input.color;
+        #endif
+
+        // output.boneWeights = input.weights;
+        // output.boneIndices = input.indices;
+
+    #endif
+
+    return output;
+}
+
 struct SurfaceDescriptionInputs
 {
     float3 normalWS; // VARYINGS_NEED_NORMAL
@@ -178,6 +277,5 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
     #endif
     return output;
 }
-
 
 #endif
