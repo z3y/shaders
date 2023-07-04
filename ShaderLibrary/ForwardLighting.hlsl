@@ -34,8 +34,7 @@ namespace CustomLighting
             #define _NORMAL_DROPOFF_TS 0
         #endif
 
-        //float crossSign = (unpacked.tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale(); // moved to vertex
-        float crossSign = unpacked.tangentWS.w;
+        float crossSign = (unpacked.tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale();
         bitangentWS = crossSign * cross(unpacked.normalWS.xyz, unpacked.tangentWS.xyz);
         tangentWS = unpacked.tangentWS.xyz;
 

@@ -95,8 +95,6 @@ Varyings BuildVaryings(Attributes input)
     #endif
     #ifdef VARYINGS_NEED_TANGENT
     output.tangentWS = tangentWS;
-    float crossSign = (tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale();
-    output.tangentWS.w = crossSign;
     #endif
 
     #if defined(UNITY_PASS_FORWARD) || defined(GENERATION_CODE)

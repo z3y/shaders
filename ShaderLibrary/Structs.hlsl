@@ -70,14 +70,14 @@ struct SurfaceDescriptionInputs
     float3 tangentOS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL
     float3 tangentVS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL
     float3 tangentTS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL
-    float3 bitangentWS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL && VARYINGS_NEED_BITANGENT
-    float3 bitangentOS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL && VARYINGS_NEED_BITANGENT
-    float3 bitangentVS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL && VARYINGS_NEED_BITANGENT
-    float3 bitangentTS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL && VARYINGS_NEED_BITANGENT
+    float3 bitangentWS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL
+    float3 bitangentOS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL
+    float3 bitangentVS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL
+    float3 bitangentTS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL
     float3 viewDirectionWS;
     float3 viewDirectionOS;
     float3 viewDirectionVS;
-    float3 viewDirectionTS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL && VARYINGS_NEED_BITANGENT
+    float3 viewDirectionTS; // VARYINGS_NEED_TANGENT && VARYINGS_NEED_NORMAL
     float3 positionWS;
     float3 positionOS;
     float3 positionVS;
@@ -96,29 +96,29 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output = (SurfaceDescriptionInputs)0;
 
-    #if defined(VARYINGS_NEED_NORMAL)
-        // must use interpolated tangent, bitangent and normal before they are normalized in the pixel shader.
-        float3 unnormalizedNormalWS = input.normalWS;
-        const float renormFactor = 1.0 / length(unnormalizedNormalWS);
+    #if defined(SHADER_STAGE_FRAGMENT)
 
-        output.normalWS = renormFactor * input.normalWS.xyz; // we want a unit length Normal Vector node in shader graph
-        output.normalOS = normalize(mul(output.normalWS, (float3x3)UNITY_MATRIX_M)); // transposed multiplication by inverse matrix to handle normal scale
-        output.normalVS = mul(output.normalWS, (float3x3)UNITY_MATRIX_I_V); // transposed multiplication by inverse matrix to handle normal scale
-        output.normalTS = float3(0.0f, 0.0f, 1.0f);
+        #if defined(VARYINGS_NEED_NORMAL)
+            // must use interpolated tangent, bitangent and normal before they are normalized in the pixel shader.
+            float3 unnormalizedNormalWS = input.normalWS;
+            const float renormFactor = 1.0 / length(unnormalizedNormalWS);
 
-        #if defined(VARYINGS_NEED_TANGENT)
-            // to preserve mikktspace compliance we use same scale renormFactor as was used on the normal.
-            // This is explained in section 2.2 in "surface gradient based bump mapping framework"
-            output.tangentWS = renormFactor * input.tangentWS.xyz;
-            output.tangentOS = TransformWorldToObjectDir(output.tangentWS);
-            output.tangentVS = TransformWorldToViewDir(output.tangentWS);
-            output.tangentTS = float3(1.0f, 0.0f, 0.0f);
+            output.normalWS = renormFactor * input.normalWS.xyz; // we want a unit length Normal Vector node in shader graph
+            output.normalOS = normalize(mul(output.normalWS, (float3x3)UNITY_MATRIX_M)); // transposed multiplication by inverse matrix to handle normal scale
+            output.normalVS = mul(output.normalWS, (float3x3)UNITY_MATRIX_I_V); // transposed multiplication by inverse matrix to handle normal scale
+            output.normalTS = float3(0.0f, 0.0f, 1.0f);
 
-            #if defined(VARYINGS_NEED_BITANGENT)
+            #if defined(VARYINGS_NEED_TANGENT)
+                // to preserve mikktspace compliance we use same scale renormFactor as was used on the normal.
+                // This is explained in section 2.2 in "surface gradient based bump mapping framework"
+                output.tangentWS = renormFactor * input.tangentWS.xyz;
+                output.tangentOS = TransformWorldToObjectDir(output.tangentWS);
+                output.tangentVS = TransformWorldToViewDir(output.tangentWS);
+                output.tangentTS = float3(1.0f, 0.0f, 0.0f);
+
                 // use bitangent on the fly like in hdrp
                 // IMPORTANT! If we ever support Flip on double sided materials ensure bitangent and tangent are NOT flipped.
-                //float crossSign = (input.tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale(); moved to vertex
-                float3 crossSign = input.tangentWS.w;
+                float crossSign = (input.tangentWS.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale();
                 float3 bitang = crossSign * cross(input.normalWS.xyz, input.tangentWS.xyz);
 
                 output.bitangentWS = renormFactor * bitang;
@@ -127,50 +127,50 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
                 output.bitangentTS = float3(0.0f, 1.0f, 0.0f);
             #endif
         #endif
-    #endif
 
-    output.viewDirectionWS = GetViewDirectionWS(input.positionWS);
-    output.viewDirectionOS = TransformWorldToObjectDir(output.viewDirectionWS);
-    output.viewDirectionVS = TransformWorldToViewDir(output.viewDirectionWS);
+        output.viewDirectionWS = GetViewDirectionWS(input.positionWS);
+        output.viewDirectionOS = TransformWorldToObjectDir(output.viewDirectionWS);
+        output.viewDirectionVS = TransformWorldToViewDir(output.viewDirectionWS);
 
-    #ifdef VARYINGS_NEED_TANGENT
-        #if defined(VARYINGS_NEED_NORMAL) && defined(VARYINGS_NEED_BITANGENT)
-            float3x3 tangentSpaceTransform = float3x3(output.tangentWS, output.bitangentWS, output.normalWS);
-            output.viewDirectionTS = mul(tangentSpaceTransform, output.viewDirectionWS);
+        #ifdef VARYINGS_NEED_TANGENT
+            #if defined(VARYINGS_NEED_NORMAL)
+                float3x3 tangentSpaceTransform = float3x3(output.tangentWS, output.bitangentWS, output.normalWS);
+                output.viewDirectionTS = mul(tangentSpaceTransform, output.viewDirectionWS);
+            #endif
         #endif
-    #endif
 
-    output.positionWS = input.positionWS;
-    output.positionOS = TransformWorldToObject(input.positionWS);
-    output.positionVS = TransformWorldToView(input.positionWS);
-    output.positionTS = float3(0.0f, 0.0f, 0.0f);
-    output.absolutePositionWS = GetAbsolutePositionWS(input.positionWS);
+        output.positionWS = input.positionWS;
+        output.positionOS = TransformWorldToObject(input.positionWS);
+        output.positionVS = TransformWorldToView(input.positionWS);
+        output.positionTS = float3(0.0f, 0.0f, 0.0f);
+        output.absolutePositionWS = GetAbsolutePositionWS(input.positionWS);
 
-    output.screenPosition = ComputeScreenPos(TransformWorldToHClip(input.positionWS), _ProjectionParams.x);
+        output.screenPosition = ComputeScreenPos(TransformWorldToHClip(input.positionWS), _ProjectionParams.x);
 
-    #if defined(VARYINGS_NEED_TEXCOORD0)
-        output.uv0 = input.texCoord0;
-    #endif
-    #if defined(VARYINGS_NEED_TEXCOORD1)
-        output.uv1 = input.texCoord1;
-    #endif
-    #if defined(VARYINGS_NEED_TEXCOORD2)
-        output.uv2 = input.texCoord2;
-    #endif
-    #if defined(VARYINGS_NEED_TEXCOORD3)
-        output.uv3 = input.texCoord3;
-    #endif
+        #if defined(VARYINGS_NEED_TEXCOORD0)
+            output.uv0 = input.texCoord0;
+        #endif
+        #if defined(VARYINGS_NEED_TEXCOORD1)
+            output.uv1 = input.texCoord1;
+        #endif
+        #if defined(VARYINGS_NEED_TEXCOORD2)
+            output.uv2 = input.texCoord2;
+        #endif
+        #if defined(VARYINGS_NEED_TEXCOORD3)
+            output.uv3 = input.texCoord3;
+        #endif
 
-    #if defined(VARYINGS_NEED_COLOR)
-        output.vertexColor = input.color;
-    #endif
+        #if defined(VARYINGS_NEED_COLOR)
+            output.vertexColor = input.color;
+        #endif
 
-    #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-        output.faceSign = IS_FRONT_VFACE(input.cullFace, true, false);
-    #else
-        output.faceSign = true;
-    #endif
+        #if defined(VARYINGS_NEED_CULLFACE)
+            output.faceSign = IS_FRONT_VFACE(input.cullFace, true, false);
+        #else
+            output.faceSign = true;
+        #endif
 
+    #endif // defined(SHADER_STAGE_FRAGMENT) 
     return output;
 }
 
