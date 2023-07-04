@@ -60,6 +60,11 @@ float3 GetViewDirectionWS(float3 positionWS)
 
 #ifdef GENERATION_CODE
 
+// WS - WorldSpace
+// OS - ObjectSpace
+// TS - TangentSpace
+// VS - ViewSpace
+
 struct SurfaceDescriptionInputs
 {
     float3 normalWS; // VARYINGS_NEED_NORMAL
@@ -170,7 +175,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
             output.faceSign = true;
         #endif
 
-    #endif // defined(SHADER_STAGE_FRAGMENT) 
+    #endif
     return output;
 }
 
