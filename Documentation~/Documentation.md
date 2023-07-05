@@ -41,11 +41,12 @@ CODE_START
     #define ModifyFinalColor ModifyFinalColorGlobalBrightness
 CODE_END
 ```
+
 More info at [Creating Shader Variants](/Documentation~/CreatingVariants.md).
 
 ## Material Description
 
-Add `SetupLitShader` to the model importer and switch the Material Creation Mode to MaterialDecription to setup materials with the default shader. The roughness, metallic, color and emission values, transparency, normal map and albedo map will be transferred properly from Blender materials.
+Add `SetupLitShader` to the model importer and switch the Material Creation Mode to MaterialDescription to set up materials with the default shader. The roughness, metallic, color and emission values, transparency, normal map and albedo map will be transferred properly from Blender materials.
 
 ![Image](/Documentation~/Images/MaterialDescription.png)
 

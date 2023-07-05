@@ -6,7 +6,7 @@ To create a new shader variant use `Create > Shader > Lit Shader Variant`. The s
 
 - More Features
 - Custom Interpolators
-- Uses CoreRP library
+- Uses [Core RP Library](https://docs.unity3d.com/Manual/com.unity.render-pipelines.core.html)
 - Not a Surface Shader
 
 ## Syntax
@@ -17,13 +17,13 @@ To preview the generated ShaderLab code use `Copy Generated Shader` on the impor
 | Block | Description |
 | - | - |
 |PROPERTIES| Properties get copied over into the Properties {} of the ShaderLab code. Some default properties are added before and after|
-|DEFINES|Shader Features and Defines. Included after the CoreRP shader library and before all the code|
-|CBUFFER| Declare all Material properties excluding textures. Copied after importing the CoreRP library and code used for lighting |
+|DEFINES|Shader Features and Defines. Included after the Core RP shader library and before all the code|
+|CBUFFER| Declare all Material properties excluding textures. Copied after importing the Core RP Library and code used for lighting |
 |CODE| Contains texture declarations and override functions for parts of the vertex and fragment shader. All existing override functions are included in the template|
 
-## Configuring VSCode
+## Configuring VS Code
 
-To have proper hlsl syntax highlighting you can set a language mode to be associated with this file extension. Bottom right click on "Plain Text" and "Set file association for .litshader" and select hlsl.
+To have proper HLSL syntax highlighting you can set a language mode to be associated with this file extension. Bottom right click on "Plain Text" and "Set file association for `.litshader`" and select HLSL.
 
 ## Importer Shader Defines
 
@@ -41,13 +41,13 @@ BAKERY_INCLUDED | Same as the C# define, defined if bakery is imported in the pr
 
 ## Including Other Shaders
 
-It is possible to stack other shaders by including a `.litshader` outside of any code blocks. To stack an output of a previous function you can redefine it and access the previous function inside it. [Example](/Shaders/Samples/Stacked.litshader)
+It is possible to stack other shaders by including a `.litshader` outside of code blocks. To stack an output of a previous function you can redefine it and access the previous function inside it. [Example](/Shaders/Samples/Stacked.litshader)
 
 ## Optional Includes
 
-Using `#include_optional ""` instead of `#include ""` will only include the file if it exists so it doesnt cause errors. This also works on .litshader file types. With this it is possible to make a global include with code that will be included in all shaders, it works as stacked shader. The default template will include file at path `Assets/Settings/LitShaderConfig.litshader`.
+Using `#include_optional ""` instead of `#include ""` will only include the file if it exists, so it doesn't cause errors. This also works on `.litshader` file types. With this it is possible to make a global include with code that will be included in all shaders, it works as stacked shader. The default template will include file at path `Assets/Settings/LitShaderConfig.litshader`.
 
-If the include didnt exist at first, the shader will still register it as a dependency and automatically re-import it.
+If a file at the included path doesn't exist, the importer will still register it as a dependency and automatically re-import it when its created.
 
 ## Custom Interpolators
 

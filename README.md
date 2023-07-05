@@ -12,18 +12,18 @@ A Standard Shader and Surface Shaders replacement for Unity's Built-In pipeline 
 
 - Have [git](https://git-scm.com/downloads) installed
 - Open the Package Manager window `Window > Package Manager`
-- Press + in the top left and package from git url
+- Press + in the top left and package from git URL
 
 ```
 https://github.com/z3y/shaders.git
 ```
-- To install a specific version add `#v(version)` to the end of the url with the version number  from the release labels
+- To install a specific version add `#v(version)` to the end of the URL with the version number from the release labels.
 
 ## Features
 
 | Feature | Description |
 | - | - |
-|Accurate PBR Shading | More accurate fresnel calculations and updated lighting functions from [Filament](https://github.com/google/filament) |
+|Accurate PBR Shading | More accurate Fresnel calculations and updated lighting functions from [Filament](https://github.com/google/filament) |
 |Bakery Features| Mono SH, Lightmapped Specular, Non-Linear SH and Non-Linear Light Probe SH supported |
 |Geometric Specular AA| Reduced specular shimmering |
 |Antialiased Cutout | Alpha to Coverage |
@@ -33,13 +33,13 @@ https://github.com/z3y/shaders.git
 |Emission Multiply Base | Multiply Emission with Albedo|
 |Emission GI Multiplier| Adjusts emission intensity used for baking lightmaps in the Meta pass |
 |Transparency Modes | Cutout, Fade, Premultiply, Additive, Multiply|
-|Non-Important lights per pixel| Cheaper realtime lights done in one pass. Does not work with lightmapped object |
+|Non-Important lights per pixel| Cheaper real-time lights done in one pass. Does not work with lightmapped object |
 |Bakery Alpha Meta| Surface inputs used in the shader are properly passed to the meta pass for baking instead of just reading the main texture and main color|
 |Bakery Alpha Dither|Semi-Transparent baked shadows. Available only in Bakery L1 mode|
 |Baked Area Light Specular Approximation| Reduced smoothness in areas where there is less directionality for more accurate lightmapped specular|
 |Centroid Lightmap UVs|Fix for lightmap bleeding with very tight packing|
 |[LTCGI](https://github.com/PiMaker/ltcgi), [Area Lit](https://booth.pm/en/items/3661829)|Realtime Area lights|
-|Box Projection on Quest| Force enables box projection even if its disabled in Unity|
+|Box Projection on Quest| Force enables box projection even if it's disabled in Unity|
 |Anisotropy| Supports Tangent maps|
 |[Shader Config](/Documentation~/ScriptedSurfaceShaders.md#config-example)| A very customizable way of enabling/disabling existing features and adding new ones to all included shaders|
 |Texture Packing| A tool for texture packing included: `Lit > Texture Packing` and in the material inspector for packed textures |
@@ -47,7 +47,7 @@ https://github.com/z3y/shaders.git
 
 ## [Scripted Surface Shaders](/Documentation~/CreatingVariants.md)
 
-You can create surface-like shaders `Create > Shader > Lit Shader Variant`. Having just one  shader will not fit everyone's workflow. With some basic shader knowledge you can create exactly what you need while still having all of the advanced lighting and shader features.
+You can create surface-like shaders `Create > Shader > Lit Shader Variant`. Having just one shader will not fit everyone's workflow. With some basic shader knowledge you can create exactly what you need while still having all the advanced lighting and shader features.
 
 The default shader created with this system is `Lit v3` and other variants included at `Lit Variants/`
 
