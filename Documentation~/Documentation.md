@@ -2,9 +2,9 @@
 
 ## [Texture Packing](/Documentation~/TexturePacking.md)
 
-## [Included Variants](/Documentation~/CreatingVariants.md)
+## [Included Variants](/Documentation~/IncludedVariants.md)
 
-## [Creating Variants](/Documentation~/IncludedVariants.md)
+## [Creating Variants](/Documentation~/CreatingVariants.md)
 
 ## Shader Config
 
