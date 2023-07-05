@@ -19,7 +19,7 @@ https://github.com/z3y/shaders.git
 ```
 - To install a specific version add `#v(version)` to the end of the url with the version number  from the release labels
 
-## Shader Features
+## Features
 
 | Feature | Description |
 | - | - |
@@ -42,9 +42,10 @@ https://github.com/z3y/shaders.git
 |Box Projection on Quest| Force enables box projection even if its disabled in Unity|
 |Anisotropy| Supports Tangent maps|
 |[Shader Config](/Documentation~/ScriptedSurfaceShaders.md#config-example)| A very customizable way of enabling/disabling existing features and adding new ones to all included shaders|
+|Texture Packing| A tool for texture packing included: `Lit > Texture Packing` and in the material inspector for packed textures |
 |Screen-Space Reflections| |
 
-## [Scripted Surface Shaders](/Documentation~/ScriptedSurfaceShaders.md)
+## [Scripted Surface Shaders](/Documentation~/CreatingVariants.md)
 
 You can create surface-like shaders `Create > Shader > Lit Shader Variant`. Having just one  shader will not fit everyone's workflow. With some basic shader knowledge you can create exactly what you need while still having all of the advanced lighting and shader features.
 
@@ -52,14 +53,11 @@ The default shader created with this system is `Lit v3` and other variants inclu
 
 Supports PC and Quest.
 
+## [Documentation](/Documentation~/Documentation.md)
 
 ## [Shader Graph](https://github.com/z3y/ShaderGraph)
 
-Most of the features supported in the modified shader graph version: <https://github.com/z3y/ShaderGraph>
-
-## [Texture Packing](/Documentation~/TexturePacking.md)
-
-A tool for texture packing included: `Lit > Texture Packing`.
+Most of the features supported in the modified experimental Shader Graph version: <https://github.com/z3y/ShaderGraph>
 
 ## License
 
@@ -69,7 +67,6 @@ Some additional code from Google Filament Licensed under [Apache License 2.0](/S
 
 The rest under MIT
 
-### [Documentation](/Documentation~/ScriptedSurfaceShaders.md)
 
 [Patreon](https://www.patreon.com/z3y) |
 [Bug Reports](https://github.com/z3y/shaders/issues) |
