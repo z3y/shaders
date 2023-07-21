@@ -39,7 +39,10 @@ namespace z3y.Shaders
             AssetDatabase.ImportAsset(path);
             
             _requestGeneratedShader = false;
-            return _lastImportedShader;
+            var code = _lastImportedShader;
+            _lastImportedShader = string.Empty;
+
+            return code;
         }
 
         public override void OnImportAsset(AssetImportContext ctx)
