@@ -36,16 +36,16 @@ namespace z3y.Shaders
             return root;
         }
 
-        public void ExportShader()
+        private void ExportShader()
         {
             var importer = (LitImporter)serializedObject.targetObject;
             var settings = importer.settings;
             var assetPath = AssetDatabase.GetAssetPath(importer);
-            var code = LitImporter.GetShaderLabCode(settings, assetPath, EditorUserBuildSettings.activeBuildTarget);
+            var code = LitImporter.RequestGeneratedShader(assetPath);
             GUIUtility.systemCopyBuffer = code;
         }
 
-        public void RevertGUI()
+        private void RevertGUI()
         {
             ApplyRevertGUI();
         }
