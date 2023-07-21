@@ -1,0 +1,162 @@
+﻿PROPERTIES_START
+    [HideInInspector] _MainTex ("BaseMap (RGB)", 2D) = "white" {}
+    [HideInInspector] _Color ("Main Color", Color) = (1,1,1,1)
+    [HideInInspector] _TerrainHolesTexture("Holes Map (RGB)", 2D) = "white" {}
+
+    _HeightTransition("Height Transition", Range(0, 1.0)) = 0.0
+    [Tooltip(Blend Terrain layers based on height values from the mask map. Only works with up to 4 layers)]
+    [Toggle(_TERRAIN_BLEND_HEIGHT)] _HeightBlend ("EnableHeightBlend", Float) = 0.0
+    [HelpBox] MaskInfo ("When using a Mask Map texture don't leave empty slots on any layers.
+Set a default white texture for the Mask Map manually.
+Unity doesn't set default values on terrain properties correctly.
+The channel remapping doesn't work because Unity doesnt pass these the parameters to shaders", Float) = 0
+
+    _SpecularOcclusion ("Specular Occlusion", Range(0,3)) = 1
+
+    // set by terrain engine
+    [HideInInspector] _Control("Control (RGBA)", 2D) = "red" {}
+    [HideInInspector] _Splat3("Layer 3 (A)", 2D) = "grey" {}
+    [HideInInspector] _Splat2("Layer 2 (B)", 2D) = "grey" {}
+    [HideInInspector] _Splat1("Layer 1 (G)", 2D) = "grey" {}
+    [HideInInspector] _Splat0("Layer 0 (R)", 2D) = "grey" {}
+    [HideInInspector] _Normal3("Normal 3 (A)", 2D) = "bump" {}
+    [HideInInspector] _Normal2("Normal 2 (B)", 2D) = "bump" {}
+    [HideInInspector] _Normal1("Normal 1 (G)", 2D) = "bump" {}
+    [HideInInspector] _Normal0("Normal 0 (R)", 2D) = "bump" {}
+    [HideInInspector] _Mask3("Mask 3 (A)", 2D) = "white" {}
+    [HideInInspector] _Mask2("Mask 2 (B)", 2D) = "white" {}
+    [HideInInspector] _Mask1("Mask 1 (G)", 2D) = "white" {}
+    [HideInInspector] _Mask0("Mask 0 (R)", 2D) = "white" {}
+    [HideInInspector] _Metallic0("Metallic 0", Range(0.0, 1.0)) = 0.0
+    [HideInInspector] _Metallic1("Metallic 1", Range(0.0, 1.0)) = 0.0
+    [HideInInspector] _Metallic2("Metallic 2", Range(0.0, 1.0)) = 0.0
+    [HideInInspector] _Metallic3("Metallic 3", Range(0.0, 1.0)) = 0.0
+    [HideInInspector] _Smoothness0("Smoothness 0", Range(0.0, 1.0)) = 0.5
+    [HideInInspector] _Smoothness1("Smoothness 1", Range(0.0, 1.0)) = 0.5
+    [HideInInspector] _Smoothness2("Smoothness 2", Range(0.0, 1.0)) = 0.5
+    [HideInInspector] _Smoothness3("Smoothness 3", Range(0.0, 1.0)) = 0.5
+
+PROPERTIES_END
+
+DEFINES_START
+    #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap forwardadd
+
+    #define VARYINGS_NEED_CULLFACE
+    #define ATTRIBUTES_NEED_TEXCOORD0
+    #define CUSTOM_VARYING0 float2 mainUV : VARYING0;
+
+    #define DISABLE_LIGHT_PROBE_PROXY_VOLUME
+    #define APPROXIMATE_AREALIGHT_SPECULAR
+
+    #pragma shader_feature_local _MASKMAP
+    #pragma shader_feature_local _NORMALMAP
+    #pragma shader_feature_local _TERRAIN_BLEND_HEIGHT
+    // #pragma skip_variants _EMISSION _ALPHAFADE_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
+    #pragma skip_variants _EMISSION
+    #pragma skip_variants _ALPHAFADE_ON
+DEFINES_END
+
+
+CBUFFER_START
+    float4 _MainTex_ST;
+    half4 _Color;
+    half _Cutoff;
+    half _SpecularOcclusion;
+CBUFFER_END
+
+
+CODE_START
+
+    #define TERRAIN_BASE_PASS
+    #include <TerrainInput.hlsl>
+
+    #define USE_MODIFYATTRIBUTES
+    void ModifyAttributes(inout Attributes attributes)
+    {
+        TerrainInstancing(attributes.positionOS, attributes.normalOS, attributes.uv0.xy);
+
+        #ifdef UNITY_PASS_FORWARD
+        attributes.tangentOS = ComputeTerrainTangent(attributes.normalOS);
+        #endif
+    }
+
+    #define USE_MODIFYVARYINGS
+    void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
+    {
+        varyings.mainUV.xy = attributes.uv0.xy;
+    }
+
+    #define USE_SURFACEDESCRIPTION
+    void SurfaceDescriptionFunction(Varyings IN, inout SurfaceDescription surface)
+    {
+        float2 uv = IN.mainUV.xy;
+        
+        float2 splatUV = (uv * (_Control_TexelSize.zw - 1.0f) + 0.5f) * _Control_TexelSize.xy;
+        half4 splatControl = SAMPLE_TEXTURE2D(_Control, sampler_Control, splatUV);
+
+        float4 uvSplat01;
+        uvSplat01.xy = uv * _Splat0_ST.xy + _Splat0_ST.zw;
+        uvSplat01.zw = uv * _Splat1_ST.xy + _Splat1_ST.zw;
+        float4 uvSplat23;
+        uvSplat23.xy = uv * _Splat2_ST.xy + _Splat2_ST.zw;
+        uvSplat23.zw = uv * _Splat3_ST.xy + _Splat3_ST.zw;
+
+        #ifdef _MASKMAP
+            half4 maskMaps[4];
+            maskMaps[0] = SAMPLE_TEXTURE2D(_Mask0, sampler_Mask0, uvSplat01.xy);
+            maskMaps[1] = SAMPLE_TEXTURE2D(_Mask1, sampler_Mask0, uvSplat01.zw);
+            maskMaps[2] = SAMPLE_TEXTURE2D(_Mask2, sampler_Mask0, uvSplat23.xy);
+            maskMaps[3] = SAMPLE_TEXTURE2D(_Mask3, sampler_Mask0, uvSplat23.zw);
+        #endif
+
+        #if defined(_TERRAIN_BLEND_HEIGHT) && defined(_MASKMAP)
+            HeightBasedSplatModify(splatControl, half4(maskMaps[0].b, maskMaps[1].b, maskMaps[2].b, maskMaps[3].b));
+        #endif
+
+
+        half weight;
+        half4 mixedDiffuse;
+        half4 defaultSmoothness;
+        SplatmapMix(uvSplat01, uvSplat23, splatControl, weight, mixedDiffuse, defaultSmoothness, surface.Normal);
+        half4 defaultMetallic = half4(_Metallic0, _Metallic1, _Metallic2, _Metallic3);
+        surface.Smoothness = dot(splatControl, defaultSmoothness);
+        surface.Metallic = dot(splatControl, defaultMetallic);
+        half4 defaultOcclusion = 1.0;
+
+        surface.Albedo = mixedDiffuse;
+
+        #ifdef _MASKMAP
+            half4 maskMap = 0;
+            maskMap += splatControl.r * maskMaps[0];
+            maskMap += splatControl.g * maskMaps[1];
+            maskMap += splatControl.b * maskMaps[2];
+            maskMap += splatControl.a * maskMaps[3];
+            
+            surface.Smoothness *= maskMap.a;
+            surface.Metallic *= maskMap.r;
+            surface.Occlusion *= maskMap.g;
+        #endif
+
+        #ifdef _ALPHATEST_ON
+            ClipHoles(uv);
+            #undef _ALPHATEST_ON
+        #endif
+
+        #ifdef TERRAIN_SPLAT_ADDPASS
+            surface.Alpha = weight;
+            #define _ALPHAMODULATE_ON
+        #endif
+
+        surface.Smoothness = saturate(surface.Smoothness);
+        surface.Metallic = saturate(surface.Metallic);
+        surface.SpecularOcclusion = _SpecularOcclusion;
+    }
+
+CODE_END
+
+DEPENDENCY_START
+    // Dependency "AddPassShader" = "Hidden/Lit Variants/Terrain-Add"
+    Dependency "AddPassShader"    = "Hidden/TerrainEngine/Splatmap/Standard-AddPass"
+DEPENDENCY_END
+
+#include_optional "Assets/Settings/LitShaderConfig.litshader"

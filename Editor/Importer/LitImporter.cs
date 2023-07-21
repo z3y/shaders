@@ -136,6 +136,7 @@ namespace z3y.Shaders
             public StringBuilder definesForwardAddSb = new StringBuilder();
             public StringBuilder definesShadowcasterSb = new StringBuilder();
             public StringBuilder definesMetaSb = new StringBuilder();
+            public StringBuilder dependenciesSb = new StringBuilder();
         }
 
         private class IEnumeratorWrapper : IDisposable
@@ -205,9 +206,13 @@ namespace z3y.Shaders
             string codeSbSbString = shaderBlocks.codeSb.ToString();
             string cbufferSbSbString = shaderBlocks.cbufferSb.ToString();
 
+            var shaderName = GetShaderName(settings, assetPath);
+            bool isTerrain = shaderName.Contains("Terrain"); // overlooked while making the importer
+            bool isTerrainAdd = shaderName.Contains("Terrain-Add");
+
             var sb = new StringBuilder();
 
-            sb.AppendLine($"Shader \"{GetShaderName(settings, assetPath)}\" ");
+            sb.AppendLine($"Shader \"{shaderName}\" ");
             sb.AppendLine("{");
             {
                 sb.AppendLine("Properties");
@@ -238,7 +243,19 @@ namespace z3y.Shaders
                     {
                         //sb.AppendLine("\"RenderPipeline\"=\"\""); // Always built-in
                         sb.AppendLine("\"RenderType\"=\"Opaque\"");
-                        sb.AppendLine(settings.grabPass ? "\"Queue\"=\"Transparent+100\"" : "\"Queue\"=\"Geometry+0\"");
+                        if (isTerrain)
+                        {
+                            sb.AppendLine("\"Queue\" = \"Geometry-100\"");
+                        }
+                        else if (isTerrainAdd)
+                        {
+                            sb.AppendLine("\"Queue\" = \"Geometry-99\"");
+                        }
+                        else
+                        {
+                            sb.AppendLine(settings.grabPass ? "\"Queue\"=\"Transparent+100\"" : "\"Queue\"=\"Geometry+0\"");
+                        }
+
                         if (ltcgiAllowed) sb.AppendLine("\"LTCGI\" = \"_LTCGI\"");
                     }
                     sb.AppendLine("}");
@@ -254,8 +271,14 @@ namespace z3y.Shaders
                         sb.AppendLine("Name \"FORWARDBASE\"");
                         
                         sb.AppendLine("Tags { \"LightMode\" = \"ForwardBase\"}");
-
-                        sb.AppendLine("Blend [_SrcBlend] [_DstBlend]");
+                        if (isTerrainAdd)
+                        {
+                            sb.AppendLine("Blend SrcAlpha One");
+                        }
+                        else
+                        {
+                            sb.AppendLine("Blend [_SrcBlend] [_DstBlend]");
+                        }
                         sb.AppendLine("Cull [_Cull]");
                         sb.AppendLine("// ZTest: <None>");
                         sb.AppendLine("ZWrite [_ZWrite]");
@@ -301,7 +324,7 @@ namespace z3y.Shaders
                             sb.AppendLine(GetDefineTypeDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword));
                             sb.AppendLine(GetDefineTypeDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular));
                         }
-                        sb.AppendLine("#pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
+                        sb.AppendLine("#pragma shader_feature_local _ _ALPHAFADE_ON _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
                         
                         if (settings.alphaToCoverage)
                         {
@@ -369,7 +392,7 @@ namespace z3y.Shaders
 
                             sb.AppendLine(GetDefineTypeDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword));
 
-                            sb.AppendLine("#pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
+                            sb.AppendLine("#pragma shader_feature_local _ _ALPHAFADE_ON _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
 
                             if (settings.alphaToCoverage)
                             {
@@ -423,7 +446,7 @@ namespace z3y.Shaders
                         sb.AppendLine("#pragma multi_compile_instancing");
                         sb.AppendLine("#pragma multi_compile_shadowcaster");
                         
-                        sb.AppendLine("#pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAFADE_ON");
+                        sb.AppendLine("#pragma shader_feature_local _ _ALPHAFADE_ON _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
 
                         sb.AppendLine("// DEFINES_START");
                         sb.AppendLine(definesSbString);
@@ -470,7 +493,7 @@ namespace z3y.Shaders
                         sb.AppendLine("#pragma target 4.5");
                         sb.AppendLine("#pragma shader_feature EDITOR_VISUALIZATION");
                         
-                        sb.AppendLine("#pragma shader_feature_local _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
+                        sb.AppendLine("#pragma shader_feature_local _ _ALPHAFADE_ON _ALPHATEST_ON _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON");
                         sb.AppendLine("#pragma shader_feature_local _EMISSION");
 
                         sb.AppendLine("// DEFINES_START");
@@ -503,6 +526,7 @@ namespace z3y.Shaders
                 
                 sb.AppendLine(GetShaderInspectorLine(settings));
                 sb.AppendLine("Fallback \"Mobile/Quest Lite\"");
+                sb.AppendLine(shaderBlocks.dependenciesSb.ToString());
                 // sb.AppendLine("Fallback");
             }
             sb.AppendLine("}");
@@ -660,7 +684,12 @@ namespace z3y.Shaders
                 {
                     AppendLineBlockSpan(ienum, shaderData.cbufferSb, "CBUFFER_END".AsSpan());
                 }
-                
+
+                else if (trimmed.StartsWith("DEPENDENCY_START".AsSpan()))
+                {
+                    AppendLineBlockSpan(ienum, shaderData.dependenciesSb, "DEPENDENCY_END".AsSpan(), false);
+                }
+
                 else if (trimmed.StartsWith("#include_optional ".AsSpan()))
                 {
                     var includeFile = trimmed.Slice("#include_optional ".Length).TrimEnd('"').TrimStart('"');

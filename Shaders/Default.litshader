@@ -21,7 +21,7 @@
     _MainTex_ScaleOffset ("", Float) = 0
 
     [Space(10)]
-    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
+    _SpecularOcclusion ("Specular Occlusion", Range(0,3)) = 1
 PROPERTIES_END
 
 

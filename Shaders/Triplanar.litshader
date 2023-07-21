@@ -16,7 +16,7 @@
     [PowerSlider(2)] _TriplanarBlend ("Triplanar Blend", Range(1,100)) = 5
 
     [Space(10)]
-    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
+    _SpecularOcclusion ("Specular Occlusion", Range(0,3)) = 1
 PROPERTIES_END
 
 

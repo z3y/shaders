@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [3.2.7] - 2023-07-20
+## Added
+- New automatic PBR material setup with texture packing
+    - Right-click on a texture or a folder `Create > Material with PBR Setup (Lit)`
+    - Matches PBR textures based on their suffix
+    - Applies them to a material and opens the packing window to confirm packing
+    - Folder should only contain PBR textures for one material
+- New directional specular occlusion
+    - Occludes areas based on the baked light intensity coming from the reflected direction
+    - Better occlusion, similar to bent normal maps, by using data already stored in SH
+    - Surfaces can have varying occlusion based on the view direction and light intensity coming from that direction
+    - Supports Mono-SH and light probes
+    - Currently Disabled by default - create a config to enable
+- Increased specular occlusion range
+- Specular occlusion is now also affected by the real-time directional light and light probes
+- Created a Terrain shader variant for the Unity Terrain
+    - Supports Mask Map
+    - Adjustable height blending (Mask Map Blue channel)
+    - Doesn't work with more than 4 layers currently
+    - Possible bugs since I avoid using Unity terrain
+
+- Ported over `SurfaceDescriptionInputs` and `VertexDescriptionInputs` functions from Shader Graph for getting shader data when creating new shaders in [Structs](/ShaderLibrary/Structs.hlsl)
 
 ## [3.2.6] - 2023-07-03
 ### Added

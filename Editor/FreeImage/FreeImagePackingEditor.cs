@@ -12,13 +12,17 @@ namespace z3y
     public class FreeImagePackingEditor : EditorWindow
     {
         [MenuItem("Tools/Lit/Texture Packing")]
-        public static void Init()
+        public static void Init() => Init(true);
+        public static void Init(bool resetFields)
         {
             var window = (FreeImagePackingEditor)GetWindow(typeof(FreeImagePackingEditor));
             window.titleContent = new GUIContent("Texture Packing");
             window.Show();
             window.minSize = new Vector2(400, 550);
-            ResetFields();
+            if (resetFields)
+            {
+                ResetFields();
+            }
         }
 
         private static Shader _previewShader;
@@ -29,6 +33,7 @@ namespace z3y
         private static Texture2D whiteTexture;
 
         public static bool settingsNeedApply = false;
+        public static Action onPackingFinished = delegate { };
         
         private void OnEnable()
         {
@@ -46,7 +51,7 @@ namespace z3y
         {
             _firstTime = true;
             _packingMaterial = null;
-            _packingProperty = null;
+            _packingPropertyName = null;
             ChannelR = new PackingField();
             ChannelG = new PackingField();
             ChannelB = new PackingField();
@@ -78,7 +83,7 @@ namespace z3y
         public static TextureSize Size = FreeImagePacking.TextureSize.Default;
 
         private static Material _packingMaterial = null;
-        private static MaterialProperty _packingProperty = null;
+        private static string _packingPropertyName = null;
         
         public struct PackingField
         {
@@ -99,11 +104,11 @@ namespace z3y
 
                 EditorGUILayout.LabelField(new GUIContent($"Material - {_packingMaterial.name}"));
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField(new GUIContent($"Texture - {_packingProperty.displayName}"));
-                if (_packingProperty.textureValue && GUILayout.Button("Modify"))
+                EditorGUILayout.LabelField(new GUIContent($"Texture - {_packingPropertyName}"));
+                if (_packingMaterial.GetTexture(_packingPropertyName) && GUILayout.Button("Modify"))
                 {
                     ChannelA.Channel.Source = ChannelSource.Alpha;
-                    var texture = _packingProperty.textureValue;
+                    var texture = _packingMaterial.GetTexture(_packingPropertyName);
                     if (texture is Texture2D texture2D)
                     {
                         ChannelR.UnityTexture = texture2D;
@@ -181,10 +186,13 @@ namespace z3y
                 settingsNeedApply = true;
                 AssetDatabase.ImportAsset(unityPath, ImportAssetOptions.ForceUpdate);
 
+                var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(unityPath);
+
+                EditorGUIUtility.PingObject(texture);
+
                 if (_packingMaterial)
                 {
-                    var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(unityPath);
-                    _packingMaterial.SetTexture(_packingProperty.name, texture);
+                    _packingMaterial.SetTexture(_packingPropertyName, texture);
                     if (_packingMaterial.shader.name == ProjectSettings.ShaderName)
                     {
                         LitGUI.ApplyChanges(_packingMaterial);
@@ -195,6 +203,8 @@ namespace z3y
                     }
                     MaterialEditor.ApplyMaterialPropertyDrawers(_packingMaterial);
                 }
+
+                onPackingFinished.Invoke();
             }
             EditorGUILayout.EndHorizontal();
             
@@ -210,7 +220,12 @@ namespace z3y
 
         public static void AddPackingMaterial(Material material, MaterialProperty property)
         {
-            _packingProperty = property;
+            _packingPropertyName = property.name;
+            _packingMaterial = material;
+        }
+        public static void AddPackingMaterial(Material material, string propertyName)
+        {
+            _packingPropertyName = propertyName;
             _packingMaterial = material;
         }
 

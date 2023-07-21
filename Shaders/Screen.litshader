@@ -22,7 +22,7 @@
     [ToggleGroupEnd] _PixelMap ("Subpixel Layout Map", 2D) = "white" {}
 
     [HideInInspector] [ToggleUI] _IsAVProInput("IsAVProInput", Float) = 0
-    _SpecularOcclusion ("Specular Occlusion", Range(0,1)) = 1
+    _SpecularOcclusion ("Specular Occlusion", Range(0,3)) = 1
 PROPERTIES_END
 
 

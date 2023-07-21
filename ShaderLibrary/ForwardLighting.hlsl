@@ -104,6 +104,22 @@ namespace CustomLighting
 
         EnvironmentBRDF(sd.NoV, sd.perceptualRoughness, sd.f0, sd.brdf, sd.energyCompensation);
 
+        float3 reflDir = reflect(-sd.viewDirectionWS, sd.normalWS);
+
+        #ifdef _ANISOTROPY
+            float3 anisotropicDirection = surfaceDescription.Anisotropy >= 0.0 ? sd.bitangentWS : sd.tangentWS;
+            float3 anisotropicTangent = cross(anisotropicDirection, sd.viewDirectionWS);
+            float3 anisotropicNormal = cross(anisotropicTangent, anisotropicDirection);
+            float bendFactor = abs(surfaceDescription.Anisotropy) * saturate(1.0 - (pow(1.0 - sd.perceptualRoughness,5 )));
+            float3 bentNormal = normalize(lerp(sd.normalWS, anisotropicNormal, bendFactor));
+            reflDir = reflect(-sd.viewDirectionWS, bentNormal);
+        #endif
+
+        #ifndef QUALITY_LOW
+            reflDir = lerp(reflDir, sd.normalWS, sd.perceptualRoughness * sd.perceptualRoughness);
+        #endif
+        sd.reflectionDirection = reflDir;
+
         return sd;
     }
 
@@ -162,7 +178,7 @@ namespace CustomLighting
         #endif
     }
 
-    half3 GetLightmap(Varyings unpacked, SurfaceDescription surfaceDescription, ShaderData sd, inout CustomLightData light, inout half3 lightmappedSpecular)
+    half3 GetLightmap(Varyings unpacked, SurfaceDescription surfaceDescription, ShaderData sd, inout CustomLightData light, inout half3 lightmappedSpecular, inout half3 bentLight)
     {
         #if !defined(UNITY_PASS_FORWARDBASE) && defined(PIPELINE_BUILTIN)
             return 0.0f;
@@ -211,7 +227,7 @@ namespace CustomLighting
             #endif
 
             #if defined(BAKERY_MONOSH)
-                BakeryMonoSH(lightMap, lightmappedSpecular, lightmapUV, sd.normalWS, sd.viewDirectionWS, clampedRoughness, surfaceDescription, sd.tangentWS, sd.bitangentWS);
+                BakeryMonoSH(sd, surfaceDescription, lightmapUV, lightMap, lightmappedSpecular, bentLight);
             #endif
 
             #if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN)
@@ -271,24 +287,10 @@ namespace CustomLighting
         #endif
 
         half3 indirectSpecular = 0;
-
+        float3 reflDir = sd.reflectionDirection;
         half roughness = sd.perceptualRoughness * sd.perceptualRoughness;
 
         #if !defined(_GLOSSYREFLECTIONS_OFF) && (defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_FORWARD))
-            float3 reflDir = reflect(-sd.viewDirectionWS, sd.normalWS);
-
-            #ifdef _ANISOTROPY
-                float3 anisotropicDirection = surfaceDescription.Anisotropy >= 0.0 ? sd.bitangentWS : sd.tangentWS;
-                float3 anisotropicTangent = cross(anisotropicDirection, sd.viewDirectionWS);
-                float3 anisotropicNormal = cross(anisotropicTangent, anisotropicDirection);
-                float bendFactor = abs(surfaceDescription.Anisotropy) * saturate(1.0 - (pow(1.0 - sd.perceptualRoughness,5 )));
-                float3 bentNormal = normalize(lerp(sd.normalWS, anisotropicNormal, bendFactor));
-                reflDir = reflect(-sd.viewDirectionWS, bentNormal);
-            #endif
-
-            #ifndef QUALITY_LOW
-                reflDir = lerp(reflDir, sd.normalWS, roughness * roughness);
-            #endif
 
             #if defined(PIPELINE_BUILTIN) && defined(USE_URP_BOX_PROJECTION)
                 half3 reflectionSpecular = GlossyEnvironmentReflection(reflDir, unpacked.positionWS, sd.perceptualRoughness, 1.0f);
@@ -352,7 +354,8 @@ namespace CustomLighting
         CustomLightData mainLightData = GetCustomMainLightData(unpacked);
 
         // lightmap and lightmapped specular
-        giData.IndirectDiffuse = GetLightmap(unpacked, surfaceDescription, sd, mainLightData, giData.Reflections);
+        half3 bentLightmap = 0;
+        giData.IndirectDiffuse = GetLightmap(unpacked, surfaceDescription, sd, mainLightData, giData.Reflections, bentLightmap);
 
         #if defined(PIPELINE_URP)
         //MixRealtimeAndBakedGI(mainLightData, unpacked.normalWS, giData.IndirectDiffuse);
@@ -417,16 +420,50 @@ namespace CustomLighting
             #endif
         #endif
 
-        // reflection probes
-        giData.Reflections += GetReflections(unpacked, surfaceDescription, sd);
+        #if !defined(_GLOSSYREFLECTIONS_OFF) && defined(UNITY_PASS_FORWARDBASE)
+            // reflection probes
+            half3 reflections = GetReflections(unpacked, surfaceDescription, sd);
 
-        // occlusion
-        #ifdef LIGHTMAP_ON
-            half specularOcclusion = lerp(1.0f, saturate(sqrt(dot(giData.IndirectDiffuse, 1.0)) * surfaceDescription.Occlusion), surfaceDescription.SpecularOcclusion);
-        #else
-            half specularOcclusion = surfaceDescription.Occlusion;
+            // specular occlusion from occlusion maps
+            // #ifdef LIGHTMAP_ON
+            //     half specularOcclusion = lerp(1.0f, saturate(sqrt(dot(giData.IndirectDiffuse, 1.0)) * surfaceDescription.Occlusion), surfaceDescription.SpecularOcclusion);
+            // #else
+            //     half specularOcclusion = surfaceDescription.Occlusion;
+            // #endif
+            //giData.Reflections *= Filament::computeSpecularAO(sd.NoV, specularOcclusion, sd.perceptualRoughness * sd.perceptualRoughness);
+
+
+            // specular occlusion from lighting
+            #if !defined(QUALITY_LOW) && !defined(DISABLE_SPECULAR_OCCLUSION_V2) && defined(SPECULAR_OCCLUSION_V2)
+                #ifdef LIGHTMAP_ON
+                    #if defined(BAKERY_MONOSH)
+                        half3 bentLight = bentLightmap;
+                    #else
+                        half3 bentLight = giData.IndirectDiffuse;
+                    #endif
+                #else
+                    half3 bentLight = max(ShadeSH9(float4(sd.reflectionDirection, 1.0)), 0.0);
+                #endif
+
+                half bentLightGrayscale = sqrt(dot(bentLight + giData.Light, 1.0));
+                half bentLightGrayscaleRemap = saturate(lerp(1.0, bentLightGrayscale, surfaceDescription.SpecularOcclusion));
+                reflections *= bentLightGrayscaleRemap;
+                // return float4(bentLightGrayscaleRemap.rrr, surfaceDescription.Alpha);
+            #else
+                half lightGrayscale = sqrt(dot(giData.IndirectDiffuse + giData.Light, 1.0));
+                half bentLightGrayscaleRemap = saturate(lerp(1.0, lightGrayscale, surfaceDescription.SpecularOcclusion));
+                reflections *= bentLightGrayscaleRemap;
+                // return float4(bentLightGrayscaleRemap.rrr, surfaceDescription.Alpha);
+            #endif
+
+            giData.Reflections += reflections;
+            
+            #ifndef QUALITY_LOW
+                giData.Reflections *= Filament::computeSpecularAO(sd.NoV, surfaceDescription.Occlusion, sd.perceptualRoughness * sd.perceptualRoughness);
+            #else
+                giData.Reflections *= surfaceDescription.Occlusion;
+            #endif
         #endif
-        giData.Reflections *= Filament::computeSpecularAO(sd.NoV, specularOcclusion, sd.perceptualRoughness * sd.perceptualRoughness);
 
 
         #if defined(LTCGI) && defined(LTCGI_EXISTS)
@@ -504,6 +541,10 @@ namespace CustomLighting
 
         #if defined(_ALPHAMODULATE_ON)
             surfaceDescription.Albedo.rgb = lerp(1.0, surfaceDescription.Albedo.rgb, surfaceDescription.Alpha);
+        #endif
+
+        #if !defined(_ALPHAFADE_ON) && !defined(_ALPHATEST_ON) && !defined(_ALPHAPREMULTIPLY_ON) && !defined(_ALPHAMODULATE_ON)
+            surfaceDescription.Alpha = 1.0f;
         #endif
 
         half4 finalColor = half4(surfaceDescription.Albedo * (1.0 - surfaceDescription.Metallic) * (giData.IndirectDiffuse * surfaceDescription.Occlusion + giData.Light)

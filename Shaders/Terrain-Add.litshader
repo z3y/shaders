@@ -1,0 +1,5 @@
+﻿#include "Terrain.litshader"
+
+DEFINES_START
+    #define TERRAIN_SPLAT_ADDPASS
+DEFINES_END

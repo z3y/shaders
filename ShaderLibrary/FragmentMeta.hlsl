@@ -89,6 +89,10 @@ half3 UnityLightmappingAlbedo (half3 diffuse, half3 specular, half smoothness)
         clip(surfaceDescription.Alpha - surfaceDescription.AlphaClipThreshold);
     #endif
 
+    #if !defined(_ALPHAFADE_ON) && !defined(_ALPHATEST_ON) && !defined(_ALPHAPREMULTIPLY_ON) && !defined(_ALPHAMODULATE_ON)
+        surfaceDescription.Alpha = 1.0f;
+    #endif
+
     // bakery alpha
     if (unity_MetaFragmentControl.w != 0)
     {
@@ -117,6 +121,10 @@ half4 frag (Varyings input) : SV_Target
     SurfaceDescription surfaceDescription = InitializeSurfaceDescription();
     #ifdef USE_SURFACEDESCRIPTION
     SurfaceDescriptionFunction(input, surfaceDescription);
+    #endif
+
+    #if !defined(_ALPHAFADE_ON) && !defined(_ALPHATEST_ON) && !defined(_ALPHAPREMULTIPLY_ON) && !defined(_ALPHAMODULATE_ON)
+        surfaceDescription.Alpha = 1.0f;
     #endif
     
     half specular = 0;

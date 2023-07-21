@@ -174,7 +174,7 @@ bool IsInMirror()
     #include "UnityShaderVariables.cginc"
     half4 _LightColor0;
     half4 _SpecColor;
-    #include "Packages/com.z3y.shaders/ShaderLibrary/UnityCG/UnityCGSupport.hlsl"
+    #include "Packages/com.z3y.shaders/ShaderLibrary/UnityCG/UnityCG.hlsl"
     #include "AutoLight.cginc"
 
     #include "Packages/com.z3y.shaders/ShaderLibrary/Graph/Functions.hlsl"
@@ -227,6 +227,7 @@ struct ShaderData
     half3 f0;
     half3 brdf;
     half3 energyCompensation;
+    float3 reflectionDirection;
 };
 
 struct GIData
@@ -292,6 +293,31 @@ struct VertexDescription
 
 struct SurfaceDescription
 {
+    static SurfaceDescription ctor()
+    {
+        SurfaceDescription surfaceDescription;
+        
+        surfaceDescription.Albedo = 1.0;
+        surfaceDescription.Normal = half3(0,0,1);
+        surfaceDescription.Metallic = 0.0;
+        surfaceDescription.Emission = half3(0.0, 0.0, 0.0);
+        surfaceDescription.Smoothness = 0.5;
+        surfaceDescription.Occlusion = 1.0;
+        surfaceDescription.Alpha = 1.0;
+        surfaceDescription.AlphaClipThreshold = 0.5;
+        surfaceDescription.AlphaClipSharpness = 0.0001;
+        surfaceDescription.Reflectance = 0.5;
+
+        surfaceDescription.GSAAVariance = 0.15;
+        surfaceDescription.GSAAThreshold = 0.1;
+
+        surfaceDescription.Anisotropy = 0.0;
+        surfaceDescription.Tangent = half3(1,1,1);
+        surfaceDescription.SpecularOcclusion = 1.0;
+
+        return surfaceDescription;
+    }
+
     half3 Albedo;
     half3 Normal;
     half Metallic;
@@ -311,28 +337,8 @@ struct SurfaceDescription
 
 SurfaceDescription InitializeSurfaceDescription()
 {
-    SurfaceDescription surfaceDescription = (SurfaceDescription)0;
-    
-    surfaceDescription.Albedo = float(1);
-    surfaceDescription.Normal = float3(0,0,1);
-    surfaceDescription.Metallic = float(0);
-    surfaceDescription.Emission = float(0);
-    surfaceDescription.Smoothness = float(0.5);
-    surfaceDescription.Occlusion = float(1);
-    surfaceDescription.Alpha = float(1);
-    surfaceDescription.AlphaClipThreshold = float(0.5);
-    surfaceDescription.AlphaClipSharpness = float(0.0001);
-    surfaceDescription.Reflectance = float(0.5);
-
-    surfaceDescription.GSAAVariance = float(0.15);
-    surfaceDescription.GSAAThreshold = float(0.1);
-
-    surfaceDescription.Anisotropy = float(0);
-    surfaceDescription.Tangent = float3(1,1,1);
-    surfaceDescription.SpecularOcclusion = float(1);
-
-    return surfaceDescription;
-}
+    return SurfaceDescription::ctor();
+};
 
 
 #ifdef VARYINGS_NEED_NORMAL
