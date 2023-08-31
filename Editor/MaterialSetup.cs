@@ -43,7 +43,8 @@ namespace z3y
                 {
                     return path;
                 }
-                else if (File.Exists(path))
+                
+                if (File.Exists(path))
                 {
                     return Path.GetDirectoryName(path);
                 }

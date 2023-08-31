@@ -17,29 +17,48 @@ namespace z3y.Shaders
     {
         public const string Ext = "litshader";
         private const string DefaultShaderPath = "Packages/com.z3y.shaders/Shaders/Default.litshader";
-        public const string LtcgiIncludePath = "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc";
-        private static bool _ltcgiIncluded => File.Exists(LtcgiIncludePath);
+        private const string LtcgiIncludePath = "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc";
+        private static bool LtcgiIncluded => File.Exists(LtcgiIncludePath);
         private const string DefaultShaderEditor = "z3y.Shaders.DefaultInspector";
 
         private static Texture2D Thumbnail => AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.z3y.shaders/Editor/lit.png");
 
-        public const string AreaLitIncludePath = "Assets/AreaLit/Shader/Lighting.hlsl";
-        private static bool _areaLitIncluded => File.Exists(AreaLitIncludePath);
+        private const string AreaLitIncludePath = "Assets/AreaLit/Shader/Lighting.hlsl";
+        private static bool AreaLitIncluded => File.Exists(AreaLitIncludePath);
 
         [SerializeField] public ShaderSettings settings = new ShaderSettings();
+        
+        private readonly HashSet<string> _sourceDependencies = new HashSet<string>();
 
-        public bool generateUnityShader = false;
+        private static string _lastImportedShader = string.Empty;
+        private static bool _requestGeneratedShader;
+        public static string RequestGeneratedShader(string path)
+        {
+            _requestGeneratedShader = true;
+            
+            AssetDatabase.ImportAsset(path);
+            
+            _requestGeneratedShader = false;
+            var code = _lastImportedShader;
+            _lastImportedShader = string.Empty;
 
-        private static readonly List<string> SourceDependencies = new List<string>();
+            return code;
+        }
 
         public override void OnImportAsset(AssetImportContext ctx)
         {
             var oldShader = AssetDatabase.LoadAssetAtPath<Shader>(ctx.assetPath);
             if (oldShader != null) ShaderUtil.ClearShaderMessages(oldShader);
 
-            SourceDependencies.Clear();
+            _sourceDependencies.Clear();
 
-            var code = GetShaderLabCode(settings, ctx.assetPath, ctx.selectedBuildTarget);
+            var code = GetShaderLabCode(ctx);
+            
+            if (_requestGeneratedShader)
+            {
+                _lastImportedShader = code;
+            }
+            
             var shader = ShaderUtil.CreateShaderAsset(code, false);
 
             SetDefaultTextures(shader);
@@ -50,29 +69,18 @@ namespace z3y.Shaders
             ctx.DependsOnSourceAsset(LtcgiIncludePath);
             ctx.DependsOnSourceAsset(AreaLitIncludePath);
 
-            foreach (var dependency in SourceDependencies)
+            foreach (var dependency in _sourceDependencies)
             {
                 ctx.DependsOnSourceAsset(dependency);
             }
 
-
-            if (generateUnityShader)
-            {
-                var directory = Path.GetDirectoryName(ctx.assetPath);
-                var path = directory + "/Shader.shader";
-                File.WriteAllText(path, code);
-                AssetDatabase.ImportAsset(path);
-            }
-            else
-            {
-                ctx.AddObjectToAsset("MainAsset", shader, Thumbnail);
-                ctx.SetMainObject(shader);
-            }
+            ctx.AddObjectToAsset("MainAsset", shader, Thumbnail);
+            ctx.SetMainObject(shader);
         }
 
         private static void SetDefaultTextures(Shader shader)
         {
-            EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG", "BlueNoise" }, new Texture[] { DFGLut(), BlueNoise() });
+            EditorMaterialUtility.SetShaderNonModifiableDefaults(shader, new[] { "_DFG", "BlueNoise" }, new Texture[] { DfgLut(), BlueNoise() });
         }
 
         [MenuItem("Assets/Create/Shader/Lit Shader Variant")]
@@ -139,74 +147,80 @@ namespace z3y.Shaders
             public StringBuilder dependenciesSb = new StringBuilder();
         }
 
-        private class IEnumeratorWrapper : IDisposable
+        private class EnumeratorWrapper : IDisposable
         {
-            public IEnumerator<string> enumerator { get; private set; }
+            private IEnumerator<string> Enumerator { get; set; }
             public string FileName { get; private set; }
             public string FilePath { get; private set; }
-
             public int Index { get; private set; }
 
-            public IEnumeratorWrapper(IEnumerable<string> lines, string fileName, string filePath)
+            public EnumeratorWrapper(IEnumerable<string> lines, string fileName, string filePath)
             {
-                enumerator = lines.GetEnumerator();
+                Enumerator = lines.GetEnumerator();
                 FileName = fileName;
                 Index = -1;
                 FilePath = filePath;
             }
+
+            ~EnumeratorWrapper()
+            {
+                if (Enumerator != null)
+                {
+                    Enumerator.Dispose();
+                }
+            }
+            
             public bool MoveNext()
             {
                 Index++;
-                return enumerator.MoveNext();
+                return Enumerator.MoveNext();
             }
-            public string Current
-            {
-                get => enumerator.Current;
-            }
+            public string Current => Enumerator.Current;
 
             public void Reset()
             {
-                enumerator.Reset();
+                Enumerator.Reset();
                 Index = -1;
             }
 
             public void Dispose()
             {
-                enumerator.Dispose();
+                Enumerator.Dispose();
+                Enumerator = null;
             }
         }
+        
+        private string _lastFolderPath = string.Empty;
 
-
-        private static string _lastFolderPath = string.Empty;
-        internal static string GetShaderLabCode(ShaderSettings settings, string assetPath, BuildTarget buildTarget)
+        private string GetShaderLabCode(AssetImportContext ctx)
         {
             _lastFolderPath = Path.GetDirectoryName(assetPath);
             var shaderBlocks = new ShaderBlocks();
             var fileLines = File.ReadLines(assetPath);
             string fileName = Path.GetFileName(assetPath);
-            var enumeratorWrapper = new IEnumeratorWrapper(fileLines, fileName, assetPath);
+            var enumeratorWrapper = new EnumeratorWrapper(fileLines, fileName, assetPath);
             GetShaderBlocksRecursive(enumeratorWrapper, shaderBlocks, assetPath);
 
 
-            bool isAndroid = buildTarget == BuildTarget.Android;
-            bool ltcgiAllowed = !isAndroid && _ltcgiIncluded;
-            bool areaLitAllowed = !isAndroid && _areaLitIncluded;
+            bool isAndroid = ctx.selectedBuildTarget == BuildTarget.Android;
+            bool ltcgiAllowed = !isAndroid && LtcgiIncluded;
+            bool areaLitAllowed = !isAndroid && AreaLitIncluded;
 
             AppendAdditionalDataToBlocks(isAndroid, shaderBlocks);
 
-            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl");
-            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl");
-            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/Fragment.hlsl");
-            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/FragmentShadowCaster.hlsl");
-            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/FragmentMeta.hlsl");
-            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl");
-            SourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/ForwardLighting.hlsl");
+            _sourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/ShaderPass.hlsl");
+            _sourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/Vertex.hlsl");
+            _sourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/Fragment.hlsl");
+            _sourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/FragmentShadowCaster.hlsl");
+            _sourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/FragmentMeta.hlsl");
+            _sourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/Structs.hlsl");
+            _sourceDependencies.Add("Packages/com.z3y.shaders/ShaderLibrary/ForwardLighting.hlsl");
 
             string definesSbString = shaderBlocks.definesSb.ToString();
             string codeSbSbString = shaderBlocks.codeSb.ToString();
             string cbufferSbSbString = shaderBlocks.cbufferSb.ToString();
 
-            var shaderName = GetShaderName(settings, assetPath);
+            var shaderName = GetShaderName();
             bool isTerrain = shaderName.Contains("Terrain"); // overlooked while making the importer
             bool isTerrainAdd = shaderName.Contains("Terrain-Add");
 
@@ -228,7 +242,7 @@ namespace z3y.Shaders
                     sb.AppendLine("FoldoutMainEnd_Properties (\"\", Float) = 0");
 
                     sb.AppendLine("FoldoutMainStart_AdditionalSettings (\"Additional Settings\", Float) = 1");
-                    sb.AppendLine(GetDefaultPropertiesIncludeAfter(settings, isAndroid));
+                    sb.AppendLine(GetDefaultPropertiesIncludeAfter(isAndroid));
                     sb.AppendLine(LitImporterConstants.DefaultPropertiesIncludeAfter);
                     if (areaLitAllowed) sb.AppendLine(LitImporterConstants.AreaLitProperties);
                     sb.AppendLine("FoldoutMainEnd_AdditionalSettings (\"\", Float) = 0");
@@ -524,7 +538,7 @@ namespace z3y.Shaders
                 }
                 sb.AppendLine("}");
                 
-                sb.AppendLine(GetShaderInspectorLine(settings));
+                sb.AppendLine(GetShaderInspectorLine());
                 sb.AppendLine("Fallback \"Mobile/Quest Lite\"");
                 sb.AppendLine(shaderBlocks.dependenciesSb.ToString());
                 // sb.AppendLine("Fallback");
@@ -534,7 +548,7 @@ namespace z3y.Shaders
             return sb.ToString();
         }
 
-        private static string GetShaderName(ShaderSettings settings, string assetPath)
+        private string GetShaderName()
         {
             const string prefix = "Lit Variants/";
             var fileName = Path.GetFileNameWithoutExtension(assetPath);
@@ -548,29 +562,29 @@ namespace z3y.Shaders
             }
         }
 
-        private static string GetShaderInspectorLine(ShaderSettings settings)
+        private string GetShaderInspectorLine()
         {
-            string name;
+            string line;
             if (string.IsNullOrEmpty(settings.customEditorGUI))
             {
                 if (!string.IsNullOrEmpty(DefaultShaderEditor))
                 {
-                    name = $"CustomEditor \"{DefaultShaderEditor}\"";
+                    line = $"CustomEditor \"{DefaultShaderEditor}\"";
                 }
                 else
                 {
-                    name = string.Empty;
+                    line = string.Empty;
                 }
             }
             else
             {
-                name = $"CustomEditor \"{settings.customEditorGUI}\"";
+                line = $"CustomEditor \"{settings.customEditorGUI}\"";
             }
 
-            return name;
+            return line;
         }
         
-        private static void AppendAdditionalDataToBlocks(bool isAndroid, ShaderBlocks shaderData)
+        private void AppendAdditionalDataToBlocks(bool isAndroid, ShaderBlocks shaderData)
         {
 #if VRCHAT_SDK
             shaderData.definesSb.AppendLine("#define VRCHAT_SDK");
@@ -597,12 +611,12 @@ namespace z3y.Shaders
                 shaderData.definesSb.AppendLine("#define BUILD_TARGET_PC");
             }
 
-            if (isAndroid || !_ltcgiIncluded)
+            if (isAndroid || !LtcgiIncluded)
             {
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI");
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");
             }
-            else if (_ltcgiIncluded)
+            else if (LtcgiIncluded)
             {
                 shaderData.definesSb.AppendLine("#define LTCGI_EXISTS");
             }
@@ -612,7 +626,7 @@ namespace z3y.Shaders
 #endif
         }
 
-        private static string GetDefaultPropertiesIncludeAfter(ShaderSettings settings, bool isAndroid)
+        private string GetDefaultPropertiesIncludeAfter(bool isAndroid)
         {
             var defaultProps = new StringBuilder();
             defaultProps.AppendLine(GetPropertyDeclaration(settings.bakeryMonoSH, ShaderSettings.MonoShKeyword, "Mono SH"));
@@ -621,7 +635,7 @@ namespace z3y.Shaders
             defaultProps.AppendLine(GetPropertyDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword, "Anisotropy"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular, "Lightmapped Specular"));
 
-            if (!isAndroid && _ltcgiIncluded)
+            if (!isAndroid && LtcgiIncluded)
             {
                 defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI", "Enable LTCGI"));
                 defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI_DIFFUSE_OFF", "Disable LTCGI Diffuse"));
@@ -631,7 +645,7 @@ namespace z3y.Shaders
             return defaultProps.ToString();
         }
 
-        private static void GetShaderBlocksRecursive(IEnumeratorWrapper ienum, ShaderBlocks shaderData, string currentPath)
+        private void GetShaderBlocksRecursive(EnumeratorWrapper ienum, ShaderBlocks shaderData, string currentPath)
         {
             while (ienum.MoveNext())
             {
@@ -700,7 +714,7 @@ namespace z3y.Shaders
                         continue;
                     }
                     
-                    SourceDependencies.Add(includePath);
+                    _sourceDependencies.Add(includePath);
 
                     if (!File.Exists(includePath))
                     {
@@ -717,7 +731,7 @@ namespace z3y.Shaders
                         var includeFileLines = File.ReadLines(includePath);
 
                         string fileName = Path.GetFileName(includePath);
-                        var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName, includePath);
+                        var enumeratorWrapper = new EnumeratorWrapper(includeFileLines, fileName, includePath);
                         GetShaderBlocksRecursive(enumeratorWrapper, shaderData, currentPath);
                     }
                 }
@@ -735,9 +749,9 @@ namespace z3y.Shaders
                     if (includeFile.EndsWith(".litshader".AsSpan(), StringComparison.Ordinal))
                     {
                         var includeFileLines = File.ReadLines(includePath);
-                        SourceDependencies.Add(includePath);
+                        _sourceDependencies.Add(includePath);
                         string fileName = Path.GetFileName(includePath);
-                        var enumeratorWrapper = new IEnumeratorWrapper(includeFileLines, fileName, includePath);
+                        var enumeratorWrapper = new EnumeratorWrapper(includeFileLines, fileName, includePath);
                         GetShaderBlocksRecursive(enumeratorWrapper, shaderData, currentPath);
                     }
 
@@ -746,7 +760,7 @@ namespace z3y.Shaders
             ienum.Dispose();
         }
 
-        private static string GetFullIncludePath(ReadOnlySpan<char> includeFile)
+        private string GetFullIncludePath(ReadOnlySpan<char> includeFile)
         {
             string includePath;
             if (includeFile.StartsWith("Assets/".AsSpan()) || includeFile.StartsWith("Packages/".AsSpan()))
@@ -761,7 +775,7 @@ namespace z3y.Shaders
             return includePath;
         }
 
-        private static void AppendLineBlockSpan(IEnumeratorWrapper ienum, StringBuilder sb, ReadOnlySpan<char> breakName, bool appendFileLine = true)
+        private void AppendLineBlockSpan(EnumeratorWrapper ienum, StringBuilder sb, ReadOnlySpan<char> breakName, bool appendFileLine = true)
         {
             if (appendFileLine)
             {
@@ -795,7 +809,7 @@ namespace z3y.Shaders
                 {
                     var includeFile = trimmed.Slice("#include_optional ".Length).TrimEnd('"').TrimStart('"');
                     var includePath = GetFullIncludePath(includeFile);
-                    SourceDependencies.Add(includePath);
+                    _sourceDependencies.Add(includePath);
                     if (!File.Exists(includePath))
                     {
                         sb.AppendLine(string.Empty); // for the line directive
@@ -811,7 +825,7 @@ namespace z3y.Shaders
                     var includeFile = trimmed.Slice("#include ".Length).TrimStart('<').TrimEnd('>');
                     var includePath = "Packages/com.z3y.shaders/ShaderLibrary/" + includeFile.ToString();
 
-                    SourceDependencies.Add(includePath);
+                    _sourceDependencies.Add(includePath);
                     sb.AppendLine("#include \"" + includePath + "\"");
                     continue;
                 }
@@ -819,7 +833,7 @@ namespace z3y.Shaders
                 else if (trimmed.StartsWith("#include \"".AsSpan()))
                 {
                     var includePath = trimmed.Slice("#include ".Length).TrimEnd('\"').TrimStart('\"');
-                    SourceDependencies.Add(includePath.ToString());
+                    _sourceDependencies.Add(includePath.ToString());
                     sb.AppendLine(ienum.Current);
                     continue;
                 }
@@ -845,8 +859,8 @@ namespace z3y.Shaders
             
             return string.Empty;
         }
-        
-        internal static string GetPropertyDeclaration(ShaderSettings.DefineType defineType, string keyword, string displayName, bool toggleOff = false)
+
+        private static string GetPropertyDeclaration(ShaderSettings.DefineType defineType, string keyword, string displayName, bool toggleOff = false)
         {
             if (defineType == ShaderSettings.DefineType.LocalKeyword || defineType == ShaderSettings.DefineType.GlobalKeyword)
             {
@@ -859,13 +873,13 @@ namespace z3y.Shaders
             return "// Keyword Disabled " + keyword;
         }
 
-        public static Texture2D DFGLut()
+        private static Texture2D DfgLut()
         {
             const string path = "Packages/com.z3y.shaders/ShaderLibrary/dfg-multiscatter.exr"; //TODO: replace the package path with const string
             return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
 
-        public static Texture2D BlueNoise()
+        private static Texture2D BlueNoise()
         {
             const string path = "Packages/com.z3y.shaders/ShaderLibrary/LDR_LLL1_0.png";
             return AssetDatabase.LoadAssetAtPath<Texture2D>(path);

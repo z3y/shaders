@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using static z3y.FreeImagePacking;
 
 namespace z3y.Shaders
 {
+    public interface ICustomPropertyDrawer
+    {
+        void OnInspectorGUI(DefaultInspector.Property property, MaterialEditor editor, MaterialProperty[] materialProperties);
+        void OnInitializeEditor(DefaultInspector.Property property, MaterialEditor editor, MaterialProperty[] materialProperties);
+    }
     public class DefaultInspector : ShaderGUI
     {
         private bool _firstTime = true;
@@ -73,6 +79,14 @@ namespace z3y.Shaders
 
         private Action<MaterialEditor, MaterialProperty[], Material> _onValidateAction;
 
+        private static IEnumerable<Type> _customPropertyDrawers = GetAllTypesImplementing<ICustomPropertyDrawer>();
+
+        private static IEnumerable<Type> GetAllTypesImplementing<T>()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
+                .Where(x => typeof(T).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract && x.IsClass).ToList();
+        }
+
         private void InitializeEditor(MaterialEditor materialEditor, MaterialProperty[] materialProperties)
         {
             var material = (Material)materialEditor.target;
@@ -113,6 +127,7 @@ namespace z3y.Shaders
                 string bName = string.Empty;
                 string aName = string.Empty;
                 bool isLinear = false;
+                ICustomPropertyDrawer customDrawer = null;
                 foreach (var attributeString in attributes)
                 {
                     var attribute = attributeString.AsSpan();
@@ -142,6 +157,21 @@ namespace z3y.Shaders
                     {
                         indentLevelRemove = true;
                     }
+
+                    var cDrawerAttribute = "CustomDrawer(".AsSpan();
+                    if (attribute.StartsWith(cDrawerAttribute) && attribute.EndsWith(")".AsSpan()))
+                    {
+                        var customDrawerClassName = attribute.Slice(cDrawerAttribute.Length, length - cDrawerAttribute.Length - 1).ToString();
+                        var drawerClass = _customPropertyDrawers.FirstOrDefault(x => x.Name == customDrawerClassName);
+                        if (drawerClass == null)
+                        {
+                            Debug.LogError($"Custom drawer {customDrawerClassName} not found");
+                            continue;
+                        }
+                        
+                        customDrawer = (ICustomPropertyDrawer)Activator.CreateInstance(drawerClass);
+                    }
+
 
                     if (attribute.Equals("ToggleGroupStart".AsSpan(), StringComparison.Ordinal))
                     {
@@ -197,8 +227,8 @@ namespace z3y.Shaders
                     index = i,
                     displayName = displayName,
                     tooltip = tooltip,
+                    attributes = attributes,
                 };
-
 
                 if (helpBox)
                 {
@@ -348,6 +378,12 @@ namespace z3y.Shaders
                 {
                     i++;
                 }
+
+                if (customDrawer != null)
+                {
+                    customDrawer.OnInitializeEditor(p, materialEditor, materialProperties);
+                    p.drawAction = customDrawer.OnInspectorGUI;
+                }
             }
         }
 
@@ -403,6 +439,7 @@ namespace z3y.Shaders
             public List<Property> children;
             public string displayName;
             public string tooltip;
+            public string[] attributes;
 
             public GUIContent guiContent => EditorGUIUtility.TrTextContent(displayName, tooltip);
 
