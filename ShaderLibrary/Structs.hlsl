@@ -17,7 +17,7 @@ CustomLightData GetCustomMainLightData(Varyings unpacked)
 #endif
     UNITY_LIGHT_ATTENUATION(lightAttenuation, legacyVaryings, unpacked.positionWS.xyz);
 
-#if defined(UNITY_PASS_FORWARDBASE) && !defined(SHADOWS_SCREEN)
+#if defined(UNITY_PASS_FORWARDBASE) && !defined(SHADOWS_SCREEN) && !defined(SHADOWS_SHADOWMASK)
     lightAttenuation = 1.0;
 #endif
     data.attenuation = lightAttenuation;
