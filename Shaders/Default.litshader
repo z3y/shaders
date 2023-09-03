@@ -36,7 +36,9 @@ DEFINES_START
     // #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // avoid unnecessary calculations and reduce the compiled size if LPPV arent used
     #define APPROXIMATE_AREALIGHT_SPECULAR // lower the smoothness in areas where theres less directionality in directional lightmaps
     // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
-    #define UNITY_SPECCUBE_BOX_PROJECTION // force enable box projection on quest
+    #ifndef UNITY_SPECCUBE_BOX_PROJECTION
+        #define UNITY_SPECCUBE_BOX_PROJECTION // force enable box projection on quest
+    #endif
     // #define NONLINEAR_LIGHTPROBESH // used with L1 bakery probes, not recommended for VRChat
 
     #pragma shader_feature_local _MASKMAP

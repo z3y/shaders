@@ -95,7 +95,9 @@ DEFINES_START // Keywords, Defines
     // #pragma multi_compile _ LOD_FADE_CROSSFADE // disabled by defualt, too many variants
     // #define _SSR // Screen-Space Reflections, expensive, requires Grab Pass enabled
     // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
-    #define UNITY_SPECCUBE_BOX_PROJECTION // force enable box projection on quest
+    #ifndef UNITY_SPECCUBE_BOX_PROJECTION
+        #define UNITY_SPECCUBE_BOX_PROJECTION // force enable box projection on quest
+    #endif
     // #define NONLINEAR_LIGHTPROBESH // used with L1 bakery probes, not recommended for VRChat
 
     #pragma shader_feature_local _MASKMAP

@@ -160,7 +160,6 @@ bool IsInMirror()
     #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/CommonMaterial.hlsl"
 #endif
 
-
 #ifdef PIPELINE_BUILTIN
     
     #ifdef FORCE_SPECCUBE_BOX_PROJECTION
@@ -171,6 +170,15 @@ bool IsInMirror()
     
     #undef GLOBAL_CBUFFER_START // dont need reg
     #define GLOBAL_CBUFFER_START(name) CBUFFER_START(name)
+    
+    #undef SAMPLE_DEPTH_TEXTURE
+    #undef SAMPLE_DEPTH_TEXTURE_LOD
+    #undef UNITY_MATRIX_P
+    #undef UNITY_MATRIX_MVP
+    #undef UNITY_MATRIX_MV
+    #undef UNITY_MATRIX_T_MV
+    #undef UNITY_MATRIX_IT_MV
+
     #include "UnityShaderVariables.cginc"
     half4 _LightColor0;
     half4 _SpecColor;
