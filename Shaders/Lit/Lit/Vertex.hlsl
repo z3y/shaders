@@ -81,11 +81,11 @@ v2f vert (appdata_all v)
 	#endif
 
     #ifdef UNITY_PASS_SHADOWCASTER
-        o.pos = UnityClipSpaceShadowCasterPos(v.vertex, v.normal);
-        o.pos = UnityApplyLinearShadowBias(o.pos);
+        //o.pos = UnityClipSpaceShadowCasterPos(v.vertex, v.normal);
+        //o.pos = UnityApplyLinearShadowBias(o.pos);
         TRANSFER_SHADOW_CASTER_NOPOS(o, o.pos);
     #else
-        UNITY_TRANSFER_SHADOW(o, o.uv01.zw);
+        UNITY_TRANSFER_SHADOW(o, v.uv1);
         UNITY_TRANSFER_FOG(o, o.pos);
     #endif
 

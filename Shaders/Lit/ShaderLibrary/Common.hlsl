@@ -457,6 +457,14 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
         lightData.NoH = saturate(dot(normalWS, lightData.HalfVector));
         
         UNITY_LIGHT_ATTENUATION(lightAttenuation, input, input.worldPos.xyz);
+
+        #if defined(HANDLE_SHADOWS_BLENDING_IN_GI) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
+            half bakedAtten = UnitySampleBakedOcclusion(input.uv01.zw * unity_LightmapST.xy + unity_LightmapST.zw, input.worldPos.xyz);
+            float zDist = dot(_WorldSpaceCameraPos - input.worldPos.xyz, UNITY_MATRIX_V[2].xyz);
+            float fadeDist = UnityComputeShadowFadeDistance(input.worldPos.xyz, zDist);
+            lightAttenuation = UnityMixRealtimeAndBakedShadows(lightAttenuation, bakedAtten, UnityComputeShadowFade(fadeDist));
+        #endif
+
         #if defined(UNITY_PASS_FORWARDBASE) && !defined(SHADOWS_SCREEN) && !defined(SHADOWS_SHADOWMASK)
             lightAttenuation = 1.0;
         #endif
@@ -467,10 +475,6 @@ void InitializeMainLightData(inout LightData lightData, float3 normalWS, float3 
 
         #ifndef SHADER_API_MOBILE
             lightData.FinalColor *= Fd_Burley(perceptualRoughness, NoV, lightData.NoL, lightData.LoH);
-        #endif
-
-        #if defined(LIGHTMAP_SHADOW_MIXING) && defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN) && defined(LIGHTMAP_ON)
-            lightData.FinalColor *= UnityComputeForwardShadows(input.uv01.zw * unity_LightmapST.xy + unity_LightmapST.zw, input.worldPos, input._ShadowCoord);
         #endif
 
         #ifdef _ANISOTROPY
