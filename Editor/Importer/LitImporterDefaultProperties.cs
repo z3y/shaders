@@ -18,6 +18,7 @@ namespace z3y
 [ToggleOff(_GLOSSYREFLECTIONS_OFF)] _GlossyReflections(""Reflections"", Float) = 1
 [ToggleOff(_SPECULARHIGHLIGHTS_OFF)] _SpecularHighlights(""Specular Highlights"", Float) = 1
 [HideInInspector] [NonModifiableTextureData] [NoScaleOffset] _DFG(""DFG"", 2D) = ""white"" {}
+[HideInInspector] [NonModifiableTextureData] [NoScaleOffset] BlueNoise(""BlueNoise"", 2D) = ""white"" {}
 ";
 
         public const string AreaLitProperties = @"
