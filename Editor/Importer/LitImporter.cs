@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace z3y.Shaders
 {
-    [ScriptedImporter(4, Ext, 0)]
+    [ScriptedImporter(5, Ext, 0)]
     public class LitImporter : ScriptedImporter
     {
         public const string Ext = "litshader";
@@ -492,8 +492,8 @@ namespace z3y.Shaders
                     sb.AppendLine("Pass"); // Meta
                     sb.AppendLine("{");
                     {
-                        sb.AppendLine("Name \"META_BAKERY\"");
-                        //sb.AppendLine("Name \"META_BAKERY\"");
+                        // sb.AppendLine("Name \"META_BAKERY\"");
+                        sb.AppendLine("Name \"META\"");
 
                         sb.AppendLine("Tags { \"LightMode\" = \"Meta\"}");
                         sb.AppendLine("Cull Off");

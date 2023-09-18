@@ -10,7 +10,6 @@ namespace z3y
 [Enum(Off, 0, On, 1)] _ZWrite(""ZWrite"", Float) = 1
 [Enum(Off, 0, On, 1)] _AlphaToMask(""AlphaToMask"", Float) = 0
 [Enum(UnityEngine.Rendering.CullMode)] _Cull(""Cull"", Float) = 2
-[HideInInspector] BAKERY_META_ALPHA_ENABLE(""Enable Bakery alpha meta pass"", Float) = 1
 ";
 
         public const string DefaultPropertiesIncludeAfter = @"
