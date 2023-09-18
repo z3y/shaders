@@ -188,14 +188,6 @@ namespace CustomLighting
         #if defined(LIGHTMAP_ON)
             float2 lightmapUV = unpacked.lightmapUV.xy;
 
-            #if defined(HANDLE_SHADOWS_BLENDING_IN_GI)
-                half bakedAtten = UnitySampleBakedOcclusion(lightmapUV.xy, unpacked.positionWS);
-                float zDist = dot(_WorldSpaceCameraPos - unpacked.positionWS, UNITY_MATRIX_V[2].xyz);
-                float fadeDist = UnityComputeShadowFadeDistance(unpacked.positionWS, zDist);
-                half atten = UnityMixRealtimeAndBakedShadows(light.attenuation, bakedAtten, UnityComputeShadowFade(fadeDist));
-            #endif
-
-
             #if defined(BICUBIC_LIGHTMAP)
                 float4 lightmapTexelSize = BicubicSampling::GetTexelSize(unity_Lightmap);
                 half4 bakedColorTex = BicubicSampling::SampleBicubic(unity_Lightmap, custom_bilinear_clamp_sampler, lightmapUV, lightmapTexelSize);
@@ -231,8 +223,8 @@ namespace CustomLighting
             #endif
 
             #if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK) && defined(SHADOWS_SCREEN)
+                lightMap = SubtractMainLightWithRealtimeAttenuationFromLightmap(lightMap, light.attenuation, float4(0,0,0,0), sd.normalWS);
                 light = (CustomLightData)0;
-                lightMap = SubtractMainLightWithRealtimeAttenuationFromLightmap(lightMap, atten, float4(0,0,0,0), sd.normalWS);
             #endif
 
             indirectDiffuse = lightMap;

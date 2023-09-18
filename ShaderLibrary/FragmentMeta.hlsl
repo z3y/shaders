@@ -80,31 +80,32 @@ half3 UnityLightmappingAlbedo (half3 diffuse, half3 specular, half smoothness)
         // o.Albedo = UnityLightmappingAlbedo(diffuseColor, specColor, surfaceDescription.Smoothness);
         o.Albedo = surfaceDescription.Albedo;
     #endif
-        o.SpecularColor = specColor;
-        o.Emission = surfaceDescription.Emission;
+    
+    o.SpecularColor = specColor;
+    o.Emission = surfaceDescription.Emission;
 
     #ifndef EDITOR_VISUALIZATION
 
-    #if defined(_ALPHATEST_ON)
-        clip(surfaceDescription.Alpha - surfaceDescription.AlphaClipThreshold);
-    #endif
-
-    #if !defined(_ALPHAFADE_ON) && !defined(_ALPHATEST_ON) && !defined(_ALPHAPREMULTIPLY_ON) && !defined(_ALPHAMODULATE_ON)
-        surfaceDescription.Alpha = 1.0f;
-    #endif
-
-    // bakery alpha
-    if (unity_MetaFragmentControl.w != 0)
-    {
-        #ifdef _ALPHAPREMULTIPLY_ON
-        if (_BakeryAlphaDither > 0.5)
-        {
-            half dither = Unity_Dither(surfaceDescription.Alpha, unpacked.positionCS.xy);
-            return dither < 0.0 ? 0 : 1;
-        }
+        #if defined(_ALPHATEST_ON)
+            clip(surfaceDescription.Alpha - surfaceDescription.AlphaClipThreshold);
         #endif
-        return surfaceDescription.Alpha;
-    }
+
+        #if !defined(_ALPHAFADE_ON) && !defined(_ALPHATEST_ON) && !defined(_ALPHAPREMULTIPLY_ON) && !defined(_ALPHAMODULATE_ON)
+            surfaceDescription.Alpha = 1.0f;
+        #endif
+
+        // bakery alpha
+        // if (unity_MetaFragmentControl.w != 0)
+        // {
+        //     #ifdef _ALPHAPREMULTIPLY_ON
+        //     if (_BakeryAlphaDither > 0.5)
+        //     {
+        //         half dither = Unity_Dither(surfaceDescription.Alpha, unpacked.positionCS.xy);
+        //         return dither < 0.0 ? 0 : 1;
+        //     }
+        //     #endif
+        //     return surfaceDescription.Alpha;
+        // }
     #endif
     
     return UnityMetaFragment(o);

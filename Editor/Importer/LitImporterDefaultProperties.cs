@@ -10,7 +10,6 @@ namespace z3y
 [Enum(Off, 0, On, 1)] _ZWrite(""ZWrite"", Float) = 1
 [Enum(Off, 0, On, 1)] _AlphaToMask(""AlphaToMask"", Float) = 0
 [Enum(UnityEngine.Rendering.CullMode)] _Cull(""Cull"", Float) = 2
-[HideInInspector] BAKERY_META_ALPHA_ENABLE(""Enable Bakery alpha meta pass"", Float) = 1
 ";
 
         public const string DefaultPropertiesIncludeAfter = @"
@@ -18,6 +17,7 @@ namespace z3y
 [ToggleOff(_GLOSSYREFLECTIONS_OFF)] _GlossyReflections(""Reflections"", Float) = 1
 [ToggleOff(_SPECULARHIGHLIGHTS_OFF)] _SpecularHighlights(""Specular Highlights"", Float) = 1
 [HideInInspector] [NonModifiableTextureData] [NoScaleOffset] _DFG(""DFG"", 2D) = ""white"" {}
+[HideInInspector] [NonModifiableTextureData] [NoScaleOffset] BlueNoise(""BlueNoise"", 2D) = ""white"" {}
 ";
 
         public const string AreaLitProperties = @"

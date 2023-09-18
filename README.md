@@ -34,7 +34,6 @@ https://github.com/z3y/shaders.git
 |Emission GI Multiplier| Adjusts emission intensity used for baking lightmaps in the Meta pass |
 |Transparency Modes | Cutout, Fade, Premultiply, Additive, Multiply|
 |Non-Important lights per pixel| Cheaper real-time lights done in one pass. Does not work with lightmapped object |
-|Bakery Alpha Meta| Surface inputs used in the shader are properly passed to the meta pass for baking instead of just reading the main texture and main color|
 |Bakery Alpha Dither|Semi-Transparent baked shadows. Available only in Bakery L1 mode|
 |Baked Area Light Specular Approximation| Reduced smoothness in areas where there is less directionality for more accurate lightmapped specular|
 |Centroid Lightmap UVs|Fix for lightmap bleeding with very tight packing|

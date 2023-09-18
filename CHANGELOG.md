@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [3.2.9] - 2023-09-18
+- Removed bakery meta pass because of performance issues
+
+## [3.2.8] - 2023-08-31
+## Added
+- Support for using custom drawers in the inspector
+- Refactored Importer Code
+
 ## [3.2.7] - 2023-07-20
 ## Added
 - New automatic PBR material setup with texture packing
@@ -26,7 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Adjustable height blending (Mask Map Blue channel)
     - Doesn't work with more than 4 layers currently
     - Possible bugs since I avoid using Unity terrain
-
 - Ported over `SurfaceDescriptionInputs` and `VertexDescriptionInputs` functions from Shader Graph for getting shader data when creating new shaders in [Structs](/ShaderLibrary/Structs.hlsl)
 
 ## [3.2.6] - 2023-07-03

@@ -7,7 +7,7 @@
     [TexturePacking(AO, Normal Y, Roughness, Normal X, true)]
     [Tooltip(AO (R), Normal Y (G),Roughness (B), Normal X (A))]
     [Linear] [NoScaleOffset] [ExtraProperty] [Toggle(_PACKEDTEXTURE)] _PackedTexture ("Packed Texture", 2D) = "linearGray" {}
-    BumpScale ("Normal Scale", Float) = 1
+    _BumpScale ("Normal Scale", Float) = 1
     [Indent]_Metallic ("Metallic", Range(0,1)) = 0
     _Roughness ("Roughness", Range(0,1)) = 0.5
     [UnIndent]_OcclusionStrength1 ("Occlusion", Range(0,1)) = 0
