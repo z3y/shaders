@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ## [3.2.9] - 2023-09-18
-- Removed bakery meta pass because of performance issues
+- Removed bakery meta pass because of baking performance issues
+- Fixed bump scale wrong property name in the layered shader
+- Fixed shadowmask, subtractive, directional shadow fade issues
+- Fixed some macro redefinition warnings
 
 ## [3.2.8] - 2023-08-31
 ## Added
