@@ -29,7 +29,11 @@ PROPERTIES_START // Properties
     [NoScaleOffset] [ExtraProperty] _EmissionMap ("Emission Map", 2D) = "white" {}
     [HDR] _EmissionColor ("Emission Color", Color) = (1,1,1)
     [Indent] _EmissionMultiplyBase ("Emission Multiply Base", Range(0,1)) = 0
+    [Toggle(_AUDIOLINK_EMISSION)] _AudioLinkEmissionToggle ("Audio Link", Float) = 0
+    [Enum(Bass, 0, Low Mids, 1, High Mids, 2, Treble, 3)] _AudioLinkEmissionBand ("Band", Int) = 0
+    _AudioLinkEmissionIntensity ("AudioLink Intensity", Range(0,1)) = 0.5
     [ToggleGroupEnd] [UnIndent] _EmissionGIMultiplier ("Emission GI Multiplier", Float) = 1
+    
 
     _MainTex_ScaleOffset ("", Float) = 0
 
@@ -142,6 +146,9 @@ CBUFFER_START // declare all Material properties excluding textures
     half _WindSpeed;
     half _WindScale;
     half3 _WindIntensity;
+
+    uint _AudioLinkEmissionBand;
+    half _AudioLinkEmissionIntensity;
 CBUFFER_END
 
 DEFINES_FORWARDBASE_START
@@ -176,6 +183,13 @@ CODE_START
 
     TEXTURE2D(_WindNoise);
     SAMPLER(sampler_WindNoise);
+
+    #ifdef _AUDIOLINK_EMISSION
+        #include_optional "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
+    #endif
+    #ifndef AUDIOLINK_CGINC_INCLUDED
+        #undef _AUDIOLINK_EMISSION
+    #endif
 
     #define USE_MODIFYATTRIBUTES // Modify attributes before the VertexDescription
     void ModifyAttributes(inout Attributes attributes)
@@ -267,6 +281,10 @@ CODE_START
             #ifdef UNITY_PASS_META
             surface.Emission *= _EmissionGIMultiplier;
             #endif
+
+            #if defined(_AUDIOLINK_EMISSION)
+                surface.Emission = lerp(surface.Emission, surface.Emission * AudioLinkLerp(uint2(1, _AudioLinkEmissionBand)).r, _AudioLinkEmissionIntensity);
+            #endif
         #endif
 
         #if defined(_DETAILS_ENABLED)
@@ -330,7 +348,7 @@ CODE_END
 
 // more specific defines/keywords per pass
 DEFINES_FORWARDBASE_START
-
+#pragma shader_feature_local _AUDIOLINK_EMISSION
 DEFINES_FORWARDBASE_END
 
 
