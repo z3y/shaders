@@ -26,6 +26,8 @@
     #define QUALITY_LOW
 #endif
 
+#define SPECULAR_OCCLUSION_V2
+
 #ifdef QUALITY_LOW
     #undef _SSR
     #undef REQUIRE_DEPTH_TEXTURE

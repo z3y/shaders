@@ -434,7 +434,7 @@ namespace CustomLighting
                         half3 bentLight = giData.IndirectDiffuse;
                     #endif
                 #else
-                    half3 bentLight = max(ShadeSH9(float4(sd.reflectionDirection, 1.0)), 0.0);
+                    half3 bentLight = giData.IndirectDiffuse;
                 #endif
 
                 half bentLightGrayscale = sqrt(dot(bentLight + giData.Light, 1.0));
