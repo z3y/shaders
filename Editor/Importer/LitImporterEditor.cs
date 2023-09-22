@@ -19,17 +19,25 @@ namespace z3y.Shaders
             root.style.paddingTop = 10;
 
 
-            var settings = serializedObject.FindProperty("settings");
-            var settingsContainer = SettingsEditor.SettingsContainer(settings);
-            root.Add(settingsContainer);
-
-
-            var exportButton = new Button
+            var importer = (LitImporter)serializedObject.targetObject;
+            var assetPath = AssetDatabase.GetAssetPath(importer);
+            if (!assetPath.EndsWith("LitShaderConfig." + LitImporter.Ext))
             {
-                text = "Copy Generated Shader"
-            };
-            exportButton.clicked += ExportShader;
-            root.Add(exportButton);
+
+                var settings = serializedObject.FindProperty("settings");
+                var settingsContainer = SettingsEditor.SettingsContainer(settings);
+                root.Add(settingsContainer);
+
+
+                var exportButton = new Button
+                {
+                    text = "Copy Generated Shader"
+                };
+                exportButton.clicked += ExportShader;
+                root.Add(exportButton);
+
+            }
+
 
             var revertGui = new IMGUIContainer(RevertGUI);
             root.Add(revertGui);

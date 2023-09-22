@@ -52,6 +52,13 @@ namespace z3y.Shaders
 
             _sourceDependencies.Clear();
 
+            if (ctx.assetPath.EndsWith("LitShaderConfig." + Ext))
+            {
+                var text = new TextAsset(File.ReadAllText(ctx.assetPath));
+                ctx.AddObjectToAsset("MainAsset", text);
+                return;
+            }
+
             var code = GetShaderLabCode(ctx);
             
             if (_requestGeneratedShader)
