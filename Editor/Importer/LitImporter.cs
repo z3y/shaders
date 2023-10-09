@@ -111,7 +111,7 @@ namespace z3y.Shaders
 
             if (File.Exists(fullPath))
             {
-                EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Shader>(fullPath));
+                EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(fullPath));
                 return;
             }
 
@@ -121,7 +121,7 @@ namespace z3y.Shaders
             }
 
             AssetDatabase.Refresh();
-            EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Shader>(fullPath));
+            EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(fullPath));
         }
         [MenuItem("Tools/Lit/Reimport Shaders")]
         public static void ReimportShaders()
