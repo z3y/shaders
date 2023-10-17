@@ -451,10 +451,12 @@ namespace CustomLighting
             giData.Reflections += reflections;
             
             #ifndef QUALITY_LOW
-                giData.Reflections *= Filament::computeSpecularAO(sd.NoV, surfaceDescription.Occlusion, sd.perceptualRoughness * sd.perceptualRoughness);
+                half ao = Filament::computeSpecularAO(sd.NoV, surfaceDescription.Occlusion, sd.perceptualRoughness * sd.perceptualRoughness);
             #else
-                giData.Reflections *= surfaceDescription.Occlusion;
+                half ao = surfaceDescription.Occlusion;
             #endif
+            giData.Reflections *= ao;
+            sd.specularOcclusion = ao * bentLightGrayscaleRemap;
         #endif
 
 
@@ -553,20 +555,20 @@ namespace CustomLighting
         ModifyFinalColor(finalColor, giData, unpacked, sd, surfaceDescription);
         #endif
 
-        #define FIX_BLACK_LEVEL
-        #if !defined(SHADER_API_MOBILE) && defined(UNITY_PASS_FORWARDBASE)
-            #ifdef DITHERING
-                finalColor.rgb -= ditherNoiseFuncHigh(input.uv01.xy) * 0.001;
-            #else
-                #ifdef FIX_BLACK_LEVEL
-                // the reason why this exists is because post processing applies dithering additively with a noise in range [-1, 1]
-                // when applying dithering to 0 the visible range of the result is [0, 1]
-                // shifts the colors down one level so when the dithering gets applied black color will be in range [-2,0]
-                // doesnt fix color grading, it would require changes in post processing shaders
-                finalColor.rgb -= 0.0002;
-                #endif
-            #endif
-        #endif
+        // #define FIX_BLACK_LEVEL
+        // #if !defined(SHADER_API_MOBILE) && defined(UNITY_PASS_FORWARDBASE)
+        //     #ifdef DITHERING
+        //         finalColor.rgb -= ditherNoiseFuncHigh(input.uv01.xy) * 0.001;
+        //     #else
+        //         #ifdef FIX_BLACK_LEVEL
+        //         // the reason why this exists is because post processing applies dithering additively with a noise in range [-1, 1]
+        //         // when applying dithering to 0 the visible range of the result is [0, 1]
+        //         // shifts the colors down one level so when the dithering gets applied black color will be in range [-2,0]
+        //         // doesnt fix color grading, it would require changes in post processing shaders
+        //         finalColor.rgb -= 0.0002;
+        //         #endif
+        //     #endif
+        // #endif
 
         #ifdef USE_DEBUGCOLOR
         return DebugColor.rgbb;

@@ -238,6 +238,7 @@ struct ShaderData
     half3 brdf;
     half3 energyCompensation;
     float3 reflectionDirection;
+    half specularOcclusion;
 };
 
 struct GIData
