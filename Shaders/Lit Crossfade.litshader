@@ -1,0 +1,5 @@
+#include "Packages/com.z3y.shaders/Shaders/Lit.litshader"
+
+DEFINES_START
+    #pragma multi_compile LOD_FADE_CROSSFADE
+DEFINES_END

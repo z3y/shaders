@@ -376,6 +376,7 @@ float3 ditherNoiseFuncHigh(float2 p)
 uniform half _CutoutSharpness;
 void AACutout(inout half alpha, half cutoff)
 {
+    clip(alpha - 0.2);
     alpha = (alpha - cutoff) / max(fwidth(alpha), _CutoutSharpness) + 0.5;
 }
 
