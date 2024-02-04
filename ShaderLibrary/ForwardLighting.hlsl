@@ -438,6 +438,10 @@ namespace CustomLighting
                     half3 bentLight = giData.IndirectDiffuse;
                 #endif
 
+                #if defined(SHADOWS_SCREEN) && defined(SPECULAR_OCCLUSION_REALTIME_SHADOWS)
+                half NoL = saturate(dot(sd.normalWS, mainLightData.direction));
+                bentLight *= NoL * mainLightData.attenuation;
+                #endif
                 half bentLightGrayscale = sqrt(dot(bentLight + giData.Light, 1.0));
                 half bentLightGrayscaleRemap = saturate(lerp(1.0, bentLightGrayscale, surfaceDescription.SpecularOcclusion));
                 reflections *= bentLightGrayscaleRemap;

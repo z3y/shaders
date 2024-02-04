@@ -42,6 +42,7 @@ DEFINES_START
     // #define NONLINEAR_LIGHTPROBESH // enable non linear lightprobe sh
     // #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // disable LPPV
     // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
+    // #define SPECULAR_OCCLUSION_REALTIME_SHADOWS // allow realtime directional shadows to affect specular occlusion and subtract from the indirect diffuse light
 DEFINES_END
 
 ";
