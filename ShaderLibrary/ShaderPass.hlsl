@@ -176,16 +176,14 @@ bool IsInMirror()
     #include "UnityShaderVariables.cginc"
     half4 _LightColor0;
     half4 _SpecColor;
-    
+    #include "UnityShaderUtilities.cginc"
     #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/UnityInstancing.hlsl"
 
     #include "Packages/com.z3y.shaders/ShaderLibrary/UnityCG/UnityCG.hlsl"
     #include "AutoLight.cginc"
 
     #include "Packages/com.z3y.shaders/ShaderLibrary/Graph/Functions.hlsl"
-    #include "UnityShaderUtilities.cginc"
     #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/SpaceTransforms.hlsl"
-
 
     #ifdef UNITY_PASS_META
         #include "UnityMetaPass.cginc"
