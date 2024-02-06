@@ -1,14 +1,6 @@
 #pragma warning (disable : 1519)
 #undef BUILTIN_TARGET_API
 
-#if defined(UNITY_INSTANCING_ENABLED) || defined(STEREO_INSTANCING_ON) || defined(INSTANCING_ON)
-    #define UNITY_ANY_INSTANCING_ENABLED 1
-#endif
-
-#ifdef STEREO_INSTANCING_ON
-    #define UNITY_STEREO_INSTANCING_ENABLED
-#endif
-
 #ifdef BUILD_TARGET_ANDROID
 #define UNITY_PBS_USE_BRDF1
 #define QUALITY_LOW
@@ -184,15 +176,21 @@ bool IsInMirror()
     #include "UnityShaderVariables.cginc"
     half4 _LightColor0;
     half4 _SpecColor;
+    
+    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/UnityInstancing.hlsl"
+
     #include "Packages/com.z3y.shaders/ShaderLibrary/UnityCG/UnityCG.hlsl"
     #include "AutoLight.cginc"
 
     #include "Packages/com.z3y.shaders/ShaderLibrary/Graph/Functions.hlsl"
     #include "UnityShaderUtilities.cginc"
+    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/SpaceTransforms.hlsl"
+
 
     #ifdef UNITY_PASS_META
         #include "UnityMetaPass.cginc"
     #endif
+
 #endif
 
 #ifdef PIPELINE_URP
@@ -205,14 +203,6 @@ bool IsInMirror()
     #ifdef UNITY_PASS_META
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl"
     #endif
-#endif
-
-#if USE_EXTERNAL_CORERP
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
-#else
-    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/UnityInstancing.hlsl"
-    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/SpaceTransforms.hlsl"
 #endif
 
 static float3 DebugColor = 0;

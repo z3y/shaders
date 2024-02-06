@@ -1,5 +1,9 @@
+#ifndef UNITY_PREV_MATRIX_M
 #define UNITY_PREV_MATRIX_M 0
+#endif
+#ifndef UNITY_PREV_MATRIX_I_M
 #define UNITY_PREV_MATRIX_I_M 0
+#endif
 
 
 
