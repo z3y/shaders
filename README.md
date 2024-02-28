@@ -2,23 +2,18 @@
 
 A Standard Shader and Surface Shaders replacement for Unity's Built-In pipeline and forward rendering in linear color space, created for use in VRChat.
 
+Now you can also create more customizable shaders with similar features using my own node shader editor https://github.com/z3y/ShaderGraphZ
+
 ## Installation
 
-### VRChat Creator Companion
-- Add to VCC https://z3y.github.io/vpm-package-listing/
-    - Requires VCC v2.1.2+
+### Using VRChat Creator Companion
+-  VCC https://z3y.github.io/vpm-package-listing/
 
-### Unity Package Manager
-
-- Have [git](https://git-scm.com/downloads) installed
-- Open the Package Manager window `Window > Package Manager`
-- Press + in the top left and package from git URL
+### Using git:
 
 ```
 https://github.com/z3y/shaders.git
 ```
-- To install a specific version add `#v(version)` to the end of the URL with the version number from the release labels.
-
 ## Features
 
 | Feature | Description |
@@ -54,17 +49,12 @@ Supports PC and Quest.
 
 ## [Documentation](/Documentation~/Documentation.md)
 
-## [Shader Graph](https://github.com/z3y/ShaderGraph)
-
-Most of the features supported in the modified experimental Shader Graph version: <https://github.com/z3y/ShaderGraph>
-
 ## License
 
-Core RP Licensed under the [Unity Companion License](/ShaderLibrary//CoreRP/LICENSE.md)
+[MIT](/LICENSE.md)
 
-Some additional code from Google Filament Licensed under [Apache License 2.0](/ShaderLibrary//FilamentLicense.md)
+Some additional code from Google Filament Licensed under [Apache License 2.0](/ShaderLibrary/FilamentLicense.md)
 
-The rest under MIT
 
 
 [Patreon](https://www.patreon.com/z3y) |
