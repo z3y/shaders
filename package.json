@@ -2,7 +2,7 @@
   "name": "com.z3y.shaders",
   "description": "A Standard Shader and Surface Shaders replacement for Unity for Built-In pipeline and forward rendering (VRChat)",
   "version": "3.3.0",
-  "unity": "2019.4",
+  "unity": "2022.3",
   "displayName": "z3y - Shaders",
   "hideInEditor": false,
   "gitDependencies": {},
