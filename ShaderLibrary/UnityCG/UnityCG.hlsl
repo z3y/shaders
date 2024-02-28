@@ -1,3 +1,5 @@
+// Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
+
 #ifndef UNITY_PREV_MATRIX_M
 #define UNITY_PREV_MATRIX_M 0
 #endif
@@ -5,7 +7,14 @@
 #define UNITY_PREV_MATRIX_I_M 0
 #endif
 
-
+#define UNITY_PI            3.14159265359f
+#define UNITY_TWO_PI        6.28318530718f
+#define UNITY_FOUR_PI       12.56637061436f
+#define UNITY_INV_PI        0.31830988618f
+#define UNITY_INV_TWO_PI    0.15915494309f
+#define UNITY_INV_FOUR_PI   0.07957747155f
+#define UNITY_HALF_PI       1.57079632679f
+#define UNITY_INV_HALF_PI   0.636619772367f
 
 #define Unity_SafeNormalize SafeNormalize
     
@@ -206,6 +215,22 @@ inline float4 ComputeScreenPos(float4 pos)
 #if defined(UNITY_SINGLE_PASS_STEREO)
     o.xy = TransformStereoScreenSpaceTex(o.xy, pos.w);
 #endif
+    return o;
+}
+
+inline float4 ComputeGrabScreenPos(float4 pos)
+{
+    #if UNITY_UV_STARTS_AT_TOP
+    float scale = -1.0;
+    #else
+    float scale = 1.0;
+    #endif
+    float4 o = pos * 0.5f;
+    o.xy = float2(o.x, o.y*scale) + o.w;
+#ifdef UNITY_SINGLE_PASS_STEREO
+    o.xy = TransformStereoScreenSpaceTex(o.xy, pos.w);
+#endif
+    o.zw = pos.zw;
     return o;
 }
 
@@ -963,3 +988,24 @@ half3 ShadeSHPerPixel(half3 normal, half3 ambient, float3 worldPos)
 
     return ambient;
 }
+
+/*
+Copyright (c) 2016 Unity Technologies
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/

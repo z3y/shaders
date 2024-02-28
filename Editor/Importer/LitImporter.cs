@@ -66,7 +66,7 @@ namespace z3y.Shaders
                 _lastImportedShader = code;
             }
             
-            var shader = ShaderUtil.CreateShaderAsset(code, false);
+            var shader = ShaderUtil.CreateShaderAsset(ctx, code, false);
 
             SetDefaultTextures(shader);
 

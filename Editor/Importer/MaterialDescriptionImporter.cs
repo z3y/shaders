@@ -34,13 +34,12 @@ namespace z3y.Shaders
                 useScriptedImporterShader = true;
             }
 
-            if (!ProjectSettings.ShaderSettings.defaultShader && !useScriptedImporterShader)
+            if (!useScriptedImporterShader)
             {
                 return;
             }
 
-            material.shader = useScriptedImporterShader ? DefaultShader : ProjectSettings.lit;
-
+            material.shader = DefaultShader;
 
             if (description.TryGetProperty("DiffuseColor", out Vector4 color))
             {
@@ -114,22 +113,15 @@ namespace z3y.Shaders
             }
 
             int mode = (int)material.GetFloat("_Mode");
-            if (useScriptedImporterShader)
-            {
-                DefaultInspector.SetupMaterialWithBlendMode(material, mode);
-                DefaultInspector.SetupTransparencyKeywords(material, mode);
 
-                if (material.GetTexture("_BumpMap") != null)
-                {
-                    material.EnableKeyword("_NORMALMAP");
-                }
-            }
-            else
+            DefaultInspector.SetupMaterialWithBlendMode(material, mode);
+            DefaultInspector.SetupTransparencyKeywords(material, mode);
+
+            if (material.GetTexture("_BumpMap") != null)
             {
-                BaseShaderGUI.SetupMaterialWithBlendMode(material, mode);
-                LitGUI.ApplyChanges(material);
+                material.EnableKeyword("_NORMALMAP");
             }
+
         }
-
     }
 }
