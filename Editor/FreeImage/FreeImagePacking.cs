@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using static z3y.FreeImage;
+using static z3y.FreeImagePacking;
 
 namespace z3y
 {
@@ -132,12 +133,13 @@ namespace z3y
             var sw = new Stopwatch();
             sw.Start();
 
-            IntPtr newTexture = Allocate(widthHeight.Item1, widthHeight.Item2, 32);
+            bool hasAlpha = !string.IsNullOrEmpty(textureChannelA.Path);
+            IntPtr newTexture = Allocate(widthHeight.Item1, widthHeight.Item2, hasAlpha ? 32 : 24);
 
             HandleTextureChannel(textureChannelR, widthHeight, newTexture, FREE_IMAGE_COLOR_CHANNEL.FICC_RED);
             HandleTextureChannel(textureChannelG, widthHeight, newTexture, FREE_IMAGE_COLOR_CHANNEL.FICC_GREEN);
             HandleTextureChannel(textureChannelB, widthHeight, newTexture, FREE_IMAGE_COLOR_CHANNEL.FICC_BLUE);
-            HandleTextureChannel(textureChannelA, widthHeight, newTexture, FREE_IMAGE_COLOR_CHANNEL.FICC_ALPHA);
+            if (hasAlpha) HandleTextureChannel(textureChannelA, widthHeight, newTexture, FREE_IMAGE_COLOR_CHANNEL.FICC_ALPHA);
 
             FreeImage_Save((ImageFormat)format, newTexture, destinationPath);
 

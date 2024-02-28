@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 using z3y.Shaders;
@@ -90,7 +88,7 @@ namespace z3y
             public Texture2D UnityTexture;
             public TextureChannel Channel;
             public string DisplayName;
-            [CanBeNull] public string InvertDisplayName;
+            public string InvertDisplayName;
         }
 
         private const string _guiStyle = "helpBox";
@@ -141,7 +139,7 @@ namespace z3y
                 _customSize = EditorGUILayout.Vector2IntField(new GUIContent(), _customSize);
                 EditorGUI.indentLevel--;
             }
-            Linear = EditorGUILayout.Toggle(new GUIContent("Linear", "Disable sRGB on texture import, for mask and data textures (Roughness, Occlusion, Metallic etc)"), Linear);
+            //Linear = EditorGUILayout.Toggle(new GUIContent("Linear", "Disable sRGB on texture import, for mask and data textures (Roughness, Occlusion, Metallic etc)"), Linear);
             
             
             EditorGUILayout.BeginHorizontal();
@@ -193,14 +191,7 @@ namespace z3y
                 if (_packingMaterial)
                 {
                     _packingMaterial.SetTexture(_packingPropertyName, texture);
-                    if (_packingMaterial.shader.name == ProjectSettings.ShaderName)
-                    {
-                        LitGUI.ApplyChanges(_packingMaterial);
-                    }
-                    else
-                    {
-                        DefaultInspector.RequestValidate();
-                    }
+                    DefaultInspector.RequestValidate();
                     MaterialEditor.ApplyMaterialPropertyDrawers(_packingMaterial);
                 }
 

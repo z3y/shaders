@@ -3,7 +3,9 @@ using UnityEngine;
 
 namespace z3y
 {
-    public class PackingPostProcessor : AssetPostprocessor
+    // currently disabled because unity 2022 reimports everything 
+
+    /*public class PackingPostProcessor : AssetPostprocessor
     {
         private void OnPreprocessTexture()
         {
@@ -25,5 +27,5 @@ namespace z3y
 
             FreeImagePackingEditor.settingsNeedApply = false;
         }
-    }
+    }*/
 }
