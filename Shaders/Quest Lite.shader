@@ -1,4 +1,4 @@
-﻿Shader "Mobile/Quest Lite"
+﻿Shader "z3y/Quest Lite"
 {
     Properties
     {

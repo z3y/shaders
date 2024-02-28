@@ -9,7 +9,7 @@ ScriptedImporter:
   assetBundleVariant: 
   script: {fileID: 11500000, guid: c6b508151abe0a040a11a4b72bff5b69, type: 3}
   settings:
-    shaderName: Lit Variants/Unlit
+    shaderName: z3y/Unlit
     materialType: 1
     bicubicLightmap: 3
     gsaa: 3
