@@ -147,11 +147,11 @@ bool IsInMirror()
 #if USE_EXTERNAL_CORERP
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 #else
-    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Color.hlsl"
-    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Packing.hlsl"
-    // #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/EntityLighting.hlsl"
-    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Texture.hlsl"
-    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/CommonMaterial.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
+    // #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/EntityLighting.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
 #endif
 
 #ifdef PIPELINE_BUILTIN
@@ -177,13 +177,13 @@ bool IsInMirror()
     half4 _LightColor0;
     half4 _SpecColor;
     #include "UnityShaderUtilities.cginc"
-    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/UnityInstancing.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 
     #include "Packages/com.z3y.shaders/ShaderLibrary/UnityCG/UnityCG.hlsl"
     #include "AutoLight.cginc"
 
     #include "Packages/com.z3y.shaders/ShaderLibrary/Graph/Functions.hlsl"
-    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/SpaceTransforms.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
 
     #ifdef UNITY_PASS_META
         #include "UnityMetaPass.cginc"
