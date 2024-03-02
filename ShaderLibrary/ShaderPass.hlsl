@@ -147,11 +147,11 @@ bool IsInMirror()
 #if USE_EXTERNAL_CORERP
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 #else
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
-    // #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/EntityLighting.hlsl"
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
+    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Color.hlsl"
+    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Packing.hlsl"
+    // #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/EntityLighting.hlsl"
+    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/Texture.hlsl"
+    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/CommonMaterial.hlsl"
 #endif
 
 #ifdef PIPELINE_BUILTIN
@@ -177,13 +177,13 @@ bool IsInMirror()
     half4 _LightColor0;
     half4 _SpecColor;
     #include "UnityShaderUtilities.cginc"
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
+    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/UnityInstancing.hlsl"
 
     #include "Packages/com.z3y.shaders/ShaderLibrary/UnityCG/UnityCG.hlsl"
     #include "AutoLight.cginc"
 
     #include "Packages/com.z3y.shaders/ShaderLibrary/Graph/Functions.hlsl"
-    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
+    #include "Packages/com.z3y.shaders/ShaderLibrary/CoreRP/SpaceTransforms.hlsl"
 
     #ifdef UNITY_PASS_META
         #include "UnityMetaPass.cginc"
@@ -554,4 +554,20 @@ float ftLightFalloff(float4 lightPosRadius, float3 worldPos)
     float distSq = dot(lightCoord, lightCoord);
     float falloff = saturate(1.0f - pow(sqrt(distSq * lightPosRadius.w), 4.0f)) / (distSq + 1.0f);
     return falloff;
+}
+
+inline float4 ComputeGrabScreenPos(float4 pos)
+{
+	#if UNITY_UV_STARTS_AT_TOP
+	float scale = -1.0;
+	#else
+	float scale = 1.0;
+	#endif
+	float4 o = pos * 0.5f;
+	o.xy = float2(o.x, o.y*scale) + o.w;
+#ifdef UNITY_SINGLE_PASS_STEREO
+	o.xy = TransformStereoScreenSpaceTex(o.xy, pos.w);
+#endif
+	o.zw = pos.zw;
+	return o;
 }

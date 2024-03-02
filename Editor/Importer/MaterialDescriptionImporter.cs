@@ -41,6 +41,7 @@ namespace z3y.Shaders
 
             material.shader = DefaultShader;
 
+
             if (description.TryGetProperty("DiffuseColor", out Vector4 color))
             {
                 if (description.TryGetProperty("DiffuseFactor", out float diffuseFactor))
@@ -113,15 +114,22 @@ namespace z3y.Shaders
             }
 
             int mode = (int)material.GetFloat("_Mode");
-
-            DefaultInspector.SetupMaterialWithBlendMode(material, mode);
-            DefaultInspector.SetupTransparencyKeywords(material, mode);
-
-            if (material.GetTexture("_BumpMap") != null)
+            if (useScriptedImporterShader)
             {
-                material.EnableKeyword("_NORMALMAP");
-            }
+                DefaultInspector.SetupMaterialWithBlendMode(material, mode);
+                DefaultInspector.SetupTransparencyKeywords(material, mode);
 
+                if (material.GetTexture("_BumpMap") != null)
+                {
+                    material.EnableKeyword("_NORMALMAP");
+                }
+            }
+            else
+            {
+                BaseShaderGUI.SetupMaterialWithBlendMode(material, mode);
+                LitGUI.ApplyChanges(material);
+            }
         }
+
     }
 }

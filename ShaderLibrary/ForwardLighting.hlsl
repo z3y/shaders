@@ -2,6 +2,9 @@
 #include "Packages/com.z3y.shaders/ShaderLibrary/SSR.hlsl"
 
 #if defined(LTCGI_EXISTS) && defined(LTCGI) 
+    #define UNITY_PI PI
+    #define UNITY_HALF_PI PI/2.
+    #define UNITY_TWO_PI PI*2
     #include "Assets/_pi_/_LTCGI/Shaders/LTCGI.cginc"
 #endif
 
