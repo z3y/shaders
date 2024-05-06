@@ -10,7 +10,7 @@ namespace z3y
 {
     public class MaterialSetup
     {
-        private static Shader _defaultShader = Shader.Find("Lit Variants/Default");
+        private static Shader _defaultShader = Shader.Find("z3y/Default");
 
         [MenuItem("Assets/Create/Material with PBR Setup (Lit)", priority = 301)]
         public static void MenuItem()
