@@ -21,12 +21,19 @@ namespace z3y.Shaders
 
             var importer = (LitImporter)serializedObject.targetObject;
             var assetPath = AssetDatabase.GetAssetPath(importer);
+
+
             if (!assetPath.EndsWith("LitShaderConfig." + LitImporter.Ext))
             {
 
                 var settings = serializedObject.FindProperty("settings");
                 var settingsContainer = SettingsEditor.SettingsContainer(settings);
                 root.Add(settingsContainer);
+                bool isPackage = assetPath.StartsWith("Packages/");
+                if (isPackage)
+                {
+                    root.Add(new HelpBox("Editing shader settings in packages folder, changes will not be saved.", HelpBoxMessageType.Warning));
+                }
 
 
                 var exportButton = new Button
