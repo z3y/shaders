@@ -19,7 +19,7 @@ namespace z3y.Shaders
             {
                 if (_defaultShader == null)
                 {
-                    _defaultShader = Shader.Find("z3y/Default");
+                    _defaultShader = Shader.Find("Lit");
                 }
                 return _defaultShader;
             }

@@ -18,7 +18,9 @@
     #define QUALITY_LOW
 #endif
 
+#ifndef SPECULAR_OCCLUSION_V2
 #define SPECULAR_OCCLUSION_V2
+#endif
 
 #ifdef QUALITY_LOW
     #undef _SSR
