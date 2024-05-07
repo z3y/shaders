@@ -1,4 +1,4 @@
-Shader "z3y/Old/Lit v2"
+Shader "Lit Variants/Old/Lit v2"
 {
 
 Properties
