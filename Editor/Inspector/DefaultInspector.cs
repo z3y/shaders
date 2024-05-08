@@ -596,7 +596,7 @@ namespace z3y.Shaders
         public static void GlNormalWarning(MaterialProperty tex)
         {
             if (!tex?.textureValue) return;
-            if (!tex.textureValue.name.EndsWith("DX"))
+            if (!tex.textureValue.name.ToLower().EndsWith("dx"))
             {
                 return;
             }
