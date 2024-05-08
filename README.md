@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://z3y.github.io/Shaders/">
-    <img alt="" height="138" src="./Documentation~/Images/logo.png">
+    <img alt="" height="138" src="./Docs~/public/logo.png">
   </a>
   <p>Standard Shader and Surface Shaders<br>
   alternative for the Unity Built-In pipeline</p>
