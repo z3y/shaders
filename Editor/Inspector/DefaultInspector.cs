@@ -214,6 +214,20 @@ namespace z3y.Shaders
                             aName = packingFieldNames[3].Trim();
                             isLinear = packingFieldNames[4].Trim() == "true";
                         }
+
+                        var defaultTexAttribute = "SetTexture(".AsSpan();
+                        if (attribute.StartsWith(defaultTexAttribute) && attribute.EndsWith(")".AsSpan()))
+                        {
+                            string guid = attribute.Slice(defaultTexAttribute.Length, length - defaultTexAttribute.Length - 1).ToString();
+                            int index = i;
+                            _onValidateAction += (editor, props, mat) =>
+                            {
+                                if (props[index].textureValue == null)
+                                {
+                                    mat.SetTexture(props[index].name, AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GUIDToAssetPath(guid)));
+                                }
+                            };
+                        }
                     }
 
                     if (attribute.Equals("HelpBox".AsSpan(), StringComparison.Ordinal))

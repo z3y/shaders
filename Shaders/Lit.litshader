@@ -58,8 +58,8 @@ PROPERTIES_START // Properties
 
     FoldoutMainStart_Wind ("Wind", Float) = 0
     [Toggle(_WIND)] _WindToggle ("Enable Wind", Float) = 0
-    //2edb9ad22bcacba4985b6e9606b8d0c4
-    [ExtraProperty] [Linear] [NoScaleOffset] _WindNoise ("Noise RGB", 2D) = "black" {}
+
+    [SetTexture(2edb9ad22bcacba4985b6e9606b8d0c4)] [ExtraProperty] [Linear] [NoScaleOffset] _WindNoise ("Noise RGB", 2D) = "black" {}
     _WindScale ("Noise Scale", Float) = 0.02
     [PowerSlider(2)] _WindSpeed ("Speed", Range(0,5)) = 0.05
     _WindIntensity ("Intensity XYZ", Vector) = (0.1,0.1,0.1,0)
