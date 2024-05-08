@@ -309,6 +309,10 @@ namespace z3y.Shaders
                     {
                         p.drawAction += DrawLinearWarning;
                     }
+                    if (flags.HasFlag(MaterialProperty.PropFlags.Normal))
+                    {
+                        p.drawAction += DrawGlNormalWarning;
+                    }
                 }
                 else if (type == MaterialProperty.PropType.Vector)
                 {
@@ -586,6 +590,27 @@ namespace z3y.Shaders
             const string text = "This texture is marked as sRGB, but should be linear.";
             if (!importer.sRGBTexture || !TextureImportWarningBox(text)) return;
             importer.sRGBTexture = false;
+            importer.SaveAndReimport();
+        }
+        public void DrawGlNormalWarning(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => GlNormalWarning(unityProperty[property.index]);
+        public static void GlNormalWarning(MaterialProperty tex)
+        {
+            if (!tex?.textureValue) return;
+            if (!tex.textureValue.name.EndsWith("DX"))
+            {
+                return;
+            }
+
+            var texPath = AssetDatabase.GetAssetPath(tex.textureValue);
+            var importer = AssetImporter.GetAtPath(texPath) as TextureImporter;
+            if (importer == null) return;
+            if (importer.textureType != TextureImporterType.NormalMap)
+            {
+                return;
+            }
+            const string text = "DX Normap Map should be converted to GL.";
+            if (importer.flipGreenChannel || !TextureImportWarningBox(text)) return;
+            importer.flipGreenChannel = true;
             importer.SaveAndReimport();
         }
         public static void DrawFoldoutMain(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)

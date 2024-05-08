@@ -7,7 +7,8 @@ namespace z3y
 {
     public static class StandardMigration
     {
-        [MenuItem("Tools/Lit/Migrate Material Selection")]
+        // needs more work
+        // [MenuItem("Tools/Lit/Migrate Material Selection")]
         public static void MigrateSelection()
         {
             var objs = Selection.GetFiltered(typeof(Material), SelectionMode.Assets);
@@ -41,9 +42,8 @@ namespace z3y
                 return;
             }
 
-            Undo.RecordObject(material, "Migrating Material");
 
-
+            bool compatible = true;
             var smoothness = material.GetFloat("_Glossiness");
             var metallic = material.GetFloat("_Metallic");
             var metallicGlossMap = material.GetTexture("_MetallicGlossMap");
@@ -62,11 +62,21 @@ namespace z3y
                 smoothness = material.GetFloat("_GlossMapScale");
             }
 
-
             var emission = material.GetColor("_EmissionColor");
-
             var emissionEnabled = material.IsKeywordEnabled("_EMISSION");
 
+            if (detailMask && detailAlbedo && detailuv == 1)
+            {
+                Debug.Log($"Material {material.name} not compatible: detail albedo uv channel != detail mask uv channel");
+                compatible = false;
+            }
+
+            if (!compatible)
+            {
+                return;
+            }
+
+            Undo.RecordObject(material, "Migrating Material");
             material.shader = Shader.Find("Lit");
 
 

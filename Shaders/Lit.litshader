@@ -11,6 +11,7 @@ PROPERTIES_START // Properties
 
     [Indent] _Metallic ("Metallic", Range(0,1)) = 0
     _Roughness ("Roughness", Range(0,1)) = 0.5
+    // [Tooltip(Lerp from 1 to roughness)] _RoughnessMapScale ("Roughness Map Scale", Range(0,1)) = 1.0
     [UnIndent] _OcclusionStrength ("Occlusion", Range(0,1)) = 1
     [NoScaleOffset] [Normal] [ExtraProperty] [Toggle(_NORMALMAP)] _BumpMap ("Normal Map", 2D) = "bump" {}
     _BumpScale ("Normal Scale", Float) = 1
@@ -117,6 +118,7 @@ CBUFFER_START // declare all Material properties excluding textures
     half4 _Color;
     float4 _MainTex_ST;
     half _Roughness;
+    // half _RoughnessMapScale;
     half _Metallic;
     half _BumpScale;
     half3 _EmissionColor;
@@ -265,6 +267,7 @@ CODE_START
 
         #ifdef _MASKMAP
             half4 maskMap = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, uv);
+            // maskMap.g = lerp(1.0, maskMap.g, _RoughnessMapScale);
             surface.Metallic = maskMap.b * _Metallic;
             surface.Smoothness = 1.0 - (maskMap.g * _Roughness);
             surface.Occlusion = lerp(1.0, maskMap.r, _OcclusionStrength);
