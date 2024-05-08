@@ -6,6 +6,7 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using static z3y.FreeImage;
 using static z3y.FreeImagePacking;
+using System.IO;
 
 namespace z3y
 {
@@ -75,15 +76,19 @@ namespace z3y
 
         private static void HandleTextureChannel(TextureChannel textureChannel, (int, int) widthHeight, IntPtr newImage, FREE_IMAGE_COLOR_CHANNEL newChannel)
         {
+            var whiteTex = "Packages/com.z3y.shaders/Editor/white.png";
+
             if (string.IsNullOrEmpty(textureChannel.Path))
             {
-                if (textureChannel.DefaultColor == DefaultColor.White)
+                textureChannel.Path = whiteTex;
+                textureChannel.Invert = textureChannel.DefaultColor == DefaultColor.Black;
+                /*if (textureChannel.DefaultColor == DefaultColor.White)
                 {
                     var ch = GetChannel(newImage, ChannelSourceToFreeImage(textureChannel.Source));
                     Invert(ch);
                     SetChannel(newImage, ch, newChannel);
                 }
-                return;
+                return;*/
             }
             
             var ptr = FreeImage_Load(textureChannel.Path);
@@ -136,6 +141,7 @@ namespace z3y
             bool hasAlpha = !string.IsNullOrEmpty(textureChannelA.Path);
             IntPtr newTexture = Allocate(widthHeight.Item1, widthHeight.Item2, hasAlpha ? 32 : 24);
 
+            // if empty use white tex;
             HandleTextureChannel(textureChannelR, widthHeight, newTexture, FREE_IMAGE_COLOR_CHANNEL.FICC_RED);
             HandleTextureChannel(textureChannelG, widthHeight, newTexture, FREE_IMAGE_COLOR_CHANNEL.FICC_GREEN);
             HandleTextureChannel(textureChannelB, widthHeight, newTexture, FREE_IMAGE_COLOR_CHANNEL.FICC_BLUE);

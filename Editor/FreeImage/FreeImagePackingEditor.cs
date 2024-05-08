@@ -220,7 +220,7 @@ namespace z3y
             _packingMaterial = material;
         }
 
-        private static string GetPackedTexturePath(string referencePath)
+        public static string GetPackedTexturePath(string referencePath)
         {
             var directory = Path.GetDirectoryName(referencePath);
             var fileName = Path.GetFileNameWithoutExtension(referencePath);
