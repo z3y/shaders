@@ -19,7 +19,10 @@ namespace z3y
                 {
                     continue;
                 }
-                EditorUtility.DisplayProgressBar("Migrating", "Doing some work...", i / len);
+                if (EditorUtility.DisplayCancelableProgressBar("Migrating", obj.name, len / (float)i))
+                {
+                    break;
+                }
                 Migrate(obj);
             }
 
@@ -52,6 +55,7 @@ namespace z3y
             var occlusionMap = material.GetTexture("_OcclusionMap");
             var albedoMap = material.GetTexture("_MainTex");
             var sourceAlbedoAlpha = material.GetFloat("_SmoothnessTextureChannel");
+            var detailMask = material.GetTexture("_DetailMask");
 
             if (metallicGlossMap)
             {
@@ -159,7 +163,7 @@ namespace z3y
                 var a = new TextureChannel();
 
 
-                PackCustom(absolutePath, r,g,b,a, (refTex.width, refTex.height), PackingFormat);
+                PackCustom(absolutePath, r, g, b, a, (refTex.width, refTex.height), PackingFormat);
                 AssetDatabase.ImportAsset(unityPath);
 
                 // metallic gloss map alpha is always linear, but red and occlusion map can differ, if its not setup correctly
@@ -175,7 +179,40 @@ namespace z3y
 
             }
 
-        }
+            if (detailMask && detailAlbedo)
+            {
+                var path = AssetDatabase.GetAssetPath(detailAlbedo);
+                var fullPath = Path.GetFullPath(path);
 
+                var absolutePath = FreeImagePackingEditor.GetPackedTexturePath(fullPath);
+                var unityPath = FreeImagePackingEditor.GetPackedTexturePath(path);
+
+                var r = new TextureChannel();
+                r.Source = ChannelSource.Red;
+                r.Path = path;
+
+                var g = new TextureChannel();
+                g.Source = ChannelSource.Green;
+                g.Path = path;
+
+
+                var b = new TextureChannel();
+                b.Source = ChannelSource.Blue;
+                b.Path = path;
+
+                var a = new TextureChannel();
+                a.Source = ChannelSource.Alpha;
+                a.Path = AssetDatabase.GetAssetPath(detailMask);
+
+
+                PackCustom(absolutePath, r, g, b, a, (detailAlbedo.width, detailAlbedo.height), PackingFormat);
+                AssetDatabase.ImportAsset(unityPath);
+
+                var packedTex = AssetDatabase.LoadAssetAtPath<Texture2D>(unityPath);
+                material.SetTexture("_DetailAlbedo", packedTex);
+
+            }
+
+        }
     }
 }
