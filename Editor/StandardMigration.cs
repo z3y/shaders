@@ -50,6 +50,14 @@ namespace z3y
             var detailNormal = material.GetTexture("_DetailNormalMap");
             var detailuv = material.GetFloat("_UVSec");
             var occlusionMap = material.GetTexture("_OcclusionMap");
+            var albedoMap = material.GetTexture("_MainTex");
+            var sourceAlbedoAlpha = material.GetFloat("_SmoothnessTextureChannel");
+
+            if (metallicGlossMap)
+            {
+                smoothness = material.GetFloat("_GlossMapScale");
+            }
+
 
             var emission = material.GetColor("_EmissionColor");
 
@@ -91,6 +99,10 @@ namespace z3y
             }
 
             bool needsPacking = occlusionMap || metallicGlossMap;
+            if (sourceAlbedoAlpha == 1 && albedoMap)
+            {
+                needsPacking = true;
+            }
             if (needsPacking)
             {
                 var refTex = metallicGlossMap == null ? occlusionMap : metallicGlossMap;
@@ -116,14 +128,21 @@ namespace z3y
                 var g = new TextureChannel();
                 g.DefaultColor = DefaultColor.White;
                 g.Source = ChannelSource.Alpha;
+                g.Invert = true;
 
-                if (metallicGlossMap)
+                if (sourceAlbedoAlpha == 1 && albedoMap)
+                {
+                    var hasAlpha = GraphicsFormatUtility.HasAlphaChannel(albedoMap.graphicsFormat);
+                    if (hasAlpha)
+                    {
+                        g.Path = AssetDatabase.GetAssetPath(albedoMap);
+                    }
+                }
+                else if (metallicGlossMap)
                 {
                     var hasAlpha = GraphicsFormatUtility.HasAlphaChannel(metallicGlossMap.graphicsFormat);
                     if (hasAlpha)
                     {
-                        Debug.Log("true");
-                        g.Invert = true;
                         g.Path = AssetDatabase.GetAssetPath(metallicGlossMap);
                     }
                 }
