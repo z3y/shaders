@@ -2,14 +2,14 @@ import { Callout } from 'nextra/components'
 
 # Texture Packing
 
-Texture packing is useful for optimizing GPU performance, instead of sampling all textures separately, grayscale textures can be combined.
+Texture packing is useful for optimizing GPU performance, instead of sampling all textures separately, grayscale textures can be combined to reduce sampling cost.
+https://developer.arm.com/documentation/102696/0100/Texture-channel-packing
 
 ## Default Packing Format
 
 Most of the included shaders use this texture packing format for the mask map. Using this format not require DXT5 (no alpha), saving space.
 The reason why textures are packed in this order is because of difference in texture channels compression (Green and Alpha have higher quality with DXT5)
 
-https://developer.arm.com/documentation/102696/0100/Texture-channel-packing
 
 | Channel | Description |
 | - | - |

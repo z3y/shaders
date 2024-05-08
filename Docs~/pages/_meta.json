@@ -3,6 +3,8 @@
     "index": "Getting Started",
     "features": "Features Overview",
     "packing": "Texture Packing",
-    "variants": "Included Variants",
+    "creating-variants": "Creating Variants",
+    "config": "Config",
+    "flipbook": "Flipbook",
     "changelog": "Change Log"
 }

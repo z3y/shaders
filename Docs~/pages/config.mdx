@@ -1,0 +1,25 @@
+# Shader Config
+
+Shader config is applied to all shader variants in the project created with this system. Same rules apply as for [Creating Variants](./creating-variants)
+
+## Creating a config
+- MenuItem `Tools > Lit > Create Config File`
+- Created file will be selected in the project window
+- Open and edit the file in a text editor
+
+## Example
+```cpp
+PROPERTIES_START
+    // a property added to all shaders
+    _PropExample ("Example", Float) = 0
+PROPERTIES_END
+
+DEFINES_START
+    // defines and keywords set for all shaders
+    #define BAKERY_MONOSH
+    #define _LIGHTMAPPED_SPECULAR
+    #define BICUBIC_LIGHTMAP
+    #define DISABLE_LIGHT_PROBE_PROXY_VOLUME
+    #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
+DEFINES_END
+```
