@@ -608,7 +608,7 @@ namespace z3y.Shaders
             {
                 return;
             }
-            const string text = "DX Normap Map should be converted to GL.";
+            const string text = "DX Normal Map should be converted to GL.";
             if (importer.flipGreenChannel || !TextureImportWarningBox(text)) return;
             importer.flipGreenChannel = true;
             importer.SaveAndReimport();
