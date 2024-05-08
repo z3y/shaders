@@ -1,0 +1,61 @@
+import { Callout } from 'nextra/components'
+
+# Texture Packing
+
+Texture packing is useful for optimizing GPU performance, instead of sampling all textures separately, grayscale textures can be combined.
+
+## Default Packing Format
+
+Most of the included shaders use this texture packing format for the mask map. Using this format not require DXT5 (no alpha), saving space.
+The reason why textures are packed in this order is because of difference in texture channels compression (Green and Alpha have higher quality with DXT5)
+
+https://developer.arm.com/documentation/102696/0100/Texture-channel-packing
+
+| Channel | Description |
+| - | - |
+Red|Ambient Occlusion
+Green|Roughness
+Blue|Metallic
+
+## Packing in the material
+
+Some material properties have a button for packing. This will open the packing window with a preset and set destination channel names accordingly for easier packing.
+
+![Image](/Unity_Py4c6iIIZh.png)
+
+## Packing Window
+
+Menu Item `Tools > Lit > Texture Packing`
+
+![image](https://i.imgur.com/Rc1e8qM.png)
+
+<Callout type="info">
+By default packed textures are be saved in the same folder as source textures with suffix `_packed`.
+</Callout>
+
+## Packing Fields
+
+Each packing field represents a destination channel in the packed texture.
+
+| Property | Description |
+| - | - |
+|Channel Selection (Red, Green, Blue, Alpha) | Specifies the texture channel that will be used from the selected texture |
+| Invert | Invert the color (1-color) |
+| Fallback (Black, White) | If no texture is selected use this color instead (invert is ignored) |
+
+## Packing Options
+
+| Property | Description |
+| - | - |
+|Format|Encode format for the packed texture. The default .TGA option is selected for the fastest import time|
+|Rescale Filter| Filter used for all source textures if they require resizing|
+|Size|Default size will use the imported texture size of one of the properties. The order of importance is GARB.
+|Linear | Toggles off sRGB on the imported texture. Used for data textures (Smoothness, Metallic, Occlusion etc.) In most cases this should be enabled, unless you are packing an albedo map and alpha. Disabling sRGB manually after packing on the texture importer does the same thing
+
+## Difference from other packing tools
+
+This tool does not reduce the image quality while packing.
+It reads textures from the source file using the native image library ([Free Image](https://freeimage.sourceforge.io/)) that Unity uses for importing textures.
+This avoids using the already compressed imported texture and unity methods for packing. It can cause issues with certain image formats, but most are supported.
+The preview might also not be accurate if the importer has already modified it (Applied sRGB, imported as Normal Map etc.)
+
