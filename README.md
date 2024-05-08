@@ -3,7 +3,7 @@
     <img alt="" height="138" src="./Documentation~/Images/logo.png">
   </a>
   <p>Standard Shader and Surface Shaders<br>
-  alternative for Unity Built-In pipeline</p>
+  alternative for the Unity Built-In pipeline</p>
 </div>
 
 ## Installation
@@ -20,12 +20,11 @@ https://github.com/z3y/shaders.git
 ## [Documentation](https://z3y.github.io/Shaders/)
 
 ## Features
-- Accurate PBR Shading
 - Bakery Mono SH
 - Bicubic Lightmap
 - Lightmapped Specular
 - Lightmapped Area Light Specular Approximation
-- [LTCGI](https://github.com/PiMaker/ltcgi), [Area Lit](https://booth.pm/en/items/3661829)
+- [LTCGI](https://github.com/PiMaker/ltcgi) and [Area Lit](https://booth.pm/en/items/3661829)
 - Geometric Specular AA
 - Box Projection on Quest
 - Alpha to Coverage
@@ -37,9 +36,10 @@ https://github.com/z3y/shaders.git
 
 ## How to use
 
-- Select a material
-- Swap shader to `Lit`
-- More shader variants can be found under `Lit Variants/`
+- Select a material and swap the shader to `Lit`
+- Other shader variants can be found under `Lit Variants/`
+- To create a new variant `Assets > Create > Shader > Lit Shader Variant`
+- Read the [Documentation](https://z3y.github.io/Shaders/)
 
 ## License
 
