@@ -1,0 +1,26 @@
+
+import { Tabs } from 'nextra/components'
+import themeConfig from '../theme.config'
+import { useState } from 'react'
+import { Cards, Card } from 'nextra/components'
+
+# Getting Started
+
+## Install
+
+<Tabs items={['VRChat Creator Companion', 'Unity Package Manager']}>
+  <Tabs.Tab>Add the package listing <b>https://z3y.github.io/vpm-package-listing</b></Tabs.Tab>
+  <Tabs.Tab>Add the git url <b>{themeConfig.project.link + '.git'}</b></Tabs.Tab>
+</Tabs>
+
+## How to use
+
+- Select a material and swap the shader to `Lit`
+- Other shader variants can be found under `Lit Variants/`
+- To create a new variant `Assets > Create > Shader > Lit Shader Variant`
+
+## Quick Start
+
+<Cards>
+  <Card title="Features Overview →" href="./features" />
+</Cards>

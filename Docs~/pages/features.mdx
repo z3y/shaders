@@ -1,0 +1,21 @@
+# Features Overview
+
+These features are shared across all variants crated with this system.
+
+- `Accurate PBR Shading` updated lighting functions from [Filament](https://github.com/google/filament). This improves fresnel of the material, especially on metallic materials, with energy compensation
+- `Bakery Mono SH` Mono SH lightmaps have a higher normal map contrast compared to unity directional lightmaps [Bakery Docs](https://geom.io/bakery/wiki/index.php?title=Manual#MonoSH)
+- `Lightmapped Specular` Create specular highlights based on directional lightmaps. This is a good cheap alternative to realtime lights in VRChat because of built-in pipeline limitations. Works well with Mono SH.
+- `Lightmap Specular Occlusion` Lightmap intensity used for occluding reflection probes for reduced reflections in dark areas
+- `Lightmapped Area Light Specular Approximation` reduced smoothness in areas where there is less directionality for more accurate lightmapped specular [Frostbite](https://media.contentapi.ea.com/content/dam/eacom/frostbite/files/gdc2018-precomputedgiobalilluminationinfrostbite.pdf#page=68)
+- `Geometric Specular AA` Modifies smoothness depending on geometry to reduce specular shimmering [GSAA](https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@15.0/manual/Geometric-Specular-Anti-Aliasing.html)
+- `Box Projection on Quest` Enables box projection on android, even if its disabled in the unity project
+- `Alpha to Coverage` Anti-alias edges of cutout materials [Ben Golus](https://bgolus.medium.com/anti-aliased-alpha-test-the-esoteric-alpha-to-coverage-8b177335ae4f)
+- `Improved Parallax` Increased Parallax steps count
+- `Bicubic Lightmap` Smoother lightmap at the small cost of sampling it multiple times and performing bicubic filtering in the shader [Bakery Docs](https://geom.io/bakery/wiki/index.php?title=Manual#Shader_Tweaks)
+- `Emission Multiply Base` Multiply Emission with Albedo
+- `Emission GI Multiplier` Adjusts emission intensity used for baking lightmaps in the Meta pass
+- `Non-Important lights per pixel` Cheaper real-time lights done in one pass. Does not work with lightmapped object. To use this select a light and set mode to non-important
+- `Centroid Lightmap UVs` Fix for lightmap bleeding with very tight packing
+- `Realtime Area lights` [LTCGI](https://github.com/PiMaker/ltcgi), [Area Lit](https://booth.pm/en/items/3661829)
+- `Anisotropy` Supports Tangent maps. You can export tangent maps in substance painter with [Anisotropy Conversion Generator](https://www.artstation.com/marketplace/p/9176/anisotropy-conversion-generator-for-substance-painter)
+- `Shader Config` A very customizable way of enabling/disabling existing features globally in the project for all shader variants

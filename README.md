@@ -23,6 +23,7 @@ https://github.com/z3y/shaders.git
 - Bakery Mono SH
 - Bicubic Lightmap
 - Lightmapped Specular
+- Lightmap Specular Occlusion
 - Lightmapped Area Light Specular Approximation
 - [LTCGI](https://github.com/PiMaker/ltcgi) and [Area Lit](https://booth.pm/en/items/3661829)
 - Geometric Specular AA
