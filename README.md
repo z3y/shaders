@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://z3y.github.io/Shaders/">
+  <a href="https://z3y.github.io/shaders/">
     <img alt="" height="138" src="./Docs~/public/logo.png">
   </a>
   <p>Standard Shader and Surface Shaders<br>
@@ -17,7 +17,7 @@
 https://github.com/z3y/shaders.git
 ```
 
-## [Documentation](https://z3y.github.io/Shaders/)
+## [Documentation](https://z3y.github.io/shaders/)
 
 ## Features
 - Bakery Mono SH
@@ -40,7 +40,7 @@ https://github.com/z3y/shaders.git
 - Select a material and swap the shader to `Lit`
 - Other shader variants can be found under `Lit Variants/`
 - To create a new variant `Assets > Create > Shader > Lit Shader Variant`
-- Read the [Documentation](https://z3y.github.io/Shaders/)
+- Read the [Documentation](https://z3y.github.io/shaders/)
 
 ## License
 
