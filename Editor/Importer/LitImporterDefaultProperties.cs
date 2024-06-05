@@ -45,7 +45,7 @@ DEFINES_START
     // #define SPECULAR_OCCLUSION_REALTIME_SHADOWS // allow realtime directional shadows to affect specular occlusion and subtract from the indirect diffuse light
 
     // enable aces on android
-    // #ifdef BUILD_TARGET_ANDROID
+    // #ifndef UNITY_PBS_USE_BRDF1
     // #define _ACES
     // #endif
 
