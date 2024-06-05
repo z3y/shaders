@@ -12,6 +12,10 @@
     #include "Assets/AreaLit/Shader/Lighting.hlsl"
 #endif
 
+#ifdef _ACES
+    #include "ACES.hlsl"
+#endif
+
 namespace CustomLighting
 {
 
@@ -558,6 +562,10 @@ namespace CustomLighting
         // modify final color
         #ifdef USE_MODIFYFINALCOLOR
         ModifyFinalColor(finalColor, giData, unpacked, sd, surfaceDescription);
+        #endif
+
+        #ifdef _ACES
+            finalColor.rgb = ACESFitted(finalColor.rgb);
         #endif
 
         // #define FIX_BLACK_LEVEL

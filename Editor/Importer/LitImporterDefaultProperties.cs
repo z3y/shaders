@@ -43,6 +43,12 @@ DEFINES_START
     // #define DISABLE_LIGHT_PROBE_PROXY_VOLUME // disable LPPV
     // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
     // #define SPECULAR_OCCLUSION_REALTIME_SHADOWS // allow realtime directional shadows to affect specular occlusion and subtract from the indirect diffuse light
+
+    // enable aces on android
+    // #ifdef BUILD_TARGET_ANDROID
+    // #define _ACES
+    // #endif
+
 DEFINES_END
 
 ";
