@@ -16,6 +16,45 @@
     #include "ACES.hlsl"
 #endif
 
+// the reason why this is used as an alternative to unity's dithering that is always present when there is post processing
+// post processing doesnt handle black colors properly, especially visible with OLED displays, black colors are gray
+
+// noise functions from xiexe https://github.com/Xiexe/PBR_Standard_Dithered_GSAA_SLO
+// MIT License
+// Copyright (c) 2018 Xiexe
+// Copyright (c) 2018 TCL
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+#define MOD3 float3(443.8975,397.2973, 491.1871)
+float ditherNoiseFuncLow(float2 p)
+{
+    float3 p3 = frac(float3(p.xyx) * MOD3 + _Time.y);
+    p3 += dot(p3, p3.yzx + 19.19);
+    return frac((p3.x + p3.y) * p3.z);
+}
+float3 ditherNoiseFuncHigh(float2 p)
+{
+    float3 p3 = frac(float3(p.xyx) * (MOD3 + _Time.y));
+    p3 += dot(p3, p3.yxz + 19.19);
+    return frac(float3((p3.x + p3.y)*p3.z, (p3.x + p3.z)*p3.y, (p3.y + p3.z)*p3.x));
+}
+
 namespace CustomLighting
 {
 
@@ -569,19 +608,18 @@ namespace CustomLighting
         #endif
 
         // #define FIX_BLACK_LEVEL
-        // #if !defined(SHADER_API_MOBILE) && defined(UNITY_PASS_FORWARDBASE)
-        //     #ifdef DITHERING
-        //         finalColor.rgb -= ditherNoiseFuncHigh(input.uv01.xy) * 0.001;
-        //     #else
-        //         #ifdef FIX_BLACK_LEVEL
-        //         // the reason why this exists is because post processing applies dithering additively with a noise in range [-1, 1]
-        //         // when applying dithering to 0 the visible range of the result is [0, 1]
-        //         // shifts the colors down one level so when the dithering gets applied black color will be in range [-2,0]
-        //         // doesnt fix color grading, it would require changes in post processing shaders
-        //         finalColor.rgb -= 0.0002;
-        //         #endif
-        //     #endif
-        // #endif
+        #if defined(UNITY_PASS_FORWARDBASE)
+            #ifdef DITHERING
+                finalColor.rgb -= ditherNoiseFuncHigh(unpacked.positionCS.xy / _ScreenParams.xy) * 0.001;
+            #endif
+            #if defined(FIX_BLACK_LEVEL) && !defined(SHADER_API_MOBILE) 
+                // the reason why this exists is because post processing applies dithering additively with a noise in range [-1, 1]
+                // when applying dithering to 0 the visible range of the result is [0, 1]
+                // shifts the colors down one level so when the dithering gets applied black color will be in range [-2,0]
+                // doesnt fix color grading, it would require changes in post processing shaders
+                finalColor.rgb -= 0.0002;
+            #endif
+        #endif
 
         #ifdef USE_DEBUGCOLOR
         return DebugColor.rgbb;

@@ -210,7 +210,7 @@ namespace z3y.Shaders
 
 
             bool isAndroid = ctx.selectedBuildTarget == BuildTarget.Android;
-            bool ltcgiAllowed = !isAndroid && LtcgiIncluded;
+            bool ltcgiAllowed = LtcgiIncluded;
             bool areaLitAllowed = !isAndroid && AreaLitIncluded;
 
             AppendAdditionalDataToBlocks(isAndroid, shaderBlocks);
@@ -331,8 +331,15 @@ namespace z3y.Shaders
 
                             if (ltcgiAllowed)
                             {
-                                sb.AppendLine("#pragma shader_feature_local LTCGI");
-                                sb.AppendLine("#pragma shader_feature_local LTCGI_DIFFUSE_OFF");
+                                if (isAndroid)
+                                {
+                                    sb.AppendLine("#pragma shader_feature_local LTCGI_ANDROID");
+                                }
+                                else
+                                {
+                                    sb.AppendLine("#pragma shader_feature_local LTCGI");
+                                    sb.AppendLine("#pragma shader_feature_local LTCGI_DIFFUSE_OFF");
+                                }
                             }
                             if (areaLitAllowed)
                             {
@@ -619,7 +626,7 @@ namespace z3y.Shaders
                 shaderData.definesSb.AppendLine("#define BUILD_TARGET_PC");
             }
 
-            if (isAndroid || !LtcgiIncluded)
+            if (!LtcgiIncluded)
             {
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI");
                 shaderData.definesSb.AppendLine("#pragma skip_variants LTCGI_DIFFUSE_OFF");
@@ -643,9 +650,11 @@ namespace z3y.Shaders
             defaultProps.AppendLine(GetPropertyDeclaration(settings.anisotropy, ShaderSettings.AnisotropyKeyword, "Anisotropy"));
             defaultProps.AppendLine(GetPropertyDeclaration(settings.lightmappedSpecular, ShaderSettings.LightmappedSpecular, "Lightmapped Specular"));
 
-            if (!isAndroid && LtcgiIncluded)
+            if (LtcgiIncluded)
             {
-                defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI", "Enable LTCGI"));
+                defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI", "LTCGI"));
+                defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI_ANDROID", "LTCGI Android"));
+
                 defaultProps.AppendLine(GetPropertyDeclaration(ShaderSettings.DefineType.LocalKeyword, "LTCGI_DIFFUSE_OFF", "Disable LTCGI Diffuse"));
             }
 
