@@ -41,10 +41,6 @@
     #define DISABLE_NONIMPORTANT_LIGHTS_PER_PIXEL
 #endif
 
-#ifdef LTCGI_ANDROID
-    #define LTCGI
-#endif
-
 #ifdef LTCGI_DIFFUSE_OFF
     #define LTCGI_DIFFUSE_DISABLED
     #undef LTCGI_DIFFUSE_OFF
