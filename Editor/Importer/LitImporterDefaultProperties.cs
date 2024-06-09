@@ -8,6 +8,8 @@ namespace z3y
 [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend(""Source Blend"", Float) = 1
 [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend(""Destination Blend"", Float) = 0
 [Enum(Off, 0, On, 1)] _ZWrite(""ZWrite"", Float) = 1
+[Enum(UnityEngine.Rendering.CompareFunction)] _ZTest(""ZTest"", Float) = 4
+
 [Enum(Off, 0, On, 1)] _AlphaToMask(""AlphaToMask"", Float) = 0
 [Enum(UnityEngine.Rendering.CullMode)] _Cull(""Cull"", Float) = 2
 ";

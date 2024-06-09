@@ -301,8 +301,9 @@ namespace z3y.Shaders
                             sb.AppendLine("Blend [_SrcBlend] [_DstBlend]");
                         }
                         sb.AppendLine("Cull [_Cull]");
-                        sb.AppendLine("// ZTest: <None>");
+                        sb.AppendLine("ZTest [_ZTest]");
                         sb.AppendLine("ZWrite [_ZWrite]");
+
                         if (settings.alphaToCoverage) sb.AppendLine("AlphaToMask [_AlphaToMask]");
 
                         sb.AppendLine("HLSLPROGRAM");
@@ -389,7 +390,7 @@ namespace z3y.Shaders
                             sb.AppendLine("Fog { Color (0,0,0,0) }");
                             sb.AppendLine("Blend [_SrcBlend] One");
                             sb.AppendLine("Cull [_Cull]");
-                            sb.AppendLine("// ZTest: <None>");
+                            sb.AppendLine("ZTest [_ZTest]");
                             sb.AppendLine("ZWrite Off");
                             sb.AppendLine("ZTest LEqual");
                             if (settings.alphaToCoverage) sb.AppendLine("AlphaToMask [_AlphaToMask]");
