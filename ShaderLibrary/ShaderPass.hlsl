@@ -517,7 +517,7 @@ struct Varyings
     #if defined(EDITOR_VISUALIZATION)
     float4 lightCoord : LIGHTCOORD;
     #endif
-    #if defined(LIGHTMAP_ON) && defined(DYNAMICLIGHTMAP_ON)
+    #if defined(DYNAMICLIGHTMAP_ON)
     centroid float4 lightmapUV : LIGHTMAPUV;
     #elif defined(LIGHTMAP_ON)
     centroid float2 lightmapUV : LIGHTMAPUV;
