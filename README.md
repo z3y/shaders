@@ -42,6 +42,11 @@ https://github.com/z3y/shaders.git
 - To create a new variant `Assets > Create > Shader > Lit Shader Variant`
 - Read the [Documentation](https://z3y.github.io/shaders/)
 
+## Inspector
+
+![Unity_o9YqhMZbJ0](https://github.com/z3y/shaders/assets/33181641/314dbd18-f4ab-4646-9956-97c27f2d052d)
+
+
 ## License
 
 [MIT](/LICENSE.md)
