@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace z3y.Shaders
 {
-    [ScriptedImporter(5, Ext, 0)]
+    [ScriptedImporter(6, Ext, 0)]
     public class LitImporter : ScriptedImporter
     {
         public const string Ext = "litshader";
@@ -303,6 +303,8 @@ namespace z3y.Shaders
                         sb.AppendLine("Cull [_Cull]");
                         sb.AppendLine("ZTest [_ZTest]");
                         sb.AppendLine("ZWrite [_ZWrite]");
+                        sb.AppendLine("Offset [_OffsetFactor], [_OffsetUnits]");
+
 
                         if (settings.alphaToCoverage) sb.AppendLine("AlphaToMask [_AlphaToMask]");
 
@@ -395,6 +397,8 @@ namespace z3y.Shaders
                             sb.AppendLine("ZTest [_ZTest]");
                             sb.AppendLine("ZWrite Off");
                             sb.AppendLine("ZTest LEqual");
+                            sb.AppendLine("Offset [_OffsetFactor], [_OffsetUnits]");
+
                             if (settings.alphaToCoverage) sb.AppendLine("AlphaToMask [_AlphaToMask]");
 
                             sb.AppendLine("HLSLPROGRAM");
