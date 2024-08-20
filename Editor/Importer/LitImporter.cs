@@ -323,6 +323,8 @@ namespace z3y.Shaders
                             sb.AppendLine("#pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF");
                             sb.AppendLine("#pragma shader_feature_local _GLOSSYREFLECTIONS_OFF");
                             sb.AppendLine("#pragma shader_feature_local _EMISSION");
+                            sb.AppendLine("#pragma shader_feature_local _DECALERY");
+
 
                             if (settings.grabPass && !isAndroid)
                             {
@@ -407,6 +409,8 @@ namespace z3y.Shaders
                             sb.AppendLine("#pragma multi_compile_fwdadd_fullshadows");
 
                             sb.AppendLine("#pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF");
+                            sb.AppendLine("#pragma shader_feature_local _DECALERY");
+
                             if (!isAndroid)
                             {
                                 sb.AppendLine(GetDefineTypeDeclaration(settings.gsaa, ShaderSettings.GsaaKeyword));

@@ -262,6 +262,10 @@ namespace z3y.Shaders
                 {
                     p.drawAction = DrawTransparencyModeProperty;
                 }
+                else if (prop.name.Equals("_Decalery"))
+                {
+                    p.drawAction = DrawDecaleryProperty;
+                }
                 else if (prop.name.StartsWith("StochasticPreprocessButton"))
                 {
                     p.drawAction = DrawStochasticPreprocessButton;
@@ -571,6 +575,30 @@ namespace z3y.Shaders
                     ToggleKeyword(target, "_ALPHAFADE_ON", mode == 2);
                     ToggleKeyword(target, "_ALPHAPREMULTIPLY_ON", mode == 3);
                     ToggleKeyword(target, "_ALPHAMODULATE_ON", mode == 5);
+                }
+            }
+        }
+
+        public void DrawDecaleryProperty(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
+        {
+            EditorGUI.BeginChangeCheck();
+
+            editor.ShaderProperty(unityProperty[property.index], property.guiContent);
+            if (EditorGUI.EndChangeCheck())
+            {
+                foreach (Material target in editor.targets)
+                {
+                    int mode = (int)target.GetFloat("_Decalery");
+                    if (mode > 0)
+                    {
+                        target.SetFloat("_OffsetFactor", -0.01f);
+                        target.SetFloat("_OffsetUnits", -0.01f);
+                    }
+                    else
+                    {
+                        target.SetFloat("_OffsetFactor", 0);
+                        target.SetFloat("_OffsetUnits", 0);
+                    }
                 }
             }
         }

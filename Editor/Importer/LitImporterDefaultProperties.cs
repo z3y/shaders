@@ -12,6 +12,9 @@ namespace z3y
 
 [Enum(Off, 0, On, 1)] _AlphaToMask(""AlphaToMask"", Float) = 0
 [Enum(UnityEngine.Rendering.CullMode)] _Cull(""Cull"", Float) = 2
+[Toggle(_DECALERY)] _Decalery (""Decalery"", Float) = 0
+[HideInInspector] _OffsetFactor ("""", Float) = 0
+[HideInInspector] _OffsetUnits ("""", Float) = 0
 ";
 
         public const string DefaultPropertiesIncludeAfter = @"
