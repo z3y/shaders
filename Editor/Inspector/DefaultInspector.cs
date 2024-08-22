@@ -96,6 +96,9 @@ namespace z3y.Shaders
 
             Property parent = null;
             _properties.Clear();
+
+            bool insideFoldout = false;
+
             for (int i = 0; i < materialProperties.Length; i++)
             {
                 MaterialProperty prop = materialProperties[i];
@@ -272,13 +275,20 @@ namespace z3y.Shaders
                 }
                 else if (prop.name.StartsWith("FoldoutMainStart_"))
                 {
-                    p.drawAction = DrawFoldoutMain;
+                    if (insideFoldout)
+                    {
+                        //p.drawAction = DrawSpace;
+                        parent = parent.Parent;
+                    }
+                    p.drawAction += DrawFoldoutMain;
                     toggleGroupStart = true;
+                    insideFoldout = true;
                 }
                 else if (prop.name.StartsWith("FoldoutMainEnd_"))
                 {
                     p.drawAction = DrawSpace;
                     toggleGroupEnd = true;
+                    insideFoldout = false;
                 }
                 else if (prop.name.StartsWith("FoldoutStart_"))
                 {
