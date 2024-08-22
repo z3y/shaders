@@ -16,6 +16,9 @@
     #include "ACES.hlsl"
 #endif
 
+half _LightmapExposure;
+half _UdonLightmapExposure;
+
 namespace CustomLighting
 {
 
@@ -269,8 +272,16 @@ namespace CustomLighting
             #endif
             // DebugColor = lightmappedSpecular;
             // #define USE_DEBUGCOLOR
+
         #endif
 
+        #ifdef USE_GLOBAL_LIGHTMAP_EXPOSURE
+            indirectDiffuse *= _UdonLightmapExposure;
+        #else
+            #ifdef USE_LIGHTMAP_EXPOSURE
+                indirectDiffuse *= _LightmapExposure;
+            #endif
+        #endif
 
         indirectDiffuse = max(0.0, indirectDiffuse);
 
@@ -564,9 +575,10 @@ namespace CustomLighting
         ModifyFinalColor(finalColor, giData, unpacked, sd, surfaceDescription);
         #endif
 
-        #ifdef _ACES
-            finalColor.rgb = ACESFitted(finalColor.rgb);
-        #endif
+        // moved to ColorAdjustments
+        // #ifdef _ACES
+        //     finalColor.rgb = ACESFitted(finalColor.rgb);
+        // #endif
 
         // #define FIX_BLACK_LEVEL
         // #if !defined(SHADER_API_MOBILE) && defined(UNITY_PASS_FORWARDBASE)

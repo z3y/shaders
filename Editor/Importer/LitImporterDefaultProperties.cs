@@ -54,6 +54,8 @@ DEFINES_START
     // #define _ACES
     // #endif
 
+    // #define USE_GLOBAL_LIGHTMAP_EXPOSURE // set a global shader property _UdonLightmapExposure with udon to adjust lightmap exposure
+
 DEFINES_END
 
 ";

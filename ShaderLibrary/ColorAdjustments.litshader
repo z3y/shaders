@@ -1,0 +1,145 @@
+PROPERTIES_START
+    FoldoutMainStart_PostProcess("Color Adjustments", Float) = 0
+    [Toggle(_COLORGARDING_TONE)] _ColorGradingTone ("Albedo Tone", Float) = 0
+    _Saturation ("Saturation", Float) = 1
+    _Contrast ("Contrast", Float) = 1
+    // _Value ("Value", Float) = 1
+
+    [Space(10)][Toggle(_ACES)] _Aces ("ACES", Float) = 0
+    // [Toggle(_AGX)] _Agx ("AgX", Float) = 0
+    [Toggle(_NEUTRAL)] _Neutral ("Neutral", Float) = 0
+
+    // [Space(10)] [Toggle(_DITHER)] _Dither ("Dither", Float) = 0
+    // _DitherIntensity ("Intensity", Float) = 1
+
+    [Space(10)] _LightmapExposure ("Lightmap Exposure", Float) = 1
+PROPERTIES_END
+
+
+DEFINES_START
+#pragma shader_feature_local _COLORGARDING_TONE
+#pragma shader_feature_local _NEUTRAL
+#pragma shader_feature_local _ACES
+#define USE_LIGHTMAP_EXPOSURE
+DEFINES_END
+
+
+CBUFFER_START
+half _Saturation;
+half _Contrast;
+half _Value;
+CBUFFER_END
+
+
+CODE_START
+
+    void SurfaceDescriptionFunction_ColorAdjustments(Varyings IN, inout SurfaceDescription surface)
+    {
+        #ifdef USE_SURFACEDESCRIPTION
+            SurfaceDescriptionFunction(IN, surface);
+        #endif
+
+        half3 color = surface.Albedo;
+        #ifdef _COLORGARDING_TONE
+            #if !UNITY_COLORSPACE_GAMMA
+                color = LinearToGammaSpace(color);
+            #endif
+
+            color = lerp(dot(color, float3(0.2126729, 0.7151522, 0.0721750)), color, _Saturation);
+
+            // float midpoint = 0.5;
+            // color = (color - midpoint) * _Contrast + midpoint;
+            color = lerp(0.5, color, _Contrast);
+
+            // color *= _Value;
+
+            color = saturate(color);
+
+            #if !UNITY_COLORSPACE_GAMMA
+                color = GammaToLinearSpace(color);
+            #endif
+        #endif
+
+        surface.Albedo = color;
+    }
+    #ifndef USE_SURFACEDESCRIPTION
+    #define USE_SURFACEDESCRIPTION
+    #endif
+    #define SurfaceDescriptionFunction SurfaceDescriptionFunction_ColorAdjustments
+
+
+
+
+        
+    half3 RRTAndODTFit2(half3 v)
+    {
+        half3 a = v * (v + 0.0245786f) - 0.000090537f;
+        half3 b = v * (0.983729f * v + 0.4329510f) + 0.238081f;
+        return a / b;
+    }
+
+
+    half3 ACESFitted2(half3 color)
+    {
+        static const half3x3 ACESInputMat =
+        {
+            {0.59719, 0.35458, 0.04823},
+            {0.07600, 0.90834, 0.01566},
+            {0.02840, 0.13383, 0.83777}
+        };
+        // ODT_SAT => XYZ => D60_2_D65 => sRGB
+        static const half3x3 ACESOutputMat =
+        {
+            { 1.60475, -0.53108, -0.07367},
+            {-0.10208,  1.10813, -0.00605},
+            {-0.00327, -0.07276,  1.07602}
+        };
+
+
+        color = mul(ACESInputMat, color);
+
+        // Apply RRT and ODT
+        color = RRTAndODTFit2(color);
+
+        color = mul(ACESOutputMat, color);
+
+        // Clamp to [0, 1]
+        color = saturate(color);
+        return color;
+    }
+
+    void ModifyFinalColor_PostProcess(inout half4 finalColor, GIData giData, Varyings unpacked, ShaderData sd, SurfaceDescription surfaceDescription)
+    {
+        #ifdef USE_MODIFYFINALCOLOR
+            // access the previous function and pass in all the same parameters if it exists
+            ModifyFinalColor(finalColor, giData, unpacked, sd, surfaceDescription);
+        #endif
+
+        half3 color = finalColor.rgb;
+
+        // thx 3
+        bool isReflectionProbe = unity_CameraProjection._m11 == 1 && UNITY_MATRIX_P[0][0] == 1;
+
+        #ifdef SHADER_API_MOBILE
+            isReflectionProbe = false;
+        #else
+        UNITY_FLATTEN
+        #endif
+
+        if (!isReflectionProbe)
+        {
+
+            #if defined(_NEUTRAL)
+            color = NeutralTonemap(color);
+            #elif defined(_ACES)
+            color = ACESFitted2(color);
+            #endif
+        }
+
+
+        finalColor.rgb = color;
+    }
+    // override it
+    #define USE_MODIFYFINALCOLOR
+    #define ModifyFinalColor ModifyFinalColor_PostProcess
+CODE_END
