@@ -276,7 +276,7 @@ namespace CustomLighting
         #endif
 
         #ifdef USE_GLOBAL_LIGHTMAP_EXPOSURE
-            indirectDiffuse *= _UdonLightmapExposure;
+            indirectDiffuse *= _UdonLightmapExposure + 1;
         #else
             #ifdef USE_LIGHTMAP_EXPOSURE
                 indirectDiffuse *= _LightmapExposure;
