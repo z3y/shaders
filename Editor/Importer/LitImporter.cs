@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 using UnityEditor;
@@ -12,7 +13,7 @@ using UnityEngine;
 
 namespace z3y.Shaders
 {
-    [ScriptedImporter(6, Ext, 0)]
+    [ScriptedImporter(7, Ext, 0)]
     public class LitImporter : ScriptedImporter
     {
         public const string Ext = "litshader";
@@ -207,6 +208,10 @@ namespace z3y.Shaders
             string fileName = Path.GetFileName(assetPath);
             var enumeratorWrapper = new EnumeratorWrapper(fileLines, fileName, assetPath);
             GetShaderBlocksRecursive(enumeratorWrapper, shaderBlocks, assetPath);
+
+            const string colorAdjust = "Packages/com.z3y.shaders/ShaderLibrary/ColorAdjustments.litshader";
+            GetShaderBlocksRecursive(new EnumeratorWrapper(File.ReadLines(colorAdjust), Path.GetFileName(colorAdjust), assetPath), shaderBlocks, assetPath);
+
 
 
             bool isAndroid = ctx.selectedBuildTarget == BuildTarget.Android;

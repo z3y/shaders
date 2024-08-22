@@ -1,7 +1,7 @@
 {
   "name": "com.z3y.shaders",
   "description": "A Standard Shader and Surface Shaders alternative for Unity for Built-In pipeline and forward rendering (VRChat)",
-  "version": "3.3.6",
+  "version": "3.3.7",
   "unity": "2019.4",
   "displayName": "Lit Shaders",
   "hideInEditor": false,

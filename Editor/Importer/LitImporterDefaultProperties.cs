@@ -49,10 +49,13 @@ DEFINES_START
     // #undef UNITY_SPECCUBE_BLENDING // disable blending of 2 reflection probes
     // #define SPECULAR_OCCLUSION_REALTIME_SHADOWS // allow realtime directional shadows to affect specular occlusion and subtract from the indirect diffuse light
 
-    // enable aces on android
-    // #ifndef UNITY_PBS_USE_BRDF1
-    // #define _ACES
+
+    // #ifndef UNITY_PBS_USE_BRDF1 // if android
+    // #define _ACES // enable aces on all materials and override aces toggle
+    // #define _NEUTRAL // enable neutral on all materials and override neutral toggle
     // #endif
+
+    // #define USE_GLOBAL_LIGHTMAP_EXPOSURE // set a global shader property _UdonLightmapExposure with udon to adjust lightmap exposure (use value 0 by default)
 
 DEFINES_END
 
