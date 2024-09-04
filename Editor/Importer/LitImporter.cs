@@ -209,7 +209,10 @@ namespace z3y.Shaders
             GetShaderBlocksRecursive(enumeratorWrapper, shaderBlocks, assetPath);
 
             const string colorAdjust = "Packages/com.z3y.shaders/ShaderLibrary/ColorAdjustments.litshader";
-            GetShaderBlocksRecursive(new EnumeratorWrapper(File.ReadLines(colorAdjust), Path.GetFileName(colorAdjust), assetPath), shaderBlocks, assetPath);
+            if (fileName != "ColorAdjustments.litshader")
+            {
+                GetShaderBlocksRecursive(new EnumeratorWrapper(File.ReadLines(colorAdjust), Path.GetFileName(colorAdjust), assetPath), shaderBlocks, assetPath);
+            }
 
 
 
