@@ -9,7 +9,7 @@ ScriptedImporter:
   assetBundleVariant: 
   script: {fileID: 11500000, guid: c6b508151abe0a040a11a4b72bff5b69, type: 3}
   settings:
-    shaderName: 
+    shaderName: Hidden/Lit/ColorAdjustments
     materialType: 0
     bicubicLightmap: 0
     gsaa: 0

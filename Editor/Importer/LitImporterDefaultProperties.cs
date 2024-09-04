@@ -1,9 +1,9 @@
 
 namespace z3y
 {
-    public static class LitImporterConstants
-    {
-        public const string DefaultPropertiesInclude = @"
+        public static class LitImporterConstants
+        {
+                public const string DefaultPropertiesInclude = @"
 [Enum(Opaque, 0, Cutout, 1, Fade, 2, Transparent, 3, Additive, 4, Multiply, 5)]_Mode(""Rendering Mode"", Float) = 0
 [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend(""Source Blend"", Float) = 1
 [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend(""Destination Blend"", Float) = 0
@@ -17,7 +17,7 @@ namespace z3y
 [HideInInspector] _OffsetUnits ("""", Float) = 0
 ";
 
-        public const string DefaultPropertiesIncludeAfter = @"
+                public const string DefaultPropertiesIncludeAfter = @"
 [ToggleUI] _BakeryAlphaDither(""Bakery Alpha Dither"", Float) = 0
 [ToggleOff(_GLOSSYREFLECTIONS_OFF)] _GlossyReflections(""Reflections"", Float) = 1
 [ToggleOff(_SPECULARHIGHLIGHTS_OFF)] _SpecularHighlights(""Specular Highlights"", Float) = 1
@@ -25,7 +25,7 @@ namespace z3y
 [HideInInspector] [NonModifiableTextureData] [NoScaleOffset] BlueNoise(""BlueNoise"", 2D) = ""white"" {}
 ";
 
-        public const string AreaLitProperties = @"
+                public const string AreaLitProperties = @"
 [ToggleGroupStart] [Toggle(_AREALIT)] _AreaLitToggle (""Area Lit"", Float) = 0
 [Indent] [NoScaleOffset] _LightMesh(""Light Mesh"", 2D) = ""black"" {}
 [NoScaleOffset] _LightTex0(""Light Texture 0"", 2D) = ""white"" {}
@@ -35,7 +35,7 @@ namespace z3y
 [ToggleGroupEnd] [UnIndent] [ToggleOff] _OpaqueLights(""Opaque Lights"", Float) = 1.0
 ";
 
-        public const string DefaultConfigFile = @"
+                public const string DefaultConfigFile = @"
 DEFINES_START
     // comment out to set globally
     
@@ -53,6 +53,7 @@ DEFINES_START
     // #ifndef UNITY_PBS_USE_BRDF1 // if android
     // #define _ACES // enable aces on all materials and override aces toggle
     // #define _NEUTRAL // enable neutral on all materials and override neutral toggle
+    // #define _KHRONOS_NEUTRAL // enable khronos neutral on all materials and override neutral toggle
     // #endif
 
     // #define USE_GLOBAL_LIGHTMAP_EXPOSURE // set a global shader property _UdonLightmapExposure with udon to adjust lightmap exposure (use value 0 by default)
@@ -60,6 +61,6 @@ DEFINES_START
 DEFINES_END
 
 ";
-    }
+        }
 
 }

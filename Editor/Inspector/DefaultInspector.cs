@@ -455,6 +455,10 @@ namespace z3y.Shaders
             if (property.childrenVisible)
             {
                 //EditorGUI.indentLevel++;
+                if (property.children == null)
+                {
+                    return;
+                }
                 foreach (var child in property.children)
                 {
                     DrawPropertyRecursive(child, materialEditor, materialProperties);
