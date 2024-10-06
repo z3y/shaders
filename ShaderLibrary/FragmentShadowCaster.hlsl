@@ -46,7 +46,7 @@ float Unity_Dither(float In, float2 ScreenPosition)
     #endif
 
     #if defined(_ALPHAPREMULTIPLY_ON) || defined(_ALPHAFADE_ON)
-        half dither = Unity_Dither(surfaceDescription.Alpha, unpacked.positionCS.xy);
+        half dither = Unity_Dither(surfaceDescription.Alpha, unpacked.positionCS.xy / _ScreenParams.xy);
         if (dither < 0.0) discard;
     #endif
 

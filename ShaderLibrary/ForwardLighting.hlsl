@@ -239,7 +239,11 @@ namespace CustomLighting
         #endif
 
         #if defined(DYNAMICLIGHTMAP_ON)
-            indirectDiffuse += RealtimeLightmap(unpacked.lightmapUV.zw, sd.normalWS);
+            half3 realtimeLm = RealtimeLightmap(unpacked.lightmapUV.zw, sd.normalWS);
+            indirectDiffuse += realtimeLm;
+            #ifdef BAKERY_MONOSH
+            bentLight += max(realtimeLm, 0.0);
+            #endif
         #endif
 
         #if defined(_LIGHTMAPPED_SPECULAR)
