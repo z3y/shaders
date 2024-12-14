@@ -344,7 +344,14 @@ namespace z3y.Shaders
                 }
                 else if (type == MaterialProperty.PropType.Vector)
                 {
-                    p.drawAction = DrawShaderPropertyVector;
+                    if (attributes.Contains("Vector2"))
+                    {
+                        p.drawAction = Vector2PropertyAction;
+                    }
+                    else
+                    {
+                        p.drawAction = DrawShaderPropertyVector;
+                    }
                 }
                 else
                 {
@@ -513,7 +520,7 @@ namespace z3y.Shaders
         public void ToggleGroup(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => property.childrenVisible = unityProperty[property.index].floatValue > 0f;
         public void ToggleGroupTexture(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => property.childrenVisible = unityProperty[property.index].textureValue != null;
         public void DrawHelpBox(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => EditorGUILayout.HelpBox(property.displayName, MessageType.Info);
-
+        static void Vector2PropertyAction(Property property, MaterialEditor editor, MaterialProperty[] unityProperty) => Vector2Property(editor, unityProperty[property.index], property.guiContent);
         public void DrawStochasticPreprocessButton(Property property, MaterialEditor editor, MaterialProperty[] unityProperty)
         {
             if (editor.targets.Length > 1)
@@ -899,6 +906,35 @@ namespace z3y.Shaders
 
                 material.globalIlluminationFlags = flags;
             }
+        }
+        public static void Vector2Property(MaterialEditor editor, MaterialProperty property, GUIContent label)
+        {
+            MaterialPropertyInternal(property, (rect) =>
+            {
+                rect.width *= 1.3f;
+                EditorGUI.BeginChangeCheck();
+                Vector2 vectorValue = EditorGUI.Vector2Field(rect, label, property.vectorValue);
+                if (EditorGUI.EndChangeCheck()) property.vectorValue = vectorValue;
+            });
+        }
+        public static Rect GetControlRect(MaterialProperty property)
+        {
+            float height = property.type switch
+            {
+                MaterialProperty.PropType.Texture => 70f,
+                _ => 18f
+            };
+            return EditorGUILayout.GetControlRect(true, height, EditorStyles.layerMaskField);
+        }
+        public static void MaterialPropertyInternal(MaterialProperty property, Action<Rect> onGui)
+        {
+            Rect rect = GetControlRect(property);
+            MaterialEditor.BeginProperty(rect, property);
+            float labelWidth = EditorGUIUtility.labelWidth;
+            EditorGUIUtility.labelWidth = 0f;
+            onGui.Invoke(rect);
+            EditorGUIUtility.labelWidth = labelWidth;
+            MaterialEditor.EndProperty();
         }
     }
 }
