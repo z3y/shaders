@@ -38,6 +38,8 @@ PROPERTIES_START // Properties
 
     _MainTex_ScaleOffset ("", Float) = 0
 
+    [Vector2] _MainUVScoll ("UV Scroll", Vector) = (0,0,0,0)
+
     [Space(10)]
     [PowerSlider(2)] _specularAntiAliasingVariance ("GSAA Variance", Range(0.0, 1.0)) = 0.15
     [PowerSlider(2)] _specularAntiAliasingThreshold ("GSAA Threshold", Range(0.0, 1.0)) = 0.1
@@ -47,6 +49,7 @@ PROPERTIES_START // Properties
     FoldoutMainEnd_PropertiesLocal ("", Float) = 0
     
     FoldoutMainStart_Details ("Details", Float) = 0
+    [Tooltip(Detail Mask using the Main UV. Overrides the packed mask in Albedo alpha)] [NoScaleOffset] [Toggle(_DETAILMASK)] _DetailMask ("Detail Mask", 2D) = "white" {}
     [TexturePacking(Abledo R, Albedo G, Albedo B, Mask, false)]
     [NoScaleOffset] [Toggle(_DETAIL_ALBEDO)] [Tooltip(Albedo (RGB), Mask (A))] [ExtraProperty] _DetailAlbedo ("Detail Albedo", 2D) = "white" {}
     [Enum(Multiply X2, 0, Overlay, 1, Screen, 3)] [Indent] [UnIndent] _DetailAlbedoBlendMode ("Blend Mode", Int) = 0
@@ -54,6 +57,7 @@ PROPERTIES_START // Properties
     _DetailBumpScale ("Normal Scale", Float) = 1
     [Enum(UV0, 0, UV1, 1, UV2, 2, UV3, 3)] _Detail_UV ("Detail UV", Int) = 0
     _DetailAlbedo_ScaleOffset ("", Float) = 0
+    [Vector2] _DetailUVScoll ("UV Scroll", Vector) = (0,0,0,0)
     FoldoutMainEnd_Details ("", Float) = 0 // closed by the the property in the importer
 
     FoldoutMainStart_Wind ("Wind", Float) = 0
@@ -111,6 +115,8 @@ DEFINES_START // Keywords, Defines
     #pragma shader_feature_local _DETAIL_NORMAL
     #pragma shader_feature_local _ANISOTROPY
     #pragma shader_feature_local _WIND
+    #pragma shader_feature_local _DETAILMASK
+
 DEFINES_END
 
 
@@ -121,6 +127,7 @@ CBUFFER_START // declare all Material properties excluding textures
     // half _RoughnessMapScale;
     half _Metallic;
     half _BumpScale;
+    float2 _MainUVScoll;
     half3 _EmissionColor;
     half _SpecularOcclusion;
     half _EmissionGIMultiplier;
@@ -131,6 +138,8 @@ CBUFFER_START // declare all Material properties excluding textures
     half _DetailBumpScale;
     float4 _DetailAlbedo_ST;
     uint _Detail_UV;
+    float2 _DetailUVScoll;
+
 
     float4 _ParallaxMap_TexelSize;
     uint _ParallaxSteps;
@@ -173,9 +182,11 @@ CODE_START
     SAMPLER(sampler_EmissionMap);
 
     TEXTURE2D(_DetailAlbedo);
+    TEXTURE2D(_DetailMask);
     TEXTURE2D(_DetailBumpMap);
     SAMPLER(sampler_DetailAlbedo);
     SAMPLER(sampler_DetailBumpMap);
+    SAMPLER(sampler_DetailMask);
 
     TEXTURE2D(_ParallaxMap);
     SAMPLER(sampler_ParallaxMap);
@@ -213,11 +224,13 @@ CODE_START
     #define USE_MODIFYVARYINGS // Modify varyings at the end of vertex shader
     void ModifyVaryings(Attributes attributes, VertexDescription description, inout Varyings varyings)
     {
-        varyings.uvData.xy = TRANSFORM_TEX(attributes.uv0.xy, _MainTex);
+        varyings.uvData.xy = TRANSFORM_TEX((attributes.uv0.xy + _MainUVScoll * _Time.x), _MainTex);
+        // varyings.uvData.xy += _MainUVScoll * _Time.x;
 
         #if defined(_DETAILS_ENABLED)
             float2 uvs[] = { attributes.uv0.xy, attributes.uv1.xy, attributes.uv2.xy, attributes.uv3.xy };
-            varyings.uvData.zw = TRANSFORM_TEX(uvs[_Detail_UV], _DetailAlbedo);
+            varyings.uvData.zw = TRANSFORM_TEX((uvs[_Detail_UV] + _DetailUVScoll * _Time.x), _DetailAlbedo);
+            // varyings.uvData.zw += _DetailUVScoll * _Time.x;
         #endif
     }
 
@@ -290,21 +303,26 @@ CODE_START
             #endif
         #endif
 
+        half detailMask = 1.0;
+        #ifdef _DETAILMASK
+            detailMask = SAMPLE_TEXTURE2D(_DetailMask, sampler_DetailMask, uv).r;
+        #endif
+
         #if defined(_DETAILS_ENABLED)
             float2 detailUV = IN.uvData.zw;
         #endif
 
         #if defined(_DETAIL_ALBEDO)
             half4 detailAlbedo = SAMPLE_TEXTURE2D(_DetailAlbedo, sampler_DetailAlbedo, detailUV);
-            half detailMask = detailAlbedo.a;
+            #ifndef _DETAILMASK
+                detailMask = detailAlbedo.a;
+            #endif
             half3 detailAlbedoMultX2 = surface.Albedo * detailAlbedo.rgb * unity_ColorSpaceDouble.rgb;
             half3 detailAbledoOverlay = Unity_Blend_Overlay(surface.Albedo, detailAlbedo.rgb);
             half3 detailAbledoScreen = Unity_Blend_Screen(surface.Albedo, detailAlbedo.rgb);
             detailAlbedo.rgb = _DetailAlbedoBlendMode > 0.5 ? detailAbledoOverlay : detailAlbedoMultX2;
             detailAlbedo.rgb = _DetailAlbedoBlendMode > 1.5 ? detailAbledoScreen : detailAlbedo.rgb;
             surface.Albedo = lerp(surface.Albedo, detailAlbedo.rgb, detailMask);
-        #else
-            half detailMask = 1.0;
         #endif
 
         #if defined(_DETAIL_NORMAL)
