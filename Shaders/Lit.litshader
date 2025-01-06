@@ -17,7 +17,7 @@ PROPERTIES_START // Properties
     _BumpScale ("Normal Scale", Float) = 1
 
     //[Toggle(_PARALLAXMAP)] _ParallaxMapEnable ("Enable Height Map", Int) = 0
-    [NoScaleOffset] [Linear] [Toggle(_PARALLAXMAP)] [ToggleGroupStart] _ParallaxMap ("Height Map", 2D) = "white" {}
+    [Tooltip(This feature can significantly impacts performance.)] [NoScaleOffset] [Linear] [Toggle(_PARALLAXMAP)] [ToggleGroupStart] _ParallaxMap ("Height Map", 2D) = "white" {}
     [Indent] _Parallax ("Scale", Range (0, 0.2)) = 0.02
     _ParallaxOffset ("Parallax Offset", Range(-1, 1)) = 0
     [IntRange] [UnIndent] [ToggleGroupEnd] _ParallaxSteps ("Steps", Range(1, 32)) = 16

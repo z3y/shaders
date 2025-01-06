@@ -1,11 +1,11 @@
-
 {
-    "index": "Getting Started",
-    "features": "Features Overview",
-    "packing": "Texture Packing",
-    "material-setup": "Material Setup",
-    "creating-variants": "Creating Variants",
-    "config": "Config",
-    "flipbook": "Flipbook",
-    "changelog": "Change Log"
+  "index": "Getting Started",
+  "features": "Features Overview",
+  "packing": "Texture Packing",
+  "material-setup": "Material Setup",
+  "creating-variants": "Creating Variants",
+  "config": "Config",
+  "flipbook": "Flipbook",
+  "performance": "Performance",
+  "changelog": "Change Log"
 }
