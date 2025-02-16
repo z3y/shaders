@@ -546,6 +546,7 @@ namespace CustomLighting
 
         // fresnel
         giData.Reflections *= sd.energyCompensation * sd.brdf;
+        giData.IndirectDiffuse *= 1.0 - sd.brdf;
 
         giData.Specular *= PI;
 
