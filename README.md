@@ -9,7 +9,8 @@
 ## Installation
 
 ### - With VRChat Creator Companion
--  Add listing https://z3y.github.io/vpm-package-listing/
+
+- Add listing https://z3y.github.io/vpm-package-listing/
 
 ### - With Unity Package Manager:
 
@@ -20,11 +21,10 @@ https://github.com/z3y/shaders.git
 ## [Documentation](https://z3y.github.io/shaders/)
 
 ## Features
-- Bakery Mono SH
-- Bicubic Lightmap
-- Lightmapped Specular
-- Lightmap Specular Occlusion
-- Lightmapped Area Light Specular Approximation
+
+- Bakery Features
+- Shading based on Google Filament
+- Specular Occlusion
 - [LTCGI](https://github.com/PiMaker/ltcgi) and [Area Lit](https://booth.pm/en/items/3661829)
 - Geometric Specular AA
 - Box Projection on Quest
@@ -33,7 +33,7 @@ https://github.com/z3y/shaders.git
 - Emission Multiply Base and GI Multiplier
 - Non-Important lights per pixel
 - Shader Config
-- Easy Texture Packing
+- High Quality Texture Packing
 
 ## How to use
 
@@ -46,13 +46,11 @@ https://github.com/z3y/shaders.git
 
 ![Unity_o9YqhMZbJ0](https://github.com/z3y/shaders/assets/33181641/314dbd18-f4ab-4646-9956-97c27f2d052d)
 
-
 ## License
 
 [MIT](/LICENSE.md)
 
 Filament [Apache License 2.0](/ShaderLibrary/FilamentLicense.md),
 Core RP [Unity Companion License](/ShaderLibrary/CoreRP/LICENSE.md)
-
 
 #### [Patreon](https://www.patreon.com/z3y) | [Bug Reports](https://github.com/z3y/shaders/issues) | [Discord](https://discord.gg/bw46tKgRFT)
