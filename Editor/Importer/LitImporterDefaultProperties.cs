@@ -58,7 +58,11 @@ DEFINES_START
 
     // #define USE_GLOBAL_LIGHTMAP_EXPOSURE // set a global shader property _UdonLightmapExposure with udon to adjust lightmap exposure (use value 0 by default)
 
+    // #define DISABLE_CBIRP_REFLECTIONS // disable clustered birp reflection probes
+
 DEFINES_END
+
+// #include ""Packages/z3y.clusteredbirp/Shaders/Include.litshader""
 
 ";
         }
