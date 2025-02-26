@@ -294,6 +294,8 @@ namespace CustomLighting
         return indirectDiffuse;
     }
 
+    #include "HDRPBoxProjection.hlsl"
+
     half3 GetReflections(Varyings unpacked, SurfaceDescription surfaceDescription, ShaderData sd)
     {
         #if !defined(UNITY_PASS_FORWARDBASE) && defined(PIPELINE_BUILTIN)
@@ -302,18 +304,18 @@ namespace CustomLighting
 
         half3 indirectSpecular = 0;
         float3 reflDir = sd.reflectionDirection;
-        half roughness = sd.perceptualRoughness * sd.perceptualRoughness;
+        half perceptualRoughness = sd.perceptualRoughness;
+
+
 
         #if !defined(_GLOSSYREFLECTIONS_OFF) && (defined(UNITY_PASS_FORWARDBASE) || defined(UNITY_PASS_FORWARD))
 
             #if defined(PIPELINE_BUILTIN) && defined(USE_URP_BOX_PROJECTION)
-                half3 reflectionSpecular = GlossyEnvironmentReflection(reflDir, unpacked.positionWS, sd.perceptualRoughness, 1.0f);
+                half3 reflectionSpecular = GlossyEnvironmentReflection(reflDir, unpacked.positionWS, perceptualRoughness, 1.0f);
             #elif defined(PIPELINE_BUILTIN)
                 Unity_GlossyEnvironmentData envData;
-                envData.roughness = sd.perceptualRoughness;
 
-                
-                envData.reflUVW = BoxProjectedCubemapDirection(reflDir, unpacked.positionWS.xyz, unity_SpecCube0_ProbePosition, unity_SpecCube0_BoxMin, unity_SpecCube0_BoxMax);
+                envData = GetEnvData(reflDir, unpacked.positionWS.xyz, unity_SpecCube0_ProbePosition, unity_SpecCube0_BoxMin, unity_SpecCube0_BoxMax, perceptualRoughness);
 
                 half3 probe0 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE(unity_SpecCube0), unity_SpecCube0_HDR, envData);
                 half3 reflectionSpecular = probe0;
@@ -322,7 +324,7 @@ namespace CustomLighting
                     UNITY_BRANCH
                     if (unity_SpecCube0_BoxMin.w < 0.99999)
                     {
-                        envData.reflUVW = BoxProjectedCubemapDirection(reflDir, unpacked.positionWS.xyz, unity_SpecCube1_ProbePosition, unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax);
+                        envData = GetEnvData(reflDir, unpacked.positionWS.xyz, unity_SpecCube1_ProbePosition, unity_SpecCube1_BoxMin, unity_SpecCube1_BoxMax, perceptualRoughness);
 
                         float3 probe1 = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE_SAMPLER(unity_SpecCube1, unity_SpecCube0), unity_SpecCube1_HDR, envData);
                         reflectionSpecular = lerp(probe1, probe0, unity_SpecCube0_BoxMin.w);
@@ -332,14 +334,14 @@ namespace CustomLighting
 
             #if defined(PIPELINE_URP)
                 #if  UNITY_VERSION >= 202120
-                    half3 reflectionSpecular = GlossyEnvironmentReflection(reflDir, unpacked.positionWS, sd.perceptualRoughness, 1.0f);
+                    half3 reflectionSpecular = GlossyEnvironmentReflection(reflDir, unpacked.positionWS, perceptualRoughness, 1.0f);
                 #else
-                    half3 reflectionSpecular = GlossyEnvironmentReflection(reflDir, sd.perceptualRoughness, 1.0f);
+                    half3 reflectionSpecular = GlossyEnvironmentReflection(reflDir, perceptualRoughness, 1.0f);
                 #endif
             #endif
 
         #ifndef QUALITY_LOW
-            float horizon = min(1.0 + dot(reflDir, sd.normalWS), 1.0);
+            float horizon = min(1.0 + dot(sd.reflectionDirection, sd.normalWS), 1.0);
             reflectionSpecular *= horizon * horizon;
         #endif
 
