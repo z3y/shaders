@@ -203,7 +203,7 @@ namespace z3y.Shaders
                             int index = i;
                             _onValidateAction += (editor, props, mat) =>
                             {
-                                ToggleKeyword(mat, toggleName, props[index].textureValue != null);
+                                ToggleKeyword(mat, toggleName, mat.GetTexture(props[index].name));
                             };
                         }
                         var packingAttribute = "TexturePacking(";
@@ -225,7 +225,7 @@ namespace z3y.Shaders
                             int index = i;
                             _onValidateAction += (editor, props, mat) =>
                             {
-                                if (props[index].textureValue == null)
+                                if (!mat.GetTexture(props[index].name))
                                 {
                                     mat.SetTexture(props[index].name, AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GUIDToAssetPath(guid)));
                                 }
