@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace z3y.Shaders
 {
-    [ScriptedImporter(7, Ext, 0)]
+    [ScriptedImporter(8, Ext, 0)]
     public class LitImporter : ScriptedImporter
     {
         public const string Ext = "litshader";
@@ -66,7 +66,7 @@ namespace z3y.Shaders
                 _lastImportedShader = code;
             }
             
-            var shader = ShaderUtil.CreateShaderAsset(code, false);
+            var shader = ShaderUtil.CreateShaderAsset(ctx, code, false);
 
             SetDefaultTextures(shader);
 
