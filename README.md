@@ -6,6 +6,9 @@
   alternative for the Unity Built-In pipeline</p>
 </div>
 
+# Future updates moved to a new repository:
+# https://github.com/z3y/Graphlit
+
 ## Installation
 
 ### - With VRChat Creator Companion
