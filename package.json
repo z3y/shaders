@@ -1,9 +1,9 @@
 {
   "name": "com.z3y.shaders",
-  "description": "A Standard Shader and Surface Shaders alternative for Unity for Built-In pipeline and forward rendering (VRChat)",
-  "version": "3.3.14",
+  "description": "A Standard Shader and Surface Shaders alternative for Unity for Built-In pipeline and forward rendering (VRChat). Deprecated, replaced with Graphlit",
+  "version": "3.3.15",
   "unity": "2019.4",
-  "displayName": "Lit Shaders",
+  "displayName": "Lit Shaders (Deprecated)",
   "hideInEditor": false,
   "gitDependencies": {},
   "vpmDependencies": {},
