@@ -2,13 +2,13 @@
 
 Add `SetupLitShader` to the model importer and switch the Material Creation Mode to MaterialDescription to set up materials with the lit shader. The roughness, metallic, color and emission values, transparency, normal map and albedo map will be transferred properly from Blender materials.
 
-![Image](/MaterialDescription.png)
+![Image](../public/MaterialDescription.png)
 
-![Image](/label.png)
+![Image](../public/label.png)
 
 ## Setup PBR Materials
 
 Use `Assets > Create > Material with PBR Setup (Lit)` to automatically setup a pbr material in current folder. This requires certain naming conventions in order to detect different textures.
 The texture packing window will open to confirm packing of the material, if roughness, metallic or occlusion textures exist.
 
-![Image](/Unity_7Xg71e42e2.png)
+![Image](../public/Unity_7Xg71e42e2.png)

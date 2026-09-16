@@ -21,7 +21,7 @@ Blue|Metallic
 
 Some material properties have a button for packing. This will open the packing window with a preset and set destination channel names accordingly for easier packing.
 
-![Image](/Unity_Py4c6iIIZh.png)
+![Image](../public/Unity_Py4c6iIIZh.png)
 
 ## Packing Window
 
@@ -58,4 +58,3 @@ This tool does not reduce the image quality while packing.
 It reads textures from the source file using the native image library ([Free Image](https://freeimage.sourceforge.io/)) that Unity uses for importing textures.
 This avoids using the already compressed imported texture and unity methods for packing. It can cause issues with certain image formats, but most are supported.
 The preview might also not be accurate if the importer has already modified it (Applied sRGB, imported as Normal Map etc.)
-
