@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://z3y.github.io/shaders/">
+  <a href="https://github.com/z3y/shaders/tree/main/Docs~">
     <img alt="" height="138" src="./Docs~/public/logo.png">
   </a>
   <p>Standard Shader and Surface Shaders<br>
@@ -21,7 +21,7 @@
 https://github.com/z3y/shaders.git
 ```
 
-## [Documentation](https://z3y.github.io/shaders/)
+## [Documentation](https://github.com/z3y/shaders/tree/main/Docs~)
 
 ## Features
 
@@ -43,7 +43,6 @@ https://github.com/z3y/shaders.git
 - Select a material and swap the shader to `Lit`
 - Other shader variants can be found under `Lit Variants/`
 - To create a new variant `Assets > Create > Shader > Lit Shader Variant`
-- Read the [Documentation](https://z3y.github.io/shaders/)
 
 ## Inspector
 
@@ -55,5 +54,3 @@ https://github.com/z3y/shaders.git
 
 Filament [Apache License 2.0](/ShaderLibrary/FilamentLicense.md),
 Core RP [Unity Companion License](/ShaderLibrary/CoreRP/LICENSE.md)
-
-#### [Patreon](https://www.patreon.com/z3y) | [Bug Reports](https://github.com/z3y/shaders/issues) | [Discord](https://discord.gg/bw46tKgRFT)
